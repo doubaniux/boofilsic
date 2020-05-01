@@ -1,0 +1,63 @@
+<style>
+    .widget-value-key-input input:nth-child(odd) {
+      width: 49%;
+      margin-right: 1%;
+    }
+    .widget-value-key-input input:nth-child(even) {
+      width: 49%;
+      margin-left: 1%;
+    }
+  </style>
+  <div class="widget-value-key-input"></div>
+  <input type="text" class="widget-value-key-input-data" hidden name="{{ widget.name }}">
+  <script>
+    //init
+    $(".widget-value-key-input").append('<input type="text"><input type="text">');
+    // add new input pair
+    $(".widget-value-key-input").on('input', ':nth-last-child(1)', function() {
+      let newInputPair = $('<input type="text"><input type="text">');
+      if ($(this).val() && $(this).prev().val()) {
+        $(".widget-value-key-input").append($(newInputPair).clone());
+      }
+    });
+    $(".widget-value-key-input").on('input', ':nth-last-child(2)', function() {
+      let newInputPair = $('<input type="text"><input type="text">');
+      if ($(this).val() && $(this).next().val()) {
+        $(".widget-value-key-input").append($(newInputPair).clone());
+      }
+    });    
+    $(".widget-value-key-input").on('input', ':nth-last-child(4)', function() {
+      if (!$(this).val() && !$(this).next().val() && $(".widget-value-key-input input").length > 2) {
+        $(this).next().remove();
+        $(this).remove();
+      }
+    });
+    $(".widget-value-key-input").on('input', ':nth-last-child(3)', function() {
+      if (!$(this).val() && !$(this).prev().val() && $(".widget-value-key-input input").length > 2) {
+        $(this).prev().remove();
+        $(this).remove();
+      }
+    });    
+
+    $(".widget-value-key-input").on('input', function() {
+        let keys = $(this).children(":nth-child(odd)").map(function() {
+            if ($(this).val()) {
+                return $(this).val();
+            }
+        }).get();
+        let values = $(this).children(":nth-child(even)").map(function() {
+            if ($(this).val()) {
+                return $(this).val();
+            }
+        }).get();
+        if (keys.length == values.length) {
+            let json = new Object;
+            keys.forEach(function(key, i) {
+                json[key] = values[i];
+            });
+            $("input.widget-value-key-input-data").val(JSON.stringify(json));
+        } else {
+
+        }
+    });
+  </script>

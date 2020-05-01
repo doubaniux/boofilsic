@@ -1,0 +1,140 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'Boofilsic - 书籍详情' %} | {{ book.title }}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/detail.js' %}"></script>    
+    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            <section id="navbar" class="navbar">
+                <div class="container">
+                    <nav class="clearfix">
+                        <a href="{% url 'common:home' %}">
+                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
+                        </a>
+                        <input type="search" class="search-box" name="keywords" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
+                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
+                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
+                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
+                    </nav>
+                </div>
+            </section>
+        
+            <section id="content" class="container">
+                <div class="row">
+                    <div id="main">
+                        <div class="clearfix">
+                            <img src="{% static 'img/default.jpg' %}" class="display-image" alt="">
+                            <div class="display-info">
+                                <h5 class="display-title">
+                                    {{ book.title }}
+                                </h5>
+                                
+                                <div class="display-info-detail">
+                                    <div>{% if book.isbn %}{% trans 'ISBN：' %}{{ book.isbn }}{% endif %}</div>
+                                    <div>{% if book.author %}{% trans '作者：' %}
+                                    {% for author in book.author %}
+                                        <span>{{ author }}</span>
+                                    {% endfor %}
+                                    {% endif %}</div>
+                                    <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
+                                    <div>{% if book.subtitle %}{% trans '副标题：' %}{{ book.subtitle }}{% endif %}</div>
+                                    <div>{% if book.translator %}{% trans '译者：' %}
+                                    {% for translator in book.translator %}
+                                        <span>{{ translator }}</span>
+                                    {% endfor %}
+                                    {% endif %}</div>                                
+                                    <div>{% if book.orig_title %}{% trans '原作名：' %}{{ book.orig_title }}{% endif %}</div>
+                                    <div>{% if book.language %}{% trans '语言：' %}{{ book.language }}{% endif %}</div>
+                                    <div>{%if book.pub_year %}{% trans '出版时间：' %}{{ book.pub_year }}{% trans '年' %}{% if book.pub_month %}{{ book.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
+                                </div>
+                                <div class="display-info-detail">
+                                    {% if book.rating %}
+                                    <span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}">
+
+                                    </span>
+                                    <span class="rating-score"> {{ book.rating }} </span>
+                                    {% else %}
+                                    <span> {% trans '评分：暂无评分' %}</span>
+                                    {% endif %}                                    
+                                    <div>{% if book.binding %}{% trans '装帧：' %}{{ book.binding }}{% endif %}</div>
+                                    <div>{% if book.price %}{% trans '定价：' %}{{ book.price }}{% endif %}</div>
+                                    <div>{% if book.pages %}{% trans '页数' %}{{ book.pages }}{% endif %}</div>
+                                    {% if book.other_info %}                                  
+                                    {% for k, v in book.other_info.items %}
+                                    <div>
+                                        {{k}}：{{v}}
+                                    </div>
+                                    {% endfor %}
+                                    {% endif %}
+                                    
+                                    {% comment %}
+                                    {% url 'users:home' book.last_editor %}
+                                    {% endcomment %}
+                                        
+                                    <div>{% trans '最近编辑者：' %}<a href="">someone</a></div>
+                                </div>
+                                    
+                            </div>
+                        </div>
+                        <div class="dividing-line"></div>
+                        <div class="set">
+                            <h5 class="set-title">{% trans '简介' %}</h5>
+                            
+                            {% if book.brief %}
+                            <p class="set-content">{{ book.brief }}</p>
+                            {% else %}
+                            <p class="set-empty">{% trans '暂无简介' %}</p>    
+                            {% endif %}
+                            
+                        </div>
+                    </div>
+        
+                    <div id="aside">
+                        <div class="aside-card mast-user">
+                            <p class="info-brief mast-brief"></p>
+                            <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
+                            <!-- <a href="#" class="report">{% trans '举报用户' %}</a> -->
+                        </div>
+                        
+                            
+                    </div>
+            </section>
+
+        </div>
+        <footer class="container">
+            <a href="">whitiewhite@donotban.com</a>
+            <a href="" id="githubLink">Github</a>
+        </footer>
+    </div>
+
+
+    <script>
+        $("#searchInput").on('keyup', function (e) {
+            if (e.keyCode === 13) {
+                let keywords = $(this).val();
+                if (keywords)
+                    location.href = "{% url 'common:search' %}" + "?keywords=" + keywords;
+            }
+        });
+    </script>
+</body>
+
+
+</html>

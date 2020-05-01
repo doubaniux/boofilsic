@@ -1,0 +1,18 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# VS Code configuration files
+.vscode/
+
+# flake8
+tox.ini
+
+# ignore migrations for now
+migrations/
+
+# docs/
+
+# Local sqlite3 db
+*.sqlite3
