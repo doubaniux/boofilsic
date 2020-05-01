@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register</title>
+</head>
+<body>
+    Are you sure you wanna join?
+    <form action="{% url 'users:register' %}" method="post">
+        {% csrf_token %}
+        <input type="radio" name="confirm" id="confirmRadio">
+        <button type="submit">Cut the sh*t get me in!</button>
+    </form>
+</body>
+</html>
