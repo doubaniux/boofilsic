@@ -29,7 +29,7 @@ $(document).ready( function() {
         mast_uri,
         token,
         function(userList) {
-            if (userList.length == 0) {
+            if (userList.length == 0)  {
                 $(".mast-followers").hide();
             } else {
                 if (userList.length > 4){

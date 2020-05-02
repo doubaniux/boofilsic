@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'Boofilsic - 搜索结果' %}</title>
+{{/*    <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>*/}}
+{{/*    <script src="{% static 'lib/js/rating-star.js' %}"></script>*/}}
+{{/*    <script src="{% static 'js/search_result.js' %}"></script>*/}}
+{{/*    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">*/}}
+{{/*    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">*/}}
+{{/*    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">*/}}
+
+    <script src="../../../common/static/js/search_result.js"></script>
+    <script src="../../static/lib/js/rating-star.js"></script>
+    <link rel="stylesheet" href="../../static/css/boofilsic_browse.css">
+    <link rel="stylesheet" href="../../static/lib/css/milligram.css">
+    <link rel="stylesheet" href="../../static/lib/css/rating-star.css">
+    <script src="../../static/js/sub.js"></script>
+</head>
+
+<body>
+<div id="page-wrapper">
+    <div id="content-wrapper">
+        <section id="navbar" class="navbar">
+            <div class="container">
+                <nav class="clearfix">
+                    <a href="{% url 'common:home' %}">
+                        <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
+                    </a>
+                    <input type="search" class="search-box" name="keywords" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
+                    <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
+                    <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
+                    <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
+                </nav>
+            </div>
+        </section>
+
+        <section id="content" class="container">
+            <div class="row">
+                <div id="main">
+
+                    <div class="set" id="top">
+                        <h5 class="set-title">
+                            {% trans 'xx 的关注' %}
+                        </h5>
+                    </div>
+                    <div class="set" id="userList">
+                        <ul class="row user relation-user-list">
+                            <li class="column column-25 relation-user">
+                                <img src="" alt="" class="relation-avatar">
+                                <a class="relation-name"></a>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <a href="" onclick="getUsers(0, defaultLimit)">首页</a>
+                <a href="" onclick="getUsers((currentPage - 1) * defaultLimit, defaultLimit)">上一页</a>
+                <a href="" onclick="getUsers((currentPage + 1) * defaultLimit, defaultLimit)">下一页</a>
+                <a href="" onclick="getUsers((totalFlows/defaultLimit)*defaultLimit, defaultLimit)">末页</a>
+            </div>
+        </section>
+    </div>
+
+    </div>
+    <footer class="container">
+        <a href="">whitiewhite@donotban.com</a>
+        <a href="" id="githubLink">Github</a>
+    </footer>
+    <script>
+        getUsers(0, 20)
+    </script>
+</div>
+
+<div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+<div id="mastodonURI" hidden="true">{% mastodon %}</div>
+<div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+</body>
+
+</html>
