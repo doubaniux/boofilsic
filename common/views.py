@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from books.models import Book
 from common.models import MarkStatusEnum
 from users.models import Report, User
-from django.core.paginator import Paginator 
+from django.core.paginator import Paginator
 from django.db.models import Q
 from django.http import HttpResponseBadRequest
 
@@ -18,14 +18,15 @@ ITEMS_PER_PAGE = 20
 @login_required
 def home(request):
     if request.method == 'GET':
-        books = Book.objects.filter(book_marks__owner=request.user)
 
-        do_books = books.filter(book_marks__status=MarkStatusEnum.DO)
-        do_books_more = True if do_books.count() > BOOKS_PER_SET else False
-        wish_books = books.filter(book_marks__status=MarkStatusEnum.WISH)
-        wish_books_more = True if wish_books.count() > BOOKS_PER_SET else False
-        collect_books = books.filter(book_marks__status=MarkStatusEnum.COLLECT)
-        collect_books_more = True if collect_books.count() > BOOKS_PER_SET else False
+        do_book_marks = request.user.user_bookmarks.filter(status=MarkStatusEnum.DO)
+        do_books_more = True if do_book_marks.count() > BOOKS_PER_SET else False
+
+        wish_book_marks = request.user.user_bookmarks.filter(status=MarkStatusEnum.WISH)
+        wish_books_more = True if wish_book_marks.count() > BOOKS_PER_SET else False
+        
+        collect_book_marks = request.user.user_bookmarks.filter(status=MarkStatusEnum.COLLECT)
+        collect_books_more = True if collect_book_marks.count() > BOOKS_PER_SET else False
 
         reports = Report.objects.order_by('-submitted_time').filter(is_read=False)
         # reports = Report.objects.latest('submitted_time').filter(is_read=False)
@@ -34,9 +35,9 @@ def home(request):
             request,
             'common/home.html',
             {
-                'do_books': do_books[:BOOKS_PER_SET],
-                'wish_books': wish_books[:BOOKS_PER_SET],
-                'collect_books': collect_books[:BOOKS_PER_SET],
+                'do_book_marks': do_book_marks[:BOOKS_PER_SET],
+                'wish_book_marks': wish_book_marks[:BOOKS_PER_SET],
+                'collect_book_marks': collect_book_marks[:BOOKS_PER_SET],
                 'do_books_more': do_books_more,
                 'wish_books_more': wish_books_more,
                 'collect_books_more': collect_books_more,
@@ -47,6 +48,7 @@ def home(request):
         return HttpResponseBadRequest()
 
 
+@login_required
 def search(request):
     if request.method == 'GET':
         # in the future when more modules are added...

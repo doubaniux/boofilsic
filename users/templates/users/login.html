@@ -1,24 +1,27 @@
 
 {% load i18n %}
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-    <title>Document</title>
+    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
+    <title>{% trans 'Boofilsic - 登录' %}</title>
 </head>
 <body>
-    <div id="loginBox">
-        <div id="logo">
-            <img src="" alt="boofilsic logo">
-        </div>
+    <div id="loginBox" class="box">
+        
+            <img src="{% static 'img/logo.svg' %}" class="logo" alt="boofilsic logo">
+        
         <div id="loginButton">
             
             {% if user.is_authenticated %}
-                <a href="{% url 'common:home' %}"">{% trans '前往我的主页' %}</a>
+                <a href="{% url 'common:home' %}" class="button">{% trans '前往我的主页' %}</a>
             {% else %}
-                <a href="{{ oauth_auth_url }}">{% trans '使用长毛象授权登录' %}</a>
+                <a href="{{ oauth_auth_url }}" class="button">{% trans '使用长毛象授权登录' %}</a>
             {% endif %}
                 
         </div>

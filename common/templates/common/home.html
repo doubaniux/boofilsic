@@ -30,7 +30,9 @@
                         <input type="search" class="search-box" name="keywords" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
+                        {% if request.user.is_staff %}   
                         <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
+                        {% endif %}
                     </nav>
                 </div>
             </section>
@@ -41,19 +43,19 @@
         
                         <div class="set" id="bookWish">
                             <h5 class="set-title">
-                                {% trans '我想看的书' %}
+                                {% trans '想看的书' %}
                             </h5>
                             {% if wish_books_more %}
-                            <a href="" class="more-link">{% trans '更多' %}</a>
+                            <a href="{% url 'users:book_list' user.id 'wish' %}" class="more-link">{% trans '更多' %}</a>
                             {% endif %}
                                 
                             <ul class="row set-item-list">
-                                {% for wish_book in wish_books %}    
+                                {% for wish_book_mark in wish_book_marks %}    
                                 <li class="column column-20 set-item">
-                                    <!-- <img src="{{ wish_book.cover.url }}" alt="{{ wish_book.title }}"> -->
-                                    <a href="{% url 'books:retrieve' wish_book.id %}" >
-                                        <img src="{% static 'img/default.jpg' %}" alt="" class="set-item-image">
-                                        <span class="set-item-title">{{ wish_book.title | truncate:9 }}</span>
+                                    
+                                    <a href="{% url 'books:retrieve' wish_book_mark.book.id %}" >
+                                        <img src="{{ wish_book_mark.book.cover.url }}" alt="" class="set-item-image">
+                                        <span class="set-item-title">{{ wish_book_mark.book.title | truncate:15 }}</span>
                                     </a>
                                 </li>
                                 {% empty %}
@@ -63,19 +65,19 @@
                         </div>
                         <div class="set" id="bookDo">
                             <h5 class="set-title">
-                                {% trans '我在看的书' %}
+                                {% trans '在看的书' %}
                             </h5>
                             {% if do_books_more %}
-                            <a href="" class="more-link">{% trans '更多' %}</a>
+                            <a href="{% url 'users:book_list' user.id 'do' %}" class="more-link">{% trans '更多' %}</a>
                             {% endif %}
                                 
                             <ul class="row set-item-list">
-                                {% for do_book in do_books %}    
+                                {% for do_book_mark in do_book_marks %}    
                                 <li class="column column-20 set-item">
-                                    <!-- <img src="{{ do_book.cover.url }}" alt="{{ do_book.title }}"> -->
-                                    <a href="{% url 'books:retrieve' do_book.id %}" >
-                                        <img src="{% static 'img/default.jpg' %}" alt="" class="set-item-image">
-                                        <span class="set-item-title">{{ do_book.title | truncate:9 }}</span>
+                                   
+                                    <a href="{% url 'books:retrieve' do_book_mark.book.id %}" >
+                                        <img src="{{ do_book_mark.book.cover.url }}" alt="" class="set-item-image">
+                                        <span class="set-item-title">{{ do_book_mark.book.title | truncate:15 }}</span>
                                     </a>
                                 </li>
                                 {% empty %}
@@ -85,19 +87,19 @@
                         </div>
                         <div class="set" id="bookCollect">
                             <h5 class="set-title">
-                                {% trans '我看过的书' %}
+                                {% trans '看过的书' %}
                             </h5>
                             {% if collect_books_more %}
-                            <a href="" class="more-link">{% trans '更多' %}</a>
+                            <a href="{% url 'users:book_list' user.id 'collect' %}" class="more-link">{% trans '更多' %}</a>
                             {% endif %}
                                 
                             <ul class="row set-item-list">
-                                {% for collect_book in collect_books %}    
+                                {% for collect_book_mark in collect_book_marks %}    
                                 <li class="column column-20 set-item">
-                                    <!-- <img src="{{ collect_book.cover.url }}" alt="{{ collect_book.title }}"> -->
-                                    <a href="{% url 'books:retrieve' collect_book.id %}" >
-                                        <img src="{% static 'img/default.jpg' %}" alt="" class="set-item-image">
-                                        <span class="set-item-title">{{ collect_book.title | truncate:9 }}</span>
+                            
+                                    <a href="{% url 'books:retrieve' collect_book_mark.book.id %}" >
+                                        <img src="{{ collect_book_mark.book.cover.url }}" alt="" class="set-item-image">
+                                        <span class="set-item-title">{{ collect_book_mark.book.title | truncate:15 }}</span>
                                     </a>
                                 </li>
                                 {% empty %}
@@ -111,21 +113,23 @@
                         <div class="aside-card mast-user" id="userInfoCard">
                             <div class="clearfix">
                                 <img src="" class="info-avatar mast-avatar" alt="{{ user.username }}">
-                                <a href="">
+                                <a href="{% url 'users:home' user.id %}">
                                     <h5 class="info-name mast-displayname"></h5>
                                 </a>
                             </div>
-                                
-        
                             <p class="info-brief mast-brief"></p>
                             <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
-                            <!-- <a href="#" class="report">{% trans '举报用户' %}</a> -->
+                            
+                            {% if request.user != user %}
+                            <a href="{% url 'users:report' %}" class="report">{% trans '举报用户' %}</a>
+                            {% endif %}
+                                
                         </div>
                         <div class="relation-card" id="userRelationCard">
                             <h5 class="relation-label">
-                                {% trans '我关注的人' %}
+                                {% trans '关注的人' %}
                             </h5>
-                            <a href="" class="more-link mast-following-more">{% trans '更多' %}</a>
+                            <a href="{% url 'users:following' user.id %}" class="more-link mast-following-more">{% trans '更多' %}</a>
                             <ul class="row mast-following relation-user-list">
                                 <li class="column column-25 relation-user">
                                     <img src="" alt="" class="relation-avatar">
@@ -133,9 +137,9 @@
                                 </li>
                             </ul>         
                             <h5 class="relation-label">
-                                {% trans '关注我的人' %}
+                                {% trans '被他们关注' %}
                             </h5>
-                            <a href="" class="more-link mast-followers-more">{% trans '更多' %}</a>
+                            <a href="{% url 'users:followers' user.id %}" class="more-link mast-followers-more">{% trans '更多' %}</a>
                             <ul class="row mast-followers relation-user-list">
                                 <li class="column column-25 relation-user">
                                     <img src="" alt="" class="relation-avatar">
@@ -144,7 +148,7 @@
                             </ul>                    
                         </div>
                         
-                        {% if user.is_staff %}                    
+                        {% if request.user.is_staff %}                    
                         <div class="report-card" id="reportMessageCard">
                             <h5 class="report-label">{% trans '举报信息' %}</h5>
                             <ul class="report-list">
@@ -155,6 +159,7 @@
                                 {% endfor %}
                                     
                             </ul>
+                            <a href="{% url 'users:manage_report' %}">全部举报</a>
                         </div>
                         {% endif %}
                             
@@ -172,6 +177,23 @@
     <div id="mastodonURI" hidden="true">{% mastodon %}</div>
     <!--current user mastodon id--> 
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
+    <div class="spinner" id="spinner" hidden>
+        <div class="lds-spinner">
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+          <div></div>
+        </div>
+      </div>    
     <script>
         $("#searchInput").on('keyup', function (e) {
             if (e.keyCode === 13) {

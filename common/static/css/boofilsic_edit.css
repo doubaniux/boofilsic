@@ -18,9 +18,33 @@ body {
     margin: 0;
 } 
 
+.rating-star {
+    cursor: unset;
+}
+
+.rating-star .jq-star {
+    cursor: unset;
+}
+
+.icon-lock svg{
+    fill: var(--light);
+    height: 12px;
+    position: relative;
+    top: 1px;
+    margin-left: 3px;
+}
+
+.errorlist {
+    color: var(--primary);
+    font-size: small;
+    font-weight: bold;
+    list-style-type: square;
+}
+
 #page-wrapper {
     position: relative;
     min-height: 100vh;
+    z-index: 0;
 }
 
 #content-wrapper {
@@ -53,6 +77,11 @@ footer a {
     font-size: small;
 }
 
+textarea {
+    resize: vertical;
+    height: 180px;
+}
+
 img.emoji {
     height: 20px !important;
     width: 20px !important;
@@ -67,6 +96,12 @@ img.emoji {
     margin-left: 5px;
 }
 
+div.dividing-line {
+    height: 0;
+    width: 100%;
+    margin: 40px 0 15px 0;
+    border-top: solid 1px var(--light);
+}
 
 /* Nav Bar */
 
@@ -92,7 +127,7 @@ section#navbar {
 }
 
 .navbar a.nav-link, .navbar a.nav-link:visited {
-    font-size: 80%;
+    
     float: right;
     margin-top: 10px;
     color: var(--secondary);
@@ -101,6 +136,10 @@ section#navbar {
 
 .navbar a.nav-link:hover, .navbar a.nav-link:hover:visited {
     color: var(--primary);
+}
+
+textarea::placeholder {
+    color: var(--light);
 }
 
 /* Main Content Section */
@@ -235,95 +274,88 @@ div#main form input[type="file"] {
     list-style-type: none;
 }
 
-/* Search Result */
-
-.result-item {
-    list-style: none;
-    margin-bottom: 30px;
-}
-
-
-.result-item .result-info {
-    margin-left: 20px;
-    float: left;
-}
-
-.result-item img.result-book-cover {
-    float: left;
-    object-fit: contain;
+.item-card img.item-image {
     height: 150px;
-    width: 100px;
+    display: inline-block;
 }
 
-.result-item .result-info .rating-empty {
-    font-size: small;
+.item-card .item-info {
+    display: inline-block;
+    margin-left: 20px;
 }
 
-.result-item .result-info .rating-star{
-    cursor: unset;
+.item-card .item-info .item-title {
+    font-weight: bold;
+}
+
+.item-card .item-info .rating-star {
     display: inline;
     position: relative;
     top: 3px;
-    left: -3px;
+    left: -2px;
 }
 
-/* overwrite rating-star plugin */
-.result-item .result-info .rating-star .jq-star {
-    cursor: unset;
+.prompt {
+    font-weight: bold;
+    margin-bottom: 40px;
 }
 
-.result-item .result-info .result-book-info {
-    font-size: 80%;
-    overflow: hidden;
-    width: 420px;
-    display: inline-block;
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    position: relative;
-    top: .55rem;
-}
-
-.result-item .result-info .rating-score {
-    font-size: 80%;
+.review .option .selection ul {
+    list-style-type: none;
     display: inline;
-    margin-right: 20px;
 }
 
-.result-item .result-info .result-book-title {
-    white-space: nowrap;
-    text-overflow: ellipsis;
-    max-width: 500px;
-    display: block;
-    overflow: hidden
+.review .option .selection ul li, .review .option .selection ul label {
+    display: inline;
 }
 
-.result-item .result-info .result-book-brief {
-    margin-top: 10px;
-    margin-bottom: 0;
+.review .option .selection ul li {
+    position: relative;
+    top: 1px;
+}
+
+.review .option input[type="checkbox"], .review .option input[type="radio"] {
+    position: relative;
+    top: 2px;
+}
+
+.review input[type="submit"] {
+    margin-top: 16px;
+}
+
+.review textarea {
+    height: 400px;
+    margin: 0;
+}
+
+.review .preview-button {
     font-size: small;
-    width: 565px;
-    display: block;
-    text-overflow: ellipsis;
-    overflow: hidden;
-    /* white-space: nowrap; */
-    height: 90px;
+    font-weight: bold;
+    color: var(--primary);
+    cursor: pointer;
 }
 
-/* Pagination */
-.pagination {
-    margin-top: 50px;
-    text-align: center;
+.review .markdownx-preview {
+    display: none;
+    min-height: 400px;
+    overflow: auto;
+    border-top: 0.1rem solid #d1d1d1;
+    border-bottom: 0.1rem solid #d1d1d1;
+    padding: 10px;
+    margin: 20px 0;
 }
 
-.pagination a {
-    display: inline-block;
+.review .fyi {
+    margin-bottom: 15px;
+    color: var(--light);
 }
 
-.pagination .button {
-    padding: 0 5px;
-    height: 2rem;
+.review {
+    margin-top: 30px;
 }
 
-.pagination .page-index {
-    font-size: small;
+.review .delete-preview .markdownx-preview {
+    padding-left: 0;
+    padding-right: 0;
+    margin: 20px 0;
 }

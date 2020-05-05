@@ -26,6 +26,10 @@ body {
   line-height: 1.6;
 }
 
+textarea {
+  font-family: 'Roboto', 'Helvetica Neue', 'Helvetica', 'Arial', sans-serif;
+}
+
 blockquote {
   border-left: 0.3rem solid #d1d1d1;
   margin-left: 0;
@@ -599,4 +603,3 @@ img {
   float: right;
 }
 
-/*# sourceMappingURL=milligram.css.map */

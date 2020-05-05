@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Boofilsic - ' %}{{ title }}</title>
+    <title>{% trans 'Boofilsic - 举报用户' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/create_update.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
@@ -26,7 +26,7 @@
                         <a href="{% url 'common:home' %}">
                             <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
                         </a>
-                        <h4 class="nav-title">{{ title }}</h4>
+                        <h4 class="nav-title">{% trans '举报用户' %}</h4>
                         
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
@@ -40,7 +40,7 @@
             <section id="content" class="container">
                 <div class="row">
                     <div id="main">
-                        <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+                        <form action="{% url 'users:report' %}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form }}
                             <input class="button" type="submit" value="{% trans '提交' %}">

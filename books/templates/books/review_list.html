@@ -1,0 +1,172 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'Boofilsic - 搜索结果' %}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            <section id="navbar" class="navbar">
+                <div class="container">
+                    <nav class="clearfix">
+                        <a href="{% url 'common:home' %}">
+                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
+                        </a>
+                        <input type="search" class="search-box" name="keywords" 
+                        value="{% if request.GET.keywords %}{{ request.GET.keywords }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
+                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
+                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
+                        {% if user.is_staff %}   
+                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
+                        {% endif %}
+                    </nav>
+                </div>
+            </section>
+        
+            <section id="content" class="container">
+                <div class="row">
+                    <div id="main">
+                        <h5 class="list-head">
+                            <a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a>{% trans ' 的评论' %}
+                        </h5>
+                        <ul class="result-items set">
+
+                            {% for review in reviews %}
+                                
+                            <div class="list-item">
+                                <div class="item-label">
+                                    <a href="{% url 'users:home' review.owner.id %}" class="item-owner-name">{{ review.owner.username }}</a>
+                                    {% if review.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    {% endif %}
+                                    <span class="item-time">{{ review.edited_time }}</span>
+                                </div>
+
+                                <a href="{% url 'books:retrieve_review' review.id %}" class="review-title">{{ review.title }}</a>
+                                
+                                    
+                            </div>
+                            {% empty %}
+                            {% trans '无结果' %}
+                            {% endfor %}
+                                
+                        </ul>
+                        <div class="pagination" >
+                            
+                            <a 
+                            {% if reviews.has_previous %}
+                            href="?page=1"
+                            {% else %}
+                            disabled
+                            {% endif %}>
+                              <button {% if not reviews.has_previous %}disabled{% endif %} class="button button-clear">{% trans "首页" %}</button>
+                            </a>&nbsp;&nbsp;
+
+                            <a 
+                            {% if reviews.has_previous %}
+                            href="?page={{ reviews.previous_page_number }}"
+                            {% else %}
+                            disabled
+                            {% endif %}>
+                              <button {% if not reviews.has_previous %}disabled{% endif %} class="button button-clear">{% trans "上一页" %}</button>
+                            </a>&nbsp;&nbsp;
+                          
+                          <span class="page-index">
+                              {% trans "第" %}{% if request.GET.page %}{{ request.GET.page }}{% else %}1{% endif %}{% trans "页" %}
+                          </span>
+                          
+                            &nbsp;&nbsp;<a 
+                            {% if reviews.has_next %}
+                            href="?page={{ reviews.next_page_number }}"
+                            {% else %}
+                            disabled
+                            {% endif %}
+                            >
+                              <button {% if not reviews.has_next %}disabled{% endif %} class="button button-clear">{% trans "下一页" %}</button>
+                            </a>
+
+                            &nbsp;&nbsp;<a 
+                            {% if reviews.has_next %}
+                            href="?page={{ reviews.paginator.num_pages }}"
+                            {% else %}
+                            disabled
+                            {% endif %}>
+                              <button {% if not reviews.has_next %}disabled{% endif %} class="button button-clear">{% trans "末页" %}</button>
+                            </a>
+                          
+                        </div>                        
+                    </div>
+        
+                    <div id="aside">
+                        <div class="aside-card">
+                            <div class="aside-item">
+                                <a href="{% url 'books:retrieve' book.id %}"><img src="{{ book.cover.url }}" alt="" class="item-image"></a>
+                                <h5 class="item-title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
+                                
+                                {% if book.isbn %}
+                                <div>ISBN: {{ book.isbn }}</div>
+                                {% endif %}
+                                    
+                                <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
+                                {% if book.rating %}
+                                {% trans '评分: ' %}<span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></span>
+                                {% endif %}
+                                    
+                            </div>
+                        </div>
+                    </div>
+            </section>
+        </div>
+        <footer class="container">
+            <a href="">whitiewhite@donotban.com</a>
+            <a href="" id="githubLink">Github</a>
+        </footer>
+    </div>
+
+    
+    {% comment %}        
+    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon %}</div>
+    <!--current user mastodon id--> 
+    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    {% endcomment %}
+        
+    <script>
+        $("#searchInput").on('keyup', function (e) {
+            if (e.keyCode === 13) {
+                let keywords = $(this).val();
+                if (keywords)
+                    location.href = "{% url 'common:search' %}" + "?keywords=" + keywords;
+            }
+        });
+        ratingLabels = $("#aside .rating-star");
+        $(ratingLabels).each( function(index, value) {
+            let ratingScore = $(this).data("rating-score") / 2;
+            $(this).starRating({
+                initialRating: ratingScore,
+                readOnly: true,
+                starSize: 15,
+            });
+        });        
+    </script>
+</body>
+
+
+</html>

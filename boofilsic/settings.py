@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '192.168.136.5',
+            'HOST': '192.168.144.2',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -112,7 +112,7 @@ else:
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#authentication-backends
 
 AUTHENTICATION_BACKENDS = [
-    'users.auth.OAuth2Backend',
+    'common.mastodon.auth.OAuth2Backend',
     # for admin to login admin site
     # 'django.contrib.auth.backends.ModelBackend'
     ]
@@ -154,6 +154,9 @@ DEFAULT_BOOK_IMAGE = os.path.join(MEDIA_ROOT, BOOK_MEDIA_PATH_ROOT, 'default.jpg
 
 # Mastodon domain name
 MASTODON_DOMAIN_NAME = 'cmx-im.work'
+
+# Timeout of requests to Mastodon, in seconds
+MASTODON_TIMEOUT = 30
 
 # Default password for each user. since assword is not used any way,
 # any string that is not empty is ok

@@ -1,7 +1,7 @@
 $(document).ready( function() {
     // assume there  is only one input[file] on page
     $("input[type='file']").each(function() {
-        $(this).after('<img src="#" alt="" id="previewImage" style="margin:10px 0;"/>');
+        $(this).after('<img src="#" alt="" id="previewImage" style="margin:10px 0; max-width:500px;"/>');
     })
 
     // mark required
