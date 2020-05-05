@@ -100,18 +100,18 @@ class UserOwnedEntity(models.Model):
         # this is guaranteed by models
         id_list = [e.owner.mastodon_id for e in user_owned_entities]
         # Mastodon request
-        # relationships = get_relationships(id_list, token)
-        # mute_block_blocked = []
-        # following = []
-        # for r in relationships:
-        #     # check json data type
-        #     if r['blocking'] or r['blocked_by'] or r['muting']:
-        #         mute_block_blocked.append(r['id'])
-        #     if r['following']:
-        #         following.append(r['id'])
-        # user_owned_entities = user_owned_entities.exclude(owner__mastodon_id__in=mute_block_blocked)
-        # following.append(str(user.mastodon_id))
-        # user_owned_entities = user_owned_entities.exclude(Q(is_private=True) & ~Q(owner__mastodon_id__in=following))
+        relationships = get_relationships(id_list, token)
+        mute_block_blocked = []
+        following = []
+        for r in relationships:
+            # check json data type
+            if r['blocking'] or r['blocked_by'] or r['muting']:
+                mute_block_blocked.append(r['id'])
+            if r['following']:
+                following.append(r['id'])
+        user_owned_entities = user_owned_entities.exclude(owner__mastodon_id__in=mute_block_blocked)
+        following.append(str(user.mastodon_id))
+        user_owned_entities = user_owned_entities.exclude(Q(is_private=True) & ~Q(owner__mastodon_id__in=following))
         return user_owned_entities
 
 
