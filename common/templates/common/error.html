@@ -1,0 +1,30 @@
+{% load i18n %}
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="refresh" content="3;url={% url 'common:home' %}"> 
+    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
+    <title>{% trans '错误' %}</title>
+</head>
+<body>
+    <div class="box">
+        <a href="{% url 'common:home' %}">
+            <img src="{% static 'img/logo.svg' %}" alt="logo" class="logo">
+        </a>
+        <div class="main-msg">
+            {{ msg }}
+        </div>
+        <div class="sec-msg">
+            {% if secondary_msg %}
+            {{ secondary_msg }}
+            {% endif %}
+        </div>
+    </div>
+        
+</body>
+</html>

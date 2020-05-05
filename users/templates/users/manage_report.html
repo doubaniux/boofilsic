@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Boofilsic - ' %}{{ title }}</title>
+    <title>{% trans 'Boofilsic - 管理举报' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/create_update.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
@@ -26,7 +26,7 @@
                         <a href="{% url 'common:home' %}">
                             <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
                         </a>
-                        <h4 class="nav-title">{{ title }}</h4>
+                        <h4 class="nav-title">{% trans '举报信息' %}</h4>
                         
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
@@ -40,11 +40,22 @@
             <section id="content" class="container">
                 <div class="row">
                     <div id="main">
-                        <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
-                            {% csrf_token %}
-                            {{ form }}
-                            <input class="button" type="submit" value="{% trans '提交' %}">
-                        </form>
+                        
+                        {% for report in reports %}
+                            <div class="report">
+                                <a href="{% url 'users:home' report.submit_user.id %}">{{ report.submit_user.username }}</a>
+                                {% trans '举报了' %}
+                                <a href="{% url 'users:home' report.reported_user.id %}">{{ report.reported_user.username }}</a>
+                                @{{ report.submitted_time }}
+                                
+                                {% if report.image %}
+                                <img src="{{ report.image.url }}" alt="">
+                                    
+                                {% endif %}
+                                    
+                            </div>
+                        {% endfor %}
+                            
                     </div>
         
             </section>

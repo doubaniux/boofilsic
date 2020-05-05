@@ -1,21 +1,23 @@
+import uuid
 from django.db import models
 from django.contrib.auth.models import AbstractUser
-from datetime import datetime
+from django.utils import timezone
 from boofilsic.settings import REPORT_MEDIA_PATH_ROOT, DEFAULT_PASSWORD
 
 
 def report_image_path(instance, filename):
-    raise NotImplementedError("UUID!!!!!!!!!!!")
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
     root = ''
     if REPORT_MEDIA_PATH_ROOT.endswith('/'):
         root = REPORT_MEDIA_PATH_ROOT
     else:
         root = REPORT_MEDIA_PATH_ROOT + '/'
-    return root + datetime.now().strftime('%Y/%m/%d') + f'{filename}'
+    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
 
 
 class User(AbstractUser):
-    mastodon_id = models.IntegerField()
+    mastodon_id = models.IntegerField(unique=True)
 
     def save(self, *args, **kwargs):
         """ Automatically populate password field with DEFAULT_PASSWORD before saving."""
@@ -29,6 +31,7 @@ class Report(models.Model):
     image = models.ImageField(upload_to=report_image_path, height_field=None, width_field=None, max_length=None, blank=True, default='')
     is_read = models.BooleanField(default=False)
     submitted_time = models.DateTimeField(auto_now_add=True)
+    message = models.CharField(max_length=1000)
 
 
 

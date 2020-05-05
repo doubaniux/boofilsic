@@ -10,10 +10,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Boofilsic - 删除图书' %}</title>
+    <title>{% trans 'Boofilsic - 删除评论' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
-    <script src="{% static 'lib/js/rating-star.js' %}"></script>
-    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
@@ -28,7 +27,7 @@
                         <a href="{% url 'common:home' %}">
                             <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
                         </a>
-                        <h4 class="nav-title">{% trans '删除图书' %}</h4>
+                        <h4 class="nav-title">{% trans '删除评论' %}</h4>
                         
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
@@ -42,33 +41,34 @@
             <section id="content" class="container">
                 <div class="row">
                     <div id="main">
-                        <h4 class="prompt">{% trans '确认删除这本书吗？相关评论和标记将一并删除。' %}</h4>
+                        <h4 class="prompt">{% trans '确认删除这篇评论吗？' %}</h4>
                     
                         <div class="item-card">
-                            <div class="clearfix">
-                                <img src="{{ book.cover.url }}" alt="" class="item-image float-left">
-                                <div class="item-info float-left">
-                                    <a href="{% url 'books:retrieve' book.id %}">
-                                        <h5 class="item-title">
-                                        {{ book.title }}
-                                        </h5>
-                                    </a>
-                                    {% if book.rating %}
-                                    {% trans '评分：' %}
-                                    <span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}">
-                                    </span>
-                                    <span class="rating-score">{{ book.rating }} </span>
-                                    {% else %}
-                                    <span>{% trans '评分：暂无评分' %}</span>
-                                    {% endif %}             
-                                    <div>{% trans '最近编辑者：' %}{{ book.last_editor | default:"" }}</div>
-                                    <div>{% trans '上次编辑时间：' %}{{ book.edited_time }}</div>
+                            <div class="review">
+                                <div class="review-head clearfix">
+                                    <div class="mark-label float-left">
+                                        <h4>
+                                            {{ review.title }}
+                                            {% if review.is_private %}
+                                            <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                            {% endif %}
+                                        </h4>                                        
+                                        <a href="" class="mark-owner-name">{{ review.owner.username }}</a>
+                                            
+                                        <span class="mark-time">{{ review.edited_time }}</span>
+                                    </div>
+                                        
                                 </div>
+                                <!-- <div class="dividing-line"></div> -->
+                                <div id="rawContent" class="delete-preview">
+                                    {{ form.content }}
+                                </div>
+                                {{ form.media }}
                             </div>
-                            <div class="dividing-line"></div>
+                            <!-- <div class="dividing-line"></div> -->
                         </div>
                         <div class="clearfix">
-                            <form action="{% url 'books:delete' book.id %}" method="post" class="float-right">
+                            <form action="{% url 'books:delete_review' review.id %}" method="post" class="float-right">
                                 {% csrf_token %}
                                 <input class="button" type="submit" value="{% trans '确认' %}">
                             </form>
@@ -100,6 +100,8 @@
                     location.href = "{% url 'common:search' %}" + "?keywords=" + keywords;
             }
         });
+        $(".markdownx textarea").hide();
+        $(".markdownx .markdownx-preview").show();
     </script>
 </body>
 

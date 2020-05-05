@@ -1,20 +1,22 @@
+import uuid
 import django.contrib.postgres.fields as postgres
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from common.models import Resource, Mark, Review
 from boofilsic.settings import BOOK_MEDIA_PATH_ROOT, DEFAULT_BOOK_IMAGE
-from datetime import datetime
+from django.utils import timezone
 
 
 def book_cover_path(instance, filename):
-    raise NotImplementedError("UUID!!!!!!!!!!!")
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
     root = ''
     if BOOK_MEDIA_PATH_ROOT.endswith('/'):
         root = BOOK_MEDIA_PATH_ROOT
     else:
         root = BOOK_MEDIA_PATH_ROOT + '/'
-    return root + datetime.now().strftime('%Y/%m/%d') + f'{filename}'
+    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
 
 
 class Book(Resource):
@@ -44,9 +46,8 @@ class Book(Resource):
     # since data origin is not formatted and might be CNY USD or other currency, use char instead
     price = models.CharField(_("pricing"), blank=True, default='', max_length=50)
     pages = models.PositiveIntegerField(_("pages"), null=True, blank=True)
-    isbn = models.CharField(_("ISBN"), blank=True, max_length=20, unique=True, db_index=True)
+    isbn = models.CharField(_("ISBN"), blank=True, null=True, max_length=20, unique=True, db_index=True)
     # to store previously scrapped data 
-    img_url = models.URLField(max_length=300)
     cover = models.ImageField(_("cover picture"), upload_to=book_cover_path, default=DEFAULT_BOOK_IMAGE, blank=True)
 
     class Meta:
@@ -67,7 +68,7 @@ class Book(Resource):
 
 
 class BookMark(Mark):
-    book = models.ForeignKey(Book, on_delete=models.SET_NULL, related_name='book_marks', null=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_marks', null=True)
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['owner', 'book'], name="unique_book_mark")
@@ -75,7 +76,7 @@ class BookMark(Mark):
 
 
 class BookReview(Review):
-    book = models.ForeignKey(Book, on_delete=models.SET_NULL, related_name='book_reviews', null=True)
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_reviews', null=True)
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['owner', 'book'], name="unique_book_review")

@@ -4,6 +4,12 @@ $(document).ready( function() {
     let mast_uri = $("#mastodonURI").text();
     let id = $("#userMastodonID").text();
 
+    let userInfoSpinner = $("#spinner").clone().removeAttr("hidden");
+    let followersSpinner = $("#spinner").clone().removeAttr("hidden");
+    let followingSpinner = $("#spinner").clone().removeAttr("hidden");
+    $("#userInfoCard").append(userInfoSpinner);
+    $("#userRelationCard h5:first").append(followingSpinner);
+    $("#userRelationCard h5:last").append(followersSpinner);
     $(".mast-following-more").hide();
     $(".mast-followers-more").hide();
 
@@ -21,6 +27,7 @@ $(document).ready( function() {
             $(".mast-user .mast-avatar").attr("src", userData.avatar);
             $(".mast-user .mast-displayname").html(userName);
             $(".mast-user .mast-brief").text($(userData.note).text());
+            $(userInfoSpinner).remove();
         }
     );
 
@@ -28,7 +35,7 @@ $(document).ready( function() {
         id,
         mast_uri,
         token,
-        function(userList) {
+        function(userList, request) {
             if (userList.length == 0) {
                 $(".mast-followers").hide();
             } else {
@@ -42,13 +49,16 @@ $(document).ready( function() {
                     temp = $(template).clone();
                     temp.find("img").attr("src", data.avatar);
                     if (data.display_name) {
-                        temp.find("a").text(data.display_name);
+                        temp.find("a").html(translateEmojis(data.display_name, data.emojis));
                     } else {
                         temp.find("a").text(data.username);
                     }
+                    let url = $("#userPageURL").text().replace('0', data.id) + "?is_mastodon_id=true";
+                    temp.find("a").attr('href', url);
                     $(".mast-followers").append(temp);
                 });
             }
+            $(followersSpinner).remove();
         }
     );
 
@@ -56,7 +66,7 @@ $(document).ready( function() {
         id,
         mast_uri,
         token,
-        function(userList) {
+        function(userList, request) {
             if (userList.length == 0) {
                 $(".mast-following").hide();
             } else {
@@ -70,13 +80,17 @@ $(document).ready( function() {
                     temp = $(template).clone()
                     temp.find("img").attr("src", data.avatar);
                     if (data.display_name) {
-                        temp.find("a").text(data.display_name);
+                        temp.find("a").html(translateEmojis(data.display_name, data.emojis));
                     } else {
                         temp.find("a").text(data.username);
                     }
+                    let url = $("#userPageURL").text().replace('0', data.id) + "?is_mastodon_id=true";
+                    temp.find("a").attr('href', url);
                     $(".mast-following").append(temp);
                 });
             }
+            $(followingSpinner).remove();
+
         }
     );
 

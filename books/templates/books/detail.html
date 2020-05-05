@@ -15,6 +15,7 @@
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
     <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic_modal.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
 </head>
@@ -31,7 +32,9 @@
                         <input type="search" class="search-box" name="keywords" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
+                        {% if user.is_staff %}   
                         <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
+                        {% endif %}
                     </nav>
                 </div>
             </section>
@@ -40,7 +43,9 @@
                 <div class="row">
                     <div id="main">
                         <div class="clearfix">
-                            <img src="{% static 'img/default.jpg' %}" class="display-image" alt="">
+                            <div class="float-left">
+                                <img src="{{ book.cover.url }}" class="display-image" alt="">
+                            </div>
                             <div class="display-info">
                                 <h5 class="display-title">
                                     {{ book.title }}
@@ -58,7 +63,7 @@
                                     <div>{% if book.translator %}{% trans '译者：' %}
                                     {% for translator in book.translator %}
                                         <span>{{ translator }}</span>
-                                    {% endfor %}
+                                    {% endfor %} 
                                     {% endif %}</div>                                
                                     <div>{% if book.orig_title %}{% trans '原作名：' %}{{ book.orig_title }}{% endif %}</div>
                                     <div>{% if book.language %}{% trans '语言：' %}{{ book.language }}{% endif %}</div>
@@ -88,7 +93,13 @@
                                     {% url 'users:home' book.last_editor %}
                                     {% endcomment %}
                                         
-                                    <div>{% trans '最近编辑者：' %}<a href="">someone</a></div>
+                                    <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' book.last_editor.id %}">{{ book.last_editor | default:"" }}</a></div>
+                                    <div>
+                                    <a href="{% url 'books:update' book.id %}">{% trans '编辑这本书' %}</a>
+                                    {% if user.is_staff %}
+                                    <a href="{% url 'books:delete' book.id %}" class="delete"> / {% trans '删除' %}</a>
+                                    {% endif %}
+                                    </div>
                                 </div>
                                     
                             </div>
@@ -104,16 +115,136 @@
                             {% endif %}
                             
                         </div>
+                        <div class="set">
+                            <h5 class="set-title">{% trans '这本书的标记' %}</h5>
+                            {% if mark_list_more %}
+                            <a href="{% url 'books:retrieve_mark_list' book.id %}" class="more-link">{% trans '更多' %}</a>
+                            {% endif %}
+                            {% if mark_list %}
+                            {% for others_mark in mark_list %}
+                            <div class="mark">
+                                <div class="mark-label">
+                                    <a href="{% url 'users:home' others_mark.owner.id %}" class="mark-owner-name">{{ others_mark.owner.username }}</a>
+                                    <span>{{ others_mark.get_status_display }}</span>
+                                    {% if others_mark.rating %}
+                                    <span class="rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
+                                    {% endif %}
+                                    {% if others_mark.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    {% endif %}
+                                    <span class="mark-time">{{ others_mark.edited_time }}</span>
+                                </div>
+                                
+                                {% if others_mark.text %}
+                                <p class="mark-text">{{ others_mark.text }}</p>
+                                {% endif %}
+                                    
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <p class="set-empty">{% trans '暂无标记' %}</p>    
+                            {% endif %}
+                        </div>
+                        <div class="set">
+                            <h5 class="set-title">{% trans '这本书的评论' %}</h5>
+                            {% if review_list_more %}
+                            <a href="{% url 'books:retrieve_review_list' book.id %}" class="more-link">{% trans '更多' %}</a>
+                            {% endif %}
+                            {% if review_list %}
+                            {% for others_review in review_list %}
+                            <div class="mark">
+                                <div class="mark-label">
+                                    <a href="{% url 'users:home' others_review.owner.id %}" class="mark-owner-name">{{ others_review.owner.username }}</a>
+                                    {% if others_review.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    {% endif %}
+                                    <span class="mark-time">{{ others_review.edited_time }}</span>
+                                    <span class="review-title"> <a href="{% url 'books:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
+                                </div>
+                                    
+                            </div>
+                            {% endfor %}
+                            {% else %}
+                            <p class="set-empty">{% trans '暂无评论' %}</p>    
+                            {% endif %}
+                        </div>
                     </div>
-        
+
                     <div id="aside">
-                        <div class="aside-card mast-user">
-                            <p class="info-brief mast-brief"></p>
-                            <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
-                            <!-- <a href="#" class="report">{% trans '举报用户' %}</a> -->
+                        <div class="aside-card" id="asideMark">
+                            
+                            {% if mark %}
+                            <div class="mark">
+                                <div class="clearfix">
+                                    <span class="mark-status-label float-left">{% trans '我' %}{{ mark.get_status_display }}</span>
+                                    {% if mark.status == status_enum.DO.value or mark.status == status_enum.COLLECT.value%}
+                                        {% if mark.rating %}
+                                        <span class="rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if mark.is_private %}
+                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    {% endif %}                                        
+                                    <span class="float-right">
+                                        <a href="" class="edit">{% trans '修改' %}</a>
+                                        <form action="{% url 'books:delete_mark' mark.id %}" method="post">
+                                            {% csrf_token %}
+                                            <a href="">{% trans '删除' %}</a>
+                                        </form>
+                                    </span>
+                                </div>
+                                <div class="clearfix">
+                                    <span class="mark-time float-left">{{ mark.edited_time }}</span>
+                                </div>
+                                {% if mark.text %}
+                                <p class="mark-text">{{ mark.text }}</p>
+                                {% endif %}
+                            </div>
+                            {% else %}
+                            <div class="mark">
+                                <div class="clearfix">
+                                    <span class="mark-status-label float-left">{% trans '标记这本书' %}</span>
+                                </div>
+                                <div class="button-group">
+                                    <a href="" class="button" id="wishButton" data-status="{{ status_enum.WISH.value }}">{% trans '想看' %}</a>
+                                    <a href="" class="button" data-status="{{ status_enum.DO.value }}">{% trans '在看' %}</a>
+                                    <a href="" class="button" data-status="{{ status_enum.COLLECT.value }}">{% trans '看过' %}</a>
+                                </div>
+                            </div>                            
+                            {% endif %}
+                                
                         </div>
                         
-                            
+                        <div class="aside-card" id="asideReview">
+                        {% if review %}
+                            <div class="review">
+                                <div class="clearfix">
+                                    <span class="review-label float-left">{% trans '我的评论' %}</span>
+                                    {% if review.is_private %}
+                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
+                                    {% endif %}
+
+                                    <span class="float-right">
+                                        <a href="{% url 'books:update_review' review.id %}">{% trans '编辑' %}</a>
+                                        <a href="{% url 'books:delete_review' review.id %}">{% trans '删除' %}</a>
+                                    </span>
+
+                                </div>
+                                <div class="clearfix">
+                                    <span class="review-time float-left">{{ review.edited_time }}</span>
+                                </div>
+                                <a href="{% url 'books:retrieve_review' review.id %}" class="review-title">
+                                    {{ review.title }}
+                                </a>                                                           
+                            </div>
+                            {% else %}
+                            <div class="clearfix">
+                                <span class="review-label float-left">{% trans '我的评论' %}</span>
+                            </div>                            
+                            <a href="{% url 'books:create_review' book.id %}" class="button">{% trans '去写评论' %}</a>
+                            {% endif %}
+                        </div>
+                                
                     </div>
             </section>
 
@@ -124,6 +255,73 @@
         </footer>
     </div>
 
+    <div id="modals">
+        <div class="modal mark-modal">
+            <div class="modal-head clearfix">
+                
+                {% if not mark %}
+                <style>
+                    .modal-title::after {
+                        content: "{% trans '这本书' %}";
+                    }
+                </style>
+                <span class="modal-title float-left"></span>
+                {% else %}
+                <span class="modal-title float-left">{% trans '我的标记' %}</span>
+                {% endif %}
+                    
+                <span class="modal-close float-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61"/></svg>
+                </span>
+            </div>
+            <div class="modal-body">
+                <form action="{% url 'books:create_update_mark' %}" method="post">
+                    {% csrf_token %}
+                    {{ mark_form.id }}
+                    {{ mark_form.book }}
+                    {% if mark.rating %}
+                    {% endif %}
+                    <div class="clearfix">
+
+                        <div class="rating-star-edit float-left"></div>
+                        <div class="modal-selection float-right" {% if not mark %}hidden{% endif %}>
+                            {{ mark_form.status }}
+                        </div>
+                    </div>
+                            
+                    {{ mark_form.rating }}
+                    {{ mark_form.text }}
+                    <div class="modal-option clearfix">
+                        <div class="modal-selection float-left">
+                            <span>{{ mark_form.is_private.label }}:</span>
+                            {{ mark_form.is_private }}
+                        </div>
+                        <div class="modal-checkbox float-right">
+                            {{ mark_form.share_to_mastodon }}{{ mark_form.share_to_mastodon.label }}
+                        </div>
+                    </div>
+                    <div class="clearfix modal-button">
+                        <input type="submit" class="button float-right" value="{% trans '提交' %}">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="modal confirm-modal">
+            <div class="modal-head clearfix">
+                <span class="modal-title float-left">{% trans '确定要删除你的标记吗？' %}</span>      
+                <span class="modal-close float-right">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61"/></svg>
+                </span>
+            </div>
+            <div class="modal-body">
+                <div class="clearfix modal-button">
+                    <input type="submit" class="button float-right" value="{% trans '确认' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-mask"></div>
 
     <script>
         $("#searchInput").on('keyup', function (e) {

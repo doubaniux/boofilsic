@@ -8,4 +8,10 @@ urlpatterns = [
     path('logout/', logout, name='logout'),
     path('delete/', delete, name='delete'),
     path('OAuth2_login/', OAuth2_login, name='OAuth2_login'),
+    path('<int:id>/', home, name='home'),
+    path('<int:id>/followers/', followers, name='followers'),
+    path('<int:id>/following/', following, name='following'),
+    path('<int:id>/book/<str:status>/', book_list, name='book_list'),
+    path('report/', report, name='report'),
+    path('manage_report/', manage_report, name='manage_report'),
 ]

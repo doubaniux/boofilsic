@@ -5,7 +5,9 @@ const API_FOLLOWERS = "/api/v1/accounts/:id/followers"
 // GET
 const API_FOLLOWING = "/api/v1/accounts/:id/following"
 // GET
-const API_ACCOUNT = '/api/v1/accounts/:id'
+const API_GET_ACCOUNT = '/api/v1/accounts/:id'
+
+const NUMBER_PER_REQUEST = 20
 
 
 // [
@@ -60,8 +62,11 @@ function getFollowers(id, mastodonURI, token, callback) {
         headers: {
             'Authorization': 'Bearer ' + token,
         },
-        success: function(data){
-            callback(data);
+        data: {
+            'limit': NUMBER_PER_REQUEST
+        },
+        success: function(data, status, request){
+            callback(data, request);
         },
     });
 }
@@ -73,9 +78,12 @@ function getFollowing(id, mastodonURI, token, callback) {
         method: 'GET',
         headers: {
             'Authorization': 'Bearer ' + token,
+        },        
+        data: {
+            'limit': NUMBER_PER_REQUEST
         },
-        success: function(data){
-            callback(data);
+        success: function(data, status, request){
+            callback(data, request);
         },
     });
 }
@@ -113,7 +121,7 @@ function getFollowing(id, mastodonURI, token, callback) {
 //     ]
 //   }
 function getUserInfo(id, mastodonURI, token, callback) {
-    let url = mastodonURI + API_ACCOUNT.replace(":id", id);
+    let url = mastodonURI + API_GET_ACCOUNT.replace(":id", id);
     $.ajax({
         url: url,
         method: 'GET',

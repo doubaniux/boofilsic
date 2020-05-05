@@ -8,7 +8,15 @@
       margin-left: 1%;
     }
   </style>
-  <div class="widget-value-key-input"></div>
+  <div class="widget-value-key-input">
+    {% if widget.value != None %} 
+    
+    {% for k, v in widget.keyvalue_pairs.items %}
+    <input type="text" value="{{ k }}" ><input type="text" value="{{ v }}">
+    {% endfor %}
+      
+    {% endif %}
+  </div>
   <input type="text" class="widget-value-key-input-data" hidden name="{{ widget.name }}">
   <script>
     //init
