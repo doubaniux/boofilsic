@@ -159,12 +159,12 @@ if not DEBUG:
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = os.path.join(BASE_DIR, '/static')
+STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
 AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = os.path.join(BASE_DIR, '/media')
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 CLIENT_ID = '3U57sjR7uvCu8suyFlp-fiBVj9-pKt3-jd7F2gLF6EE'
 CLIENT_SECRET = 'HZohdI-xR8lUyTs_bM0G3l9Na0W6bZ6DfMK3b84_E0g'
