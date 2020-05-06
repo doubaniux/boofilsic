@@ -44,7 +44,8 @@
             <section id="content" class="container">
                 <div class="row">
                     <div id="main">
-                        <iframe src="https://search.douban.com/book/subject_search{% if keywords %}?search_text={{ keywords }}{% endif %}" frameborder="0"></iframe>
+                        
+                        <iframe sandbox="allow-same-origin allow-scripts allow-popups allow-forms" src="https://search.douban.com/book/subject_search{% if keywords %}?search_text={{ keywords }}{% endif %}" frameborder="0"></iframe>
                         <div class="dividing-line"></div>
                         <div id="scrapeForm">
                             <form action="{% url 'books:create' %}" method="POST" enctype="multipart/form-data">
