@@ -525,6 +525,7 @@ img.display-image {
     height: 210px;
     object-fit: contain;
     float: left;
+    max-width: 200px;
 }
 
 .display-info {
