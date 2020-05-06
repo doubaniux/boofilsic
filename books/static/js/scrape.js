@@ -8,7 +8,7 @@ $(document).ready( function() {
     $("input[type='file']").each(function() {
         $(this).after('<img src="#" alt="" id="previewImage" style="margin:10px 0; max-width:500px;"/>');
     });
-    // preview uploaded pic})
+    // preview uploaded pic
     $("input[type='file']").change(function() {
         if (this.files && this.files[0]) {
             var reader = new FileReader();
@@ -20,4 +20,6 @@ $(document).ready( function() {
             reader.readAsDataURL(this.files[0]);
         }
     });
+
+
 });
