@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '192.168.13.72',
+            'HOST': '192.168.13.68',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -173,7 +173,7 @@ CLIENT_SECRET = 'xwmEvlmudLCkBmvdzGf8m41Ug5o5di9xnDqeVLrcKSg'
 REPORT_MEDIA_PATH_ROOT = 'report/'
 MARKDOWNX_MEDIA_PATH = 'review/'
 BOOK_MEDIA_PATH_ROOT = 'book/'
-DEFAULT_BOOK_IMAGE = os.path.join(MEDIA_ROOT, BOOK_MEDIA_PATH_ROOT, 'default.jpg')
+DEFAULT_BOOK_IMAGE = os.path.join(BOOK_MEDIA_PATH_ROOT, 'default.jpg')
 
 # Mastodon domain name
 MASTODON_DOMAIN_NAME = 'donotban.com'
@@ -183,9 +183,9 @@ MASTODON_TIMEOUT = 30
 
 # Emoji code in mastodon
 # note the white spaces
-STAR_SOLID = ' :star_solid: '
-STAR_HALF = ' :star_half: '
-STAR_EMPTY = ' :star_empty: '
+STAR_SOLID = ':star_solid:'
+STAR_HALF = ':star_half:'
+STAR_EMPTY = ':star_empty:'
 
 # Default password for each user. since assword is not used any way,
 # any string that is not empty is ok
