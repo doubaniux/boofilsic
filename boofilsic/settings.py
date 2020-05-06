@@ -132,16 +132,39 @@ USE_L10N = True
 USE_TZ = True
 
 
+if not DEBUG:
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_SSL_REDIRECT = True
+    LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': '/path/to/django/debug.log',
+        },
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['file'],
+            'level': 'INFO',
+            'propagate': True,
+        },
+    },
+}
+
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
 
 STATIC_URL = '/static/'
-STATIC_ROOT = ''
+STATIC_ROOT = os.path.join(BASE_DIR, '/static')
 
 AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = '/media/'
-MEDIA_ROOT = 'E:\\temp'
+MEDIA_ROOT = os.path.join(BASE_DIR, '/media')
 
 CLIENT_ID = '3U57sjR7uvCu8suyFlp-fiBVj9-pKt3-jd7F2gLF6EE'
 CLIENT_SECRET = 'HZohdI-xR8lUyTs_bM0G3l9Na0W6bZ6DfMK3b84_E0g'
