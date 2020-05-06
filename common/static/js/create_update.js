@@ -8,7 +8,7 @@ $(document).ready( function() {
     $("input[required]").each(function() {
         $(this).prev().prepend("*");
     })
-
+    // preview uploaded pic
     $("input[type='file']").change(function() {
         if (this.files && this.files[0]) {
             var reader = new FileReader();

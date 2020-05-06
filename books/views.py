@@ -8,6 +8,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from common.mastodon import mastodon_request_included
 from common.mastodon.api import check_visibility, post_toot, TootVisibilityEnum
+from common.mastodon.utils import rating_to_emoji
 from .models import *
 from .forms import *
 from .forms import BookMarkStatusTranslator
@@ -213,7 +214,8 @@ def create_update_mark(request):
                 else:
                     visibility = TootVisibilityEnum.PUBLIC
                 url = "https://" + request.get_host() + reverse("books:retrieve", args=[book.id])
-                words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) + f"《{book.title}》"
+                words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) +\
+                     f"《{book.title}》" + rating_to_emoji(form.cleaned_data['rating'])
                 content = words + '\n' + url + '\n' + form.cleaned_data['text']
                 post_toot(content, visibility, request.session['oauth_token'])
         else:

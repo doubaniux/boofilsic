@@ -47,10 +47,11 @@
                         <iframe src="https://search.douban.com/book/subject_search{% if keywords %}?search_text={{ keywords }}{% endif %}" frameborder="0"></iframe>
                         <div class="dividing-line"></div>
                         <div id="scrapeForm">
-                            <form action="{% url 'books:create' %}" method="POST">
+                            <form action="{% url 'books:create' %}" method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 {{ form }}
                             </form>
+                            <a href="{% url 'books:scrape' %}" id="submit" class="button add-button">{% trans '剽取！' %}</a>
                         </div>
                     </div>
                     
