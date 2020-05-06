@@ -63,7 +63,7 @@ class BookForm(forms.ModelForm):
             'author': forms.TextInput(attrs={'placeholder': _("多个作者使用英文逗号分隔")}),
             'translator': forms.TextInput(attrs={'placeholder': _("多个译者使用英文逗号分隔")}),
             'other_info': KeyValueInput(),
-            # 'cover': forms.FileInput(),
+            'cover': forms.FileInput(),
         }        
 
     def clean_isbn(self):

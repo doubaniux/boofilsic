@@ -79,7 +79,7 @@ def update(request, id):
         )
     elif request.method == 'POST':
         book = get_object_or_404(Book, pk=id)
-        form = BookForm(request.POST, instance=book)
+        form = BookForm(request.POST, request.FILES, instance=book)
         if form.is_valid():
             form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
