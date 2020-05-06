@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '192.168.13.70',
+            'HOST': '192.168.13.72',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -166,8 +166,8 @@ AUTH_USER_MODEL = 'users.User'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-CLIENT_ID = '3U57sjR7uvCu8suyFlp-fiBVj9-pKt3-jd7F2gLF6EE'
-CLIENT_SECRET = 'HZohdI-xR8lUyTs_bM0G3l9Na0W6bZ6DfMK3b84_E0g'
+CLIENT_ID = 'kEbwT9Je5HHg4FoLx4nb0tNaIrPNs5Mw6AYlQlsj2_4'
+CLIENT_SECRET = 'xwmEvlmudLCkBmvdzGf8m41Ug5o5di9xnDqeVLrcKSg'
 
 # Path to save report related images, ends without slash
 REPORT_MEDIA_PATH_ROOT = 'report/'
@@ -176,7 +176,7 @@ BOOK_MEDIA_PATH_ROOT = 'book/'
 DEFAULT_BOOK_IMAGE = os.path.join(MEDIA_ROOT, BOOK_MEDIA_PATH_ROOT, 'default.jpg')
 
 # Mastodon domain name
-MASTODON_DOMAIN_NAME = 'cmx-im.work'
+MASTODON_DOMAIN_NAME = 'donotban.com'
 
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30

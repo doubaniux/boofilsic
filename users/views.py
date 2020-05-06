@@ -53,6 +53,12 @@ def login(request):
         f"client_id={CLIENT_ID}&scope=read+write&" +\
         f"redirect_uri=https://{request.get_host()}{reverse('users:OAuth2_login')}" +\
         "&response_type=code"
+        from boofilsic.settings import DEBUG
+        if DEBUG:
+            auth_url = f"https://{MASTODON_DOMAIN_NAME}{API_OAUTH_AUTHORIZE}?" +\
+            f"client_id={CLIENT_ID}&scope=read+write&" +\
+            f"redirect_uri=http://{request.get_host()}{reverse('users:OAuth2_login')}" +\
+            "&response_type=code"
 
         return render(
             request,
@@ -290,7 +296,7 @@ def book_list(request, id, status):
         marks = paginator.get_page(page_number)
         return render(
             request,
-            'users/list.html',
+            'books/list.html',
             {
                 'marks': marks,
                 'user': user,

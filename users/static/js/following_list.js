@@ -75,16 +75,17 @@ $(document).ready( function() {
         token,
         function(userList, request) {
             // aside
+            let subUserList = null;
             if (userList.length == 0) {
                 $("#aside .mast-following").hide();
             } else {
                 if (userList.length > 4){
-                    userList = userList.slice(0, 4);
+                    subUserList = userList.slice(0, 4);
                     $("#aside .mast-following-more").show();
                 }
                 let template = $("#aside .mast-following li").clone();
                 $("#aside .mast-following").html("");
-                userList.forEach(data => {
+                subUserList.forEach(data => {
                     temp = $(template).clone()
                     temp.find("img").attr("src", data.avatar);
                     if (data.display_name) {
@@ -148,7 +149,7 @@ $(document).ready( function() {
                             mainSpinner.hide();
                             return;
                         }
-                        let template = $("#main .user:first").clone();
+                        let template = $("#main .user:first").clone().show();
                         let newUrlFlag = false;
                         request.getResponseHeader('link').split(',').forEach(link => {
                             if (link.includes('next')) {

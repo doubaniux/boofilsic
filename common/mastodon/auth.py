@@ -6,14 +6,18 @@ from .api import *
 
 def obtain_token(request, code):
     """ Returns token if success else None. """
+    # TODO change http!
     payload = {
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET,
-        'redirect_uri': f"http://{request.get_host()}{reverse('users:OAuth2_login')}",
+        'redirect_uri': f"https://{request.get_host()}{reverse('users:OAuth2_login')}",
         'grant_type': 'authorization_code',
         'code': code,
         'scope': 'read write'
     }
+    from boofilsic.settings import DEBUG
+    if DEBUG:
+        payload['redirect_uri']= f"http://{request.get_host()}{reverse('users:OAuth2_login')}",
     url = 'https://' + MASTODON_DOMAIN_NAME + API_OBTAIN_TOKEN
     response = post(url, data=payload)
     if response.status_code != 200:
