@@ -139,11 +139,18 @@ if not DEBUG:
     LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
+    'formatters': {
+        'simple': {
+            'format': '{levelname} {asctime} {module} {message}',
+            'style': '{',
+        },
+    },    
     'handlers': {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
             'filename': os.path.join(BASE_DIR, 'log'),
+            'formatter': 'simple'
         },
     },
     'loggers': {
@@ -173,7 +180,7 @@ CLIENT_SECRET = 'xwmEvlmudLCkBmvdzGf8m41Ug5o5di9xnDqeVLrcKSg'
 REPORT_MEDIA_PATH_ROOT = 'report/'
 MARKDOWNX_MEDIA_PATH = 'review/'
 BOOK_MEDIA_PATH_ROOT = 'book/'
-DEFAULT_BOOK_IMAGE = os.path.join(BOOK_MEDIA_PATH_ROOT, 'default.jpg')
+DEFAULT_BOOK_IMAGE = os.path.join(BOOK_MEDIA_PATH_ROOT, 'default.svg')
 
 # Mastodon domain name
 MASTODON_DOMAIN_NAME = 'donotban.com'
@@ -189,13 +196,13 @@ STAR_EMPTY = ':star_empty:'
 
 # Default password for each user. since assword is not used any way,
 # any string that is not empty is ok
-DEFAULT_PASSWORD = 'eBRM1DETkYgiqPgq'
+DEFAULT_PASSWORD = 'eBRM91DasdwkYgiqPgq'
 
 # Default redirect loaction when access login required view
 LOGIN_URL = '/users/login/'
 
 # Admin site root url
-ADMIN_URL = 'lpLuTqX72Bt2hLfxxRYKeTZdE59Y2hLfpLuTqX72BtxxResXulIui1ayY2hLfpLuTqX72BtxxRejYKej1aNejYKeTZdE59sXuljYKej1aN1ZdE59sXulINSGMXTY9IIui1ayY2hLfxxRejYKej1aN1ZdE59sXulINSGMXTY9ID4tYEmjrHd'
+ADMIN_URL = 'lpLuTqX72Bt2hLfxxRYKeTZdE59Y2hLfpLuTqX72Btx9sXuljYK4tYEmjrHd'
 
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment
