@@ -66,6 +66,11 @@ class BookForm(forms.ModelForm):
             # 'cover': forms.FileInput(),
         }        
 
+    def clean_isbn(self):
+        isbn = self.cleaned_data.get('isbn')
+        if isbn:
+            isbn = isbn.strip()
+        return isbn
 
 class BookMarkForm(forms.ModelForm):
     IS_PRIVATE_CHOICES = [

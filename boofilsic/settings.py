@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '192.168.144.2',
+            'HOST': '192.168.13.70',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -157,6 +157,12 @@ MASTODON_DOMAIN_NAME = 'cmx-im.work'
 
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30
+
+# Emoji code in mastodon
+# note the white spaces
+STAR_SOLID = ' :star_solid: '
+STAR_HALF = ' :star_half: '
+STAR_EMPTY = ' :star_empty: '
 
 # Default password for each user. since assword is not used any way,
 # any string that is not empty is ok
