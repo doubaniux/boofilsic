@@ -143,7 +143,7 @@ if not DEBUG:
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': '/path/to/django/debug.log',
+            'filename': os.path.join(BASE_DIR, 'log'),
         },
     },
     'loggers': {

@@ -51,7 +51,7 @@ def login(request):
         # TODO NOTE replace http with https!!!!
         auth_url = f"https://{MASTODON_DOMAIN_NAME}{API_OAUTH_AUTHORIZE}?" +\
         f"client_id={CLIENT_ID}&scope=read+write&" +\
-        f"redirect_uri=http://{request.get_host()}{reverse('users:OAuth2_login')}" +\
+        f"redirect_uri=https://{request.get_host()}{reverse('users:OAuth2_login')}" +\
         "&response_type=code"
 
         return render(
