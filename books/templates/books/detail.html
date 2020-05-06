@@ -80,7 +80,7 @@
                                     {% endif %}                                    
                                     <div>{% if book.binding %}{% trans '装帧：' %}{{ book.binding }}{% endif %}</div>
                                     <div>{% if book.price %}{% trans '定价：' %}{{ book.price }}{% endif %}</div>
-                                    <div>{% if book.pages %}{% trans '页数' %}{{ book.pages }}{% endif %}</div>
+                                    <div>{% if book.pages %}{% trans '页数：' %}{{ book.pages }}{% endif %}</div>
                                     {% if book.other_info %}                                  
                                     {% for k, v in book.other_info.items %}
                                     <div>
