@@ -43,16 +43,17 @@ $(document).ready( function() {
         mast_uri,
         token,
         function(userList, request) {
+            let subUserList = null;
             if (userList.length == 0) {
                 $(".mast-followers").hide();
             } else {
                 if (userList.length > 4){
-                    userList = userList.slice(0, 4);
+                    subUserList = userList.slice(0, 4);
                     $(".mast-followers-more").show();
                 }
                 let template = $(".mast-followers li").clone();
                 $(".mast-followers").html("");
-                userList.forEach(data => {
+                subUserList.forEach(data => {
                     temp = $(template).clone();
                     temp.find("img").attr("src", data.avatar);
                     if (data.display_name) {
@@ -68,8 +69,9 @@ $(document).ready( function() {
             $(followersSpinner).remove();
             // main
             let template = $("#main .user").clone().show();
+
             userList.forEach(data => {
-                temp = $(template).clone()
+                temp = $(template).clone();
                 temp.find(".avatar").attr("src", data.avatar);
                 if (data.display_name) {
                     temp.find(".user-name").html(translateEmojis(data.display_name, data.emojis));
@@ -147,7 +149,7 @@ $(document).ready( function() {
                             mainSpinner.hide();
                             return;
                         }
-                        let template = $("#main .user:first").clone();
+                        let template = $("#main .user:first").clone().show();
                         let newUrlFlag = false;
                         request.getResponseHeader('link').split(',').forEach(link => {
                             if (link.includes('next')) {
