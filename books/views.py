@@ -84,6 +84,16 @@ def update(request, id):
             form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
             form.save()
+        else:
+            return render(
+            request,
+            'books/create_update.html',
+            {
+                'form': form,
+                'title': _('修改书籍'),
+                'submit_url': reverse("books:update", args=[book.id])
+            }
+        )
         return redirect(reverse("books:retrieve", args=[form.instance.id]))
 
     else:
