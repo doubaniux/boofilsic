@@ -115,9 +115,9 @@
     <script>
         $("#searchInput").on('keyup', function (e) {
             if (e.keyCode === 13) {
-                let keywords = $(this).val();
-                if (keywords)
-                    location.href = "{% url 'common:search' %}" + "?keywords=" + keywords;
+                let q = $(this).val();
+                if (q)
+                    location.href = "{% url 'common:search' %}" + "?q=" + q;
             }
         });
     </script>

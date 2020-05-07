@@ -27,7 +27,7 @@
                         <a href="{% url 'common:home' %}">
                             <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
                         </a>
-                        <input type="search" class="search-box" name="keywords" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
+                        <input type="search" class="search-box" name="q" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
                         {% if request.user.is_staff %}   
@@ -197,9 +197,9 @@
     <script>
         $("#searchInput").on('keyup', function (e) {
             if (e.keyCode === 13) {
-                let keywords = $(this).val();
-                if (keywords)
-                    location.href = "{% url 'common:search' %}" + "?keywords=" + keywords;
+                let q = $(this).val();
+                if (q)
+                    location.href = "{% url 'common:search' %}" + "?q=" + q;
             }
         });
     </script>

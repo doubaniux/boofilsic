@@ -426,13 +426,13 @@ def retrieve_review_list(request, book_id):
 @login_required
 def scrape(request):
     if request.method == 'GET':
-        keywords = request.GET.get('keywords')
+        keywords = request.GET.get('q')
         form = BookForm()
         return render(
             request,
             'books/scrape.html',
             {
-                'keywords': keywords,
+                'q': keywords,
                 'form': form,
             }
         )

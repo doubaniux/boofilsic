@@ -29,8 +29,8 @@
                         <a href="{% url 'common:home' %}">
                             <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
                         </a>
-                        <input type="search" class="search-box" name="keywords" 
-                        value="{% if request.GET.keywords %}{{ request.GET.keywords }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
+                        <input type="search" class="search-box" name="q" 
+                        value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
                         {% if user.is_staff %}   
@@ -54,8 +54,8 @@
                                 <div class="result-info">
 
                                     <a href="{% url 'books:retrieve' book.id %}" class="result-item-title">
-                                        {% if request.GET.keywords %}
-                                        {{ book.title | highlight:request.GET.keywords }}
+                                        {% if request.GET.q %}
+                                        {{ book.title | highlight:request.GET.q }}
                                         {% else %}
                                         {{ book.title }}
                                         {% endif %}
@@ -110,7 +110,7 @@
                             
                             <a 
                             {% if items.has_previous %}
-                            href="?page=1&keywords={% if request.GET.keywords %}{{ request.GET.keywords }}{% endif %}"
+                            href="?page=1&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             {%else %}
                             disabled
                             {% endif %}>
@@ -119,7 +119,7 @@
 
                             <a 
                             {% if items.has_previous %}
-                            href="?page={{ items.previous_page_number }}&keywords={% if request.GET.keywords %}{{ request.GET.keywords }}{% endif %}"
+                            href="?page={{ items.previous_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             {%else %}
                             disabled
                             {% endif %}>
@@ -132,7 +132,7 @@
                           
                             &nbsp;&nbsp;<a 
                             {% if items.has_next %}
-                            href="?page={{ items.next_page_number }}&keywords={% if request.GET.keywords %}{{ request.GET.keywords }}{% endif %}"
+                            href="?page={{ items.next_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             {% else %}
                             disabled
                             {% endif %}
@@ -142,7 +142,7 @@
 
                             &nbsp;&nbsp;<a 
                             {% if items.has_next %}
-                            href="?page={{ items.paginator.num_pages }}&keywords={% if request.GET.keywords %}{{ request.GET.keywords }}{% endif %}"
+                            href="?page={{ items.paginator.num_pages }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                             {%else %}
                             disabled
                             {% endif %}>
@@ -158,7 +158,7 @@
                                 <div>{% trans '没有想要的结果？' %}</div>
                                 <a href="{% url 'books:create' %}" class="button add-button">{% trans '添加一个条目' %}</a>
                                 <div>{% trans '或者' %}</div>
-                                <a href="{% url 'books:scrape' %}{% if request.GET.keywords %}?keywords={{ request.GET.keywords }}{% endif %}" class="button add-button">{% trans '从表瓣剽取数据d(≖ ◡ ≖)✧' %}</a>
+                                <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="button add-button">{% trans '从表瓣剽取数据d(≖ ◡ ≖)✧' %}</a>
                             </div>
                         </div>
                     </div>
@@ -181,9 +181,9 @@
     <script>
         $("#searchInput").on('keyup', function (e) {
             if (e.keyCode === 13) {
-                let keywords = $(this).val();
-                if (keywords)
-                    location.href = "{% url 'common:search' %}" + "?keywords=" + keywords;
+                let q = $(this).val();
+                if (q)
+                    location.href = "{% url 'common:search' %}" + "?q=" + q;
             }
         });
     </script>
