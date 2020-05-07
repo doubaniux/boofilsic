@@ -53,7 +53,7 @@ $(document).ready( function() {
                     } else {
                         temp.find("a").text(data.username);
                     }
-                    let url = $("#userPageURL").text().replace('0', data.id) + "?is_mastodon_id=true";
+                    let url = $("#userPageURL").text().replace('0', data.id);
                     temp.find("a").attr('href', url);
                     $(".mast-followers").append(temp);
                 });
@@ -84,7 +84,7 @@ $(document).ready( function() {
                     } else {
                         temp.find("a").text(data.username);
                     }
-                    let url = $("#userPageURL").text().replace('0', data.id) + "?is_mastodon_id=true";
+                    let url = $("#userPageURL").text().replace('0', data.id);
                     temp.find("a").attr('href', url);
                     $(".mast-following").append(temp);
                 });

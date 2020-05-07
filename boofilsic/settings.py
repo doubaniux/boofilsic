@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '192.168.13.68',
+            'HOST': '172.18.96.109',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -173,8 +173,8 @@ AUTH_USER_MODEL = 'users.User'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-CLIENT_ID = 'kEbwT9Je5HHg4FoLx4nb0tNaIrPNs5Mw6AYlQlsj2_4'
-CLIENT_SECRET = 'xwmEvlmudLCkBmvdzGf8m41Ug5o5di9xnDqeVLrcKSg'
+CLIENT_ID = 'kEbwT9Je5HsadfNs5Mw6Asht456YlQl54t4sj2_4'
+CLIENT_SECRET = 'xwmEvlmudLCkBmvdzGf8msdfgsdfggs5di9xnDqeVLrcKSg'
 
 # Path to save report related images, ends without slash
 REPORT_MEDIA_PATH_ROOT = 'report/'

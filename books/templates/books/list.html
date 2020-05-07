@@ -202,7 +202,7 @@
     <div id="mastodonURI" hidden="true">{% mastodon %}</div>
     <!--current user mastodon id--> 
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
+    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}?is_mastodon_id=true</div>
     <div class="spinner" id="spinner" hidden>
         <div class="lds-spinner">
           <div></div>
