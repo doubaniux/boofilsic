@@ -118,7 +118,7 @@ def delete(request):
 @login_required
 def home(request, id):
     if request.method == 'GET':
-        if request.GET.get('is_mastodon_id') in ['true', 'True']:
+        if request.GET.get('is_mastodon_id', '').lower() == 'true':
             query_kwargs = {'mastodon_id': id}
         else:
             query_kwargs = {'pk': id}
@@ -309,7 +309,12 @@ def book_list(request, id, status):
 @login_required
 def report(request):
     if request.method == 'GET':
-        form = ReportForm()
+        user_id = request.GET.get('user_id')
+        if user_id:
+            user = get_object_or_404(User, pk=user_id)
+            form = ReportForm(initial={'reported_user': user})
+        else:
+            form = ReportForm()
         return render(
             request,
             'users/report.html',

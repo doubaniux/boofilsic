@@ -162,7 +162,7 @@
                             <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
                             
                             {% if request.user != user %}
-                            <a href="#" class="report">{% trans '举报用户' %}</a>
+                            <a href="{% url 'users:report' %}?user_id={{ user.id }}" class="report">{% trans '举报用户' %}</a>
                             {% endif %}
                                 
                         </div>

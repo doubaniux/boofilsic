@@ -14,3 +14,8 @@ class ReportForm(forms.ModelForm):
         widgets = {
             'message': forms.Textarea(attrs={'placeholder': _("详情")}),
         } 
+        labels = {
+            'reported_user': _("举报的用户"),
+            'image':  _("相关证据"),
+            'message': _("详情")
+        }
