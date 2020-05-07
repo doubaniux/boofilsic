@@ -380,7 +380,14 @@ def retrieve_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(BookReview, pk=id)
         if not check_visibility(review, request.session['oauth_token'], request.user):
-            return HttpResponseBadRequest()
+            msg = _("你没有访问这个页面的权限😥")
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': msg,
+                }
+            )
         review_form = BookReviewForm(instance=review)
         book = review.book
         try:
