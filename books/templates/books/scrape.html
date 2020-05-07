@@ -22,6 +22,9 @@
         #scrapeForm label{
             font-size: small !important;
         }
+        textarea {
+            height: 200px;
+        }
     </style>
     <div id="page-wrapper">
         <div id="content-wrapper">
@@ -31,8 +34,8 @@
                         <a href="{% url 'common:home' %}">
                             <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
                         </a>
-                        <input type="search" class="search-box" name="keywords" 
-                        value="{% if request.GET.keywords %}{{ request.GET.keywords }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
+                        <input type="search" class="search-box" name="q" 
+                        value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
                         <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
                         {% if request.user.is_staff %}   
@@ -46,14 +49,32 @@
                 <div class="row">
                     <div id="main">
                         
-                        <iframe sandbox="allow-same-origin allow-scripts allow-popups allow-forms" src="https://search.douban.com/book/subject_search{% if keywords %}?search_text={{ keywords }}{% endif %}" frameborder="0"></iframe>
+
+                        <iframe id='test' sandbox="allow-same-origin allow-scripts allow-popups allow-forms" src="https://search.douban.com/book/subject_search{% if q %}?search_text={{ q }}{% endif %}" frameborder="0"></iframe>
+                        <div class="dividing-line"></div>
+                        <div id="parser">
+                            <label style="font-size: small;">{% trans '解析器:' %}</label>
+                            <textarea name="parser" id="" cols="30" rows="40" placeholder="复制信息粘贴至此自动解析，例：
+
+作者: [法] 雨果
+出版社: 人民文学出版社
+原作名: Les Misérables
+译者: 李丹 / 方于
+出版年: 2015-6
+页数: 1435
+定价: 110.00元
+装帧: 精装
+丛书: 名著名译丛书
+ISBN: 9787020104345
+                            "></textarea>
+                        </div>
                         <div class="dividing-line"></div>
                         <div id="scrapeForm">
                             <form action="{% url 'books:create' %}" method="POST" enctype="multipart/form-data">
                                 {% csrf_token %}
                                 {{ form }}
                             </form>
-                            <a href="{% url 'books:scrape' %}" id="submit" class="button add-button">{% trans '剽取！' %}</a>
+                            <a href="{% url 'books:scrape' %}" class="button add-button submit">{% trans '剽取！' %}</a>
                         </div>
                     </div>
                     
@@ -61,11 +82,10 @@
                         <div class="aside-card">
                             <div class="add-nav">
     
-                                <div>
-        
+                                <div>        
                                     {% trans '根据豆瓣内容填写下方表格！' %}
                                 </div>
-                                <a href="{% url 'books:scrape' %}" id="submit" class="button add-button">{% trans '剽取！' %}</a>
+                                <a href="{% url 'books:scrape' %}" class="button add-button submit">{% trans '剽取！' %}</a>
                             </div>
                         </div>
           
@@ -82,9 +102,9 @@
     <script>
         $("#searchInput").on('keyup', function (e) {
             if (e.keyCode === 13) {
-                let keywords = $(this).val();
-                if (keywords)
-                    location.href = "{% url 'common:search' %}" + "?keywords=" + keywords;
+                let q = $(this).val();
+                if (q)
+                    location.href = "{% url 'common:search' %}" + "?q=" + q;
             }
         });
     </script>

@@ -54,7 +54,7 @@ def search(request):
         # in the future when more modules are added...
         # category = request.GET.get("category")
         q = Q()
-        keywords = request.GET.get("keywords", default='').split()
+        keywords = request.GET.get("q", default='').split()
         query_args = []
         for keyword in keywords:
             q = q | Q(title__icontains=keyword)
