@@ -63,6 +63,9 @@ $(document).ready( function() {
                     case 'ISBN':
                         $("input[name='isbn']").val(words[1]);
                         break;
+                    case '副标题':
+                        $("input[name='subtitle']").val(words[1]);
+                        break;
                     case '原作名':
                         $("input[name='orig_title']").val(words[1]);
                         break;
