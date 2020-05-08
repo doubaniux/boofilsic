@@ -227,7 +227,7 @@ def create_update_mark(request):
                 words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) +\
                      f"《{book.title}》" + rating_to_emoji(form.cleaned_data['rating'])
                 content = words + '\n' + url + '\n' + form.cleaned_data['text']
-                post_toot(content, visibility, request.session['oauth_token'])
+                post_toot(content, visibility, request.session['oauth_token'], local_only=True)
         else:
             return HttpResponseBadRequest()
 
