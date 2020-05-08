@@ -60,6 +60,7 @@ def search(request):
             q = q | Q(title__icontains=keyword)
             q = q | Q(subtitle__istartswith=keyword)
             q = q | Q(orig_title__icontains=keyword)
+            q = q | Q(isbn__icontains=keyword)
         query_args.append(q)
         queryset = Book.objects.filter(*query_args)
 
