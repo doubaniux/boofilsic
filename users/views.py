@@ -15,6 +15,7 @@ from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE
 from common.models import MarkStatusEnum
 from books.models import *
 from boofilsic.settings import MASTODON_DOMAIN_NAME, CLIENT_ID, CLIENT_SECRET
+from books.forms import BookMarkStatusTranslator
 
 
 # Views
@@ -276,8 +277,8 @@ def book_list(request, id, status):
                     'secondary_msg': sec_msg,
                 }
             )        
-        # mastodon request
         if not user == request.user:
+            # mastodon request
             relation = get_relationships([user.mastodon_id], request.session['oauth_token'])[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
@@ -294,12 +295,14 @@ def book_list(request, id, status):
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
+        list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
         return render(
             request,
             'books/list.html',
             {
                 'marks': marks,
                 'user': user,
+                'list_title' : list_title,
             }
         )
     else:

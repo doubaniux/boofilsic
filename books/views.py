@@ -222,15 +222,13 @@ def create_update_mark(request):
             if form.cleaned_data['share_to_mastodon']:
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
-                    local_only = False
                 else:
-                    visibility = TootVisibilityEnum.PUBLIC
-                    local_only = True
+                    visibility = TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("books:retrieve", args=[book.id])
                 words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) +\
                      f"《{book.title}》" + rating_to_emoji(form.cleaned_data['rating'])
                 content = words + '\n' + url + '\n' + form.cleaned_data['text']
-                post_toot(content, visibility, request.session['oauth_token'], local_only=local_only)
+                post_toot(content, visibility, request.session['oauth_token'])
         else:
             return HttpResponseBadRequest()
 
@@ -304,7 +302,7 @@ def create_review(request, book_id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.PUBLIC
+                    visibility = TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("books:retrieve_review", args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
                 content = words + '\n' + url + '\n' + form.cleaned_data['title']
@@ -349,7 +347,7 @@ def update_review(request, id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.PUBLIC
+                    visibility = TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("books:retrieve_review", args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
                 content = words + '\n' + url + '\n' + form.cleaned_data['title']
