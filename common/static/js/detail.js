@@ -6,6 +6,7 @@ $(document).ready( function() {
         $(".bg-mask").hide();
     });
 
+    // pop up new rating modal
     $("#aside .mark .button-group .button").each(function() {
         $(this).click(function(e) {
             e.preventDefault();
@@ -28,6 +29,7 @@ $(document).ready( function() {
         });
     })
 
+    // pop up modify mark modal
     $(".mark a.edit").click(function(e) {
         e.preventDefault();
         let title = $(".mark-status-label").text().trim();
@@ -78,8 +80,7 @@ $(document).ready( function() {
     if ($(".modal-selection input[type='radio']:checked").val() == WISH_CODE) {
         $(".mark-modal .rating-star-edit").hide();
     }
-    $(".modal-selection input[type='radio']").click(function() {
-        // 2 is the status code of wish
+    $(".modal-selection#statusSelection input[type='radio']").click(function() {
         if ($(this).val() == WISH_CODE) {
             $(".mark-modal .rating-star-edit").hide();
         } else {
