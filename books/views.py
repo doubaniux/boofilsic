@@ -207,6 +207,7 @@ def create_update_mark(request):
         if form.is_valid():
             if form.instance.status == MarkStatusEnum.WISH.value:
                 form.instance.rating = None
+                form.cleaned_data['rating'] = None
             form.instance.owner = request.user
             form.instance.edited_time = timezone.now()
             book = form.instance.book
@@ -221,13 +222,15 @@ def create_update_mark(request):
             if form.cleaned_data['share_to_mastodon']:
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
+                    local_only = False
                 else:
                     visibility = TootVisibilityEnum.PUBLIC
+                    local_only = True
                 url = "https://" + request.get_host() + reverse("books:retrieve", args=[book.id])
                 words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) +\
                      f"《{book.title}》" + rating_to_emoji(form.cleaned_data['rating'])
                 content = words + '\n' + url + '\n' + form.cleaned_data['text']
-                post_toot(content, visibility, request.session['oauth_token'], local_only=True)
+                post_toot(content, visibility, request.session['oauth_token'], local_only=local_only)
         else:
             return HttpResponseBadRequest()
 
