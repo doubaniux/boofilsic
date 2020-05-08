@@ -112,7 +112,7 @@ $(document).ready( function() {
                 }
                 let url = $("#userPageURL").text().replace('0', data.id);
                 temp.find("a").attr('href', url);
-                temp.find(".user-brief").text($(data.note).text());
+                temp.find(".user-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
                 $("#main .user:last").after(temp);                
             });
 
