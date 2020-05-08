@@ -75,8 +75,10 @@ def post_toot(content, visibility, token, local_only=False):
     payload = {
         'status': content,
         'visibility': visibility,
-        'local_only': local_only,
+        'local_only': True,
     }
+    if not local_only:
+        del payload['local_only']
     response = post(url, headers=headers, data=payload)
     return response
 
