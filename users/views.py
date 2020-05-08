@@ -288,7 +288,7 @@ def book_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            queryset = BookMark.get_available_user_data(user, relation['is_following']).filter(status=MarkStatusEnum[status.upper()])
+            queryset = BookMark.get_available_user_data(user, relation['following']).filter(status=MarkStatusEnum[status.upper()])
         else:
             queryset = BookMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()])
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
