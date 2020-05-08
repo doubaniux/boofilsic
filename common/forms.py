@@ -41,7 +41,7 @@ class RadioBooleanField(forms.ChoiceField):
             value = False
         else:
             value = bool(value)
-        return super().to_python(value)
+        return value
 
 
 class RatingValidator:
