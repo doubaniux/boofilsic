@@ -43,6 +43,13 @@
             <section id="content" class="container">
                 <div class="row">
                     <div id="main">
+                        {% if request.GET.q %}
+                        <div class="set">
+                            <h5 class="set-title">
+                                “{{ request.GET.q }}” {% trans '的搜索结果' %}
+                            </h5>
+                        </div>
+                        {% endif %}
                         <ul class="result-items">
                             
                             {% for book in items %}
