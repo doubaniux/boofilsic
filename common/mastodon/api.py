@@ -66,7 +66,7 @@ def check_visibility(user_owned_entity, token, visitor):
         return True
 
 
-def post_toot(content, visibility, token):
+def post_toot(content, visibility, token, local_only=False):
     url = 'https://' + MASTODON_DOMAIN_NAME + API_PUBLISH_TOOT
     headers = {
         'Authorization': f'Bearer {token}',
@@ -74,7 +74,8 @@ def post_toot(content, visibility, token):
     }
     payload = {
         'status': content,
-        'visibility': visibility
+        'visibility': visibility,
+        'local_only': local_only,
     }
     response = post(url, headers=headers, data=payload)
     return response
