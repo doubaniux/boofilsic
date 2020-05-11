@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '172.18.96.109',
+            'HOST': '192.168.238.194',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -113,9 +113,7 @@ else:
 
 AUTHENTICATION_BACKENDS = [
     'common.mastodon.auth.OAuth2Backend',
-    # for admin to login admin site
-    # 'django.contrib.auth.backends.ModelBackend'
-    ]
+]
 
 
 # Internationalization
