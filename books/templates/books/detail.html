@@ -109,7 +109,7 @@
                             <h5 class="set-title">{% trans '简介' %}</h5>
                             
                             {% if book.brief %}
-                            <p class="set-content">{{ book.brief }}</p>
+                            <p class="set-content">{{ book.brief | linebreaksbr }}</p>
                             {% else %}
                             <p class="set-empty">{% trans '暂无简介' %}</p>    
                             {% endif %}
