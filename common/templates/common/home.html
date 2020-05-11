@@ -43,7 +43,7 @@
         
                         <div class="set" id="bookWish">
                             <h5 class="set-title">
-                                {% trans '想看的书' %}
+                                {% trans '想读的书' %}
                             </h5>
                             {% if wish_books_more %}
                             <a href="{% url 'users:book_list' user.id 'wish' %}" class="more-link">{% trans '更多' %}</a>
@@ -65,7 +65,7 @@
                         </div>
                         <div class="set" id="bookDo">
                             <h5 class="set-title">
-                                {% trans '在看的书' %}
+                                {% trans '在读的书' %}
                             </h5>
                             {% if do_books_more %}
                             <a href="{% url 'users:book_list' user.id 'do' %}" class="more-link">{% trans '更多' %}</a>
@@ -87,7 +87,7 @@
                         </div>
                         <div class="set" id="bookCollect">
                             <h5 class="set-title">
-                                {% trans '看过的书' %}
+                                {% trans '读过的书' %}
                             </h5>
                             {% if collect_books_more %}
                             <a href="{% url 'users:book_list' user.id 'collect' %}" class="more-link">{% trans '更多' %}</a>

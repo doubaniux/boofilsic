@@ -9,9 +9,9 @@ from common.forms import RadioBooleanField, RatingValidator
 
 def BookMarkStatusTranslator(status):
     trans_dict = {
-        MarkStatusEnum.DO.value: _("在看"),
-        MarkStatusEnum.WISH.value: _("想看"),
-        MarkStatusEnum.COLLECT.value: _("看过")
+        MarkStatusEnum.DO.value: _("在读"),
+        MarkStatusEnum.WISH.value: _("想读"),
+        MarkStatusEnum.COLLECT.value: _("读过")
     }
     return trans_dict[status]        
 
