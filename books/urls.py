@@ -17,4 +17,5 @@ urlpatterns = [
     path('review/<int:id>/', retrieve_review, name='retrieve_review'),
     path('<int:book_id>/review/list/', retrieve_review_list, name='retrieve_review_list'),
     path('scrape/', scrape, name='scrape'),
+    path('click_to_scrape/', click_to_scrape, name='click_to_scrape'),
 ]

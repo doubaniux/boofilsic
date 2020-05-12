@@ -40,8 +40,13 @@ def OAuth2_login(request):
                 request.session['new_user_token'] = token
                 return redirect(reverse('users:register'))
         else:
-            # TODO better fail result page
-            return HttpResponse(content="Authentication failed.")
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': _("认证失败😫")
+                }
+            )
     else:
         return HttpResponseBadRequest()
 
@@ -49,7 +54,6 @@ def OAuth2_login(request):
 # the 'login' page that user can see
 def login(request):
     if request.method == 'GET':
-        # TODO NOTE replace http with https!!!!
         auth_url = f"https://{MASTODON_DOMAIN_NAME}{API_OAUTH_AUTHORIZE}?" +\
         f"client_id={CLIENT_ID}&scope=read+write&" +\
         f"redirect_uri=https://{request.get_host()}{reverse('users:OAuth2_login')}" +\

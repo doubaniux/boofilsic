@@ -18,5 +18,5 @@ migrations/
 *.sqlite3
 
 # deployed media and static files
-.media/
-.static/
+media/
+static/
