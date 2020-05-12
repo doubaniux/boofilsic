@@ -101,7 +101,7 @@ def scrape_douban_book(url):
                 'cache-control': 'no-cache',
                 'dnt': '1'  ,
             }, 
-            # proxies=proxies, 
+            proxies=proxies,
             timeout=TIMEOUT, 
         )
         if img_response.status_code == 200:
