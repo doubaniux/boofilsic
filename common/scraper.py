@@ -24,8 +24,8 @@ DEFAULT_REQUEST_HEADERS = {
 TIMEOUT = 10
 
 # luminati account credentials
-USERNAME = '***REMOVED***'
-PASSWORD = '***REMOVED***'
+USERNAME = 'lum-customer-hl_124-zone-static'
+PASSWORD = 'tvt'
 PORT = 22225
 
 
@@ -37,8 +37,8 @@ def scrape_douban_book(url):
         'http': proxy_url,
         'https': proxy_url,    
     }
-    # r = requests.get(url, proxies=proxies, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
-    r = requests.get(url, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
+    r = requests.get(url, proxies=proxies, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
+    # r = requests.get(url, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
     
     content = html.fromstring(r.content.decode('utf-8'))
 
@@ -103,7 +103,7 @@ def scrape_douban_book(url):
                 'cache-control': 'no-cache',
                 'dnt': '1'  ,
             }, 
-            # proxies=proxies, 
+            proxies=proxies, 
             timeout=TIMEOUT, 
         )
         if img_response.status_code == 200:
