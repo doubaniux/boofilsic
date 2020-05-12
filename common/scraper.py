@@ -2,7 +2,7 @@ import requests
 import random
 from lxml import html
 import re
-
+from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD
 
 RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")
@@ -24,15 +24,13 @@ DEFAULT_REQUEST_HEADERS = {
 TIMEOUT = 10
 
 # luminati account credentials
-USERNAME = 'lum-customer-hl_124-zone-static'
-PASSWORD = 'tvt'
 PORT = 22225
 
 
 def scrape_douban_book(url):
     session_id = random.random()
     proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
-        (USERNAME, session_id, PASSWORD, PORT))
+        (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
     proxies = {
         'http': proxy_url,
         'https': proxy_url,    
@@ -103,7 +101,7 @@ def scrape_douban_book(url):
                 'cache-control': 'no-cache',
                 'dnt': '1'  ,
             }, 
-            proxies=proxies, 
+            # proxies=proxies, 
             timeout=TIMEOUT, 
         )
         if img_response.status_code == 200:
