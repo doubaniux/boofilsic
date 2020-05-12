@@ -6,6 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
 from django.utils import timezone
 from django.core.paginator import Paginator
+from django.core.files.uploadedfile import SimpleUploadedFile
 from common.mastodon import mastodon_request_included
 from common.mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from common.mastodon.utils import rating_to_emoji
@@ -454,5 +455,41 @@ def scrape(request):
                 'form': form,
             }
         )
+    else:
+        return HttpResponseBadRequest()
+
+
+@login_required
+def click_to_scrape(request):
+    if request.method == "POST":
+        url = request.POST.get("url")
+        if url:
+            from common.scraper import scrape_douban_book
+            try:
+                scraped_book, raw_cover = scrape_douban_book(url)
+            except TimeoutError:
+                return render(
+                    request,
+                    'common/error.html',
+                    {
+                        'msg': _("爬取数据失败😫"),
+                    }
+                )
+            scraped_cover = {'cover': SimpleUploadedFile('temp.jpg', raw_cover)}
+            form = BookForm(scraped_book, scraped_cover)
+            if form.is_valid():
+                form.instance.last_editor = request.user
+                form.save()
+                return redirect(reverse('books:retrieve', args=[form.instance.id]))
+            else:
+                return render(
+                    request,
+                    'common/error.html',
+                    {
+                        'msg': _("爬取数据失败😫"),
+                    }
+                )
+        else:
+            return HttpResponseBadRequest()
     else:
         return HttpResponseBadRequest()

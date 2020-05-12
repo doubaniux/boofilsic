@@ -6,7 +6,6 @@ from .api import *
 
 def obtain_token(request, code):
     """ Returns token if success else None. """
-    # TODO change http!
     payload = {
         'client_id': CLIENT_ID,
         'client_secret': CLIENT_SECRET,

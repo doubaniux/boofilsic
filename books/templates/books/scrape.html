@@ -48,8 +48,9 @@
             <section id="content" class="container">
                 <div class="row">
                     <div id="main">
-                        
-
+                        <div class="set">        
+                            {% trans '根据豆瓣内容填写下方表单' %}
+                        </div>
                         <iframe id='test' sandbox="allow-same-origin allow-scripts allow-popups allow-forms" src="https://search.douban.com/book/subject_search{% if q %}?search_text={{ q }}{% endif %}" frameborder="0"></iframe>
                         <div class="dividing-line"></div>
                         <div id="parser">
@@ -81,11 +82,15 @@ ISBN: 9787020104345
                     <div id="aside">
                         <div class="aside-card">
                             <div class="add-nav">
-    
-                                <div>        
-                                    {% trans '根据豆瓣内容填写下方表格！' %}
+                                <div class="set">        
+                                    {% trans '或者复制详情页链接' %}
                                 </div>
-                                <a href="{% url 'books:scrape' %}" class="button add-button submit">{% trans '剽取！' %}</a>
+                                <form action="{% url 'books:click_to_scrape' %}" method="post">
+                                    {% csrf_token %}
+                                    <input type="text" name="url" required placeholder="https://book.douban.com/subject/1000000/">
+                                    <input type="submit" class="button add-button" value="{% trans '一键取剽取!' %}">
+                                </form>
+
                             </div>
                         </div>
           
