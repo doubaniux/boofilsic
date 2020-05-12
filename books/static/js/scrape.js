@@ -5,9 +5,9 @@ $(document).ready( function() {
     });
 
     // assume there  is only one input[file] on page
-    $("input[type='file']").each(function() {
-        $(this).after('<img src="#" alt="" id="previewImage" style="margin:10px 0; max-width:500px;"/>');
-    });
+    // $("input[type='file']").each(function() {
+    //     $(this).after('<img src="#" alt="" id="previewImage" style="margin:10px 0; max-width:500px;"/>');
+    // });
 
     // preview uploaded pic
     $("input[type='file']").change(function() {

@@ -59,11 +59,13 @@ class BookForm(forms.ModelForm):
             'brief': _("简介"),
             'other_info': _("其他信息"),
         }
+        from common.forms import ImageInput
         widgets = {
             'author': forms.TextInput(attrs={'placeholder': _("多个作者使用英文逗号分隔")}),
             'translator': forms.TextInput(attrs={'placeholder': _("多个译者使用英文逗号分隔")}),
             'other_info': KeyValueInput(),
-            'cover': forms.FileInput(),
+            # 'cover': forms.FileInput(),
+            'cover': ImageInput(),
         }        
 
     def clean_isbn(self):
