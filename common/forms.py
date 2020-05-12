@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.postgres.forms import JSONField
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
+from boofilsic.settings import MEDIA_URL
 import json
 
 
@@ -66,7 +67,7 @@ class ImageInput(forms.FileInput):
         Return the file object if it has a defined url attribute.
         """
         if self.is_initial(value):
-            return value
+            return MEDIA_URL + value
 
     def is_initial(self, value):
         """
