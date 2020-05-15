@@ -482,6 +482,17 @@ def click_to_scrape(request):
                 form.save()
                 return redirect(reverse('books:retrieve', args=[form.instance.id]))
             else:
+                if 'isbn' in form.errors:
+                    msg = _("ISBN与现有图书重复")
+                else:
+                    msg = _("爬取数据失败😫")
+                return render(
+                    request,
+                    'common/error.html',
+                    {
+                        'msg': msg,
+                    }
+                )
                 return render(
                     request,
                     'common/error.html',
