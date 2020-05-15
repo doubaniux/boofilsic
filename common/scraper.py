@@ -2,7 +2,7 @@ import requests
 import random
 from lxml import html
 import re
-from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD
+from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG
 
 RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")
@@ -35,6 +35,8 @@ def scrape_douban_book(url):
         'http': proxy_url,
         'https': proxy_url,    
     }
+    if DEBUG:
+        proxies = None
     r = requests.get(url, proxies=proxies, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
     # r = requests.get(url, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
     
@@ -79,12 +81,13 @@ def scrape_douban_book(url):
 
     pages_elem = content.xpath("//div[@id='info']//span[text()='页数:']/following::text()")
     pages = pages_elem[0].strip() if pages_elem else None 
-    pages = int(RE_NUMBERS.findall(pages)[0]) if RE_NUMBERS.findall(pages) else None
+    if pages is not None:
+        pages = int(RE_NUMBERS.findall(pages)[0]) if RE_NUMBERS.findall(pages) else None
 
     isbn_elem = content.xpath("//div[@id='info']//span[text()='ISBN:']/following::text()")
     isbn = isbn_elem[0].strip() if isbn_elem else None
 
-    brief_elem = content.xpath("//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro']/p/text()")
+    brief_elem = content.xpath("//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro'][not(ancestor::span[@class='short'])]/p/text()")
     brief = '\n'.join(p.strip() for p in brief_elem) if brief_elem else None
 
     img_url_elem = content.xpath("//*[@id='mainpic']/a/img/@src")
