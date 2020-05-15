@@ -6,6 +6,7 @@ from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG
 
 RE_NUMBERS = re.compile(r"\d+\d*")
 RE_WHITESPACES = re.compile(r"\s+")
+RE_DOUBAN_BOOK_URL = re.compile(r"https://book.douban.com/subject/\d+/")
 
 DEFAULT_REQUEST_HEADERS = {
     'Host': 'book.douban.com',
@@ -28,6 +29,9 @@ PORT = 22225
 
 
 def scrape_douban_book(url):
+    if RE_DOUBAN_BOOK_URL.match(url) is None:
+        raise ValueError("not valid douban book url")
+
     session_id = random.random()
     proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
         (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
@@ -42,7 +46,10 @@ def scrape_douban_book(url):
     
     content = html.fromstring(r.content.decode('utf-8'))
 
-    title = content.xpath("/html/body/div[3]/h1/span/text()")[0].strip()
+    try:
+        title = content.xpath("/html/body/div[3]/h1/span/text()")[0].strip()
+    except IndexError:
+        raise ValueError("given url contains no book info")
 
     subtitle_elem = content.xpath("//div[@id='info']//span[text()='副标题:']/following::text()")
     subtitle = subtitle_elem[0].strip() if subtitle_elem else None

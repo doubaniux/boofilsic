@@ -468,13 +468,9 @@ def click_to_scrape(request):
             try:
                 scraped_book, raw_cover = scrape_douban_book(url)
             except TimeoutError:
-                return render(
-                    request,
-                    'common/error.html',
-                    {
-                        'msg': _("爬取数据失败😫"),
-                    }
-                )
+                return render(request, 'common/error.html', {'msg': _("爬取数据失败😫，请重试")})
+            except ValueError:
+                return render(request, 'common/error.html', {'msg': _("链接非法，爬取失败")})
             scraped_cover = {'cover': SimpleUploadedFile('temp.jpg', raw_cover)}
             form = BookForm(scraped_book, scraped_cover)
             if form.is_valid():
@@ -486,20 +482,7 @@ def click_to_scrape(request):
                     msg = _("ISBN与现有图书重复")
                 else:
                     msg = _("爬取数据失败😫")
-                return render(
-                    request,
-                    'common/error.html',
-                    {
-                        'msg': msg,
-                    }
-                )
-                return render(
-                    request,
-                    'common/error.html',
-                    {
-                        'msg': _("爬取数据失败😫"),
-                    }
-                )
+                return render(request, 'common/error.html', {'msg': msg})
         else:
             return HttpResponseBadRequest()
     else:
