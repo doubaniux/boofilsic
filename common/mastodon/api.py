@@ -56,7 +56,7 @@ def check_visibility(user_owned_entity, token, visitor):
     """
     if not visitor == user_owned_entity.owner:
         # mastodon request
-        relationship = get_relationships([visitor.mastodon_id], token)[0]
+        relationship = get_relationships([user_owned_entity.owner.mastodon_id], token)[0]
         if relationship['blocked_by']:
             return False
         if not relationship['following'] and user_owned_entity.is_private:
