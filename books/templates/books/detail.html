@@ -202,7 +202,7 @@
                             <div class="action-panel" id="addMarkPanel">
                                 <div class="action-panel__label">{% trans '标记这本书' %}</div>
                                 <div class="action-panel__button-group">
-                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}">{% trans '想读' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想读' %}</button>
                                     <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在读' %}</button>
                                     <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '读过' %}</button>
                                 </div>
