@@ -26,7 +26,7 @@
             <section id="content">
                 <div class="grid">
                     <div class="single-section-wrapper" id="main">
-                        <form action="{% url 'users:report' %}" method="post" enctype="multipart/form-data">
+                        <form action="{% url 'users:report' %}" method="post" enctype="multipart/form-data" class="report-form">
                             {% csrf_token %}
                             {{ form }}
                             <input class="button" type="submit" value="{% trans '提交' %}">
