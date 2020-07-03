@@ -9,44 +9,34 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'Nicedb - ' %}{{ title }}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/create_update_review.js' %}"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <h4 class="nav-title">{{ title }}</h4>
-                        
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
+            {% include "partial/_navbar.html" %}
         
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        <div class="item-card clearfix">
-                            <img src="{{ book.cover.url }}" alt="" class="item-image float-left">
-                            <div class="item-info float-left">
+            <section id="content">
+                <div class="grid">
+                    <div class="single-section-wrapper">
+                        <div class="entity-card entity-card--horizontal">
+                            <div class="entity-card__img-wrapper">
+                                <a href="{% url 'books:retrieve' book.id %}">
+                                    <img src="{{ book.cover.url }}" alt="" class="item-image float-left">
+                                </a>
+                            </div>
+                            <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
                                 
-                                <div class="item-title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></div>
+                                <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
                                 <div>{% if book.isbn %}{% trans 'ISBN：' %}{{ book.isbn }}{% endif %}</div>
                                 <div>{% if book.author %}{% trans '作者：' %}
                                 {% for author in book.author %}
@@ -57,35 +47,38 @@
                                 <div>{%if book.pub_year %}{% trans '出版时间：' %}{{ book.pub_year }}{% trans '年' %}{% if book.pub_month %}{{ book.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
                                 
                                 {% if book.rating %}
-                                <span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"> </span>
-                                <span class="rating-score"> {{ book.rating }} </span>
+                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"> </span>
+                                <span class="entity-card__rating-score rating-score"> {{ book.rating }} </span>
                                 {% endif %}              
                             </div>
                         </div>
-                        
-                        <div class="review">
-                            <form action="{{ submit_url }}" method="post">
+                        <div class="dividing-line"></div>
+
+                            <form action="{{ submit_url }}" method="post" class="review-form">
                                 {% csrf_token %}
                                 {{ form.book }}
-                                {{ form.title.label }}{{ form.title }}
+                                <div>
+                                {{ form.title.label }}
+                                </div>
+                                {{ form.title }}
                                 <div class="clearfix">
                                     <span class="float-left">
                                         {{ form.content.label }}
                                     </span>
                                     <span class="float-right">
-                                        <span class="preview-button">{% trans '预览' %}</span>
+                                        <span class="review-form__preview-button">{% trans '预览' %}</span>
                                     </span>
                                 </div>
                                 <div id="rawContent">
                                     {{ form.content }}
                                 </div>
-                                <div class="fyi">{% trans '不知道什么是Markdown？可以参考' %}<a target="_blank" href="https://www.markdownguide.org/">{% trans '这里' %}</a></div>
-                                <div class="option clearfix">
-                                    <div class="selection float-left">
+                                <div class="review-form__fyi">{% trans '不知道什么是Markdown？可以参考' %}<a target="_blank" href="https://www.markdownguide.org/">{% trans '这里' %}</a></div>
+                                <div class="review-form__option">
+                                    <div class="review-form__visibility-radio">
 
                                         {{ form.is_private.label }}{{ form.is_private }}
                                     </div>
-                                    <div class="float-right">
+                                    <div class="review-form__share-checkbox">
                                         {{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}
                                     </div>
                                 </div>
@@ -94,16 +87,13 @@
                                 </div>
                                 {{ form.media }}
                             </form>
-                        </div>
+
                     </div>
-        
+                    
+                </div>
             </section>
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
     
     {% comment %}        

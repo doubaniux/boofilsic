@@ -1,0 +1,385 @@
+
+$main-section-padding: 32px 48px 32px 36px
+$main-section-padding-mobile: 32px 28px 28px 28px
+
+$section-title-margin: 20px
+$sub-sections-between-margin: 28px
+$sub-section-title-margin: 8px
+
+.main-section-wrapper
+	padding: $main-section-padding
+	background-color: $color-bright
+
+// for search result etc
+.entity-list
+
+	& &__title
+		// font-size: large
+		margin-bottom: $section-title-margin
+
+	& &__entities
+
+	& &__entity
+		display: flex
+		margin-bottom: 36px
+		&::after
+			@include clear
+
+	& &__entity-img
+		// float: left
+		object-fit: contain
+		// height: 150px
+		$width: 100px
+		min-width: $width
+		max-width: $width
+		
+	& &__entity-text
+		margin-left: 20px
+		overflow: hidden
+    	// float: left
+
+	& &__entity-link
+		font-size: 1.2em
+	
+	& &__entity-title
+		display: block	
+
+	& &__entity-info
+		max-width: 76%
+		white-space: nowrap
+		overflow: hidden
+		display: inline-block
+		text-overflow: ellipsis
+		position: relative
+		top: 0.52em
+		&--full-length
+			max-width: 100%
+
+	& &__entity-brief
+		margin-top: 8px
+		display: -webkit-box
+		-webkit-box-orient: vertical
+		-webkit-line-clamp: 4
+		overflow: hidden
+
+	$rating-info-gap-width: 5px
+	& &__rating
+		display: inline-block
+		margin: 0
+
+	& &__rating--empty
+		// width: $empty-rating-width
+		margin-right: $rating-info-gap-width
+
+	& &__rating-score
+		margin-right: $rating-info-gap-width
+		position: relative
+		top: 1px
+
+	& &__rating-star
+		display: inline
+		position: relative
+		top: 0.3em
+		left: -0.3em
+
+// detail page
+.entity-detail
+	
+	& &__img
+		height: 210px;
+		object-fit: contain;
+		float: left;
+		max-width: 150px;
+
+	& &__info
+		float: left
+		margin-left: 20px
+		overflow: hidden
+		text-overflow: ellipsis
+		width: 70%
+
+	& &__title
+		font-weight: bold
+		
+	& &__fields
+		display: inline-block
+		vertical-align: top
+		width: 48%
+		& div, & span
+			margin: 1px 0
+
+	& &__rating
+		position: relative
+		top: -5px
+
+	& &__rating-star
+		position: relative
+		left: -4px
+		top: 3px
+
+	& &__rating-score
+		font-weight: bold
+
+	&::after
+		@include clear
+
+$mark-review-padding: 3px 0
+$mark-review-padding-wider: 6px 0
+
+// includes title and description of an entity
+// sub section
+.entity-desc
+	margin-bottom: $sub-sections-between-margin
+	& &__title
+		margin-bottom: $sub-section-title-margin
+	& &__content
+	
+	& &__empty
+
+// includes marks of an entity
+// sub section
+.entity-marks
+	margin-bottom: $sub-sections-between-margin
+	& &__title
+		margin-bottom: $sub-section-title-margin
+		& > a
+			margin-right: 5px
+		&--stand-alone
+			margin-bottom: $section-title-margin
+
+	& &__more-link
+		margin-left: 5px
+	& &__mark-list
+	
+	& &__mark
+		margin: 0
+		padding: $mark-review-padding
+		border-bottom: 1px dashed $color-quinary
+		&:last-child
+			border: none
+		&--wider
+			padding: $mark-review-padding-wider
+
+	& &__mark-content
+		margin-bottom: 0
+
+	& &__mark-time
+		color: $color-light
+		margin-left: 2px
+
+	& &__owner-link
+
+	& &__rating-star
+		position: relative
+		top: 4px
+
+	& &__empty
+
+// includes reviews of an entity
+// sub section	
+.entity-reviews
+	// when used alone
+	&:first-child
+		margin-bottom: $sub-sections-between-margin
+	& &__title
+		margin-bottom: $sub-section-title-margin
+		& > a
+			margin-right: 5px
+		&--stand-alone
+			margin-bottom: $section-title-margin		
+	& &__more-link
+		margin-left: 5px
+	& &__review-list
+
+	& &__review
+		margin: 0
+		padding: $mark-review-padding
+		border-bottom: 1px dashed $color-quinary
+		&:last-child
+			border: none
+		&--wider
+			padding: $mark-review-padding-wider			
+
+	& &__review-time
+		color: $color-light
+		margin-left: 2px
+	& &__review-title
+
+	& &__owner-link
+
+	& &__empty		
+
+.dividing-line
+	height: 0
+	width: 100%
+	margin: 40px 0 24px 0
+	border-top: solid 1px $color-light
+
+// on home page
+.entity-sort
+	margin-bottom: 30px
+	& &__label
+		font-size: large
+		display: inline-block
+		margin-bottom: $section-title-margin
+
+	& &__more-link
+		margin-left: 5px
+
+	& &__entity-list
+		display: flex
+		justify-content: flex-start
+		// padding-left: 24px
+		flex-wrap: wrap
+
+	& &__entity
+		padding: 0 10px
+		flex-basis: 20%
+		text-align: center
+		display: inline-block
+		color: $color-secondary
+		&:hover
+			color: $color-primary
+		& > a
+			color: inherit
+
+	& &__entity-img
+		height: 110px
+
+	& &__entity-name
+		text-overflow: ellipsis
+		overflow: hidden
+		display: -webkit-box
+		-webkit-box-orient: vertical
+		-webkit-line-clamp: 2
+
+	& &__empty
+
+// follower/following list page
+.related-user-list
+	& &__title
+		margin-bottom: $section-title-margin
+
+	& &__user
+		display: flex
+		justify-content: flex-start
+		margin-bottom: 20px
+
+	& &__user-info
+		margin-left: 15px
+		overflow: auto
+
+	& &__user-name
+	
+	& &__user-bio
+
+	& &__user-avatar
+		max-height: 72px
+
+// review detail page
+.review-head
+	& &__title
+		display: inline-block
+		font-weight: bold
+
+	& &__body
+		margin-bottom: 10px
+		&::after
+			@include clear
+	
+	& &__info
+		float: left
+
+	& &__owner-link
+		color: $color-light
+		&:hover
+			color: $color-primary
+
+	& &__time
+		color: $color-light
+
+	& &__rating-star
+		position: relative
+		top: 3px
+		left: -1px
+	
+	& &__actions
+		float: right
+
+	& &__action-link
+		&:not(:first-child)
+			margin-left: 5px
+// Small devices (landscape phones, 576px and up)
+@media (max-width: $small-devices)
+	.entity-list
+		& &__entity
+			flex-direction: column
+			margin-bottom: 30px
+		& &__entity-text
+			margin-left: 0
+		& &__entity-img-wrapper
+			margin-bottom: 8px
+		& &__entity-info
+			max-width: unset
+		& &__rating--empty + &__entity-info
+			max-width: 70%
+
+	.entity-detail
+		flex-direction: column
+		& &__title
+			margin-bottom: 5px
+		& &__info
+			margin-left: 0
+			float: none
+			display: flex
+			flex-direction: column
+			width: 100%
+		& &__img
+			margin-bottom: 24px
+			float: none
+			height: unset
+			max-width: 170px;
+		& &__fields
+			width: unset
+
+	.entity-marks
+		& &__mark-list
+		
+		& &__mark
+
+		& &__rating-star
+
+		& &__rating-star + &__mark-time
+			// display: block
+
+	.dividing-line
+		margin-top: 24px
+
+	.entity-sort
+		& &__entity
+			flex-basis: 50%
+			// margin-left: 10px
+			// margin-right: 10px
+		& &__entity-img
+			height: 130px
+
+	.review-head
+		& &__info
+			float: unset
+		& &__actions
+			float: unset
+// Medium devices (tablets, 768px and up)
+@media (max-width: $medium-devices)
+	pass
+// Large devices (desktops, 992px and up)
+@media (max-width: $large-devices)
+	.main-section-wrapper
+		padding: $main-section-padding-mobile
+	
+	.entity-detail
+		display: flex
+		& &__info
+			// display: flex
+// Extra large devices (large desktops, 1200px and up)
+@media (max-width: $x-large-devices)
+	pass

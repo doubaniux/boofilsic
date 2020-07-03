@@ -9,64 +9,57 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'Nicedb - 删除图书' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <h4 class="nav-title">{% trans '删除图书' %}</h4>
-                        
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
+            {% include "partial/_navbar.html" %}
         
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        <h4 class="prompt">{% trans '确认删除这本书吗？相关评论和标记将一并删除。' %}</h4>
+            <section id="content">
+                <div class="grid">
+                    <div class="single-section-wrapper" id="main">
+                        <h5>{% trans '确认删除这本书吗？相关评论和标记将一并删除。' %}</h5>
                     
-                        <div class="item-card">
-                            <div class="clearfix">
-                                <img src="{{ book.cover.url }}" alt="" class="item-image float-left">
-                                <div class="item-info float-left">
-                                    <a href="{% url 'books:retrieve' book.id %}">
-                                        <h5 class="item-title">
-                                        {{ book.title }}
-                                        </h5>
-                                    </a>
-                                    {% if book.rating %}
-                                    {% trans '评分：' %}
-                                    <span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}">
-                                    </span>
-                                    <span class="rating-score">{{ book.rating }} </span>
-                                    {% else %}
-                                    <span>{% trans '评分：暂无评分' %}</span>
-                                    {% endif %}             
-                                    <div>{% trans '最近编辑者：' %}{{ book.last_editor | default:"" }}</div>
-                                    <div>{% trans '上次编辑时间：' %}{{ book.edited_time }}</div>
-                                </div>
+                        <div class="entity-card entity-card--horizontal">
+                            <div class="entity-card__img-wrapper">
+                                <a href="{% url 'books:retrieve' book.id %}">
+                                    <img src="{{ book.cover.url }}" alt="" class="item-image float-left">
+                                </a>
                             </div>
-                            <div class="dividing-line"></div>
+                            <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
+                                <a href="{% url 'books:retrieve' book.id %}">
+                                    <h5 class="entity-card__title">
+                                    {{ book.title }}
+                                    </h5>
+                                </a>
+                                {% if book.rating %}
+                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}">
+                                </span>
+                                <span class="entity-card__rating-score">{{ book.rating }}</span>
+                                {% else %}
+                                <span>{% trans '评分：暂无评分' %}</span>
+                                {% endif %}
+                                
+                                {% if book.last_editor %}
+                                <a href="{% url 'users:home' book.last_editor.id %}">
+                                    <div>{% trans '最近编辑者：' %}{{ book.last_editor | default:"" }}</div>
+                                </a>
+                                {% endif %}
+                                    
+                                <div>{% trans '上次编辑时间：' %}{{ book.edited_time }}</div>
+                            </div>
                         </div>
+                        <div class="dividing-line"></div>
                         <div class="clearfix">
                             <form action="{% url 'books:delete' book.id %}" method="post" class="float-right">
                                 {% csrf_token %}
@@ -75,14 +68,11 @@
                             <button onclick="history.back()" class="button button-clear float-right">{% trans '返回' %}</button>
                         </div>
                     </div>
+                </div>
             </section>
 
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
 
     

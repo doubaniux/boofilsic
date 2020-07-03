@@ -11,8 +11,9 @@ from .forms import ReportForm
 from common.mastodon.auth import *
 from common.mastodon.api import *
 from common.mastodon import mastodon_request_included
-from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE
+from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER
 from common.models import MarkStatusEnum
+from common.utils import PageLinksGenerator
 from books.models import *
 from boofilsic.settings import MASTODON_DOMAIN_NAME, CLIENT_ID, CLIENT_SECRET
 from books.forms import BookMarkStatusTranslator
@@ -182,7 +183,7 @@ def home(request, id):
 
 @mastodon_request_included
 @login_required
-def followers(request, id):
+def followers(request, id):  
     if request.method == 'GET':
         try:
             user = User.objects.get(pk=id)
@@ -211,7 +212,7 @@ def followers(request, id):
                 )
         return render(
             request,
-            'users/list.html',
+            'users/relation_list.html',
             {
                 'user': user,
                 'is_followers_page': True,
@@ -252,7 +253,7 @@ def following(request, id):
                 )
         return render(
             request,
-            'users/list.html',
+            'users/relation_list.html',
             {
                 'user': user,
                 'page_type': 'followers',
@@ -299,6 +300,7 @@ def book_list(request, id, status):
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
+        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
         return render(
             request,
@@ -353,6 +355,7 @@ def manage_report(request):
     if request.method == 'GET':
         reports = Report.objects.all()
         for r in reports.filter(is_read=False):
+            r.is_read = True
             r.save()
         return render(
             request,

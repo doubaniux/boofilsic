@@ -59,7 +59,7 @@ class RatingValidator:
             )
 
 
-class ImageInput(forms.FileInput):
+class PreviewImageInput(forms.FileInput):
     template_name = 'widgets/image.html'
     def format_value(self, value):
         """

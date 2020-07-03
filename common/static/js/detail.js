@@ -7,12 +7,12 @@ $(document).ready( function() {
     });
 
     // pop up new rating modal
-    $("#aside .mark .button-group .button").each(function() {
+    $("#addMarkPanel button").each(function() {
         $(this).click(function(e) {
             e.preventDefault();
             let title = $(this).text().trim();
-            $(".mark-modal .modal-title").text(title);
-            $(".mark-modal .modal-body textarea").val("");
+            $(".mark-modal__title").text(title);
+            $(".mark-modal__body textarea").val("");
             let status = $(this).data('status')
             $("input[name='status'][value='"+status+"']").prop("checked", true)
             $(".bg-mask").show();
@@ -30,10 +30,10 @@ $(document).ready( function() {
     })
 
     // pop up modify mark modal
-    $(".mark a.edit").click(function(e) {
+    $(".mark-panel a.edit").click(function(e) {
         e.preventDefault();
-        let title = $(".mark-status-label").text().trim();
-        $(".mark-modal .modal-title").text(title);
+        let title = $(".mark-panel__status").text().trim();
+        $(".mark-modal__title").text(title);
         $(".bg-mask").show();
         $(".mark-modal").show();
     });
@@ -77,10 +77,10 @@ $(document).ready( function() {
     
     // hide rating star when select wish
     const WISH_CODE = 1;
-    if ($(".modal-selection input[type='radio']:checked").val() == WISH_CODE) {
+    if ($("#statusSelection input[type='radio']:checked").val() == WISH_CODE) {
         $(".mark-modal .rating-star-edit").hide();
     }
-    $(".modal-selection#statusSelection input[type='radio']").click(function() {
+    $("#statusSelection input[type='radio']").click(function() {
         if ($(this).val() == WISH_CODE) {
             $(".mark-modal .rating-star-edit").hide();
         } else {
@@ -90,16 +90,16 @@ $(document).ready( function() {
     });
 
     // show confirm modal
-    $(".mark form a").click(function(e) {
+    $(".mark-panel a.delete").click(function(e) {
         e.preventDefault();
-        $(".modal.confirm-modal").show();
+        $(".confirm-modal").show();
         $(".bg-mask").show();
     });
 
     // confirm modal
     $(".confirm-modal input[type='submit']").click(function(e) {
         e.preventDefault();
-        $(".mark form").submit();
+        $(".mark-panel form").submit();
     });
     
 });
