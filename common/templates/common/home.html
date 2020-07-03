@@ -9,192 +9,235 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'Nicedb - 主页' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/mastodon.js' %}"></script>
     <script src="{% static 'js/home.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <input type="search" class="search-box" name="q" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if request.user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
-        
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-        
-                        <div class="set" id="bookWish">
-                            <h5 class="set-title">
-                                {% trans '想读的书' %}
-                            </h5>
-                            {% if wish_books_more %}
-                            <a href="{% url 'users:book_list' user.id 'wish' %}" class="more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                                
-                            <ul class="row set-item-list">
-                                {% for wish_book_mark in wish_book_marks %}    
-                                <li class="column column-20 set-item">
-                                    
-                                    <a href="{% url 'books:retrieve' wish_book_mark.book.id %}" >
-                                        <img src="{{ wish_book_mark.book.cover.url }}" alt="" class="set-item-image">
-                                        <span class="set-item-title">{{ wish_book_mark.book.title | truncate:15 }}</span>
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <p class="set-empty">暂无记录</p> 
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <div class="set" id="bookDo">
-                            <h5 class="set-title">
-                                {% trans '在读的书' %}
-                            </h5>
-                            {% if do_books_more %}
-                            <a href="{% url 'users:book_list' user.id 'do' %}" class="more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                                
-                            <ul class="row set-item-list">
-                                {% for do_book_mark in do_book_marks %}    
-                                <li class="column column-20 set-item">
-                                   
-                                    <a href="{% url 'books:retrieve' do_book_mark.book.id %}" >
-                                        <img src="{{ do_book_mark.book.cover.url }}" alt="" class="set-item-image">
-                                        <span class="set-item-title">{{ do_book_mark.book.title | truncate:15 }}</span>
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <p class="set-empty">暂无记录</p> 
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        <div class="set" id="bookCollect">
-                            <h5 class="set-title">
-                                {% trans '读过的书' %}
-                            </h5>
-                            {% if collect_books_more %}
-                            <a href="{% url 'users:book_list' user.id 'collect' %}" class="more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                                
-                            <ul class="row set-item-list">
-                                {% for collect_book_mark in collect_book_marks %}    
-                                <li class="column column-20 set-item">
-                            
-                                    <a href="{% url 'books:retrieve' collect_book_mark.book.id %}" >
-                                        <img src="{{ collect_book_mark.book.cover.url }}" alt="" class="set-item-image">
-                                        <span class="set-item-title">{{ collect_book_mark.book.title | truncate:15 }}</span>
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <p class="set-empty">暂无记录</p> 
-                                {% endfor %}
-                            </ul>
-                        </div>
-                    </div>
-        
-                    <div id="aside">
-                        <div class="aside-card mast-user" id="userInfoCard">
-                            <div class="clearfix">
-                                <img src="" class="info-avatar mast-avatar" alt="{{ user.username }}">
-                                <a href="{% url 'users:home' user.id %}">
-                                    <h5 class="info-name mast-displayname"></h5>
-                                </a>
+            {% include "partial/_navbar.html" %}
+
+            <section id="content">
+                <div class="grid grid--reverse-order">
+                    <div class="grid__main grid__main--reverse-order">
+
+                        <div class="main-section-wrapper">
+
+                            <div class="entity-sort" id="bookWish">
+                                <h5 class="entity-sort__label">
+                                    {% trans '想读的书' %}
+                                </h5>
+                                {% if wish_books_more %}
+                                <a href="{% url 'users:book_list' user.id 'wish' %}"
+                                    class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+
+                                <ul class="entity-sort__entity-list">
+                                    {% for wish_book_mark in wish_book_marks %}
+                                    <li class="entity-sort__entity">
+
+                                        <a href="{% url 'books:retrieve' wish_book_mark.book.id %}">
+                                            <img src="{{ wish_book_mark.book.cover.url }}"
+                                                alt="{{wish_book_mark.book.title}}" class="entity-sort__entity-img">
+                                            <div class="entity-sort__entity-name" title="wish_book_mark.book.title">
+                                                {{ wish_book_mark.book.title }}</div>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
                             </div>
-                            <p class="info-brief mast-brief"></p>
-                            <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
-                            
-                            {% if request.user != user %}
-                            <a href="{% url 'users:report' %}?user_id={{ user.id }}" class="report">{% trans '举报用户' %}</a>
-                            {% endif %}
-                                
+
+                            <div class="entity-sort" id="bookWish">
+                                <h5 class="entity-sort__label">
+                                    {% trans '在读的书' %}
+                                </h5>
+                                {% if do_books_more %}
+                                <a href="{% url 'users:book_list' user.id 'do' %}"
+                                    class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+
+                                <ul class="entity-sort__entity-list">
+                                    {% for do_book_mark in do_book_marks %}
+                                    <li class="entity-sort__entity">
+
+                                        <a href="{% url 'books:retrieve' do_book_mark.book.id %}">
+                                            <img src="{{ do_book_mark.book.cover.url }}"
+                                                alt="{{do_book_mark.book.title}}" class="entity-sort__entity-img">
+                                            <div class="entity-sort__entity-name" title="{{do_book_mark.book.title}}">
+                                                {{ do_book_mark.book.title }}</div>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="entity-sort" id="bookCollect">
+                                <h5 class="entity-sort__label">
+                                    {% trans '读过的书' %}
+                                </h5>
+                                {% if collect_books_more %}
+                                <a href="{% url 'users:book_list' user.id 'collect' %}"
+                                    class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+
+                                <ul class="entity-sort__entity-list">
+                                    {% for collect_book_mark in collect_book_marks %}
+                                    <li class="entity-sort__entity">
+
+                                        <a href="{% url 'books:retrieve' collect_book_mark.book.id %}">
+                                            <img src="{{ collect_book_mark.book.cover.url }}"
+                                                alt="{{collect_book_mark.book.title}}" class="entity-sort__entity-img">
+                                            <span class="entity-sort__entity-name"
+                                                title="{{collect_book_mark.book.title}}">{{ collect_book_mark.book.title }}</span>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
                         </div>
-                        <div class="relation-card" id="userRelationCard">
-                            <h5 class="relation-label">
-                                {% trans '关注的人' %}
-                            </h5>
-                            <a href="{% url 'users:following' user.id %}" class="more-link mast-following-more">{% trans '更多' %}</a>
-                            <ul class="row mast-following relation-user-list">
-                                <li class="column column-25 relation-user">
-                                    <img src="" alt="" class="relation-avatar">
-                                    <a class="relation-name"></a>
-                                </li>
-                            </ul>         
-                            <h5 class="relation-label">
-                                {% trans '被他们关注' %}
-                            </h5>
-                            <a href="{% url 'users:followers' user.id %}" class="more-link mast-followers-more">{% trans '更多' %}</a>
-                            <ul class="row mast-followers relation-user-list">
-                                <li class="column column-25 relation-user">
-                                    <img src="" alt="" class="relation-avatar">
-                                    <a class="relation-name"></a>
-                                </li>
-                            </ul>                    
-                        </div>
-                        
-                        {% if request.user.is_staff %}                    
-                        <div class="report-card" id="reportMessageCard">
-                            <h5 class="report-label">{% trans '举报信息' %}</h5>
-                            <ul class="report-list">
-                                {% for report in reports %}                            
-                                <li class="report-message">
-                                    <a href="" class="report-user-link">{{ report.submit_user }}</a>{% trans '举报了' %}<a href="">{{ report.reported_user }}</a>
-                                </li>
-                                {% endfor %}
-                                    
-                            </ul>
-                            <a href="{% url 'users:manage_report' %}">全部举报</a>
-                        </div>
-                        {% endif %}
-                            
+
                     </div>
+
+                    <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
+                        <div class="aside-section-wrapper aside-section-wrapper--no-margin">
+                            <div class="user-profile" id="userInfoCard">
+                                <div class="user-profile__header">
+                                    <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
+                                    <img src="" class="user-profile__avatar mast-avatar">
+                                    <a href="{% url 'users:home' user.id %}">
+                                        <h5 class="user-profile__username mast-displayname"></h5>
+                                    </a>
+                                </div>
+                                <p class="user-profile__bio mast-brief"></p>
+                                <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
+
+                                {% if request.user != user %}
+                                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
+                                    class="user-profile__report-link">{% trans '举报用户' %}</a>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                        <div class="relation-dropdown">
+                            <div class="relation-dropdown__button">
+                                <span class="icon-arrow">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+                                        <path d="M8.12,3.29,5,6.42,1.86,3.29H.45L5,7.84,9.55,3.29Z" />
+                                    </svg>
+                                </span>
+                            </div>
+                            <div class="relation-dropdown__body">
+                                <div
+                                    class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
+
+                                    <div class="user-relation" id="followings">
+                                        <h5 class="user-relation__label">
+                                            {% trans '关注的人' %}
+                                        </h5>
+                                        <a href="{% url 'users:following' user.id %}"
+                                            class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
+                                        <ul class="user-relation__related-user-list mast-following">
+                                            <li class="user-relation__related-user">
+                                                <a>
+                                                    <img src="" alt="" class="user-relation__related-user-avatar">
+                                                    <div class="user-relation__related-user-name mast-displayname">
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                    <div class="user-relation" id="followers">
+                                        <h5 class="user-relation__label">
+                                            {% trans '被他们关注' %}
+                                        </h5>
+                                        <a href="{% url 'users:followers' user.id %}"
+                                            class="user-relation__more-link mast-followers-more">{% trans '更多' %}</a>
+                                        <ul class="user-relation__related-user-list mast-followers">
+                                            <li class="user-relation__related-user">
+                                                <a>
+                                                    <img src="" alt="" class="user-relation__related-user-avatar">
+                                                    <div class="user-relation__related-user-name mast-displayname">
+                                                    </div>
+                                                </a>
+                                            </li>
+                                        </ul>
+                                    </div>
+
+                                </div>
+                                <div
+                                    class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
+                                    {% if request.user.is_staff and request.user == user%}
+                                    <div class="report-panel">
+                                        <h5 class="report-panel__label">{% trans '举报信息' %}</h5>
+                                        <a class="report-panel__all-link"
+                                            href="{% url 'users:manage_report' %}">全部举报</a>
+                                        <ul class="report-panel__report-list">
+                                            {% for report in reports %}
+                                            <li class="report-panel__report">
+                                                <a href="{% url 'users:home' report.submit_user.id %}"
+                                                    class="report-panel__user-link">{{ report.submit_user }}</a>{% trans '举报了' %}<a
+                                                    href="{% url 'users:home' report.reported_user.id %}"
+                                                    class="report-panel__user-link">{{ report.reported_user }}</a>
+                                            </li>
+                                            {% empty %}
+                                            <div>{% trans '暂无新举报' %}</div>
+                                            {% endfor %}
+
+                                        </ul>
+                                    </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
             </section>
 
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
 
     <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
     <div id="mastodonURI" hidden="true">{% mastodon %}</div>
-    <!--current user mastodon id--> 
+    <!--current user mastodon id-->
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
     <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}?is_mastodon_id=true</div>
-    <div class="spinner" id="spinner" hidden>
-        <div class="lds-spinner">
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
-          <div></div>
+
+    <div id="spinner" hidden>
+        <div class="spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
         </div>
-      </div>    
+    </div>
+
     <script>
         $("#searchInput").on('keyup', function (e) {
             if (e.keyCode === 13) {

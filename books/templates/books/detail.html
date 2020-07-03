@@ -9,314 +9,325 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="NiceDB书 - {{ book.title }}">
+    <meta property="og:type" content="book">
+    {% if book.author %}
+    <meta property="og:book:author" content="{% for author in book.author %}{{ author }}{% if not forloop.last %},{% endif %}{% endfor %}">
+    {% endif %}
+    {% if book.isbn %}
+    <meta property="og:book:isbn" content="{{ book.isbn }}">
+    {% endif %}
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ book.cover.url }}">
+    
     <title>{% trans 'Nicedb - 书籍详情' %} | {{ book.title }}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
-    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_modal.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_modal.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <input type="search" class="search-box" name="q" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
+            {% include "partial/_navbar.html" %}
         
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        <div class="clearfix">
-                            <div class="float-left">
-                                <img src="{{ book.cover.url }}" class="display-image" alt="">
-                            </div>
-                            <div class="display-info">
-                                <h5 class="display-title">
-                                    {{ book.title }}
-                                </h5>
-                                
-                                <div class="display-info-detail">
-                                    <div>{% if book.isbn %}{% trans 'ISBN：' %}{{ book.isbn }}{% endif %}</div>
-                                    <div>{% if book.author %}{% trans '作者：' %}
-                                    {% for author in book.author %}
-                                        <span>{{ author }}</span>
-                                    {% endfor %}
-                                    {% endif %}</div>
-                                    <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
-                                    <div>{% if book.subtitle %}{% trans '副标题：' %}{{ book.subtitle }}{% endif %}</div>
-                                    <div>{% if book.translator %}{% trans '译者：' %}
-                                    {% for translator in book.translator %}
-                                        <span>{{ translator }}</span>
-                                    {% endfor %} 
-                                    {% endif %}</div>                                
-                                    <div>{% if book.orig_title %}{% trans '原作名：' %}{{ book.orig_title }}{% endif %}</div>
-                                    <div>{% if book.language %}{% trans '语言：' %}{{ book.language }}{% endif %}</div>
-                                    <div>{%if book.pub_year %}{% trans '出版时间：' %}{{ book.pub_year }}{% trans '年' %}{% if book.pub_month %}{{ book.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
-                                </div>
-                                <div class="display-info-detail">
-                                    {% if book.rating %}
-                                    <span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}">
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main" id="main">
+                        <div class="main-section-wrapper">
+                            <div class="entity-detail">
 
-                                    </span>
-                                    <span class="rating-score"> {{ book.rating }} </span>
-                                    {% else %}
-                                    <span> {% trans '评分：暂无评分' %}</span>
-                                    {% endif %}                                    
-                                    <div>{% if book.binding %}{% trans '装帧：' %}{{ book.binding }}{% endif %}</div>
-                                    <div>{% if book.price %}{% trans '定价：' %}{{ book.price }}{% endif %}</div>
-                                    <div>{% if book.pages %}{% trans '页数：' %}{{ book.pages }}{% endif %}</div>
-                                    {% if book.other_info %}                                  
-                                    {% for k, v in book.other_info.items %}
-                                    <div>
-                                        {{k}}：{{v}}
-                                    </div>
-                                    {% endfor %}
-                                    {% endif %}
+                                <img src="{{ book.cover.url }}" class="entity-detail__img" alt="{{ book.title }}">
+
+                                <div class="entity-detail__info">
+                                    <h5 class="entity-detail__title">
+                                        {{ book.title }}
+                                    </h5>
                                     
-                                    {% comment %}
-                                    {% url 'users:home' book.last_editor %}
-                                    {% endcomment %}
+                                    <div class="entity-detail__fields">
+                                        <div class="entity-detail__rating">
+                                            {% if book.rating %}
+                                            <span class="entity-detail__rating-star rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></span>
+                                            <span class="entity-detail__rating-score"> {{ book.rating }} </span>
+                                            {% else %}
+                                            <span> {% trans '评分：暂无评分' %}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div>{% if book.isbn %}{% trans 'ISBN：' %}{{ book.isbn }}{% endif %}</div>
+                                        <div>{% if book.author %}{% trans '作者：' %}
+                                        {% for author in book.author %}
+                                            <span>{{ author }}</span>
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                        <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
+                                        <div>{% if book.subtitle %}{% trans '副标题：' %}{{ book.subtitle }}{% endif %}</div>
+                                        <div>{% if book.translator %}{% trans '译者：' %}
+                                        {% for translator in book.translator %}
+                                            <span>{{ translator }}</span>
+                                        {% endfor %} 
+                                        {% endif %}</div>                                
+                                        <div>{% if book.orig_title %}{% trans '原作名：' %}{{ book.orig_title }}{% endif %}</div>
+                                        <div>{% if book.language %}{% trans '语言：' %}{{ book.language }}{% endif %}</div>
+                                        <div>{%if book.pub_year %}{% trans '出版时间：' %}{{ book.pub_year }}{% trans '年' %}{% if book.pub_month %}{{ book.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
+                                    </div>
+                                    <div class="entity-detail__fields">
+                              
+                                        <div>{% if book.binding %}{% trans '装帧：' %}{{ book.binding }}{% endif %}</div>
+                                        <div>{% if book.price %}{% trans '定价：' %}{{ book.price }}{% endif %}</div>
+                                        <div>{% if book.pages %}{% trans '页数：' %}{{ book.pages }}{% endif %}</div>
+                                        {% if book.other_info %}                                  
+                                        {% for k, v in book.other_info.items %}
+                                        <div>
+                                            {{k}}：{{v}}
+                                        </div>
+                                        {% endfor %}
+                                        {% endif %}
                                         
-                                    <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' book.last_editor.id %}">{{ book.last_editor | default:"" }}</a></div>
-                                    <div>
-                                    <a href="{% url 'books:update' book.id %}">{% trans '编辑这本书' %}</a>
-                                    {% if user.is_staff %}
-                                    <a href="{% url 'books:delete' book.id %}" class="delete"> / {% trans '删除' %}</a>
-                                    {% endif %}
-                                    </div>
-                                </div>
                                     
+                                        {% if book.last_editor %}
+                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' book.last_editor.id %}">{{ book.last_editor | default:"" }}</a></div>
+                                        {% endif %}
+                                            
+                                        <div>
+                                        <a href="{% url 'books:update' book.id %}">{% trans '编辑这本书' %}</a>
+                                        {% if user.is_staff %}
+                                        <a href="{% url 'books:delete' book.id %}"> / {% trans '删除' %}</a>
+                                        {% endif %}
+                                        </div>
+                                    </div>
+                                        
+                                </div>
                             </div>
-                        </div>
-                        <div class="dividing-line"></div>
-                        <div class="set">
-                            <h5 class="set-title">{% trans '简介' %}</h5>
-                            
-                            {% if book.brief %}
-                            <p class="set-content">{{ book.brief | linebreaksbr }}</p>
-                            {% else %}
-                            <p class="set-empty">{% trans '暂无简介' %}</p>    
-                            {% endif %}
-                            
-                        </div>
-                        <div class="set">
-                            <h5 class="set-title">{% trans '这本书的标记' %}</h5>
-                            {% if mark_list_more %}
-                            <a href="{% url 'books:retrieve_mark_list' book.id %}" class="more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                            {% if mark_list %}
-                            {% for others_mark in mark_list %}
-                            <div class="mark">
-                                <div class="mark-label">
-                                    <a href="{% url 'users:home' others_mark.owner.id %}" class="mark-owner-name">{{ others_mark.owner.username }}</a>
+                            <div class="dividing-line"></div>
+                            <div class="entity-desc">
+                                <h5 class="entity-desc__title">{% trans '简介' %}</h5>
+                                
+                                {% if book.brief %}
+                                <p class="entity-desc__content">{{ book.brief | linebreaksbr }}</p>
+                                {% else %}
+                                <div>{% trans '暂无简介' %}</div>
+                                {% endif %}
+                                
+                            </div>
+                            <div class="entity-marks">
+                                <h5 class="entity-marks__title">{% trans '这本书的标记' %}</h5>
+                                {% if mark_list_more %}
+                                <a href="{% url 'books:retrieve_mark_list' book.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+                                {% if mark_list %}
+                                <ul class="entity-marks__mark-list">                                    
+                                {% for others_mark in mark_list %}
+                                <li class="entity-marks__mark">
+                                    <a href="{% url 'users:home' others_mark.owner.id %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
                                     <span>{{ others_mark.get_status_display }}</span>
                                     {% if others_mark.rating %}
-                                    <span class="rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
+                                    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
                                     {% endif %}
                                     {% if others_mark.is_private %}
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
-                                    <span class="mark-time">{{ others_mark.edited_time }}</span>
-                                </div>
-                                
-                                {% if others_mark.text %}
-                                <p class="mark-text">{{ others_mark.text }}</p>
+                                    <span class="entity-marks__mark-time">{{ others_mark.edited_time }}</span>
+                                    {% if others_mark.text %}
+                                    <p class="entity-marks__mark-content">{{ others_mark.text }}</p>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                                </ul>
+                                {% else %}
+                                <div>{% trans '暂无标记' %}</div>    
                                 {% endif %}
-                                    
                             </div>
-                            {% endfor %}
-                            {% else %}
-                            <p class="set-empty">{% trans '暂无标记' %}</p>    
-                            {% endif %}
-                        </div>
-                        <div class="set">
-                            <h5 class="set-title">{% trans '这本书的评论' %}</h5>
-                            {% if review_list_more %}
-                            <a href="{% url 'books:retrieve_review_list' book.id %}" class="more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                            {% if review_list %}
-                            {% for others_review in review_list %}
-                            <div class="mark">
-                                <div class="mark-label">
-                                    <a href="{% url 'users:home' others_review.owner.id %}" class="mark-owner-name">{{ others_review.owner.username }}</a>
+                            <div class="entity-reviews">
+                                <h5 class="entity-reviews__title">{% trans '这本书的评论' %}</h5>
+                                {% if review_list_more %}
+                                <a href="{% url 'books:retrieve_review_list' book.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+                                {% if review_list %}
+                                <ul class="entity-reviews__review-list">
+                                {% for others_review in review_list %}
+                                <li class="entity-reviews__review">
+                                    <a href="{% url 'users:home' others_review.owner.id %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
                                     {% if others_review.is_private %}
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
-                                    <span class="mark-time">{{ others_review.edited_time }}</span>
-                                    <span class="review-title"> <a href="{% url 'books:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
-                                </div>
-                                    
+                                    <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
+                                    <span class="entity-reviews__review-title"> <a href="{% url 'books:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
+                                </li>
+                                {% endfor %}
+                                </ul>
+                                {% else %}
+                                <div>{% trans '暂无评论' %}</div>    
+                                {% endif %}
                             </div>
-                            {% endfor %}
-                            {% else %}
-                            <p class="set-empty">{% trans '暂无评论' %}</p>    
-                            {% endif %}
                         </div>
                     </div>
 
-                    <div id="aside">
-                        <div class="aside-card" id="asideMark">
+                    <div class="grid__aside" id="aside">
+                        <div class="aside-section-wrapper">
                             
                             {% if mark %}
-                            <div class="mark">
-                                <div class="clearfix">
-                                    <span class="mark-status-label float-left">{% trans '我' %}{{ mark.get_status_display }}</span>
-                                    {% if mark.status == status_enum.DO.value or mark.status == status_enum.COLLECT.value%}
-                                        {% if mark.rating %}
-                                        <span class="rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
-                                        {% endif %}
+                            <div class="mark-panel">
+
+                                <span class="mark-panel__status">{% trans '我' %}{{ mark.get_status_display }}</span>
+                                {% if mark.status == status_enum.DO.value or mark.status == status_enum.COLLECT.value%}
+                                    {% if mark.rating %}
+                                    <span class="mark-panel__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
                                     {% endif %}
-                                    {% if mark.is_private %}
-                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
-                                    {% endif %}                                        
-                                    <span class="float-right">
-                                        <a href="" class="edit">{% trans '修改' %}</a>
-                                        <form action="{% url 'books:delete_mark' mark.id %}" method="post">
-                                            {% csrf_token %}
-                                            <a href="">{% trans '删除' %}</a>
-                                        </form>
-                                    </span>
-                                </div>
-                                <div class="clearfix">
-                                    <span class="mark-time float-left">{{ mark.edited_time }}</span>
-                                </div>
+                                {% endif %}
+                                {% if mark.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                {% endif %}                                        
+                                <span class="mark-panel__actions">
+                                    <a href="" class="edit">{% trans '修改' %}</a>
+                                    <form action="{% url 'books:delete_mark' mark.id %}" method="post">
+                                        {% csrf_token %}
+                                        <a href="" class="delete">{% trans '删除' %}</a>
+                                    </form>
+                                </span>
+                                <div class="mark-panel__clear"></div>
+
+                                <div class="mark-panel__time">{{ mark.edited_time }}</div>
+
                                 {% if mark.text %}
-                                <p class="mark-text">{{ mark.text }}</p>
+                                <p class="mark-panel__text">{{ mark.text }}</p>
                                 {% endif %}
                             </div>
                             {% else %}
-                            <div class="mark">
-                                <div class="clearfix">
-                                    <span class="mark-status-label float-left">{% trans '标记这本书' %}</span>
-                                </div>
-                                <div class="button-group">
-                                    <a href="" class="button" id="wishButton" data-status="{{ status_enum.WISH.value }}">{% trans '想读' %}</a>
-                                    <a href="" class="button" data-status="{{ status_enum.DO.value }}">{% trans '在读' %}</a>
-                                    <a href="" class="button" data-status="{{ status_enum.COLLECT.value }}">{% trans '读过' %}</a>
+                            <div class="action-panel" id="addMarkPanel">
+                                <div class="action-panel__label">{% trans '标记这本书' %}</div>
+                                <div class="action-panel__button-group">
+                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}">{% trans '想读' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在读' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '读过' %}</button>
                                 </div>
                             </div>                            
                             {% endif %}
                                 
                         </div>
                         
-                        <div class="aside-card" id="asideReview">
-                        {% if review %}
-                            <div class="review">
-                                <div class="clearfix">
-                                    <span class="review-label float-left">{% trans '我的评论' %}</span>
-                                    {% if review.is_private %}
-                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
-                                    {% endif %}
+                        <div class="aside-section-wrapper">
+                            {% if review %}
+                            <div class="review-panel">
+   
+                                <span class="review-panel__label">{% trans '我的评论' %}</span>
+                                {% if review.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
+                                {% endif %}
 
-                                    <span class="float-right">
-                                        <a href="{% url 'books:update_review' review.id %}">{% trans '编辑' %}</a>
-                                        <a href="{% url 'books:delete_review' review.id %}">{% trans '删除' %}</a>
-                                    </span>
+                                <span class="review-panel__actions">
+                                    <a href="{% url 'books:update_review' review.id %}">{% trans '编辑' %}</a>
+                                    <a href="{% url 'books:delete_review' review.id %}">{% trans '删除' %}</a>
+                                </span>
 
-                                </div>
-                                <div class="clearfix">
-                                    <span class="review-time float-left">{{ review.edited_time }}</span>
-                                </div>
-                                <a href="{% url 'books:retrieve_review' review.id %}" class="review-title">
+                                <div class="review-panel__time">{{ review.edited_time }}</div>
+
+                                <a href="{% url 'books:retrieve_review' review.id %}" class="review-panel__review-title">
                                     {{ review.title }}
                                 </a>                                                           
                             </div>
                             {% else %}
-                            <div class="clearfix">
-                                <span class="review-label float-left">{% trans '我的评论' %}</span>
-                            </div>                            
-                            <a href="{% url 'books:create_review' book.id %}" class="button">{% trans '去写评论' %}</a>
+
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '我的评论' %}</div>
+                                <div class="action-panel__button-group action-panel__button-group--center">
+
+                                    <a href="{% url 'books:create_review' book.id %}">
+                                        <button class="action-panel__button">{% trans '去写评论' %}</button>
+                                    </a>
+                                </div>
+                            </div>     
+
                             {% endif %}
                         </div>
                                 
                     </div>
+                </div>
             </section>
 
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
 
     <div id="modals">
-        <div class="modal mark-modal">
-            <div class="modal-head clearfix">
+        <div class="mark-modal modal">
+            <div class="mark-modal__head">
                 
                 {% if not mark %}
                 <style>
-                    .modal-title::after {
+                    .mark-modal__title::after {
                         content: "{% trans '这本书' %}";
                     }
                 </style>
-                <span class="modal-title float-left"></span>
+                <span class="mark-modal__title"></span>
                 {% else %}
-                <span class="modal-title float-left">{% trans '我的标记' %}</span>
+                <span class="mark-modal__title">{% trans '我的标记' %}</span>
                 {% endif %}
                     
-                <span class="modal-close float-right">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61"/></svg>
+                <span class="mark-modal__close-button modal-close">
+                    <span class="icon-cross">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <polygon
+                                points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+                            </polygon>
+                        </svg>
+                    </span>
                 </span>
             </div>
-            <div class="modal-body">
+            <div class="mark-modal__body">
                 <form action="{% url 'books:create_update_mark' %}" method="post">
                     {% csrf_token %}
                     {{ mark_form.id }}
                     {{ mark_form.book }}
                     {% if mark.rating %}
                     {% endif %}
-                    <div class="clearfix">
 
-                        <div class="rating-star-edit float-left"></div>
-                        <div id="statusSelection" class="modal-selection float-right" {% if not mark %}hidden{% endif %}>
-                            {{ mark_form.status }}
-                        </div>
-                    </div>
-                            
+                    <div class="mark-modal__rating-star rating-star-edit"></div>
                     {{ mark_form.rating }}
+                    <div id="statusSelection" class="mark-modal__status-radio" {% if not mark %}hidden{% endif %}>
+                        {{ mark_form.status }}
+                    </div>
+
+                    <div class="mark-modal__clear"></div>
+
                     {{ mark_form.text }}
-                    <div class="modal-option clearfix">
-                        <div class="modal-selection float-left">
+
+                    <div class="mark-modal__option">
+                        <div class="mark-modal__visibility-radio">
                             <span>{{ mark_form.is_private.label }}:</span>
                             {{ mark_form.is_private }}
                         </div>
-                        <div class="modal-checkbox float-right">
+                        <div class="mark-modal__share-checkbox">
                             {{ mark_form.share_to_mastodon }}{{ mark_form.share_to_mastodon.label }}
                         </div>
                     </div>
-                    <div class="clearfix modal-button">
+                    <div class="mark-modal__confirm-button">
                         <input type="submit" class="button float-right" value="{% trans '提交' %}">
                     </div>
                 </form>
             </div>
         </div>
 
-        <div class="modal confirm-modal">
-            <div class="modal-head clearfix">
-                <span class="modal-title float-left">{% trans '确定要删除你的标记吗？' %}</span>      
-                <span class="modal-close float-right">
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><polygon points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61"/></svg>
+        <div class="confirm-modal modal">
+            <div class="confirm-modal__head">
+                <span class="confirm-modal__title">{% trans '确定要删除你的标记吗？' %}</span>      
+                <span class="confirm-modal__close-button modal-close">
+                    <span class="icon-cross">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <polygon
+                                points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+                            </polygon>
+                        </svg>
+                    </span>
                 </span>
             </div>
-            <div class="modal-body">
-                <div class="clearfix modal-button">
+            <div class="confirm-modal__body">
+                <div class="confirm-modal__confirm-button">
                     <input type="submit" class="button float-right" value="{% trans '确认' %}">
                 </div>
             </div>

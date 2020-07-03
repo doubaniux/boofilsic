@@ -10,140 +10,122 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-    <title>{% trans 'Nicedb - 搜索结果' %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'Nicedb - ' %}{{ book.title }}{% trans '的标记' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <input type="search" class="search-box" name="q" 
-                        value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
+            {% include "partial/_navbar.html" %}
         
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        <h5 class="list-head">
-                            <a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a>{% trans ' 的标记' %}
-                        </h5>
-                        <ul class="result-items set">
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main" id="main">
+                        <div class="main-section-wrapper">
+                            <div class="entity-marks">
+                                <h5 class="entity-marks__title entity-marks__title--stand-alone">
+                                    <a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a>{% trans ' 的标记' %}
+                                </h5>
+                                <ul class="entity-marks__mark-list">
+        
+                                    {% for mark in marks %}
+                                        
+                                    <li class="entity-marks__mark entity-marks__mark--wider">
+                                        <a href="{% url 'users:home' mark.owner.id %}"
+                                            class="entity-marks__owner-link">{{ mark.owner.username }}</a>
+                                        <span>{{ mark.get_status_display }}</span>
+                                        {% if mark.rating %}
+                                        <span class="entity-marks__rating-star rating-star"
+                                            data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
+                                        {% endif %}
+                                        {% if mark.is_private %}
+                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg
+                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                    <path
+                                                        d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                                                    </svg></span>
+                                        {% endif %}
+                                        <span class="entity-marks__mark-time">{{ mark.edited_time }}</span>
+                                        {% if mark.text %}
+                                        <p class="entity-marks__mark-content">{{ mark.text }}</p>
+                                        {% endif %}
+                                    </li>
 
-                            {% for mark in marks %}
-                                
-                            <div class="list-item">
-                                <div class="list-label">
-                                    <a href="{% url 'users:home' mark.owner.id %}" class="list-owner-name">{{ mark.owner.username }}</a>
-                                    <span>{{ mark.get_status_display }}</span>
-                                    {% if mark.rating %}
-                                    <span class="rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
-                                    {% endif %}
-                                    {% if mark.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
-                                    {% endif %}
-                                    <span class="item-time">{{ mark.edited_time }}</span>
-                                </div>
-                                
-                                {% if mark.text %}
-                                <p class="mark-text">{{ mark.text }}</p>
-                                {% endif %}
-                                    
+                                    {% empty %}
+                                    <div>
+                                        {% trans '无结果' %}
+                                    </div>
+                                    {% endfor %}
+                                        
+                                </ul>
                             </div>
-                            {% empty %}
-                            {% trans '无结果' %}
-                            {% endfor %}
-                                
-                        </ul>
-                        <div class="pagination" >
+                            <div class="pagination">
                             
-                            <a 
-                            {% if marks.has_previous %}
-                            href="?page=1"
-                            {% else %}
-                            disabled
-                            {% endif %}>
-                              <button {% if not marks.has_previous %}disabled{% endif %} class="button button-clear">{% trans "首页" %}</button>
-                            </a>&nbsp;&nbsp;
-
-                            <a 
-                            {% if marks.has_previous %}
-                            href="?page={{ marks.previous_page_number }}"
-                            {% else %}
-                            disabled
-                            {% endif %}>
-                              <button {% if not marks.has_previous %}disabled{% endif %} class="button button-clear">{% trans "上一页" %}</button>
-                            </a>&nbsp;&nbsp;
-                          
-                          <span class="page-index">
-                              {% trans "第" %}{% if request.GET.page %}{{ request.GET.page }}{% else %}1{% endif %}{% trans "页" %}
-                          </span>
-                          
-                            &nbsp;&nbsp;<a 
-                            {% if marks.has_next %}
-                            href="?page={{ marks.next_page_number }}"
-                            {% else %}
-                            disabled
-                            {% endif %}
-                            >
-                              <button {% if not marks.has_next %}disabled{% endif %} class="button button-clear">{% trans "下一页" %}</button>
-                            </a>
-
-                            &nbsp;&nbsp;<a 
-                            {% if marks.has_next %}
-                            href="?page={{ marks.paginator.num_pages }}"
-                            {% else %}
-                            disabled
-                            {% endif %}>
-                              <button {% if not marks.has_next %}disabled{% endif %} class="button button-clear">{% trans "末页" %}</button>
-                            </a>
-                          
-                        </div>                        
-                    </div>
-        
-                    <div id="aside">
-                        <div class="aside-card">
-                            <div class="aside-item">
-                                <a href="{% url 'books:retrieve' book.id %}"><img src="{{ book.cover.url }}" alt="" class="item-image"></a>
-                                <h5 class="item-title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
-                                
-                                {% if book.isbn %}
-                                <div>ISBN: {{ book.isbn }}</div>
+                                {% if marks.pagination.has_prev %}
+                                <a href="?page=1"
+                                    class="pagination__nav-link pagination__nav-link">&laquo;</a>
+                                <a href="?page={{ marks.previous_page_number }}"
+                                    class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
                                 {% endif %}
-                                    
-                                <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
-                                {% if book.rating %}
-                                {% trans '评分: ' %}<span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></span>
+                            
+                                {% for page in marks.pagination.page_range %}
+                            
+                                {% if page == marks.pagination.current_page %}
+                                <a href="?page={{ page }}"
+                                    class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+                                {% else %}
+                                <a href="?page={{ page }}"
+                                    class="pagination__page-link">{{ page }}</a>
                                 {% endif %}
-                                    
+                            
+                                {% endfor %}
+                            
+                                {% if marks.pagination.has_next %}
+                                <a href="?page={{ marks.next_page_number }}"
+                                    class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                <a href="?page={{ marks.pagination.last_page }}"
+                                    class="pagination__nav-link">&raquo;</a>
+                                {% endif %}
+                            
                             </div>
                         </div>
                     </div>
+        
+                    <div class="grid__aside" id="aside">
+                        <div class="aside-section-wrapper">
+                            <div class="entity-card">
+                                <div class="entity-card__img-wrapper">
+                                    <a href="{% url 'books:retrieve' book.id %}"><img src="{{ book.cover.url }}" alt="" class="entity-card__img"></a>
+                                </div>
+                                <div class="entity-card__info-wrapper">                                    
+                                    <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
+                                    
+                                    {% if book.isbn %}
+                                    <div>ISBN: {{ book.isbn }}</div>
+                                    {% endif %}
+                                        
+                                    <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
+                                    {% if book.rating %}
+                                    {% trans '评分: ' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></span>
+                                    <span class="entity-card__rating-score rating-score">{{ book.rating }}</span>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </section>
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
 
     
@@ -161,16 +143,7 @@
                 if (q)
                     location.href = "{% url 'common:search' %}" + "?q=" + q;
             }
-        });
-        ratingLabels = $("#aside .rating-star");
-        $(ratingLabels).each( function(index, value) {
-            let ratingScore = $(this).data("rating-score") / 2;
-            $(this).starRating({
-                initialRating: ratingScore,
-                readOnly: true,
-                starSize: 15,
-            });
-        });        
+        });  
     </script>
 </body>
 

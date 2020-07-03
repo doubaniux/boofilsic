@@ -2,6 +2,7 @@ from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from books.models import Book
 from common.models import MarkStatusEnum
+from common.utils import PageLinksGenerator
 from users.models import Report, User
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -13,6 +14,9 @@ BOOKS_PER_SET = 5
 
 # how many items are showed in one search result page
 ITEMS_PER_PAGE = 20
+
+# how many pages links in the pagination
+PAGE_LINK_NUMBER = 7
 
 
 @login_required
@@ -66,6 +70,7 @@ def search(request):
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         items = paginator.get_page(page_number)
+        items.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
 
         return render(
             request,

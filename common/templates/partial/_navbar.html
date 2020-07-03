@@ -1,0 +1,28 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+<section id="navbar">
+    <nav class="navbar">
+        <div class="grid">
+            <div class="navbar__wrapper">
+
+                <a href="{% url 'common:home' %}" class="navbar__logo">
+                    <img src="{% static 'img/logo.svg' %}" alt="" class="navbar__logo-img">
+                </a>
+
+                <input type="search" class="navbar__search-box" name="q" id="searchInput" required="true"
+                    placeholder="搜索书影音，多个关键字以空格分割">
+                <button class="navbar__dropdown-btn">• • •</button>
+                <ul class="navbar__link-list">
+                    <a class="navbar__link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
+                    <a class="navbar__link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
+                    {% if user.is_staff %}
+                    <a class="navbar__link" href="{% admin_url %}">{% trans '后台' %}</a>
+                    {% endif %}
+                </ul>
+
+            </div>
+
+        </div>
+    </nav>
+</section>

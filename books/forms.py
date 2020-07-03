@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from .models import Book, BookMark, BookReview
 from common.models import MarkStatusEnum
 from common.forms import RadioBooleanField, RatingValidator
+from common.forms import PreviewImageInput
 
 
 def BookMarkStatusTranslator(status):
@@ -59,13 +60,13 @@ class BookForm(forms.ModelForm):
             'brief': _("简介"),
             'other_info': _("其他信息"),
         }
-        from common.forms import ImageInput
+
         widgets = {
             'author': forms.TextInput(attrs={'placeholder': _("多个作者使用英文逗号分隔")}),
             'translator': forms.TextInput(attrs={'placeholder': _("多个译者使用英文逗号分隔")}),
             'other_info': KeyValueInput(),
             # 'cover': forms.FileInput(),
-            'cover': ImageInput(),
+            'cover': PreviewImageInput(),
         }        
 
     def clean_isbn(self):
@@ -108,7 +109,7 @@ class BookMarkForm(forms.ModelForm):
             'text': _("短评"),
         }        
         widgets = {
-            'book': forms.Select(attrs={"hidden": ""}),
+            'book': forms.TextInput(attrs={"hidden": ""}),
             'text': forms.Textarea(attrs={"placeholder": _("最多只能写500字哦~")}),
         }      
 
@@ -141,7 +142,7 @@ class BookReviewForm(forms.ModelForm):
             'share_to_mastodon': _("分享到长毛象")
         }
         widgets = {
-            'book': forms.Select(attrs={"hidden": ""}),
+            'book': forms.TextInput(attrs={"hidden": ""}),
         }
 
 
