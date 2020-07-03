@@ -1213,6 +1213,7 @@ select::placeholder {
 }
 
 .entity-desc .entity-desc__title {
+  display: inline-block;
   margin-bottom: 8px;
 }
 
@@ -1222,6 +1223,7 @@ select::placeholder {
 
 .entity-marks .entity-marks__title {
   margin-bottom: 8px;
+  display: inline-block;
 }
 
 .entity-marks .entity-marks__title > a {
@@ -1269,6 +1271,7 @@ select::placeholder {
 }
 
 .entity-reviews .entity-reviews__title {
+  display: inline-block;
   margin-bottom: 8px;
 }
 

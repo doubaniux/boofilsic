@@ -12,14 +12,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta property="og:title" content="NiceDB书 - {{ book.title }}">
     <meta property="og:type" content="book">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ book.cover.url }}">
     {% if book.author %}
     <meta property="og:book:author" content="{% for author in book.author %}{{ author }}{% if not forloop.last %},{% endif %}{% endfor %}">
     {% endif %}
     {% if book.isbn %}
     <meta property="og:book:isbn" content="{{ book.isbn }}">
     {% endif %}
-    <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ book.cover.url }}">
     
     <title>{% trans 'Nicedb - 书籍详情' %} | {{ book.title }}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
