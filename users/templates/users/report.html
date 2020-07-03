@@ -48,13 +48,7 @@
     {% endcomment %}
         
     <script>
-        $("#searchInput").on('keyup', function (e) {
-            if (e.keyCode === 13) {
-                let q = $(this).val();
-                if (q)
-                    location.href = "{% url 'common:search' %}" + "?q=" + q;
-            }
-        });
+
         // preview uploaded pic
         $("input[type='file']").change(function () {
             if (this.files && this.files[0]) {

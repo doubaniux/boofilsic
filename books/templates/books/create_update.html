@@ -46,13 +46,7 @@
     {% endcomment %}
         
     <script>
-        $("#searchInput").on('keyup', function (e) {
-            if (e.keyCode === 13) {
-                let q = $(this).val();
-                if (q)
-                    location.href = "{% url 'common:search' %}" + "?q=" + q;
-            }
-        });
+
         // mark required
         $("#content input[required]").each(function () {
                 $(this).prev().prepend("*");

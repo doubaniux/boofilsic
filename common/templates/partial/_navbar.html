@@ -33,4 +33,13 @@
 
         </div>
     </nav>
+    <script>
+            $("#searchInput").on('input', function (e) {
+                if (e.keyCode === 13) {
+                    let q = $(this).val();
+                    if (q)
+                        location.href = "{% url 'common:search' %}" + "?q=" + q;
+                }
+            });        
+    </script>
 </section>
