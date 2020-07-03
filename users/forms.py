@@ -1,7 +1,7 @@
 from django import forms
 from .models import Report
 from django.utils.translation import gettext_lazy as _
-
+from common.forms import PreviewImageInput
 
 class ReportForm(forms.ModelForm):
     class Meta:
@@ -13,6 +13,8 @@ class ReportForm(forms.ModelForm):
         ]
         widgets = {
             'message': forms.Textarea(attrs={'placeholder': _("详情")}),
+            'image': PreviewImageInput()
+            # 'reported_user': forms.TextInput(),
         } 
         labels = {
             'reported_user': _("举报的用户"),

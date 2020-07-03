@@ -9,54 +9,49 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'Nicedb - 主页' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/scrape.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
 </head>
 
 <body>
     <style>
-        #scrapeForm label{
-            font-size: small !important;
+        #scrape {
+            overflow: auto;
         }
-        textarea {
+        #scrape iframe {
+            width: 100%;
+        }
+        #scrape textarea {
             height: 200px;
+            resize: vertical;
+        }
+        #scrape iframe {
+            height: 500px;
         }
     </style>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <input type="search" class="search-box" name="q" 
-                        value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if request.user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
+            {% include "partial/_navbar.html" %}
         
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        <div class="set">        
-                            {% trans '根据豆瓣内容填写下方表单' %}
-                        </div>
-                        <iframe id='test' sandbox="allow-same-origin allow-scripts allow-popups allow-forms" src="https://search.douban.com/book/subject_search{% if q %}?search_text={{ q }}{% endif %}" frameborder="0"></iframe>
-                        <div class="dividing-line"></div>
-                        <div id="parser">
-                            <label style="font-size: small;">{% trans '解析器:' %}</label>
-                            <textarea name="parser" id="" cols="30" rows="40" placeholder="复制信息粘贴至此自动解析，例：
-
+            <section id="content">
+                <div class="grid grid--reverse-order">
+                    <div class="grid__main grid__main--reverse-order" id="main">
+                        <div class="main-section-wrapper">
+                            <div id="scrape">
+                                <h5>        
+                                    {% trans '根据豆瓣内容填写下方表单' %}
+                                </h5>
+                                <iframe id='test' sandbox="allow-same-origin allow-scripts allow-popups allow-forms" src="https://search.douban.com/book/subject_search{% if q %}?search_text={{ q }}{% endif %}" frameborder="0"></iframe>
+                                <div class="dividing-line"></div>
+                                <div id="parser">
+                                    <label style="font-size: small;">{% trans '解析器:' %}</label>
+                                    <textarea name="parser" id="" cols="30" rows="40" placeholder="复制信息粘贴至此自动解析，例：
+        
 作者: [法] 雨果
 出版社: 人民文学出版社
 原作名: Les Misérables
@@ -67,42 +62,38 @@
 装帧: 精装
 丛书: 名著名译丛书
 ISBN: 9787020104345
-                            "></textarea>
-                        </div>
-                        <div class="dividing-line"></div>
-                        <div id="scrapeForm">
-                            <form action="{% url 'books:create' %}" method="POST" enctype="multipart/form-data">
-                                {% csrf_token %}
-                                {{ form }}
-                            </form>
-                            <a href="{% url 'books:scrape' %}" class="button add-button submit">{% trans '剽取！' %}</a>
+                                    "></textarea>
+                                </div>
+                                <div class="dividing-line"></div>
+                                <div id="scrapeForm">
+                                    <form action="{% url 'books:create' %}" method="POST" enctype="multipart/form-data">
+                                        {% csrf_token %}
+                                        {{ form }}
+                                    </form>
+                                    <a href="{% url 'books:scrape' %}" class="button add-button submit">{% trans '剽取！' %}</a>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
-                    <div id="aside">
-                        <div class="aside-card">
-                            <div class="add-nav">
-                                <div class="set">        
-                                    {% trans '或者复制详情页链接' %}
-                                </div>
-                                <form action="{% url 'books:click_to_scrape' %}" method="post">
-                                    {% csrf_token %}
-                                    <input type="text" name="url" required placeholder="https://book.douban.com/subject/1000000/">
-                                    <input type="submit" class="button add-button" value="{% trans '一键取剽取!' %}">
-                                </form>
-
-                            </div>
+                    <div class="grid__aside grid__aside--reverse-order" id="aside">
+                        <div class="aside-section-wrapper aside-section-wrapper--singular">
+                            <h5>
+                                {% trans '复制详情页链接' %}
+                            </h5>
+                            <form action="{% url 'books:click_to_scrape' %}" method="post">
+                                {% csrf_token %}
+                                <input type="text" name="url" required placeholder="https://book.douban.com/subject/1000000/">
+                                <input type="submit" class="button add-button" value="{% trans '一键取剽取!' %}">
+                            </form>
                         </div>
-          
+        
                     </div>
+                </div>
             </section>
 
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
 
     </div>
     <script>

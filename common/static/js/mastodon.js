@@ -142,11 +142,18 @@ function getEmojiDict(emoji_list) {
     return dict;
 }
 
-function translateEmojis(text, emoji_list) {
+function translateEmojis(text, emoji_list, large) {
     let dict = getEmojiDict(emoji_list);
     let regex = /:(.*?):/g;
-    let translation = text.replace(regex, function (match) {
-        return "<img src=" + dict[match] + " class=emoji alt=" + match + ">"; 
-    });
+    let translation = null
+    if (large) {
+        translation = text.replace(regex, function (match) {
+            return "<img src=" + dict[match] + " class=emoji--large alt=" + match + ">";
+        });
+    } else {        
+        translation = text.replace(regex, function (match) {
+            return "<img src=" + dict[match] + " class=emoji alt=" + match + ">"; 
+        });
+    }
     return translation;
 }

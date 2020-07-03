@@ -9,90 +9,96 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'Nicedb - 删除评论' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
-    
+
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <h4 class="nav-title">{% trans '删除评论' %}</h4>
+            {% include "partial/_navbar.html" %}
+
+            <section id="content">
+                <div class="grid">
+                    <div class="single-section-wrapper" id="main">
+                        <h5>{% trans '确认删除这篇评论吗？' %}</h5>
                         
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
-        
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        <h4 class="prompt">{% trans '确认删除这篇评论吗？' %}</h4>
-                    
-                        <div class="item-card">
-                            <div class="review">
-                                <div class="review-head clearfix">
-                                    <div class="mark-label float-left">
-                                        <h4>
-                                            {{ review.title }}
-                                            {% if review.is_private %}
-                                            <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
-                                            {% endif %}
-                                        </h4>                                        
-                                        <a href="" class="mark-owner-name">{{ review.owner.username }}</a>
-                                            
-                                        <span class="mark-time">{{ review.edited_time }}</span>
+                        <div class="dividing-line"></div>
+
+
+                        <div class="review-head">
+
+                                <h5 class="review-head__title">
+                                    {{ review.title }}
+                                </h5>
+                                {% if review.is_private %}
+                                <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg"
+                                            viewBox="0 0 20 20">
+                                            <path
+                                                d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                                            </svg></span>
+                                {% endif %}
+
+                                <div class="review-head__body">
+                                    <div class="review-head__info">
+
+                                        <a href="{% url 'users:home' review.owner.id %}"
+                                            class="review-head__owner-link">{{ review.owner.username }}</a>
+
+                                        {% if mark %}
+
+                                        {% if mark.rating %}
+                                        <span class="review-head__rating-star rating-star"
+                                            data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
+                                        {% endif %}
+
+                                        {% endif %}
+
+                                        <span class="review-head__time">{{ review.edited_time }}</span>
+
                                     </div>
-                                        
                                 </div>
-                                <!-- <div class="dividing-line"></div> -->
-                                <div id="rawContent" class="delete-preview">
-                                    {{ form.content }}
-                                </div>
-                                {{ form.media }}
-                            </div>
-                            <!-- <div class="dividing-line"></div> -->
+
+
                         </div>
+                        <div id="rawContent" class="delete-preview">
+                            {{ form.content }}
+                        </div>
+                        {{ form.media }}
+                                
+                            <div class="dividing-line"></div>
+
                         <div class="clearfix">
                             <form action="{% url 'books:delete_review' review.id %}" method="post" class="float-right">
                                 {% csrf_token %}
                                 <input class="button" type="submit" value="{% trans '确认' %}">
                             </form>
-                            <button onclick="history.back()" class="button button-clear float-right">{% trans '返回' %}</button>
+                            <button onclick="history.back()"
+                                class="button button-clear float-right">{% trans '返回' %}</button>
                         </div>
                     </div>
+                </div>
             </section>
 
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
 
-    
-    {% comment %}        
+
+    {% comment %}
     <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
     <div id="mastodonURI" hidden="true">{% mastodon %}</div>
-    <!--current user mastodon id--> 
+    <!--current user mastodon id-->
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
     {% endcomment %}
-        
+
     <script>
         $("#searchInput").on('keyup', function (e) {
             if (e.keyCode === 13) {
