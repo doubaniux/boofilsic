@@ -1909,10 +1909,6 @@ select::placeholder {
   overflow: auto;
 }
 
-.single-section-wrapper input, .single-section-wrapper select {
-  width: 100%;
-}
-
 .entity-form, .review-form {
   overflow: auto;
 }
@@ -1990,6 +1986,10 @@ select::placeholder {
 .review-form .review-form__share-checkbox input[type="checkbox"] {
   position: relative;
   top: 2px;
+}
+
+.report-form input, .report-form select {
+  width: 100%;
 }
 
 @media (max-width: 575.98px) {
