@@ -510,11 +510,17 @@ select::placeholder {
 
 .navbar .navbar__search-box {
   margin: 0 12% 0 15px;
-  height: 32px;
+  display: inline-block;
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
+}
+
+.navbar .navbar__search-box > input[type="search"] {
+  margin: 0;
+  height: 32px;
   background-color: white !important;
+  width: 100%;
 }
 
 .navbar .navbar__dropdown-btn {
@@ -567,6 +573,8 @@ select::placeholder {
   .navbar .navbar__search-box {
     margin: 0;
     width: 46vw;
+  }
+  .navbar .navbar__search-box > input[type="search"] {
     height: 26px;
     padding: 4px 6px;
   }

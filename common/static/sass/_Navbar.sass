@@ -37,9 +37,13 @@
 
     & &__search-box
         margin: 0 12% 0 15px
-        height: 32px
+        display: inline-block
         flex: 1
-        background-color: white !important
+        & > input[type="search"]
+            margin: 0
+            height: 32px
+            background-color: white !important
+            width: 100%
 
     & &__dropdown-btn
         display: none
@@ -87,8 +91,9 @@
         & &__search-box
             margin: 0
             width: 46vw
-            height: 26px
-            padding: 4px 6px
+            & > input[type="search"]
+                height: 26px
+                padding: 4px 6px
 // Medium devices (tablets, 768px and up)
 @media (max-width: $medium-devices)
 	pass

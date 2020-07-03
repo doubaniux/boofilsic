@@ -9,9 +9,10 @@
                 <a href="{% url 'common:home' %}" class="navbar__logo">
                     <img src="{% static 'img/logo.svg' %}" alt="" class="navbar__logo-img">
                 </a>
-
-                <input type="search" class="navbar__search-box" name="q" id="searchInput" required="true"
-                    placeholder="搜索书影音，多个关键字以空格分割">
+                <form action="#" οnsubmit="" class="navbar__search-box">
+                    <input type="search" class="" name="q" id="searchInput" required="true"
+                        placeholder="搜索书影音，多个关键字以空格分割">
+                </form>
                 <button class="navbar__dropdown-btn">• • •</button>
                 <ul class="navbar__link-list">
                     
