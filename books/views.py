@@ -104,14 +104,15 @@ def update(request, id):
 
 
 @mastodon_request_included
-@login_required
+# @login_required
 def retrieve(request, id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=id)
         mark = None
         review = None
         try:
-            mark = BookMark.objects.get(owner=request.user, book=book)
+            if request.user.is_authenticated:
+                mark = BookMark.objects.get(owner=request.user, book=book)
         except ObjectDoesNotExist:
             mark = None
         if mark:
@@ -123,18 +124,27 @@ def retrieve(request, id):
             })
 
         try:
-            review = BookReview.objects.get(owner=request.user, book=book)
+            if request.user.is_authenticated:
+                review = BookReview.objects.get(owner=request.user, book=book)
         except ObjectDoesNotExist:
             review = None
+
         
-        mark_list = BookMark.get_available(book, request.user, request.session['oauth_token'])
-        mark_list_more = True if len(mark_list) > MARK_NUMBER else False
-        mark_list = mark_list[:MARK_NUMBER]
-        for m in mark_list:
-            m.get_status_display = BookMarkStatusTranslator(m.status)
-        review_list = BookReview.get_available(book, request.user, request.session['oauth_token'])
-        review_list_more = True if len(review_list) > REVIEW_NUMBER else False
-        review_list = review_list[:REVIEW_NUMBER]
+        if request.user.is_anonymous:
+            mark_list = None
+            review_list = None
+            mark_list_more = None
+            review_list_more = None
+        else:
+            mark_list = BookMark.get_available(book, request.user, request.session['oauth_token'])
+            review_list = BookReview.get_available(book, request.user, request.session['oauth_token'])
+            mark_list_more = True if len(mark_list) > MARK_NUMBER else False
+            mark_list = mark_list[:MARK_NUMBER]
+            for m in mark_list:
+                m.get_status_display = BookMarkStatusTranslator(m.status)
+            review_list_more = True if len(review_list) > REVIEW_NUMBER else False
+            review_list = review_list[:REVIEW_NUMBER]
+
 
         # def strip_html_tags(text):
         #     import re
