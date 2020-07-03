@@ -10,6 +10,8 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from common.mastodon import mastodon_request_included
 from common.mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from common.mastodon.utils import rating_to_emoji
+from common.utils import PageLinksGenerator
+from common.views import PAGE_LINK_NUMBER
 from .models import *
 from .forms import *
 from .forms import BookMarkStatusTranslator
@@ -247,6 +249,7 @@ def retrieve_mark_list(request, book_id):
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
+        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         for m in marks:
             m.get_status_display = BookMarkStatusTranslator(m.status)
         return render(
@@ -430,6 +433,7 @@ def retrieve_review_list(request, book_id):
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)
+        reviews.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         return render(
             request,
             'books/review_list.html',

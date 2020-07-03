@@ -10,172 +10,155 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'Nicedb - 搜索结果' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <input type="search" class="search-box" name="q" 
-                        value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
+            {% include 'partial/_navbar.html' %}
+        
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main">
+                        <div class="main-section-wrapper">
+
+                            <div class="entity-list">
+                                {% if request.GET.q %}
+                                <h5 class="entity-list__title">“{{ request.GET.q }}”{% trans '的搜索结果' %}</h5>
+                                {% endif %}
+                                <ul class="entity-list__entities">
+                                    
+                                    {% for book in items %}
+                                        
+                                    <li class="entity-list__entity">
+                                        <div class="entity-list__entity-img-wrapper">
+                                            <a href="{% url 'books:retrieve' book.id %}">
+                                                <img src="{{ book.cover.url }}" alt="" class="entity-list__entity-img">
+                                            </a>
+                                        </div>
+                                        <div class="entity-list__entity-text">
+        
+                                            <div class="entity-list__entity-title">
+
+                                                <a href="{% url 'books:retrieve' book.id %}" class="entity-list__entity-link">
+                                                    {% if request.GET.q %}
+                                                    {{ book.title | highlight:request.GET.q }}
+                                                    {% else %}
+                                                    {{ book.title }}
+                                                    {% endif %}
+                                                </a>
+                                            </div>
+
+                                            {% if book.rating %}                                             
+                                            <div class="rating-star entity-list__rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></div>
+                                            <span class="entity-list__rating-score rating-score">{{ book.rating }}</span>
+                                            {% else %}
+                                            <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
+                                            {% endif %} 
+
+                                            <span class="entity-list__entity-info">
+                                            {% if book.pub_year %}
+                                            {{ book.pub_year }}{% trans '年' %} 
+                                                {% if book.pub_month %}
+                                                    {{book.pub_month }}{% trans '月' %} /
+                                                {% endif %} 
+                                            {% endif %}
+                                            
+                                            {% if book.author %}
+                                            {% trans '作者' %}
+                                            {% for author in book.author %}                  
+                                            {{ author }}{% if not forloop.last %},{% endif %}
+                                            {% endfor %}/
+                                            {% endif %}
+        
+                                            {% if book.translator %}
+                                            {% trans '译者' %}
+                                            {% for translator in book.translator %}                  
+                                            {{ translator }}{% if not forloop.last %},{% endif %}
+                                            {% endfor %}/
+                                            {% endif %}                                    
+        
+                                            {% if book.orig_title %}
+                                            &nbsp;{% trans '原名' %}
+                                                {{ book.orig_title }}
+                                            {% endif %}
+                                            </span>                    
+                                            <p class="entity-list__entity-brief">
+                                                {{ book.brief }}
+                                            </p>
+                                        </div>
+                                    </li>
+                                    {% empty %}
+                                    {% trans '无结果' %}
+                                    {% endfor %}
+                                        
+                                </ul>
+                            </div>
+                            <div class="pagination" >
+                                
+                                {% if items.pagination.has_prev %}
+                                    <a href="?page=1&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
+                                    <a href="?page={{ items.previous_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+                                {% endif %}
+                                    
+                                {% for page in items.pagination.page_range %}
+                                    
+                                    {% if page == items.pagination.current_page %}
+                                    <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+                                    {% else %}
+                                    <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__page-link">{{ page }}</a>
+                                    {% endif %}
+                                        
+                                {% endfor %}
+                                    
+                                {% if items.pagination.has_next %}
+                                    <a href="?page={{ items.next_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                    <a href="?page={{ items.pagination.last_page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link">&raquo;</a>
+                                {% endif %}           
+                              
+                            </div>            
+                        </div>
+           
+                    </div>
+        
+                    <div class="grid__aside">
+                        <div class="aside-section-wrapper">
+                            
+                            <div class="add-entity-entries">
+                                <div class="add-entity-entries__entry">
+                                    <div class="add-entity-entries__label">
+                                        没有想要的结果？
+                                    </div>
+                                    <a href="{% url 'books:create' %}">
+                                        <button class="add-entity-entries__button">添加一个条目</button>
+                                    </a>
+                                </div>
+                                <div class="add-entity-entries__entry">
+                                    <div class="add-entity-entries__label">
+                                        或者(≖ ◡ ≖)✧
+                                    </div>
+                                    <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                        <button class="add-entity-entries__button">从表瓣剽取数据</button>
+                                    </a>
+                                </div>
+
+                            </div>
+
+                        </div>
+                    </div>
                 </div>
             </section>
-        
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        {% if request.GET.q %}
-                        <div class="set">
-                            <h5 class="set-title">
-                                “{{ request.GET.q }}” {% trans '的搜索结果' %}
-                            </h5>
-                        </div>
-                        {% endif %}
-                        <ul class="result-items">
-                            
-                            {% for book in items %}
-                                
-                            <li class="result-item clearfix">
-                                <a href="{% url 'books:retrieve' book.id %}">
-                                    <img src="{{ book.cover.url }}" alt="" class="result-book-cover">
-                                </a>
-                                <div class="result-info">
-
-                                    <a href="{% url 'books:retrieve' book.id %}" class="result-item-title">
-                                        {% if request.GET.q %}
-                                        {{ book.title | highlight:request.GET.q }}
-                                        {% else %}
-                                        {{ book.title }}
-                                        {% endif %}
-                                    </a>
-                                    {% if book.rating %}
-                                        
-                                    <div class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></div>
-                                    <span class="rating-score">
-                                        {{ book.rating }}
-                                    </span>
-                                    {% else %}
-                                    <span class="rating-empty"> {% trans '暂无评分' %}</span>
-                                    {% endif %}
-                                    <span class="result-book-info">
-                                    {% if book.pub_year %}
-                                    {{ book.pub_year }}{% trans '年' %} /
-                                        {% if book.pub_month %}
-                                            {{book.pub_month }}{% trans '月' %} /
-                                        {% endif %} 
-                                    {% endif %}
-                                    
-                                    {% if book.author %}
-                                    {% trans '作者' %}
-                                    {% for author in book.author %}                  
-                                    {{ author }}{% if not forloop.last %},{% endif %}
-                                    {% endfor %}/
-                                    {% endif %}
-
-                                    {% if book.translator %}
-                                    {% trans '译者' %}
-                                    {% for translator in book.translator %}                  
-                                    {{ translator }}{% if not forloop.last %},{% endif %}
-                                    {% endfor %}/
-                                    {% endif %}                                    
-
-                                    {% if book.orig_title %}
-                                    &nbsp;{% trans '原名' %}
-                                        {{ book.orig_title }}
-                                    {% endif %}
-                                    </span>                    
-                                    <p class="result-item-brief">
-                                        {{ book.brief | truncate:170 }}
-                                    </p>
-                                </div>
-                            </li>
-                            {% empty %}
-                            {% trans '无结果' %}
-                            {% endfor %}
-                                
-                        </ul>
-                        <div class="pagination" >
-                            
-                            <a 
-                            {% if items.has_previous %}
-                            href="?page=1&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            {%else %}
-                            disabled
-                            {% endif %}>
-                              <button {% if not items.has_previous %}disabled{% endif %} class="button button-clear">{% trans "首页" %}</button>
-                            </a>&nbsp;&nbsp;
-
-                            <a 
-                            {% if items.has_previous %}
-                            href="?page={{ items.previous_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            {%else %}
-                            disabled
-                            {% endif %}>
-                              <button {% if not items.has_previous %}disabled{% endif %} class="button button-clear">{% trans "上一页" %}</button>
-                            </a>&nbsp;&nbsp;
-                          
-                          <span class="page-index">
-                              {% trans "第" %}{% if request.GET.page %}{{ request.GET.page }}{% else %}1{% endif %}{% trans "页" %}
-                          </span>
-                          
-                            &nbsp;&nbsp;<a 
-                            {% if items.has_next %}
-                            href="?page={{ items.next_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            {% else %}
-                            disabled
-                            {% endif %}
-                            >
-                              <button {% if not items.has_next %}disabled{% endif %} class="button button-clear">{% trans "下一页" %}</button>
-                            </a>
-
-                            &nbsp;&nbsp;<a 
-                            {% if items.has_next %}
-                            href="?page={{ items.paginator.num_pages }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                            {%else %}
-                            disabled
-                            {% endif %}>
-                              <button {% if not items.has_next %}disabled{% endif %} class="button button-clear">{% trans "末页" %}</button>
-                            </a>
-                          
-                        </div>                        
-                    </div>
-        
-                    <div id="aside">
-                        <div class="aside-card">
-                            <div class="add-nav">
-                                <div>{% trans '没有想要的结果？' %}</div>
-                                <a href="{% url 'books:create' %}" class="button add-button">{% trans '添加一个条目' %}</a>
-                                <div>{% trans '或者' %}</div>
-                                <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}" class="button add-button">{% trans '从表瓣剽取数据d(≖ ◡ ≖)✧' %}</a>
-                            </div>
-                        </div>
-                    </div>
-            </section>
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include 'partial/_footer.html' %}
     </div>
 
     

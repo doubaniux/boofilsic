@@ -9,105 +9,103 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
-    <title>{% trans 'Nicedb - 查看评论' %}</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="NiceDB书评 - {{ review.title }}">
+    <meta property="og:type" content="article">
+    <meta property="og:article:author" content="{{ review.owner.username }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.svg' %}">
+    <title>{% trans 'Nicedb - 评论详情' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <input type="search" class="search-box" name="q" id="searchInput" required="true" placeholder="{% trans '搜索书影音，多个关键字以空格分割' %}">
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
+            {% include "partial/_navbar.html" %}
         
-            <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-
-                        
-                        <div class="review">
-                            <div class="review-head clearfix">
-                                <div class="mark-label float-left">
-                                    <h4>
-                                        {{ review.title }}
-                                        {% if review.is_private %}
-                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
-                                        {% endif %}
-                                    </h4>                                        
-                                    <a href="{% url 'users:home' review.owner.id %}" class="mark-owner-name">{{ review.owner.username }}</a>
-                                    
-                                    {% if mark %}    
-
-                                        {% if mark.rating %}
-                                        <span class="rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
-                                        {% endif %}
-
-                                    {% endif %}
-                                        
-                                    <span class="mark-time">{{ review.edited_time }}</span>
-                                </div>
-
-                                {% if request.user == review.owner %}
-                                <div class="edit float-right"><a href="{% url 'books:update_review' review.id %}">{% trans '编辑' %}</a></div>
-                                <div class="edit float-right"><a href="{% url 'books:delete_review' review.id %}">{% trans '删除' %}</a></div>
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main" id="main">
+                        <div class="main-section-wrapper">
+                            <div class="review-head">
+                                <h5 class="review-head__title">
+                                    {{ review.title }}
+                                </h5>
+                                {% if review.is_private %}
+                                <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg
+                                            xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path
+                                                d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                                            </svg></span>
                                 {% endif %}
-                                    
+                                <div class="review-head__body">
+                                    <div class="review-head__info">
+                                      
+                                            <a href="{% url 'users:home' review.owner.id %}" class="review-head__owner-link">{{ review.owner.username }}</a>
+                                            
+                                            {% if mark %}    
+        
+                                                {% if mark.rating %}
+                                                <span class="review-head__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
+                                                {% endif %}
+        
+                                            {% endif %}
+                                                
+                                            <span class="review-head__time">{{ review.edited_time }}</span>
+                                            
+                                    </div>
+                                    <div class="review-head__actions">
+                                            {% if request.user == review.owner %}
+                                            <a class="review-head__action-link" href="{% url 'books:update_review' review.id %}">{% trans '编辑' %}</a>
+                                            <a class="review-head__action-link" href="{% url 'books:delete_review' review.id %}">{% trans '删除' %}</a>
+                                            {% endif %}
+                                    </div>
+                                </div>
+                                <!-- <div class="dividing-line"></div> -->
+                                <div id="rawContent">
+                                    {{ form.content }}
+                                </div>
+                                {{ form.media }}
                             </div>
-                            <div class="dividing-line"></div>
-                            <div id="rawContent">
-                                {{ form.content }}
+                        </div>
+                        
+                    </div>
+                    <div class="grid__aside" id="aside">
+                        <div class="aside-section-wrapper">
+                            <div class="entity-card">
+                                <div class="entity-card__img-wrapper">
+                                    <a href="{% url 'books:retrieve' book.id %}"><img src="{{ book.cover.url }}" alt=""
+                                            class="entity-card__img"></a>
+                                </div>
+                                <div class="entity-card__info-wrapper">
+                                    <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
+                    
+                                    {% if book.isbn %}
+                                    <div>ISBN: {{ book.isbn }}</div>
+                                    {% endif %}
+                    
+                                    <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
+                                    {% if book.rating %}
+                                    {% trans '评分: ' %}<span class="entity-card__rating-star rating-star"
+                                        data-rating-score="{{ book.rating | floatformat:"0" }}"></span>
+                                    <span class="entity-card__rating-score rating-score">{{ book.rating }}</span>
+                                    {% endif %}
+                                </div>
+                    
                             </div>
-                            {{ form.media }}
                         </div>
                     </div>
-                    <div id="aside">
-                        <div class="aside-card">
-                            <div class="aside-item">
-                                <a href="{% url 'books:retrieve' book.id %}"><img src="{{ book.cover.url }}" alt="" class="item-image"></a>
-                                <h5 class="item-title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
-                                
-                                {% if book.isbn %}
-                                <div>ISBN: {{ book.isbn }}</div>
-                                {% endif %}
-                                <div>{% if book.author %}{% trans '作者：' %}
-                                    {% for author in book.author %}
-                                        <span>{{ author }}</span>
-                                    {% endfor %}
-                                    {% endif %}</div>
-                                <div>{% if book.pub_house %}{% trans '出版社：' %}{{ book.pub_house }}{% endif %}</div>
-                                <div>{%if book.pub_year %}{% trans '出版时间：' %}{{ book.pub_year }}{% trans '年' %}{% if book.pub_month %}{{ book.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
-                                
-                                {% if book.rating %}
-                                {% trans '评分: ' %}<span class="rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></span>
-                                {% endif %}
-                                    
-                            </div>
-                        </div>                        
-                    </div>
+                </div>
             </section>
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
 
     
@@ -126,15 +124,7 @@
                     location.href = "{% url 'common:search' %}" + "?q=" + q;
             }
         });
-        ratingLabels = $("#aside .rating-star");
-        $(ratingLabels).each( function(index, value) {
-            let ratingScore = $(this).data("rating-score") / 2;
-            $(this).starRating({
-                initialRating: ratingScore,
-                readOnly: true,
-                starSize: 15,
-            });
-        });                
+
         $(".markdownx textarea").hide();
     </script>
 </body>

@@ -11,29 +11,29 @@ $(document).ready( function() {
     let followingSpinner = $("#spinner").clone().removeAttr("hidden");
     let mainSpinner = $("#spinner").clone().removeAttr("hidden");
 
-    $("#main .user:first").hide();
+    $(".mast-user:first").hide();
 
-    $("#main").append(mainSpinner);
+    $(".mast-user-list").append(mainSpinner);
     $("#userInfoCard").append(userInfoSpinner);
-    $("#userRelationCard h5:first").append(followingSpinner);
-    $("#userRelationCard h5:last").append(followersSpinner);
+    $("#followings h5").after(followingSpinner);
+    $("#followers h5").after(followersSpinner);
     $(".mast-following-more").hide();
     $(".mast-followers-more").hide();
 
     getUserInfo(
-        id, 
-        mast_uri, 
-        token, 
-        function(userData) {
+        id,
+        mast_uri,
+        token,
+        function (userData) {
             let userName;
             if (userData.display_name) {
-                userName = translateEmojis(userData.display_name, userData.emojis);
+                userName = translateEmojis(userData.display_name, userData.emojis, true);
             } else {
                 userName = userData.username;
             }
-            $(".mast-user .mast-avatar").attr("src", userData.avatar);
-            $(".mast-user .mast-displayname").html(userName);
-            $(".mast-user .mast-brief").text($(userData.note).text());
+            $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
+            $("#userInfoCard .mast-displayname").html(userName);
+            $("#userInfoCard .mast-brief").text($(userData.note).text());
             $(userInfoSpinner).remove();
         }
     );
@@ -46,6 +46,7 @@ $(document).ready( function() {
             let subUserList = null;
             if (userList.length == 0) {
                 $(".mast-followers").hide();
+                $(".mast-followers").before("<div>暂无</div>");
             } else {
                 if (userList.length > 4){
                     subUserList = userList.slice(0, 4);
@@ -57,9 +58,9 @@ $(document).ready( function() {
                     temp = $(template).clone();
                     temp.find("img").attr("src", data.avatar);
                     if (data.display_name) {
-                        temp.find("a").html(translateEmojis(data.display_name, data.emojis));
+                        temp.find(".mast-displayname").html(translateEmojis(data.display_name, data.emojis));
                     } else {
-                        temp.find("a").text(data.username);
+                        temp.find(".mast-displayname").text(data.username);
                     }
                     let url = $("#userPageURL").text().replace('0', data.id);
                     temp.find("a").attr('href', url);
@@ -68,20 +69,20 @@ $(document).ready( function() {
             }
             $(followersSpinner).remove();
             // main
-            let template = $("#main .user").clone().show();
+            let template = $(".mast-user").clone().show();
 
             userList.forEach(data => {
                 temp = $(template).clone();
-                temp.find(".avatar").attr("src", data.avatar);
+                temp.find("img").attr("src", data.avatar);
                 if (data.display_name) {
-                    temp.find(".user-name").html(translateEmojis(data.display_name, data.emojis));
+                    temp.find(".mast-displayname").html(translateEmojis(data.display_name, data.emojis));
                 } else {
-                    temp.find(".user-name").text(data.username);
+                    temp.find(".mast-displayname").text(data.username);
                 }
                 let url = $("#userPageURL").text().replace('0', data.id);
                 temp.find("a").attr('href', url);
-                temp.find(".user-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
-                $("#main .user:last").after(temp);                
+                temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
+                $(".mast-user:last").after(temp);             
             });
 
             mainSpinner.hide();
@@ -99,30 +100,31 @@ $(document).ready( function() {
         mast_uri,
         token,
         function(userList, request) {
-            // aside
             if (userList.length == 0) {
-                $("#aside .mast-following").hide();
+                $(".mast-following").hide();
+                $(".mast-following").before("<div>暂无</div>");
             } else {
                 if (userList.length > 4){
                     userList = userList.slice(0, 4);
-                    $("#aside .mast-following-more").show();
+                    $(".mast-following-more").show();
                 }
-                let template = $("#aside .mast-following li").clone();
-                $("#aside .mast-following").html("");
+                let template = $(".mast-following li").clone();
+                $(".mast-following").html("");
                 userList.forEach(data => {
                     temp = $(template).clone()
                     temp.find("img").attr("src", data.avatar);
                     if (data.display_name) {
-                        temp.find("a").html(translateEmojis(data.display_name, data.emojis));
+                        temp.find(".mast-displayname").html(translateEmojis(data.display_name, data.emojis));
                     } else {
-                        temp.find("a").text(data.username);
+                        temp.find(".mast-displayname").text(data.username);
                     }
                     let url = $("#userPageURL").text().replace('0', data.id);
                     temp.find("a").attr('href', url);
-                    $("#aside .mast-following").append(temp);
+                    $(".mast-following").append(temp);
                 });
             }
             $(followingSpinner).remove();
+
         }
     );
 
@@ -149,7 +151,7 @@ $(document).ready( function() {
                             mainSpinner.hide();
                             return;
                         }
-                        let template = $("#main .user:first").clone().show();
+                        let template = $(".mast-user:first").clone().show();
                         let newUrlFlag = false;
                         request.getResponseHeader('link').split(',').forEach(link => {
                             if (link.includes('next')) {
@@ -163,16 +165,17 @@ $(document).ready( function() {
                         }
                         userList.forEach(data => {
                             temp = $(template).clone()
-                            temp.find(".avatar").attr("src", data.avatar);
+                            temp.find("img").attr("src", data.avatar);
                             if (data.display_name) {
-                                temp.find(".user-name").html(translateEmojis(data.display_name, data.emojis));
+                                temp.find(".mast-displayname").html(translateEmojis(data.display_name, data.emojis));
                             } else {
-                                temp.find(".user-name").text(data.username);
+                                temp.find(".mast-displayname").text(data.username);
                             }
                             let url = $("#userPageURL").text().replace('0', data.id);
                             temp.find("a").attr('href', url);
-                            temp.find(".user-brief").text($(data.note).text());
-                            $("#main .user:last").after(temp);                
+                            temp.find(".mast-brief").text($(data.note).text());
+                            // console.log($(temp).html())
+                            $(".mast-user:last").after(temp);               
                         });                            
                         mainSpinner.hide();
                         // release lock   

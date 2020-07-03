@@ -9,38 +9,23 @@
 
 <head>
     <meta charset="UTF-8">
-    <!-- <meta name="viewport" content="width=device-width, initial-scale=1.0"> -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'Nicedb - ' %}{{ title }}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
-    <script src="{% static 'js/create_update.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
 </head>
 
 <body>
     <div id="page-wrapper">
         <div id="content-wrapper">
-            <section id="navbar" class="navbar">
-                <div class="container">
-                    <nav class="clearfix">
-                        <a href="{% url 'common:home' %}">
-                            <img src="{% static 'img/logo.svg' %}" alt="" class="logo">
-                        </a>
-                        <h4 class="nav-title">{{ title }}</h4>
-                        
-                        <a class="nav-link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="nav-link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
-                        {% if user.is_staff %}   
-                        <a class="nav-link" href="{% admin_url %}">{% trans '后台' %}</a>
-                        {% endif %}
-                    </nav>
-                </div>
-            </section>
+            {% include "partial/_navbar.html" %}
         
             <section id="content" class="container">
-                <div class="row">
-                    <div id="main">
-                        <form action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+                <div class="grid">
+                    <div class="single-section-wrapper" id="main">
+                        <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form }}
                             <input class="button" type="submit" value="{% trans '提交' %}">
@@ -49,11 +34,7 @@
         
             </section>
         </div>
-        <footer class="container">
-            <a href="https://donotban.com/@whitiewhite">去长毛象向作者提意见</a>
-            <a href="https://github.com/doubaniux/boofilsic/issues">报告错误</a>
-            <a href="https://github.com/doubaniux/boofilsic" id="githubLink">Github</a>
-        </footer>
+        {% include "partial/_footer.html" %}
     </div>
 
     
@@ -72,6 +53,10 @@
                     location.href = "{% url 'common:search' %}" + "?q=" + q;
             }
         });
+        // mark required
+        $("#content input[required]").each(function () {
+                $(this).prev().prepend("*");
+        })
     </script>
 </body>
 

@@ -1,0 +1,101 @@
+
+.navbar
+    background-color: $color-bright
+    box-sizing: border-box
+    padding: 10px 0
+    margin-bottom: 50px
+    border-bottom: $color-light 0.5px solid
+
+    & &__wrapper
+        display: flex
+        justify-content: space-between
+        align-items: center
+        position: relative
+
+    & &__logo
+        flex-basis: 100px
+
+    & &__logo-link
+        display: inline-block
+
+    & &__link-list
+        margin: 0
+        display: flex
+        justify-content: space-around
+        
+    & &__link
+        margin: 9px
+        color: $color-secondary
+        
+        &:active,
+        &:hover,
+        &:hover:visited
+            color: $color-primary
+
+        &:visited            
+            color: $color-secondary
+
+    & &__search-box
+        margin: 0 12% 0 15px
+        height: 32px
+        flex: 1
+        background-color: white !important
+
+    & &__dropdown-btn
+        display: none
+        padding: 0
+        margin: 0
+        border: none
+        
+        background-color: transparent
+        color: $color-primary
+        &:focus,
+        &:hover
+            background-color: transparent
+            color: $color-secondary        
+
+// Small devices (landscape phones, 576px and up)
+@media (max-width: $small-devices)
+	.navbar
+        padding: 2px 0
+        & &__wrapper
+            display: block
+        & &__logo-img
+            width: 72px
+            margin-right: 10px
+            position: relative
+            top: 7px
+
+        // dropdown
+        & &__link-list
+            // display: block
+            margin-top: 7px
+            max-height: 0
+            transition: max-height 0.6s ease-out
+            overflow: hidden;
+        & &__dropdown-btn
+            display: block
+            position: absolute
+            right: 5px
+            top: 3px
+            
+            transform: scale(0.7)
+            &:hover + .navbar__link-list
+                max-height: 500px
+                transition: max-height 0.6s ease-in
+
+        & &__search-box
+            margin: 0
+            width: 46vw
+            height: 26px
+            padding: 4px 6px
+// Medium devices (tablets, 768px and up)
+@media (max-width: $medium-devices)
+	pass
+// Large devices (desktops, 992px and up)
+@media (max-width: $large-devices)
+    .navbar
+        margin-bottom: 20px
+// Extra large devices (large desktops, 1200px and up)
+@media (max-width: $x-large-devices)
+	pass
