@@ -144,10 +144,6 @@ textarea {
   width: 100%;
 }
 
-input, select {
-  width: 100%;
-}
-
 label,
 legend {
   display: block;
@@ -1073,6 +1069,11 @@ select::placeholder {
 .main-section-wrapper {
   padding: 32px 48px 32px 36px;
   background-color: #f7f7f7;
+  overflow: auto;
+}
+
+.main-section-wrapper input, .main-section-wrapper select {
+  width: 100%;
 }
 
 .entity-list .entity-list__title {
@@ -1525,6 +1526,7 @@ select::placeholder {
   padding: 28px 25px 12px 25px;
   background-color: #f7f7f7;
   margin-bottom: 30px;
+  overflow: auto;
 }
 
 .aside-section-wrapper--transparent {
@@ -1894,6 +1896,10 @@ select::placeholder {
   padding: 32px 36px;
   background-color: #f7f7f7;
   overflow: auto;
+}
+
+.single-section-wrapper input, .single-section-wrapper select {
+  width: 100%;
 }
 
 .entity-form, .review-form {
