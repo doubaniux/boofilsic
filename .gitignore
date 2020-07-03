@@ -20,6 +20,7 @@ migrations/
 # deployed media and static files
 /media/
 /static/
+/scripts/
 
 # log file
 log
