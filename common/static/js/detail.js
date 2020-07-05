@@ -1,6 +1,5 @@
 $(document).ready( function() {
     
-    
     $(".modal-close").on('click', function() {
         $(this).parents(".modal").hide();
         $(".bg-mask").hide();
@@ -102,4 +101,24 @@ $(document).ready( function() {
         $(".mark-panel form").submit();
     });
     
+
+    // hide long text
+    let copy = $(".entity-desc__content").clone()
+        .addClass('entity-desc__content--folded')
+        .css("visibility", "hidden");
+
+    $(".entity-desc__content").after(copy);
+    if ($(".entity-desc__content").height() > copy.height()) {
+        $(".entity-desc__content").addClass('entity-desc__content--folded');
+        $(".entity-desc__unfold-button").removeClass("entity-desc__unfold-button--hidden");
+        console.log($(".entity-desc__content").height())
+        console.log(copy.height())
+    }
+    copy.remove();
+
+    // expand hidden long text
+    $(".entity-desc__unfold-button a").click(function() {
+        $(".entity-desc__content").removeClass('entity-desc__content--folded');
+        $(".entity-desc__unfold-button").remove();
+    });
 });

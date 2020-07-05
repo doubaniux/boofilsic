@@ -1,5 +1,6 @@
 
 $(document).ready( function() {
+    
     let token = $("#oauth2Token").text();
     let mast_uri = $("#mastodonURI").text();
     let id = $("#userMastodonID").text();
@@ -188,5 +189,5 @@ $(document).ready( function() {
         }
     });
 
-
+    
 });

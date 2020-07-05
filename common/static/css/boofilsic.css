@@ -1225,6 +1225,30 @@ select::placeholder {
   margin-bottom: 8px;
 }
 
+.entity-desc .entity-desc__content {
+  overflow: hidden;
+}
+
+.entity-desc .entity-desc__content--folded {
+  max-height: 200px;
+}
+
+.entity-desc .entity-desc__unfold-button {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  color: #00a1cc;
+  background-color: transparent;
+  -webkit-box-pack: center;
+      -ms-flex-pack: center;
+          justify-content: center;
+  text-align: center;
+}
+
+.entity-desc .entity-desc__unfold-button--hidden {
+  display: none;
+}
+
 .entity-marks {
   margin-bottom: 28px;
 }
