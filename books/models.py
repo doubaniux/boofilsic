@@ -49,6 +49,7 @@ class Book(Resource):
     isbn = models.CharField(_("ISBN"), blank=True, null=True, max_length=20, unique=True, db_index=True)
     # to store previously scrapped data 
     cover = models.ImageField(_("cover picture"), upload_to=book_cover_path, default=DEFAULT_BOOK_IMAGE, blank=True)
+    contents = models.TextField(blank=True, default="")
 
     class Meta:
         # more info: https://docs.djangoproject.com/en/2.2/ref/models/options/
