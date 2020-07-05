@@ -26,7 +26,9 @@
             {% if user.is_authenticated %}
                 <a href="{% url 'common:home' %}" class="button">{% trans '前往我的主页' %}</a>
             {% else %}
-                <a href="{{ oauth_auth_url }}" class="button">{% trans '使用长毛象授权登录' %}</a>
+                <a href="{{ oauth_url }}" class="button">{% trans '使用长毛象授权登录' %}</a>
+                <br>
+                <a href="{{ proxy_site_oauth_url }}" class="button">{% trans '礼貌站登录入口' %}</a>
             {% endif %}
                 
         </div>
