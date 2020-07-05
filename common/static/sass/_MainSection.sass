@@ -139,11 +139,18 @@ $mark-review-padding-wider: 6px 0
 		margin-bottom: $sub-section-title-margin
 	& &__content
 		overflow: hidden
+		&--folded
+			max-height: 200px
 
-	& &__show_all_button
+	& &__unfold-button
 		display: flex
-		background-color: $color-secondary
-	
+		color: $color-primary
+		background-color: transparent
+		justify-content: center
+		text-align: center
+		&--hidden
+			display: none
+
 	& &__empty
 
 // includes marks of an entity

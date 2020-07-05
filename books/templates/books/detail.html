@@ -107,9 +107,15 @@
                             <div class="dividing-line"></div>
                             <div class="entity-desc">
                                 <h5 class="entity-desc__title">{% trans '简介' %}</h5>
-                                
                                 {% if book.brief %}
-                                <p class="entity-desc__content">{{ book.brief | linebreaksbr }}</p>
+                                
+
+                                    <p class="entity-desc__content">{{ book.brief | linebreaksbr }}</p>
+                                    <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
+                                        <a href="javascript:void(0);">展开全部</a>
+                                    </div>
+
+                                    
                                 {% else %}
                                 <div>{% trans '暂无简介' %}</div>
                                 {% endif %}

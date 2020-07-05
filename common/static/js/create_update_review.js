@@ -1,5 +1,5 @@
 $(document).ready( function() {
-
+    
     $(".markdownx-preview").hide();
     $(".markdownx textarea").attr("placeholder", "拖拽图片至编辑框即可插入哦~");
 
@@ -23,4 +23,5 @@ $(document).ready( function() {
             readOnly: true,
         });
     });
+    
 });
