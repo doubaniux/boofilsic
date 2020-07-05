@@ -105,22 +105,31 @@
                                 </div>
                             </div>
                             <div class="dividing-line"></div>
-                            <div class="entity-desc">
+                            <div class="entity-desc" id="description">
                                 <h5 class="entity-desc__title">{% trans '简介' %}</h5>
                                 {% if book.brief %}
-                                
 
                                     <p class="entity-desc__content">{{ book.brief | linebreaksbr }}</p>
                                     <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
                                         <a href="javascript:void(0);">展开全部</a>
                                     </div>
 
-                                    
                                 {% else %}
                                 <div>{% trans '暂无简介' %}</div>
                                 {% endif %}
                                 
                             </div>
+                            
+                            {% if book.contents %}
+                            <div class="entity-desc" id="contents">
+                                <h5 class="entity-desc__title">{% trans '目录' %}</h5>
+                                <p class="entity-desc__content">{{ book.contents | linebreaksbr }}</p>
+                                <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
+                                    <a href="javascript:void(0);">展开全部</a>
+                                </div>
+                            </div>
+                            {% endif %}
+                                
                             <div class="entity-marks">
                                 <h5 class="entity-marks__title">{% trans '这本书的标记' %}</h5>
                                 {% if mark_list_more %}

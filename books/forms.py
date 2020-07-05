@@ -40,6 +40,7 @@ class BookForm(forms.ModelForm):
             'pages',
             'cover',
             'brief',
+            'contents',
             'other_info',
         ]
         labels = {
@@ -58,6 +59,7 @@ class BookForm(forms.ModelForm):
             'pages': _("页数"),
             'cover': _("封面"),
             'brief': _("简介"),
+            'contents': _("目录"),
             'other_info': _("其他信息"),
         }
 

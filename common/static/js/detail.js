@@ -103,22 +103,22 @@ $(document).ready( function() {
     
 
     // hide long text
-    let copy = $(".entity-desc__content").clone()
-        .addClass('entity-desc__content--folded')
-        .css("visibility", "hidden");
-
-    $(".entity-desc__content").after(copy);
-    if ($(".entity-desc__content").height() > copy.height()) {
-        $(".entity-desc__content").addClass('entity-desc__content--folded');
-        $(".entity-desc__unfold-button").removeClass("entity-desc__unfold-button--hidden");
-        console.log($(".entity-desc__content").height())
-        console.log(copy.height())
-    }
-    copy.remove();
+    $(".entity-desc__content").each(function() {
+        let copy = $(this).clone()
+            .addClass('entity-desc__content--folded')
+            .css("visibility", "hidden");
+        $(this).after(copy);
+        if ($(this).height() > copy.height()) {
+            $(this).addClass('entity-desc__content--folded');
+            $(this).siblings(".entity-desc__unfold-button").removeClass("entity-desc__unfold-button--hidden");
+        }
+        copy.remove();        
+    });
 
     // expand hidden long text
     $(".entity-desc__unfold-button a").click(function() {
-        $(".entity-desc__content").removeClass('entity-desc__content--folded');
-        $(".entity-desc__unfold-button").remove();
+        $(this).parent().siblings(".entity-desc__content").removeClass('entity-desc__content--folded');
+        $(this).parent(".entity-desc__unfold-button").remove();
     });
+
 });
