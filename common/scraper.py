@@ -97,6 +97,18 @@ def scrape_douban_book(url):
     brief_elem = content.xpath("//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro'][not(ancestor::span[@class='short'])]/p/text()")
     brief = '\n'.join(p.strip() for p in brief_elem) if brief_elem else None
 
+    contents = None
+    try:
+        contents_elem = content.xpath("//h2/span[text()='目录']/../following-sibling::div[1]")[0]
+        # if next the id of next sibling contains `dir`, that would be the full contents
+        if "dir" in contents_elem.getnext().xpath("@id")[0]:
+            contents_elem = contents_elem.getnext()
+            contents = '\n'.join(p.strip() for p in contents_elem.xpath("text()")[:-2]) if contents_elem else None
+        else:
+            contents = '\n'.join(p.strip() for p in contents_elem.xpath("text()")) if contents_elem else None
+    except:
+        pass
+
     img_url_elem = content.xpath("//*[@id='mainpic']/a/img/@src")
     img_url = img_url_elem[0].strip() if img_url_elem else None
     raw_img = None
@@ -166,6 +178,7 @@ def scrape_douban_book(url):
         'pages' : pages,
         'isbn' : isbn,
         'brief' : brief,
+        'contents' : contents,
         'other_info' : other
     }
     return data, raw_img
