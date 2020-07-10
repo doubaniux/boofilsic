@@ -76,6 +76,13 @@ class Resource(models.Model):
         self.calculate_rating(old_rating, new_rating)
         self.save()
 
+    def get_tags_manager(self):
+        """
+        Since relation between tag and resource is foreign key, and related name has to be unique,
+        this method works like interface.
+        """
+        raise NotImplementedError
+
 
 class UserOwnedEntity(models.Model):
     is_private = models.BooleanField()
@@ -142,6 +149,9 @@ class Mark(UserOwnedEntity):
     rating = models.PositiveSmallIntegerField(blank=True, null=True)
     text = models.CharField(max_length=500, blank=True, default='')
 
+    def __str__(self):
+        return f"({self.id}) {self.owner} {self.status}"
+
     class Meta:
         abstract = True
         constraints = [
@@ -156,6 +166,16 @@ class Review(UserOwnedEntity):
 
     def __str__(self):
         return self.title
+
+    class Meta:
+        abstract = True
+
+
+class Tag(models.Model):
+    content = models.CharField(max_length=50)
+
+    def __str__(self):
+        return self.content
 
     class Meta:
         abstract = True

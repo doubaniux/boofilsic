@@ -19,7 +19,7 @@ $(document).ready( function() {
 
             // if wish, hide rating widget in modal
             if ($(this).attr("id") == "wishButton") {
-                console.log($(this).attr("id"))
+                // console.log($(this).attr("id"))
                 $(".mark-modal .rating-star-edit").hide();
             } else {
                 $(".mark-modal .rating-star-edit").show();
