@@ -929,7 +929,7 @@ select::placeholder {
 }
 
 .mark-modal .mark-modal__head {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .mark-modal .mark-modal__head::after {
@@ -946,6 +946,7 @@ select::placeholder {
 
 .mark-modal .mark-modal__close-button {
   float: right;
+  cursor: pointer;
 }
 
 .mark-modal .mark-modal__confirm-button {
@@ -992,6 +993,10 @@ select::placeholder {
   margin-top: 5px;
   margin-bottom: 5px;
   resize: vertical;
+}
+
+.mark-modal .mark-modal__tag {
+  margin-bottom: 20px;
 }
 
 .mark-modal .mark-modal__option {
@@ -1045,7 +1050,7 @@ select::placeholder {
 }
 
 .confirm-modal .confirm-modal__head {
-  margin-bottom: 30px;
+  margin-bottom: 20px;
 }
 
 .confirm-modal .confirm-modal__head::after {
@@ -1062,6 +1067,7 @@ select::placeholder {
 
 .confirm-modal .confirm-modal__close-button {
   float: right;
+  cursor: pointer;
 }
 
 .confirm-modal .confirm-modal__confirm-button {
@@ -1111,6 +1117,7 @@ select::placeholder {
 .entity-list .entity-list__entity-text {
   margin-left: 20px;
   overflow: hidden;
+  width: 100%;
 }
 
 .entity-list .entity-list__entity-link {
@@ -1141,6 +1148,7 @@ select::placeholder {
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 4;
   overflow: hidden;
+  margin-bottom: 0;
 }
 
 .entity-list .entity-list__rating {
@@ -1189,6 +1197,7 @@ select::placeholder {
   display: inline-block;
   vertical-align: top;
   width: 48%;
+  margin-bottom: 5px;
 }
 
 .entity-detail .entity-detail__fields div, .entity-detail .entity-detail__fields span {
@@ -1345,6 +1354,13 @@ select::placeholder {
   border-top: solid 1px #ccc;
 }
 
+.dividing-line.dividing-line--dashed {
+  margin: 0;
+  margin-top: 10px;
+  margin-bottom: 2px;
+  border-top: 1px dashed #e5e5e5;
+}
+
 .entity-sort {
   margin-bottom: 30px;
 }
@@ -1465,6 +1481,32 @@ select::placeholder {
 
 .review-head .review-head__action-link:not(:first-child) {
   margin-left: 5px;
+}
+
+.tag-collection {
+  position: relative;
+  left: -3px;
+}
+
+.tag-collection .tag-collection__tag {
+  position: relative;
+  display: block;
+  float: left;
+  color: white;
+  background: #d5d5d5;
+  padding: 5px;
+  border-radius: .3rem;
+  line-height: 1.2em;
+  font-size: 80%;
+  margin: 3px;
+}
+
+.tag-collection .tag-collection__tag a {
+  color: white;
+}
+
+.tag-collection .tag-collection__tag a:hover {
+  color: #00a1cc;
 }
 
 @media (max-width: 575.98px) {
@@ -1718,6 +1760,7 @@ select::placeholder {
   padding: 0px 3px;
   text-align: center;
   display: inline-block;
+  overflow: hidden;
 }
 
 .user-relation .user-relation__related-user > a:hover {
@@ -1732,7 +1775,6 @@ select::placeholder {
   color: inherit;
   overflow: hidden;
   text-overflow: ellipsis;
-  display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
 }
