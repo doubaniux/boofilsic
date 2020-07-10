@@ -47,7 +47,7 @@ $(document).ready( function() {
             let subUserList = null;
             if (userList.length == 0) {
                 $(".mast-followers").hide();
-                $(".mast-followers").before("<div>暂无</div>");
+                $(".mast-followers").before('<div style="margin-bottom: 20px;">暂无</div>');
             } else {
                 if (userList.length > 4){
                     subUserList = userList.slice(0, 4);
@@ -103,7 +103,7 @@ $(document).ready( function() {
         function(userList, request) {
             if (userList.length == 0) {
                 $(".mast-following").hide();
-                $(".mast-following").before("<div>暂无</div>");
+                $(".mast-following").before('<div style="margin-bottom: 20px;">暂无</div>');
             } else {
                 if (userList.length > 4){
                     userList = userList.slice(0, 4);

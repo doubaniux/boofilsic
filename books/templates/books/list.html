@@ -95,28 +95,41 @@
                                             <p class="entity-list__entity-brief">
                                                 {{ mark.book.brief | truncate:170 }}
                                             </p>
-                                        <div class="entity-marks" style="margin-bottom: 0;">
-                                            <ul class="entity-marks__mark-list">
-                                                <li class="entity-marks__mark">
+                                            <div class="tag-collection">
+                                                {% for tag_dict in mark.book.tag_list %}
+                                                {% for k, v in tag_dict.items %}
+                                                {% if k == 'content' %}
+                                                <span class="tag-collection__tag">
+                                                    <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
+                                                </span>
+                                                {% endif %}
+                                                {% endfor %}
+                                                {% endfor %}
+                                            </div>
+                                            <div class="clearfix"></div>
+                                            <div class="dividing-line dividing-line--dashed"></div>
+                                            <div class="entity-marks" style="margin-bottom: 0;">
+                                                <ul class="entity-marks__mark-list">
+                                                    <li class="entity-marks__mark">
 
-                                                    {% if mark.rating %}
-                                                    <span class="entity-marks__rating-star rating-star"
-                                                        data-rating-score="{{ mark.rating | floatformat:"0" }}" style="left: -4px;"></span>
-                                                    {% endif %}
-                                                    {% if mark.is_private %}
-                                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg
-                                                                xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                                <path
-                                                                    d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
-                                                            </svg></span>
-                                                    {% endif %}
-                                                    <span class="entity-marks__mark-time">{{ mark.edited_time }}</span>
-                                                    {% if mark.text %}
-                                                    <p class="entity-marks__mark-content">{{ mark.text }}</p>
-                                                    {% endif %}
-                                                </li>
-                                            </ul>
-                                        </div>                                            
+                                                        {% if mark.rating %}
+                                                        <span class="entity-marks__rating-star rating-star"
+                                                            data-rating-score="{{ mark.rating | floatformat:"0" }}" style="left: -4px;"></span>
+                                                        {% endif %}
+                                                        {% if mark.is_private %}
+                                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg
+                                                                    xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                                                    <path
+                                                                        d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                                                                </svg></span>
+                                                        {% endif %}
+                                                        <span class="entity-marks__mark-time">{% trans '于' %} {{ mark.edited_time }} {% trans '标记' %}</span>
+                                                        {% if mark.text %}
+                                                        <p class="entity-marks__mark-content">{{ mark.text }}</p>
+                                                        {% endif %}
+                                                    </li>
+                                                </ul>
+                                            </div>                                            
                                         </div>
 
                                     </li>

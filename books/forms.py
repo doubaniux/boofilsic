@@ -4,7 +4,7 @@ from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
 from .models import Book, BookMark, BookReview
 from common.models import MarkStatusEnum
-from common.forms import RadioBooleanField, RatingValidator
+from common.forms import RadioBooleanField, RatingValidator, TagField, TagInput
 from common.forms import PreviewImageInput
 
 
@@ -77,6 +77,7 @@ class BookForm(forms.ModelForm):
             isbn = isbn.strip()
         return isbn
 
+
 class BookMarkForm(forms.ModelForm):
     IS_PRIVATE_CHOICES = [
         (True, _("仅关注者")),
@@ -95,6 +96,11 @@ class BookMarkForm(forms.ModelForm):
         label=_("可见性"), 
         initial=True, 
         choices=IS_PRIVATE_CHOICES
+    )
+    tags = TagField(
+        required=False, 
+        widget=TagInput(attrs={'placeholder': _("回车增加标签")}),
+        label = _("标签")
     )
     class Meta:
         model = BookMark

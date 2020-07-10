@@ -6,12 +6,13 @@ from django.contrib.auth import authenticate
 from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
+from django.db.models import Count
 from .models import User, Report
 from .forms import ReportForm
 from common.mastodon.auth import *
 from common.mastodon.api import *
 from common.mastodon import mastodon_request_included
-from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER
+from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER, TAG_NUMBER_ON_LIST
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from books.models import *
@@ -307,6 +308,9 @@ def book_list(request, id, status):
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
+        for mark in marks:
+            mark.book.tag_list = mark.book.get_tags_manager().values('content').annotate(
+                tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
         return render(

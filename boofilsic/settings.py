@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '172.17.132.10',
+            'HOST': '172.17.132.12',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
