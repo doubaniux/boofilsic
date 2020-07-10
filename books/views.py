@@ -4,6 +4,7 @@ from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseBadRequest, HttpResponseServerError
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
+from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -25,6 +26,8 @@ MARK_PER_PAGE = 20
 REVIEW_NUMBER = 5
 # how many reviews at the mark page
 REVIEW_PER_PAGE = 20
+# max tags on detail page
+TAG_NUMBER = 10
 
 
 # public data
@@ -89,18 +92,18 @@ def update(request, id):
             form.save()
         else:
             return render(
-            request,
-            'books/create_update.html',
-            {
-                'form': form,
-                'title': _('修改书籍'),
-                'submit_url': reverse("books:update", args=[book.id])
-            }
-        )
+                request,
+                'books/create_update.html',
+                {
+                    'form': form,
+                    'title': _('修改书籍'),
+                    'submit_url': reverse("books:update", args=[book.id])
+                }
+            )
         return redirect(reverse("books:retrieve", args=[form.instance.id]))
 
     else:
-        return HttpResponseBadRequest()    
+        return HttpResponseBadRequest()
 
 
 @mastodon_request_included
@@ -109,42 +112,57 @@ def retrieve(request, id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=id)
         mark = None
+        mark_tags = None
         review = None
+
+        # retreive tags
+        book_tag_list = book.book_tags.values('content').annotate(
+            tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER]
+
+        # retrieve user mark and initialize mark form
         try:
             if request.user.is_authenticated:
                 mark = BookMark.objects.get(owner=request.user, book=book)
         except ObjectDoesNotExist:
             mark = None
         if mark:
+            mark_tags = mark.mark_tags.all()
             mark.get_status_display = BookMarkStatusTranslator(mark.status)
-            mark_form = BookMarkForm(instance=mark)
+            mark_form = BookMarkForm(instance=mark, initial={
+                'tags': mark_tags
+            })
         else:
             mark_form = BookMarkForm(initial={
-                'book': book
+                'book': book,
+                'tags': mark_tags
             })
 
+        # retrieve user review
         try:
             if request.user.is_authenticated:
                 review = BookReview.objects.get(owner=request.user, book=book)
         except ObjectDoesNotExist:
             review = None
 
-        
+        # retrieve other related reviews and marks
         if request.user.is_anonymous:
+            # hide all marks and reviews for anonymous user
             mark_list = None
             review_list = None
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = BookMark.get_available(book, request.user, request.session['oauth_token'])
-            review_list = BookReview.get_available(book, request.user, request.session['oauth_token'])
+            mark_list = BookMark.get_available(
+                book, request.user, request.session['oauth_token'])
+            review_list = BookReview.get_available(
+                book, request.user, request.session['oauth_token'])
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
                 m.get_status_display = BookMarkStatusTranslator(m.status)
-            review_list_more = True if len(review_list) > REVIEW_NUMBER else False
+            review_list_more = True if len(
+                review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
-
 
         # def strip_html_tags(text):
         #     import re
@@ -167,6 +185,8 @@ def retrieve(request, id):
                 'mark_list_more': mark_list_more,
                 'review_list': review_list,
                 'review_list_more': review_list_more,
+                'book_tag_list': book_tag_list,
+                'mark_tags': mark_tags,
             }
         )
     else:
@@ -193,7 +213,7 @@ def delete(request, id):
         else:
             raise PermissionDenied()
     else:
-        return HttpResponseBadRequest()    
+        return HttpResponseBadRequest()
 
 
 # user owned entites
@@ -208,9 +228,11 @@ def create_update_mark(request):
     if request.method == 'POST':
         pk = request.POST.get('id')
         old_rating = None
+        old_tags = None
         if pk:
             mark = get_object_or_404(BookMark, pk=pk)
             old_rating = mark.rating
+            old_tags = mark.mark_tags.all()
             # update
             form = BookMarkForm(request.POST, instance=mark)
         else:
@@ -224,11 +246,23 @@ def create_update_mark(request):
             form.instance.owner = request.user
             form.instance.edited_time = timezone.now()
             book = form.instance.book
+            
             try:
                 with transaction.atomic():
                     # update book rating
                     book.update_rating(old_rating, form.instance.rating)
                     form.save()
+                    # update tags
+                    if old_tags:
+                        for tag in old_tags:
+                            tag.delete()
+                    if form.cleaned_data['tags']:
+                        for tag in form.cleaned_data['tags']:
+                            BookTag.objects.create(
+                                content=tag,
+                                book=book,
+                                mark=form.instance
+                            )
             except IntegrityError as e:
                 return HttpResponseServerError()
 
@@ -237,9 +271,11 @@ def create_update_mark(request):
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
                     visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("books:retrieve", args=[book.id])
+                url = "https://" + request.get_host() + reverse("books:retrieve",
+                                                                args=[book.id])
                 words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) +\
-                     f"《{book.title}》" + rating_to_emoji(form.cleaned_data['rating'])
+                    f"《{book.title}》" + \
+                    rating_to_emoji(form.cleaned_data['rating'])
                 content = words + '\n' + url + '\n' + form.cleaned_data['text']
                 post_toot(content, visibility, request.session['oauth_token'])
         else:
@@ -255,11 +291,13 @@ def create_update_mark(request):
 def retrieve_mark_list(request, book_id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookMark.get_available(book, request.user, request.session['oauth_token'])
+        queryset = BookMark.get_available(
+            book, request.user, request.session['oauth_token'])
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
-        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        marks.pagination = PageLinksGenerator(
+            PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         for m in marks:
             m.get_status_display = BookMarkStatusTranslator(m.status)
         return render(
@@ -317,9 +355,11 @@ def create_review(request, book_id):
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
                     visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("books:retrieve_review", args=[form.instance.id])
+                url = "https://" + request.get_host() + reverse("books:retrieve_review",
+                                                                args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                content = words + '\n' + url + '\n' + form.cleaned_data['title']
+                content = words + '\n' + url + \
+                    '\n' + form.cleaned_data['title']
                 post_toot(content, visibility, request.session['oauth_token'])
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
@@ -336,7 +376,7 @@ def update_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(BookReview, pk=id)
         if request.user != review.owner:
-            return HttpResponseBadRequest()        
+            return HttpResponseBadRequest()
         form = BookReviewForm(instance=review)
         book = review.book
         return render(
@@ -362,15 +402,17 @@ def update_review(request, id):
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
                     visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("books:retrieve_review", args=[form.instance.id])
+                url = "https://" + request.get_host() + reverse("books:retrieve_review",
+                                                                args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                content = words + '\n' + url + '\n' + form.cleaned_data['title']
+                content = words + '\n' + url + \
+                    '\n' + form.cleaned_data['title']
                 post_toot(content, visibility, request.session['oauth_token'])
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
     else:
-        return HttpResponseBadRequest()    
+        return HttpResponseBadRequest()
 
 
 @login_required
@@ -439,11 +481,13 @@ def retrieve_review(request, id):
 def retrieve_review_list(request, book_id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookReview.get_available(book, request.user, request.session['oauth_token'])
+        queryset = BookReview.get_available(
+            book, request.user, request.session['oauth_token'])
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)
-        reviews.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        reviews.pagination = PageLinksGenerator(
+            PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         return render(
             request,
             'books/review_list.html',
@@ -485,7 +529,8 @@ def click_to_scrape(request):
                 return render(request, 'common/error.html', {'msg': _("爬取数据失败😫，请重试")})
             except ValueError:
                 return render(request, 'common/error.html', {'msg': _("链接非法，爬取失败")})
-            scraped_cover = {'cover': SimpleUploadedFile('temp.jpg', raw_cover)}
+            scraped_cover = {
+                'cover': SimpleUploadedFile('temp.jpg', raw_cover)}
             form = BookForm(scraped_book, scraped_cover)
             if form.is_valid():
                 form.instance.last_editor = request.user

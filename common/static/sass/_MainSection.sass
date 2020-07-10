@@ -40,6 +40,7 @@ $sub-section-title-margin: 8px
 	& &__entity-text
 		margin-left: 20px
 		overflow: hidden
+		width: 100%
     	// float: left
 
 	& &__entity-link
@@ -65,6 +66,7 @@ $sub-section-title-margin: 8px
 		-webkit-box-orient: vertical
 		-webkit-line-clamp: 4
 		overflow: hidden
+		margin-bottom: 0
 
 	$rating-info-gap-width: 5px
 	& &__rating
@@ -109,6 +111,7 @@ $sub-section-title-margin: 8px
 		display: inline-block
 		vertical-align: top
 		width: 48%
+		margin-bottom: 5px
 		& div, & span
 			margin: 1px 0
 
@@ -233,6 +236,11 @@ $mark-review-padding-wider: 6px 0
 	width: 100%
 	margin: 40px 0 24px 0
 	border-top: solid 1px $color-light
+	&.dividing-line--dashed
+		margin: 0
+		margin-top: 10px
+		margin-bottom: 2px
+		border-top: 1px dashed $color-quinary;
 
 // on home page
 .entity-sort
@@ -328,6 +336,29 @@ $mark-review-padding-wider: 6px 0
 	& &__action-link
 		&:not(:first-child)
 			margin-left: 5px
+
+// tag list
+.tag-collection
+	$tag-margin: 3px
+	position: relative
+	left: -$tag-margin
+	& &__tag
+		position: relative;
+		display: block;
+		float: left;
+		color: white;
+		background: $color-quaternary;
+		padding: 5px;
+		// margin: 4px;
+		border-radius: .3rem;
+		line-height: 1.2em;
+		font-size: 80%
+		margin: 3px
+		& a
+			color: white
+			&:hover
+				color: $color-primary
+
 // Small devices (landscape phones, 576px and up)
 @media (max-width: $small-devices)
 	.entity-list
