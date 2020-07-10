@@ -107,4 +107,6 @@ class TagField(forms.CharField):
     widget = TagInput
     def to_python(self, value):
         value = super().to_python(value)
+        if not value:
+            return
         return [t.strip() for t in value.split(',')]
