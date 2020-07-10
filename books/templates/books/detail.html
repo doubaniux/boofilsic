@@ -102,6 +102,19 @@
                                         </div>
                                     </div>
                                         
+                                    <div class="tag-collection">
+                                        
+                                        {% for tag_dict in book_tag_list %}
+                                        {% for k, v in tag_dict.items %}
+                                            {% if k == 'content' %}
+                                            <span class="tag-collection__tag">
+                                                <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
+                                            </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% endfor %}
+                                        
+                                    </div>
                                 </div>
                             </div>
                             <div class="dividing-line"></div>
@@ -212,6 +225,13 @@
                                 {% if mark.text %}
                                 <p class="mark-panel__text">{{ mark.text }}</p>
                                 {% endif %}
+                                <div class="tag-collection">
+                                    
+                                    {% for tag in mark_tags %}
+                                        <span class="tag-collection__tag">{{ tag }}</span>
+                                    {% endfor %}
+                                        
+                                </div>
                             </div>
                             {% else %}
                             <div class="action-panel" id="addMarkPanel">
@@ -264,11 +284,11 @@
                     </div>
                 </div>
             </section>
-
+            
         </div>
         {% include "partial/_footer.html" %}
     </div>
-
+    
     <div id="modals">
         <div class="mark-modal modal">
             <div class="mark-modal__head">
@@ -283,19 +303,20 @@
                 {% else %}
                 <span class="mark-modal__title">{% trans '我的标记' %}</span>
                 {% endif %}
-                    
+                
                 <span class="mark-modal__close-button modal-close">
                     <span class="icon-cross">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <polygon
-                                points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
-                            </polygon>
-                        </svg>
-                    </span>
+                            points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+                        </polygon>
+                    </svg>
                 </span>
-            </div>
-            <div class="mark-modal__body">
+            </span>
+        </div>
+        <div class="mark-modal__body">
                 <form action="{% url 'books:create_update_mark' %}" method="post">
+                    {{ mark_form.media }}
                     {% csrf_token %}
                     {{ mark_form.id }}
                     {{ mark_form.book }}
@@ -312,6 +333,11 @@
 
                     {{ mark_form.text }}
 
+                    <div class="mark-modal__tag">
+                        <label>{{ mark_form.tags.label }}</label>
+                        {{ mark_form.tags }}
+                    </div>
+                    
                     <div class="mark-modal__option">
                         <div class="mark-modal__visibility-radio">
                             <span>{{ mark_form.is_private.label }}:</span>

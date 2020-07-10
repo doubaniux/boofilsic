@@ -33,8 +33,13 @@
 
                             <div class="entity-list">
                                 {% if request.GET.q %}
-                                <h5 class="entity-list__title">“{{ request.GET.q }}”{% trans '的搜索结果' %}</h5>
+                                <h5 class="entity-list__title">“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
                                 {% endif %}
+                                
+                                {% if request.GET.tag %}
+                                <h5 class="entity-list__title">{% trans '含有标签' %} “{{ request.GET.tag }}” {% trans '的结果' %}</h5>
+                                {% endif %}
+                                    
                                 <ul class="entity-list__entities">
                                     
                                     {% for book in items %}
@@ -95,6 +100,18 @@
                                             <p class="entity-list__entity-brief">
                                                 {{ book.brief }}
                                             </p>
+
+                                            <div class="tag-collection">                 
+                                                {% for tag_dict in book.tag_list %}
+                                                {% for k, v in tag_dict.items %}
+                                                {% if k == 'content' %}
+                                                <span class="tag-collection__tag">
+                                                    <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
+                                                </span>
+                                                {% endif %}
+                                                {% endfor %}
+                                                {% endfor %}
+                                            </div>
                                         </div>
                                     </li>
                                     {% empty %}
