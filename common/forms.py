@@ -6,7 +6,6 @@ import json
 
 
 class KeyValueInput(forms.Widget):
-    """ jQeury required """
     template_name = 'widgets/key_value.html'
 
     def get_context(self, name, value, attrs):
@@ -76,3 +75,36 @@ class PreviewImageInput(forms.FileInput):
         Return whether value is considered to be initial value.
         """
         return bool(value and getattr(value, 'url', False))
+
+
+class TagInput(forms.TextInput):
+    """
+    Dump tag queryset into tag list
+    """
+    template_name = 'widgets/tag.html'
+    def format_value(self, value):
+        if value == '' or value is None or len(value) == 0:
+            return ''
+        tag_list = []
+        try:
+            tag_list = [t['content'] for t in value]
+        except TypeError:
+            tag_list = [t.content for t in value]
+        # return ','.join(tag_list)
+        return tag_list
+
+    class Media:
+        css = {
+            'all': ('lib/css/tag-input.css',)
+        }
+        js = ('lib/js/tag-input.js',)
+        
+
+class TagField(forms.CharField):
+    """
+    Split comma connected string into tag list
+    """
+    widget = TagInput
+    def to_python(self, value):
+        value = super().to_python(value)
+        return [t.strip() for t in value.split(',')]

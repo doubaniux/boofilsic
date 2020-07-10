@@ -5,7 +5,7 @@ from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from users.models import Report, User
 from django.core.paginator import Paginator
-from django.db.models import Q
+from django.db.models import Q, Count
 from django.http import HttpResponseBadRequest
 
 
@@ -17,6 +17,9 @@ ITEMS_PER_PAGE = 20
 
 # how many pages links in the pagination
 PAGE_LINK_NUMBER = 7
+
+# max tags on list page
+TAG_NUMBER_ON_LIST = 5
 
 
 @login_required
@@ -58,19 +61,30 @@ def search(request):
         # in the future when more modules are added...
         # category = request.GET.get("category")
         q = Q()
-        keywords = request.GET.get("q", default='').split()
         query_args = []
+
+        # keywords
+        keywords = request.GET.get("q", default='').split()
         for keyword in keywords:
             q = q | Q(title__icontains=keyword)
             q = q | Q(subtitle__istartswith=keyword)
             q = q | Q(orig_title__icontains=keyword)
+
+        # tag
+        tag = request.GET.get("tag", default='')
+        if tag:
+            q = q | Q(book_tags__content__iexact=tag)
+
         query_args.append(q)
-        queryset = Book.objects.filter(*query_args)
+        queryset = Book.objects.filter(*query_args).distinct()
 
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         items = paginator.get_page(page_number)
         items.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        for item in items:
+            item.tag_list = item.get_tags_manager().values('content').annotate(
+                tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
 
         return render(
             request,

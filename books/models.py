@@ -3,7 +3,7 @@ import django.contrib.postgres.fields as postgres
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
-from common.models import Resource, Mark, Review
+from common.models import Resource, Mark, Review, Tag
 from boofilsic.settings import BOOK_MEDIA_PATH_ROOT, DEFAULT_BOOK_IMAGE
 from django.utils import timezone
 
@@ -67,8 +67,13 @@ class Book(Resource):
     def __str__(self):
         return self.title
 
+    def get_tags_manager(self):
+        return self.book_tags
+
 
 class BookMark(Mark):
+    # maybe this is the better solution, for it has less complex index
+    # book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_marks', null=True, unique=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_marks', null=True)
     class Meta:
         constraints = [
@@ -82,3 +87,12 @@ class BookReview(Review):
         constraints = [
             models.UniqueConstraint(fields=['owner', 'book'], name="unique_book_review")
         ]    
+
+
+class BookTag(Tag):
+    book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_tags', null=True)
+    mark = models.ForeignKey(BookMark, on_delete=models.CASCADE, related_name='mark_tags', null=True)
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['content', 'mark'], name="unique_mark_tag")
+        ]
