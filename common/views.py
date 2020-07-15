@@ -65,7 +65,9 @@ def search(request):
 
         # keywords
         keywords = request.GET.get("q", default='').strip()
+
         for keyword in [keywords]:
+
             q = q | Q(title__icontains=keyword)
             q = q | Q(subtitle__icontains=keyword)
             q = q | Q(orig_title__icontains=keyword)
