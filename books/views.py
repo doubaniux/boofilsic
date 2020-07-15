@@ -279,11 +279,11 @@ def create_update_mark(request):
                 content = words + '\n' + url + '\n' + form.cleaned_data['text']
                 post_toot(content, visibility, request.session['oauth_token'])
         else:
-            return HttpResponseBadRequest()
+            return HttpResponseBadRequest("invalid form data")
 
         return redirect(reverse("books:retrieve", args=[form.instance.book.id]))
     else:
-        return HttpResponseBadRequest()
+        return HttpResponseBadRequest("invalid method")
 
 
 @mastodon_request_included
