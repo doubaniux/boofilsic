@@ -33,7 +33,7 @@ $sub-section-title-margin: 8px
 		// float: left
 		object-fit: contain
 		// height: 150px
-		$width: 100px
+		$width: 130px
 		min-width: $width
 		max-width: $width
 		
@@ -50,7 +50,7 @@ $sub-section-title-margin: 8px
 		display: block	
 
 	& &__entity-info
-		max-width: 76%
+		max-width: 73%
 		white-space: nowrap
 		overflow: hidden
 		display: inline-block
@@ -111,9 +111,11 @@ $sub-section-title-margin: 8px
 		display: inline-block
 		vertical-align: top
 		width: 48%
-		margin-bottom: 5px
+		// margin-bottom: 5px
 		& div, & span
 			margin: 1px 0
+		& + .tag-collection
+			margin-top: 5px
 
 	& &__rating
 		position: relative
@@ -347,7 +349,7 @@ $mark-review-padding-wider: 6px 0
 		display: block;
 		float: left;
 		color: white;
-		background: $color-quaternary;
+		background: $color-light;
 		padding: 5px;
 		// margin: 4px;
 		border-radius: .3rem;
@@ -373,6 +375,8 @@ $mark-review-padding-wider: 6px 0
 			max-width: unset
 		& &__rating--empty + &__entity-info
 			max-width: 70%
+		& &__entity-brief
+			-webkit-line-clamp: 5
 
 	.entity-detail
 		flex-direction: column

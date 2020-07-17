@@ -1110,8 +1110,8 @@ select::placeholder {
 .entity-list .entity-list__entity-img {
   -o-object-fit: contain;
      object-fit: contain;
-  min-width: 100px;
-  max-width: 100px;
+  min-width: 130px;
+  max-width: 130px;
 }
 
 .entity-list .entity-list__entity-text {
@@ -1129,7 +1129,7 @@ select::placeholder {
 }
 
 .entity-list .entity-list__entity-info {
-  max-width: 76%;
+  max-width: 73%;
   white-space: nowrap;
   overflow: hidden;
   display: inline-block;
@@ -1197,11 +1197,14 @@ select::placeholder {
   display: inline-block;
   vertical-align: top;
   width: 48%;
-  margin-bottom: 5px;
 }
 
 .entity-detail .entity-detail__fields div, .entity-detail .entity-detail__fields span {
   margin: 1px 0;
+}
+
+.entity-detail .entity-detail__fields + .tag-collection {
+  margin-top: 5px;
 }
 
 .entity-detail .entity-detail__rating {
@@ -1493,7 +1496,7 @@ select::placeholder {
   display: block;
   float: left;
   color: white;
-  background: #d5d5d5;
+  background: #ccc;
   padding: 5px;
   border-radius: .3rem;
   line-height: 1.2em;
@@ -1528,6 +1531,9 @@ select::placeholder {
   }
   .entity-list .entity-list__rating--empty + .entity-list__entity-info {
     max-width: 70%;
+  }
+  .entity-list .entity-list__entity-brief {
+    -webkit-line-clamp: 5;
   }
   .entity-detail {
     -webkit-box-orient: vertical;
@@ -2069,7 +2075,7 @@ select::placeholder {
   }
 }
 
-.markdownx-preview > p {
+.markdownx-preview {
   min-height: 100px;
 }
 
