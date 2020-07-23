@@ -26,13 +26,16 @@ TAG_NUMBER_ON_LIST = 5
 def home(request):
     if request.method == 'GET':
 
-        do_book_marks = request.user.user_bookmarks.filter(status=MarkStatusEnum.DO)
+        do_book_marks = request.user.user_bookmarks.filter(
+            status=MarkStatusEnum.DO).order_by("-edited_time")
         do_books_more = True if do_book_marks.count() > BOOKS_PER_SET else False
 
-        wish_book_marks = request.user.user_bookmarks.filter(status=MarkStatusEnum.WISH)
+        wish_book_marks = request.user.user_bookmarks.filter(
+            status=MarkStatusEnum.WISH).order_by("-edited_time")
         wish_books_more = True if wish_book_marks.count() > BOOKS_PER_SET else False
         
-        collect_book_marks = request.user.user_bookmarks.filter(status=MarkStatusEnum.COLLECT)
+        collect_book_marks = request.user.user_bookmarks.filter(
+            status=MarkStatusEnum.COLLECT).order_by("-edited_time")
         collect_books_more = True if collect_book_marks.count() > BOOKS_PER_SET else False
 
         reports = Report.objects.order_by('-submitted_time').filter(is_read=False)

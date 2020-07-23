@@ -302,9 +302,11 @@ def book_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            queryset = BookMark.get_available_user_data(user, relation['following']).filter(status=MarkStatusEnum[status.upper()])
+            queryset = BookMark.get_available_user_data(user, relation['following']).filter(
+                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         else:
-            queryset = BookMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()])
+            queryset = BookMark.objects.filter(
+                owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
