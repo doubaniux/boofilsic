@@ -75,7 +75,7 @@ def search(request):
         # tag
         tag = request.GET.get("tag", default='')
         if tag:
-            q = q | Q(book_tags__content__iexact=tag)
+            q = q & Q(book_tags__content__iexact=tag)
 
         query_args.append(q)
         queryset = Book.objects.filter(*query_args).distinct()
