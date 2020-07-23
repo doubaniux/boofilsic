@@ -1439,6 +1439,7 @@ select::placeholder {
 
 .related-user-list .related-user-list__user-avatar {
   max-height: 72px;
+  min-width: 72px;
 }
 
 .review-head .review-head__title {
