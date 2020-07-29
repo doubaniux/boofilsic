@@ -16,6 +16,7 @@ from common.views import PAGE_LINK_NUMBER
 from .models import *
 from .forms import *
 from .forms import BookMarkStatusTranslator
+from boofilsic.settings import MASTODON_TAGS
 
 
 # how many marks showed on the detail page
@@ -276,7 +277,10 @@ def create_update_mark(request):
                 words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) +\
                     f"《{book.title}》" + \
                     rating_to_emoji(form.cleaned_data['rating'])
-                content = words + '\n' + url + '\n' + form.cleaned_data['text']
+
+                tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
+                content = words + '\n' + url + '\n' + \
+                    form.cleaned_data['text'] + '\n' + tags
                 post_toot(content, visibility, request.session['oauth_token'])
         else:
             return HttpResponseBadRequest("invalid form data")
@@ -358,8 +362,9 @@ def create_review(request, book_id):
                 url = "https://" + request.get_host() + reverse("books:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
+                tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
                 content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title']
+                    '\n' + form.cleaned_data['title'] + '\n' + tags
                 post_toot(content, visibility, request.session['oauth_token'])
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
@@ -405,8 +410,9 @@ def update_review(request, id):
                 url = "https://" + request.get_host() + reverse("books:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
+                tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
                 content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title']
+                    '\n' + form.cleaned_data['title'] + '\n' + tags
                 post_toot(content, visibility, request.session['oauth_token'])
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
