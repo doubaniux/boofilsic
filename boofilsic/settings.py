@@ -86,7 +86,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '172.17.132.12',
+            'HOST': '172.18.47.7',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -188,6 +188,9 @@ MASTODON_DOMAIN_NAME = 'donotban.com'
 
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30
+
+# Tags for toots posted from this site
+MASTODON_TAGS = '#NiceDB #NiceDB%(category)s #NiceDB%(category)s%(type)s'
 
 # Emoji code in mastodon
 STAR_SOLID = ':star_solid:'
