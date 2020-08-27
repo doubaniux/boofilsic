@@ -1,3 +1,4 @@
+import logging
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required
 from django.utils.translation import gettext_lazy as _
@@ -17,6 +18,10 @@ from .models import *
 from .forms import *
 from .forms import BookMarkStatusTranslator
 from boofilsic.settings import MASTODON_TAGS
+
+
+
+mastodon_logger = logging.getLogger("django.mastodon")
 
 
 # how many marks showed on the detail page
@@ -281,7 +286,10 @@ def create_update_mark(request):
                 tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
                 content = words + '\n' + url + '\n' + \
                     form.cleaned_data['text'] + '\n' + tags
-                post_toot(content, visibility, request.session['oauth_token'])
+                response = post_toot(content, visibility, request.session['oauth_token'])
+                if response.status_code != 200:
+                    return HttpResponseServerError("publishing mastodon status failed")
+                    mastodon_logger.error(response.text)
         else:
             return HttpResponseBadRequest("invalid form data")
 
@@ -365,7 +373,10 @@ def create_review(request, book_id):
                 tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
-                post_toot(content, visibility, request.session['oauth_token'])
+                response = post_toot(content, visibility, request.session['oauth_token'])
+                if response.status_code != 200:
+                    return HttpResponseServerError("publishing mastodon status failed")
+                    mastodon_logger.error(response.text)
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -413,7 +424,10 @@ def update_review(request, id):
                 tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
-                post_toot(content, visibility, request.session['oauth_token'])
+                response = post_toot(content, visibility, request.session['oauth_token'])
+                if response.status_code != 200:
+                    return HttpResponseServerError("publishing mastodon status failed")
+                    mastodon_logger.error(response.text)
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
