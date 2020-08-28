@@ -64,7 +64,7 @@ def scrape_douban_book(url):
     pub_house = pub_house_elem[0].strip() if pub_house_elem else None
 
     pub_date_elem = content.xpath("//div[@id='info']//span[text()='出版年:']/following::text()")
-    pub_date = pub_date_elem[0].strip() if pub_date_elem else None
+    pub_date = pub_date_elem[0].strip() if pub_date_elem else ''
     year_month_day = RE_NUMBERS.findall(pub_date)
     if len(year_month_day) in (2, 3):
         pub_year = int(year_month_day[0])
