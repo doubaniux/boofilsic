@@ -22,5 +22,6 @@ migrations/
 /static/
 /scripts/
 
-# log file
+# debug log file
 /log
+log
