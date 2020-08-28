@@ -23,4 +23,4 @@ migrations/
 /scripts/
 
 # log file
-log
+/log
