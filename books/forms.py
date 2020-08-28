@@ -1,10 +1,10 @@
 from django import forms
-from common.forms import KeyValueInput
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
 from .models import Book, BookMark, BookReview
 from common.models import MarkStatusEnum
 from common.forms import RadioBooleanField, RatingValidator, TagField, TagInput
+from common.forms import KeyValueInput
 from common.forms import PreviewImageInput
 
 
@@ -84,6 +84,7 @@ class BookMarkForm(forms.ModelForm):
         (False, _("公开")),
     ]
     STATUS_CHOICES = [(v, BookMarkStatusTranslator(v)) for v in MarkStatusEnum.values]
+
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     share_to_mastodon = forms.BooleanField(label=_("分享到长毛象"), initial=True, required=False)
     rating = forms.IntegerField(validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
@@ -102,6 +103,18 @@ class BookMarkForm(forms.ModelForm):
         widget=TagInput(attrs={'placeholder': _("回车增加标签")}),
         label = _("标签")
     )
+    text = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": _("最多只能写360字哦~"),
+                "maxlength": 360
+            }
+        ),
+
+        label = _("短评"),
+    )
+    
     class Meta:
         model = BookMark
         fields = [
@@ -114,11 +127,9 @@ class BookMarkForm(forms.ModelForm):
         ]
         labels = {
             'rating': _("评分"),
-            'text': _("短评"),
         }        
         widgets = {
             'book': forms.TextInput(attrs={"hidden": ""}),
-            'text': forms.Textarea(attrs={"placeholder": _("最多只能写500字哦~")}),
         }      
 
 

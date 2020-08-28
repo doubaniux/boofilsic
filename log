@@ -1,0 +1,127 @@
+[ERROR] 2020-08-28 21:50:15,820 django.request log Internal Server Error: /books/mark/
+[ERROR] 2020-08-28 21:50:15,822 django.server basehttp "POST /books/mark/ HTTP/1.1" 500 33
+[INFO] 2020-08-28 21:52:27,064 django.server basehttp "GET /books/48/ HTTP/1.1" 200 23125
+[INFO] 2020-08-28 21:52:27,157 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 21:52:27,159 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 21:52:27,187 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[INFO] 2020-08-28 21:52:27,188 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 21:52:27,208 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[INFO] 2020-08-28 21:52:27,223 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 21:52:27,236 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 21:52:27,260 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:52:27,261 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 21:52:27,456 django.server basehttp "GET /search/?page=2&q= HTTP/1.1" 200 19741
+[INFO] 2020-08-28 21:52:27,527 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 21:52:27,529 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 21:52:27,556 django.server basehttp "GET /static/js/rating-star-readonly.js HTTP/1.1" 200 325
+[INFO] 2020-08-28 21:52:27,558 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 21:52:27,576 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 21:52:27,597 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:52:27,598 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[WARNING] 2020-08-28 21:52:27,622 django.request log Not Found: /media/book/2020/05/154fedf015-edc3-4079-8552-43775f276470.jpg
+[WARNING] 2020-08-28 21:52:27,631 django.server basehttp "GET /media/book/2020/05/154fedf015-edc3-4079-8552-43775f276470.jpg HTTP/1.1" 404 3084
+[WARNING] 2020-08-28 21:52:27,643 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:52:27,649 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[WARNING] 2020-08-28 21:52:27,659 django.request log Not Found: /media/book/2020/05/15a543b2c6-3a8f-4248-bdf8-f673b771a3f4.jpg
+[WARNING] 2020-08-28 21:52:27,660 django.server basehttp "GET /media/book/2020/05/15a543b2c6-3a8f-4248-bdf8-f673b771a3f4.jpg HTTP/1.1" 404 3084
+[INFO] 2020-08-28 21:52:31,695 django.server basehttp "GET /books/48/ HTTP/1.1" 200 23125
+[INFO] 2020-08-28 21:52:31,767 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 21:52:31,769 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 21:52:31,784 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[WARNING] 2020-08-28 21:52:31,850 django.request log Not Found: /media/book/default.svg
+[INFO] 2020-08-28 21:52:31,852 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[WARNING] 2020-08-28 21:52:31,854 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 21:52:31,867 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[INFO] 2020-08-28 21:52:31,878 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 21:52:31,890 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 21:52:31,912 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:52:31,913 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[ERROR] 2020-08-28 21:52:36,532 django.request log Internal Server Error: /books/mark/
+Traceback (most recent call last):
+  File "E:\venvs\boofilsic\lib\site-packages\django\core\handlers\exception.py", line 34, in inner
+    response = get_response(request)
+  File "E:\venvs\boofilsic\lib\site-packages\django\core\handlers\base.py", line 115, in _get_response
+    response = self.process_exception_by_middleware(e, request)
+  File "E:\venvs\boofilsic\lib\site-packages\django\core\handlers\base.py", line 113, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "E:\Workspace\boofilsic\common\mastodon\decorators.py", line 13, in wrapper
+    return func(*args, **kwargs)
+  File "E:\venvs\boofilsic\lib\site-packages\django\contrib\auth\decorators.py", line 21, in _wrapped_view
+    return view_func(request, *args, **kwargs)
+  File "E:\Workspace\boofilsic\books\views.py", line 293, in create_update_mark
+    mastodon_logger.error(response.status_code + '|' + response.text)
+TypeError: unsupported operand type(s) for +: 'int' and 'str'
+[ERROR] 2020-08-28 21:52:36,536 django.server basehttp "POST /books/mark/ HTTP/1.1" 500 89092
+[WARNING] 2020-08-28 21:52:36,672 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:52:36,674 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[ERROR] 2020-08-28 21:53:04,573 django.mastodon views 422|{"error":"验证失败: Text超过了 500 字的限制"}
+[ERROR] 2020-08-28 21:53:04,576 django.request log Internal Server Error: /books/mark/
+[ERROR] 2020-08-28 21:53:04,579 django.server basehttp "POST /books/mark/ HTTP/1.1" 500 33
+[WARNING] 2020-08-28 21:53:04,716 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:53:04,717 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 21:54:50,966 django.server basehttp "GET /books/48/ HTTP/1.1" 200 23125
+[INFO] 2020-08-28 21:54:51,049 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 21:54:51,058 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 21:54:51,074 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 21:54:51,083 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[INFO] 2020-08-28 21:54:51,097 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[WARNING] 2020-08-28 21:54:51,118 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:54:51,119 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 21:54:51,127 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 21:54:51,138 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 21:54:51,162 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:54:51,163 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[ERROR] 2020-08-28 21:54:59,328 django.mastodon views 422|{"error":"验证失败: Text超过了 500 字的限制"}
+[ERROR] 2020-08-28 21:54:59,328 django.request log Internal Server Error: /books/mark/
+[ERROR] 2020-08-28 21:54:59,329 django.server basehttp "POST /books/mark/ HTTP/1.1" 500 33
+[INFO] 2020-08-28 21:55:04,092 django.server basehttp "GET /books/48/ HTTP/1.1" 200 23116
+[INFO] 2020-08-28 21:55:04,167 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 21:55:04,177 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 21:55:04,187 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 21:55:04,197 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[INFO] 2020-08-28 21:55:04,211 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[INFO] 2020-08-28 21:55:04,224 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 21:55:04,239 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 21:55:04,265 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 21:55:04,266 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 22:09:13,443 django.server basehttp "GET /books/48/ HTTP/1.1" 200 23116
+[INFO] 2020-08-28 22:09:13,574 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 22:09:13,575 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 22:09:13,588 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[INFO] 2020-08-28 22:09:13,589 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 22:09:13,602 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[INFO] 2020-08-28 22:09:13,620 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 22:09:13,623 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 22:09:13,658 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 22:09:13,660 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 22:09:45,386 django.server basehttp "GET /books/48/ HTTP/1.1" 200 23116
+[INFO] 2020-08-28 22:09:45,456 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 22:09:45,458 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 22:09:45,476 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 22:09:45,477 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[INFO] 2020-08-28 22:09:45,507 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[INFO] 2020-08-28 22:09:45,524 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 22:09:45,540 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 22:09:45,562 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 22:09:45,563 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 22:09:59,284 django.server basehttp "POST /books/mark/ HTTP/1.1" 302 0
+[INFO] 2020-08-28 22:10:03,692 django.server basehttp "GET /books/48/ HTTP/1.1" 200 20641
+[INFO] 2020-08-28 22:10:03,760 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 22:10:03,760 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[INFO] 2020-08-28 22:10:03,776 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 22:10:03,778 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 22:10:03,807 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[INFO] 2020-08-28 22:10:03,865 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 22:10:03,879 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 22:10:03,898 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 22:10:03,899 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
+[INFO] 2020-08-28 22:20:39,951 django.server basehttp "GET /books/48/ HTTP/1.1" 200 20641
+[INFO] 2020-08-28 22:20:40,022 django.server basehttp "GET /static/lib/css/rating-star.css HTTP/1.1" 200 591
+[INFO] 2020-08-28 22:20:40,024 django.server basehttp "GET /static/css/boofilsic.css HTTP/1.1" 200 40956
+[INFO] 2020-08-28 22:20:40,039 django.server basehttp "GET /static/lib/js/rating-star.js HTTP/1.1" 200 11577
+[INFO] 2020-08-28 22:20:40,040 django.server basehttp "GET /static/js/detail.js HTTP/1.1" 200 4350
+[INFO] 2020-08-28 22:20:40,085 django.server basehttp "GET /static/lib/css/tag-input.css HTTP/1.1" 200 1198
+[INFO] 2020-08-28 22:20:40,100 django.server basehttp "GET /static/lib/js/tag-input.js HTTP/1.1" 200 5193
+[INFO] 2020-08-28 22:20:40,112 django.server basehttp "GET /static/img/logo.svg HTTP/1.1" 200 3051
+[WARNING] 2020-08-28 22:20:40,132 django.request log Not Found: /media/book/default.svg
+[WARNING] 2020-08-28 22:20:40,132 django.server basehttp "GET /media/book/default.svg HTTP/1.1" 404 2967
