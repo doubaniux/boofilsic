@@ -20,7 +20,7 @@ from .forms import BookMarkStatusTranslator
 from boofilsic.settings import MASTODON_TAGS
 
 
-
+logger = logging.getLogger(__name__)
 mastodon_logger = logging.getLogger("django.mastodon")
 
 
@@ -197,6 +197,7 @@ def retrieve(request, id):
         )
     else:
         return HttpResponseBadRequest()
+        logger.warning('non-GET method at /book/<id>')
 
 
 @login_required
@@ -270,7 +271,8 @@ def create_update_mark(request):
                                 mark=form.instance
                             )
             except IntegrityError as e:
-                return HttpResponseServerError()
+                return HttpResponseServerError("integrity error")
+                logger.error(e.__str__())
 
             if form.cleaned_data['share_to_mastodon']:
                 if form.cleaned_data['is_private']:
@@ -283,13 +285,14 @@ def create_update_mark(request):
                     f"《{book.title}》" + \
                     rating_to_emoji(form.cleaned_data['rating'])
 
-                tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
+                # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
+                tags = ''
                 content = words + '\n' + url + '\n' + \
                     form.cleaned_data['text'] + '\n' + tags
                 response = post_toot(content, visibility, request.session['oauth_token'])
                 if response.status_code != 200:
+                    mastodon_logger.error(f"CODE:{response.status_code} {response.text}")
                     return HttpResponseServerError("publishing mastodon status failed")
-                    mastodon_logger.error(response.text)
         else:
             return HttpResponseBadRequest("invalid form data")
 
@@ -370,13 +373,15 @@ def create_review(request, book_id):
                 url = "https://" + request.get_host() + reverse("books:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
+                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
+                tags = ''
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
                 response = post_toot(content, visibility, request.session['oauth_token'])
                 if response.status_code != 200:
+                    mastodon_logger.error(
+                        f"CODE:{response.status_code} {response.text}")
                     return HttpResponseServerError("publishing mastodon status failed")
-                    mastodon_logger.error(response.text)
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -421,13 +426,14 @@ def update_review(request, id):
                 url = "https://" + request.get_host() + reverse("books:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
+                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
+                tags = ''
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
                 response = post_toot(content, visibility, request.session['oauth_token'])
                 if response.status_code != 200:
+                    mastodon_logger.error(f"CODE:{response.status_code} {response.text}")
                     return HttpResponseServerError("publishing mastodon status failed")
-                    mastodon_logger.error(response.text)
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
