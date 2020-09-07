@@ -84,7 +84,7 @@ ISBN: 9787020104345
                             <form action="{% url 'books:click_to_scrape' %}" method="post">
                                 {% csrf_token %}
                                 <input type="text" name="url" required placeholder="https://book.douban.com/subject/1000000/">
-                                <input type="submit" class="button add-button" value="{% trans '一键取剽取!' %}">
+                                <input type="submit" class="button add-button" value="{% trans '一键剽取!' %}">
                             </form>
                         </div>
         
