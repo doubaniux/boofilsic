@@ -83,6 +83,19 @@ class Resource(models.Model):
         """
         raise NotImplementedError
 
+    def get_marks_manager(self):
+        """
+        Normally this won't be used. 
+        There is no ocassion where visitor can simply view all the marks.
+        """
+        raise NotImplementedError
+    
+    def get_revies_manager(self):
+        """
+        Normally this won't be used.
+        There is no ocassion where visitor can simply view all the reviews.
+        """
+        raise NotImplementedError
 
 class UserOwnedEntity(models.Model):
     is_private = models.BooleanField()
@@ -97,7 +110,7 @@ class UserOwnedEntity(models.Model):
     def get_available(cls, resource, user, token):
         """ 
         Returns all avaliable user-owned entities related to given resource. 
-        This method handls mute/block relationships and private/public visibilities.
+        This method handles mute/block relationships and private/public visibilities.
         """
         # the foreign key field that points to resource 
         # has to be named as the lower case name of that resource

@@ -91,8 +91,8 @@ class BookReview(Review):
 
 class BookTag(Tag):
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_tags', null=True)
-    mark = models.ForeignKey(BookMark, on_delete=models.CASCADE, related_name='mark_tags', null=True)
+    mark = models.ForeignKey(BookMark, on_delete=models.CASCADE, related_name='bookmark_tags', null=True)
     class Meta:
         constraints = [
-            models.UniqueConstraint(fields=['content', 'mark'], name="unique_mark_tag")
+            models.UniqueConstraint(fields=['content', 'mark'], name="unique_bookmark_tag")
         ]
