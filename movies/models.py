@@ -4,15 +4,22 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from common.models import Resource, Mark, Review, Tag
-from boofilsic.settings import BOOK_MEDIA_PATH_ROOT, DEFAULT_BOOK_IMAGE
+from boofilsic.settings import MOVIE_MEDIA_PATH_ROOT, DEFAULT_MOVIE_IMAGE
 from django.utils import timezone
 
 
-def movie_cover_path():
-    pass
+def movie_cover_path(instance, filename):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    root = ''
+    if MOVIE_MEDIA_PATH_ROOT.endswith('/'):
+        root = MOVIE_MEDIA_PATH_ROOT
+    else:
+        root = MOVIE_MEDIA_PATH_ROOT + '/'
+    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
 
 
-class GenreEnum(models.TextChoices):
+class MovieGenreEnum(models.TextChoices):
     DRAMA = 'Drama', _('剧情')
     KIDS = 'Kids', _('儿童')
     COMEDY = 'Comedy', _('喜剧')
@@ -90,7 +97,8 @@ class Movie(Resource):
         _("genre"),
         blank=True,
         default='',
-        choices=GenreEnum.choices
+        choices=MovieGenreEnum.choices,
+        max_length=50
     )
     showtime = postgres.ArrayField(
         # HStoreField stores showtime-region pair
@@ -101,9 +109,10 @@ class Movie(Resource):
     )
     site = models.URLField(_('site url'), max_length=200)
     
-    # country or area
+    # country or region
     area = postgres.ArrayField(
         models.CharField(
+            _("country or region"),
             blank=True,
             default='',
             max_length=100,
@@ -127,13 +136,17 @@ class Movie(Resource):
     year = models.PositiveIntegerField(null=True, blank=True)
     duration = models.CharField(blank=True, default='', max_length=100)
 
+    cover = models.ImageField(_("poster"), upload_to=movie_cover_path, default=DEFAULT_MOVIE_IMAGE, blank=True)
+
     ############################################
     # exclusive fields to series
     ############################################
     season = models.PositiveSmallIntegerField(null=True, blank=True)
     # how many episodes in the season
     episodes = models.PositiveIntegerField(null=True, blank=True)
-    tv_station = models.CharField(blank=True, default='', max_length=200)
+    # deprecated
+    # tv_station = models.CharField(blank=True, default='', max_length=200)
+    single_episode_length = models.CharField(blank=True, default='', max_length=100)
 
     ############################################
     # category identifier
@@ -146,7 +159,7 @@ class Movie(Resource):
 
 
     def get_tags_manager(self):
-        raise NotImplementedError
+        return self.movie_tags
 
 
 class MovieMark(Mark):

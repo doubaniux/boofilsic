@@ -1,0 +1,92 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'Nicedb - 删除电影/剧集' %}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
+    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+        
+            <section id="content">
+                <div class="grid">
+                    <div class="single-section-wrapper" id="main">
+                        <h5>{% trans '确认删除这部电影/剧集吗？相关评论和标记将一并删除。' %}</h5>
+                    
+                        <div class="entity-card entity-card--horizontal">
+                            <div class="entity-card__img-wrapper">
+                                <a href="{% url 'movies:retrieve' movie.id %}">
+                                    <img src="{{ movie.cover.url }}" alt="" class="item-image float-left">
+                                </a>
+                            </div>
+                            <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
+                                <a href="{% url 'movies:retrieve' movie.id %}">
+                                    <h5 class="entity-card__title">
+                                    {{ movie.title }}
+                                    </h5>
+                                </a>
+                                {% if movie.rating %}
+                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ movie.rating | floatformat:"0" }}">
+                                </span>
+                                <span class="entity-card__rating-score">{{ movie.rating }}</span>
+                                {% else %}
+                                <span>{% trans '评分：暂无评分' %}</span>
+                                {% endif %}
+                                
+                                {% if movie.last_editor %}
+                                <a href="{% url 'users:home' movie.last_editor.id %}">
+                                    <div>{% trans '最近编辑者：' %}{{ movie.last_editor | default:"" }}</div>
+                                </a>
+                                {% endif %}
+                                    
+                                <div>{% trans '上次编辑时间：' %}{{ movie.edited_time }}</div>
+                            </div>
+                        </div>
+                        <div class="dividing-line"></div>
+                        <div class="clearfix">
+                            <form action="{% url 'movies:delete' movie.id %}" method="post" class="float-right">
+                                {% csrf_token %}
+                                <input class="button" type="submit" value="{% trans '确认' %}">
+                            </form>
+                            <button onclick="history.back()" class="button button-clear float-right">{% trans '返回' %}</button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+
+    
+    {% comment %}        
+    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon %}</div>
+    <!--current user mastodon id--> 
+    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    {% endcomment %}
+        
+    <script>
+
+    </script>
+</body>
+
+
+</html>

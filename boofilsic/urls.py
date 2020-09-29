@@ -24,6 +24,7 @@ urlpatterns = [
     path('markdownx/', include('markdownx.urls')),
     path('users/', include('users.urls')),
     path('books/', include('books.urls')),
+    path('movies/', include('movies.urls')),
     path('', include('common.urls')),
 
 ]
