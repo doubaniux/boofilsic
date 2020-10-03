@@ -1,0 +1,18 @@
+<select name="{{ widget.name }}"
+    {% include "django/forms/widgets/attrs.html" %}>{% for group_name, group_choices, group_index in widget.optgroups %}{% if group_name %}
+    <optgroup label="{{ group_name }}">{% endif %}{% for option in group_choices %}
+        {% include option.template_name with widget=option %}{% endfor %}{% if group_name %}
+    </optgroup>{% endif %}{% endfor %}
+</select>
+<link rel="stylesheet" href="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.css">
+<script src="https://unpkg.com/multiple-select@1.5.2/dist/multiple-select.min.js"></script>
+<script>
+    $('select[name="{{ widget.name }}"]').multipleSelect({
+        selectAll: false,
+        width: "100%",
+        displayTitle: true,
+        // any value greater than number of genres
+        minimumCountSelected: 50,
+        filter: true,
+    })
+</script>

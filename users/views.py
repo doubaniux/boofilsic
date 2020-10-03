@@ -12,12 +12,14 @@ from .forms import ReportForm
 from common.mastodon.auth import *
 from common.mastodon.api import *
 from common.mastodon import mastodon_request_included
-from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER, TAG_NUMBER_ON_LIST
+from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER, TAG_NUMBER_ON_LIST, MOVIES_PER_SET
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from books.models import *
+from movies.models import *
 from boofilsic.settings import MASTODON_DOMAIN_NAME, CLIENT_ID, CLIENT_SECRET
 from books.forms import BookMarkStatusTranslator
+from movies.forms import MovieMarkStatusTranslator
 
 
 # Views
@@ -172,6 +174,17 @@ def home(request, id):
             
             collect_book_marks = book_marks.filter(status=MarkStatusEnum.COLLECT)
             collect_books_more = True if collect_book_marks.count() > BOOKS_PER_SET else False            
+
+            movie_marks = MovieMark.get_available_user_data(user, relation['following'])
+            do_movie_marks = movie_marks.filter(status=MarkStatusEnum.DO)
+            do_movies_more = True if do_movie_marks.count() > BOOKS_PER_SET else False
+
+            wish_movie_marks = movie_marks.filter(status=MarkStatusEnum.WISH)
+            wish_movies_more = True if wish_movie_marks.count() > BOOKS_PER_SET else False
+            
+            collect_movie_marks = movie_marks.filter(status=MarkStatusEnum.COLLECT)
+            collect_movies_more = True if collect_movie_marks.count() > BOOKS_PER_SET else False            
+
             return render(
                 request,
                 'common/home.html',
@@ -183,6 +196,12 @@ def home(request, id):
                     'do_books_more': do_books_more,
                     'wish_books_more': wish_books_more,
                     'collect_books_more': collect_books_more,                    
+                    'do_movie_marks': do_movie_marks[:MOVIES_PER_SET],
+                    'wish_movie_marks': wish_movie_marks[:MOVIES_PER_SET],
+                    'collect_movie_marks': collect_movie_marks[:MOVIES_PER_SET],
+                    'do_movies_more': do_movies_more,
+                    'wish_movies_more': wish_movies_more,
+                    'collect_movies_more': collect_movies_more,                    
                 }
             )
     else:
@@ -318,6 +337,63 @@ def book_list(request, id, status):
         return render(
             request,
             'books/list.html',
+            {
+                'marks': marks,
+                'user': user,
+                'list_title' : list_title,
+            }
+        )
+    else:
+        return HttpResponseBadRequest()
+
+
+@mastodon_request_included
+@login_required
+def movie_list(request, id, status):
+    if request.method == 'GET':
+        if not status.upper() in MarkStatusEnum.names:
+            return HttpResponseBadRequest()
+        try:
+            user = User.objects.get(pk=id)
+        except ObjectDoesNotExist:
+            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            sec_msg = _("目前只开放本站用户注册")
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': msg,
+                    'secondary_msg': sec_msg,
+                }
+            )        
+        if not user == request.user:
+            # mastodon request
+            relation = get_relationships([user.mastodon_id], request.session['oauth_token'])[0]
+            if relation['blocked_by']:
+                msg = _("你没有访问TA主页的权限😥")
+                return render(
+                    request,
+                    'common/error.html',
+                    {
+                        'msg': msg,
+                    }
+                )
+            queryset = MovieMark.get_available_user_data(user, relation['following']).filter(
+                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+        else:
+            queryset = MovieMark.objects.filter(
+                owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+        paginator = Paginator(queryset, ITEMS_PER_PAGE)
+        page_number = request.GET.get('page', default=1)
+        marks = paginator.get_page(page_number)
+        for mark in marks:
+            mark.movie.tag_list = mark.movie.get_tags_manager().values('content').annotate(
+                tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
+        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的电影和剧集"))
+        return render(
+            request,
+            'movies/list.html',
             {
                 'marks': marks,
                 'user': user,

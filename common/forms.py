@@ -1,5 +1,6 @@
 from django import forms
-from django.contrib.postgres.forms import JSONField
+import django.contrib.postgres.forms as postgres
+from django.utils import formats
 from django.core.exceptions import ValidationError
 from django.utils.translation import gettext_lazy as _
 import json
@@ -25,6 +26,21 @@ class KeyValueInput(forms.Widget):
             # for kv in key_value_pairs:
             context['widget']['keyvalue_pairs'] = key_value_pairs
         return context
+
+    class Media:
+        js = ('js/key_value_input.js',)
+
+
+class JSONField(postgres.JSONField):
+    widget = KeyValueInput
+    def to_python(self, value):
+        if not value:
+            return None
+        json = {}
+        pairs = eval(value)
+        for pair in pairs:
+            json = {**json, **pair}
+        return super().to_python(json)
 
 
 class RadioBooleanField(forms.ChoiceField):
@@ -110,3 +126,35 @@ class TagField(forms.CharField):
         if not value:
             return
         return [t.strip() for t in value.split(',')]
+
+
+class MultiSelect(forms.SelectMultiple):
+    template_name = 'widgets/multi_select.html'
+
+
+class HstoreInput(forms.Widget):
+    template_name = 'widgets/hstore.html'
+
+    def format_value(self, value):
+        """
+        Return a value as it should appear when rendered in a template.
+        """
+        if value == '' or value is None:
+            return None
+        if self.is_localized:
+            return formats.localize_input(value)
+        return value
+
+    class Media:
+        js = ('js/key_value_input.js',)
+
+
+class HstoreField(forms.CharField):
+    widget = HstoreInput
+    def to_python(self, value):
+        if not value:
+            return None
+        pairs = eval(value)
+        if len(pairs) == 1:
+            pairs = (pairs,)
+        return pairs

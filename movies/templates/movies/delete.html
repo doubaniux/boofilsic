@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -10,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Nicedb - 删除电影/剧集' %}</title>
+    <title>{% trans 'NiceDB - 删除电影/剧集' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
@@ -39,7 +41,18 @@
                             <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
                                 <a href="{% url 'movies:retrieve' movie.id %}">
                                     <h5 class="entity-card__title">
-                                    {{ movie.title }}
+                                        {% if movie.season %}
+                                        {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %} {{ movie.orig_title }} Season
+                                        {{ movie.season }}
+                                        <span class="entity-detail__title entity-detail__title--secondary">
+                                            ({{ movie.year }})
+                                        </span>
+                                        {% else %}
+                                        {{ movie.title }} {{ movie.orig_title }}
+                                        <span class="entity-detail__title entity-detail__title--secondary">
+                                            ({{ movie.year }})
+                                        </span>
+                                        {% endif %}
                                     </h5>
                                 </a>
                                 {% if movie.rating %}

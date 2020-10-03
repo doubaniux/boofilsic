@@ -55,3 +55,11 @@ class PageLinksGenerator:
         self.last_page = total_pages
         self.page_range = range(self.start_page, self.end_page + 1)
         # assert self.has_prev is not None and self.has_next is not None
+
+
+def ChoicesDictGenerator(choices_enum):
+    choices_dict = {}
+    for attr in dir(choices_enum):
+        if not '__' in attr:
+            choices_dict[getattr(choices_enum, attr).value] = getattr(choices_enum, attr).label
+    return choices_dict

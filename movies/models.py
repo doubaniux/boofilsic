@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from common.models import Resource, Mark, Review, Tag
+from common.utils import ChoicesDictGenerator
 from boofilsic.settings import MOVIE_MEDIA_PATH_ROOT, DEFAULT_MOVIE_IMAGE
 from django.utils import timezone
 
@@ -54,6 +55,9 @@ class MovieGenreEnum(models.TextChoices):
     TALK_SHOW = 'Talk-Show', _('脱口秀')
 
 
+MovieGenreTranslator = ChoicesDictGenerator(MovieGenreEnum)
+
+
 class Movie(Resource):
     '''
     Can either be movie or series.
@@ -70,7 +74,7 @@ class Movie(Resource):
         blank=True,
         default=list,
     )
-    imbd_code = models.CharField(
+    imdb_code = models.CharField(
         blank=True, max_length=10, null=True, unique=True, db_index=True)
     director = postgres.ArrayField(
         models.CharField(_("director"), blank=True,
@@ -93,12 +97,17 @@ class Movie(Resource):
         blank=True,
         default=list,
     )
-    genre = models.CharField(
-        _("genre"),
+    genre = postgres.ArrayField(
+        models.CharField(
+            _("genre"),
+            blank=True,
+            default='',
+            choices=MovieGenreEnum.choices,
+            max_length=50
+        ),
+        null=True,
         blank=True,
-        default='',
-        choices=MovieGenreEnum.choices,
-        max_length=50
+        default=list,
     )
     showtime = postgres.ArrayField(
         # HStoreField stores showtime-region pair
@@ -107,7 +116,7 @@ class Movie(Resource):
         blank=True,
         default=list,
     )
-    site = models.URLField(_('site url'), max_length=200)
+    site = models.URLField(_('site url'), blank=True, default='', max_length=200)
     
     # country or region
     area = postgres.ArrayField(
@@ -160,6 +169,13 @@ class Movie(Resource):
 
     def get_tags_manager(self):
         return self.movie_tags
+
+
+    def get_genre_display(self):
+        translated_genre = []
+        for g in self.genre:
+            translated_genre.append(MovieGenreTranslator[g])
+        return translated_genre
 
 
 class MovieMark(Mark):

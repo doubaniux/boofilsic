@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -10,18 +12,28 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="NiceDB书 - {{ movie.title }}">
-    <meta property="og:type" content="movie">
+    <meta property="og:title" content="NiceDB电影 - {{ movie.title }}">
+    <meta property="og:type" content="video.movie">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ movie.cover.url }}">
-    {% if movie.author %}
-    <meta property="og:movie:author" content="{% for author in movie.author %}{{ author }}{% if not forloop.last %},{% endif %}{% endfor %}">
-    {% endif %}
-    {% if movie.isbn %}
-    <meta property="og:movie:isbn" content="{{ movie.isbn }}">
-    {% endif %}
+    <meta property="og:site_name" content="NiceDB">
+    <meta property="og:description"content="{{ movie.brief }}">
+    <!-- 
+    video:actor - profile array - Actors in the movie.
+    video:actor:role - string - The role they played.
+    video:director - profile array - Directors of the movie.
+    video:writer - profile array - Writers of the movie.
+    video:duration - integer >=1 - The movie's length in seconds.
+    video:release_date - datetime - The date the movie was released.
+    video:tag - string array - Tag words associated with this movie. 
+    -->
     
-    <title>{% trans 'Nicedb - 电影/剧集详情' %} | {{ movie.title }}</title>
+    {% if movie.is_series %}
+    <title>{% trans 'NiceDB - 剧集详情' %} | {{ movie.title }}</title>
+    {% else %}
+    <title>{% trans 'NiceDB - 电影详情' %} | {{ movie.title }}</title>
+    {% endif %}
+        
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
@@ -47,7 +59,18 @@
 
                                 <div class="entity-detail__info">
                                     <h5 class="entity-detail__title">
-                                        {{ movie.title }}
+
+                                        {% if movie.season %}
+                                        {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %} {{ movie.orig_title }} Season {{ movie.season }}
+                                        <span class="entity-detail__title entity-detail__title--secondary">
+                                            ({{ movie.year }})
+                                        </span>
+                                        {% else %}
+                                        {{ movie.title }} {{ movie.orig_title }} 
+                                        <span class="entity-detail__title entity-detail__title--secondary">
+                                            ({{ movie.year }})
+                                        </span>
+                                        {% endif %}
                                     </h5>
                                     
                                     <div class="entity-detail__fields">
@@ -59,28 +82,80 @@
                                             <span> {% trans '评分：暂无评分' %}</span>
                                             {% endif %}
                                         </div>
-                                        <div>{% if movie.isbn %}{% trans 'ISBN：' %}{{ movie.isbn }}{% endif %}</div>
-                                        <div>{% if movie.author %}{% trans '作者：' %}
-                                        {% for author in movie.author %}
-                                            <span>{{ author }}</span>
+                                        <div>{% if movie.imdb_code %}
+                                            {% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ movie.imdb_code }}/" target="_blank">{{ movie.imdb_code }}</a>
+                                            {% endif %}
+                                        </div>
+                                        <div>{% if movie.director %}{% trans '导演：' %}
+                                        {% for director in movie.director %}
+                                            <span>{{ director }}</span>{% if not forloop.last %} / {% endif %}
                                         {% endfor %}
                                         {% endif %}</div>
-                                        <div>{% if movie.pub_house %}{% trans '出版社：' %}{{ movie.pub_house }}{% endif %}</div>
-                                        <div>{% if movie.subtitle %}{% trans '副标题：' %}{{ movie.subtitle }}{% endif %}</div>
-                                        <div>{% if movie.translator %}{% trans '译者：' %}
-                                        {% for translator in movie.translator %}
-                                            <span>{{ translator }}</span>
-                                        {% endfor %} 
-                                        {% endif %}</div>                                
-                                        <div>{% if movie.orig_title %}{% trans '原作名：' %}{{ movie.orig_title }}{% endif %}</div>
-                                        <div>{% if movie.language %}{% trans '语言：' %}{{ movie.language }}{% endif %}</div>
-                                        <div>{%if movie.pub_year %}{% trans '出版时间：' %}{{ movie.pub_year }}{% trans '年' %}{% if movie.pub_month %}{{ movie.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
+                                        <div>{% if movie.playwright %}{% trans '编剧：' %}
+                                        {% for playwright in movie.playwright %}
+                                            <span>{{ playwright }}</span>{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                        <div>{% if movie.actor %}{% trans '主演：' %}
+                                        {% for actor in movie.actor %}
+                                            <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>{{ actor }}</span>
+                                            {% if forloop.counter <= 5 %}                                                    
+                                            {% if not forloop.last %} / {% endif %}
+                                            {% endif %}
+                                        {% endfor %}
+                                        
+                                        {% if movie.actor|length > 5 %}
+                                            <a href="javascript:void(0);" id="actorMore">{% trans '更多' %}</a>
+                                            <script>
+                                                $("#actorMore").click(function(e) {
+                                                    $(this).siblings("span:not(:visible)").each(function(e){
+                                                        $(this).removeAttr('style');
+                                                    });
+                                                    $(this).remove();
+                                                })
+                                            </script>
+                                        {% endif %}
+                                            
+                                        {% endif %}</div>
+                                        <div>{% if movie.genre %}{% trans '类型：' %}
+                                        {% for genre in movie.get_genre_display %}
+                                            <span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                        <div>{% if movie.area %}{% trans '制片国家/地区：' %}
+                                        {% for area in movie.area %}
+                                        <span>{{ area }}</span>{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                        <div>{% if movie.language %}{% trans '语言：' %}
+                                        {% for language in movie.language %}
+                                        <span>{{ language }}</span>{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                             
                                     </div>
                                     <div class="entity-detail__fields">
-                              
-                                        <div>{% if movie.binding %}{% trans '装帧：' %}{{ movie.binding }}{% endif %}</div>
-                                        <div>{% if movie.price %}{% trans '定价：' %}{{ movie.price }}{% endif %}</div>
-                                        <div>{% if movie.pages %}{% trans '页数：' %}{{ movie.pages }}{% endif %}</div>
+                                        <div>{% if movie.duration %}{% trans '片长：' %}{{ movie.duration }}{% endif %}</div>
+                                        <div>{% if movie.season %}{% trans '季数：' %}{{ movie.season }}{% endif %}</div>
+                                        <div>{% if movie.episodes %}{% trans '集数：' %}{{ movie.episodes }}{% endif %}</div>
+                                        <div>{% if movie.single_episode_length %}{% trans '单集长度：' %}{{ movie.single_episode_length }}{% endif %}</div>
+
+                                        <div>{% if movie.showtime %}{% trans '上映时间：' %}
+                                        {% for showtime in movie.showtime %}
+                                            {% for time, region in showtime.items %}
+                                            <span>{{ time }}({{ region }})</span>
+                                            {% endfor %}
+                                            {% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                        <div>{% if movie.other_title %}{% trans '又名：' %}
+                                        {% for other_title in movie.other_title %}
+                                        <span>{{ other_title }}</span>{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                        <div>{% if movie.site %}{% trans '网站：' %}
+                                            <a href="{{ movie.site }}" target="_blank">{{ movie.site }}</a>
+                                        {% endif %}</div>
                                         {% if movie.other_info %}                                  
                                         {% for k, v in movie.other_info.items %}
                                         <div>
@@ -93,9 +168,13 @@
                                         {% if movie.last_editor %}
                                         <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' movie.last_editor.id %}">{{ movie.last_editor | default:"" }}</a></div>
                                         {% endif %}
-                                            
+
                                         <div>
-                                        <a href="{% url 'movies:update' movie.id %}">{% trans '编辑这部电影/剧集' %}</a>
+                                        {% if movie.is_series %}
+                                        <a href="{% url 'movies:update' movie.id %}">{% trans '编辑这部剧集' %}</a>
+                                        {% else %}
+                                        <a href="{% url 'movies:update' movie.id %}">{% trans '编辑这部电影' %}</a>
+                                        {% endif %}
                                         {% if user.is_staff %}
                                         <a href="{% url 'movies:delete' movie.id %}"> / {% trans '删除' %}</a>
                                         {% endif %}
@@ -144,7 +223,12 @@
                             {% endif %}
                                 
                             <div class="entity-marks">
-                                <h5 class="entity-marks__title">{% trans '这部电影/剧集的标记' %}</h5>
+                                
+                                {% if movie.is_series %}
+                                <h5 class="entity-marks__title">{% trans '这部剧集的标记' %}</h5>
+                                {% else %}
+                                <h5 class="entity-marks__title">{% trans '这部电影的标记' %}</h5>
+                                {% endif %}
                                 {% if mark_list_more %}
                                 <a href="{% url 'movies:retrieve_mark_list' movie.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
                                 {% endif %}
@@ -172,7 +256,12 @@
                                 {% endif %}
                             </div>
                             <div class="entity-reviews">
-                                <h5 class="entity-reviews__title">{% trans '这部电影/剧集的评论' %}</h5>
+                                {% if movie.is_series %}
+                                <h5 class="entity-reviews__title">{% trans '这部剧集的评论' %}</h5>
+                                {% else %}
+                                <h5 class="entity-reviews__title">{% trans '这部电影的评论' %}</h5>
+                                {% endif %}
+
                                 {% if review_list_more %}
                                 <a href="{% url 'movies:retrieve_review_list' movie.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
                                 {% endif %}
@@ -235,7 +324,12 @@
                             </div>
                             {% else %}
                             <div class="action-panel" id="addMarkPanel">
-                                <div class="action-panel__label">{% trans '标记这部电影/剧集' %}</div>
+                                
+                                {% if movie.is_series %}
+                                <div class="action-panel__label">{% trans '标记这部剧集' %}</div>
+                                {% else %}
+                                <div class="action-panel__label">{% trans '标记这部电影' %}</div>
+                                {% endif %}
                                 <div class="action-panel__button-group">
                                     <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想读' %}</button>
                                     <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在读' %}</button>
@@ -294,11 +388,21 @@
             <div class="mark-modal__head">
                 
                 {% if not mark %}
+                
+                {% if movie.is_series %}
                 <style>
                     .mark-modal__title::after {
-                        content: "{% trans '这部电影/剧集' %}";
+                        content: "{% trans '这部剧集' %}";
                     }
                 </style>
+                {% else %}
+                <style>
+                    .mark-modal__title::after {
+                        content: "{% trans '这部电影' %}";
+                    }
+                </style>
+                {% endif %}
+                    
                 <span class="mark-modal__title"></span>
                 {% else %}
                 <span class="mark-modal__title">{% trans '我的标记' %}</span>

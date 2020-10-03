@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Nicedb - ' %}{{ title }}</title>
+    <title>{% trans 'NiceDB - ' %}{{ title }}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
     <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
@@ -27,7 +27,22 @@
                     <div class="single-section-wrapper" id="main">
                         <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            {{ form }}
+                            {{ form.media }}
+                            {% for field in form %}
+                            
+                            {% if field.id_for_label == 'id_is_series' %}
+                            <label for="{{ field.id_for_label }}"
+                                style="display: inline-block; position: relative; left: -4px;">{{ field.label }}</label>
+                            {{ field }}
+                            {% else %}
+                            {% if field.id_for_label != 'id_id' %}
+                            <label for="{{ field.id_for_label }}">{{ field.label }}</label>
+                            {% endif %}
+                            {{ field }}
+                            {% endif %}
+                            
+                            {% endfor %}
+                            
                             <input class="button" type="submit" value="{% trans '提交' %}">
                         </form>
                     </div>

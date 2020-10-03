@@ -47,7 +47,7 @@ def create(request):
             'movies/create_update.html',
             {
                 'form': form,
-                'title': _('添加书籍'),
+                'title': _('添加电影/剧集'),
                 'submit_url': reverse("movies:create")
             }
         )
@@ -65,7 +65,7 @@ def create(request):
                     'movies/create_update.html',
                     {
                         'form': form,
-                        'title': _('添加书籍'),
+                        'title': _('添加电影/剧集'),
                         'submit_url': reverse("movies:create")
                     }
                 )
@@ -80,18 +80,20 @@ def update(request, id):
     if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=id)
         form = MovieForm(instance=movie)
+        page_title = _('修改剧集') if movie.is_series else _("修改电影")
         return render(
             request,
             'movies/create_update.html',
             {
                 'form': form,
-                'title': _('修改书籍'),
+                'title': page_title,
                 'submit_url': reverse("movies:update", args=[movie.id])
             }
         )
     elif request.method == 'POST':
         movie = get_object_or_404(Movie, pk=id)
         form = MovieForm(request.POST, request.FILES, instance=movie)
+        page_title = _('修改剧集') if movie.is_series else _("修改电影")
         if form.is_valid():
             form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
@@ -102,7 +104,7 @@ def update(request, id):
                 'movies/create_update.html',
                 {
                     'form': form,
-                    'title': _('修改书籍'),
+                    'title': page_title,
                     'submit_url': reverse("movies:update", args=[movie.id])
                 }
             )
@@ -132,7 +134,7 @@ def retrieve(request, id):
         except ObjectDoesNotExist:
             mark = None
         if mark:
-            mark_tags = mark.mark_tags.all()
+            mark_tags = mark.moviemark_tags.all()
             mark.get_status_display = MovieMarkStatusTranslator(mark.status)
             mark_form = MovieMarkForm(instance=mark, initial={
                 'tags': mark_tags
@@ -239,7 +241,7 @@ def create_update_mark(request):
         if pk:
             mark = get_object_or_404(MovieMark, pk=pk)
             old_rating = mark.rating
-            old_tags = mark.mark_tags.all()
+            old_tags = mark.moviemark_tags.all()
             # update
             form = MovieMarkForm(request.POST, instance=mark)
         else:
@@ -568,10 +570,7 @@ def click_to_scrape(request):
                 form.save()
                 return redirect(reverse('movies:retrieve', args=[form.instance.id]))
             else:
-                if 'isbn' in form.errors:
-                    msg = _("ISBN与现有图书重复")
-                else:
-                    msg = _("爬取数据失败😫")
+                msg = _("爬取数据失败😫")
                 return render(request, 'common/error.html', {'msg': msg})
         else:
             return HttpResponseBadRequest()
