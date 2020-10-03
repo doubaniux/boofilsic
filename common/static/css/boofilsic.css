@@ -1193,10 +1193,15 @@ select::placeholder {
   font-weight: bold;
 }
 
+.entity-detail .entity-detail__title--secondary {
+  color: #bbb;
+}
+
 .entity-detail .entity-detail__fields {
   display: inline-block;
   vertical-align: top;
-  width: 48%;
+  width: 46%;
+  margin-left: 2%;
 }
 
 .entity-detail .entity-detail__fields div, .entity-detail .entity-detail__fields span {
@@ -2082,4 +2087,45 @@ select::placeholder {
 
 .rating-star .jq-star {
   cursor: unset !important;
+}
+
+.ms-parent > .ms-choice {
+  margin-bottom: 1.5rem;
+  -webkit-appearance: none;
+     -moz-appearance: none;
+          appearance: none;
+  background-color: transparent;
+  border: 0.1rem solid #ccc;
+  border-radius: .4rem;
+  -webkit-box-shadow: none;
+          box-shadow: none;
+  -webkit-box-sizing: inherit;
+          box-sizing: inherit;
+  padding: .6rem 1.0rem;
+  width: 100%;
+  height: 30.126px;
+}
+
+.ms-parent > .ms-choice:focus {
+  border-color: #00a1cc;
+}
+
+.ms-parent > .ms-choice > .icon-caret {
+  top: 15.5px;
+}
+
+.ms-parent > .ms-choice > span {
+  color: black;
+  font-weight: initial;
+  font-size: 13.3333px;
+  top: 2.5px;
+  left: 2px;
+}
+
+.ms-parent > .ms-choice > span:hover, .ms-parent > .ms-choice > span:focus {
+  color: black;
+}
+
+.ms-parent > .ms-drop > ul > li > label > span {
+  margin-left: 10px;
 }

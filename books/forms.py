@@ -1,11 +1,8 @@
 from django import forms
-from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
 from .models import Book, BookMark, BookReview
 from common.models import MarkStatusEnum
-from common.forms import RadioBooleanField, RatingValidator, TagField, TagInput
-from common.forms import KeyValueInput
-from common.forms import PreviewImageInput
+from common.forms import *
 
 
 def BookMarkStatusTranslator(status):
@@ -21,6 +18,7 @@ class BookForm(forms.ModelForm):
     pub_year = forms.IntegerField(required=False, max_value=9999, min_value=0, label=_("出版年份"))
     pub_month = forms.IntegerField(required=False, max_value=12, min_value=1, label=_("出版月份"))
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    other_info = JSONField(required=False, label=_("其他信息"))
     class Meta:
         model = Book
         fields = [
@@ -66,7 +64,6 @@ class BookForm(forms.ModelForm):
         widgets = {
             'author': forms.TextInput(attrs={'placeholder': _("多个作者使用英文逗号分隔")}),
             'translator': forms.TextInput(attrs={'placeholder': _("多个译者使用英文逗号分隔")}),
-            'other_info': KeyValueInput(),
             # 'cover': forms.FileInput(),
             'cover': PreviewImageInput(),
         }        

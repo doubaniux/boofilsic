@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -11,7 +13,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Nicedb - ' %}{{ movie.title }}{% trans '的评论' %}</title>
+    <title>{% trans 'NiceDB - ' %}{{ movie.title }}{% trans '的评论' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
@@ -92,13 +94,40 @@
                                             class="entity-card__img"></a>
                                 </div>
                                 <div class="entity-card__info-wrapper">
-                                    <h5 class="entity-card__title"><a href="{% url 'movies:retrieve' movie.id %}">{{ movie.title }}</a></h5>
-                    
-                                    {% if movie.isbn %}
-                                    <div>ISBN: {{ movie.isbn }}</div>
-                                    {% endif %}
-                    
-                                    <div>{% if movie.pub_house %}{% trans '出版社：' %}{{ movie.pub_house }}{% endif %}</div>
+                                    <h5 class="entity-card__title"><a href="{% url 'movies:retrieve' movie.id %}">
+                                            {% if movie.season %}
+                                            {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %} {{ movie.orig_title }} Season
+                                            {{ movie.season }}
+                                            <span class="entity-detail__title entity-detail__title--secondary">
+                                                ({{ movie.year }})
+                                            </span>
+                                            {% else %}
+                                            {{ movie.title }} {{ movie.orig_title }}
+                                            <span class="entity-detail__title entity-detail__title--secondary">
+                                                ({{ movie.year }})
+                                            </span>
+                                            {% endif %}
+                                        </a></h5>
+                                
+                                    <div>{% if movie.director %}{% trans '导演：' %}
+                                        {% for director in movie.director %}
+                                        <span>{{ director }}</span>{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                    <div>{% if movie.genre %}{% trans '类型：' %}
+                                        {% for genre in movie.get_genre_display %}
+                                        <span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
+                                
+                                    <div>{% if movie.showtime %}{% trans '上映时间：' %}
+                                        {% for showtime in movie.showtime %}
+                                        {% for time, region in showtime.items %}
+                                        <span>{{ time }}({{ region }})</span>
+                                        {% endfor %}
+                                        {% if not forloop.last %} / {% endif %}
+                                        {% endfor %}
+                                        {% endif %}</div>
                                     {% if movie.rating %}
                                     {% trans '评分: ' %}<span class="entity-card__rating-star rating-star"
                                         data-rating-score="{{ movie.rating | floatformat:"0" }}"></span>

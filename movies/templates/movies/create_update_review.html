@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -10,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Nicedb - ' %}{{ title }}</title>
+    <title>{% trans 'NiceDB - ' %}{{ title }}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/create_update_review.js' %}"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
@@ -36,16 +38,61 @@
                             </div>
                             <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
                                 
-                                <h5 class="entity-card__title"><a href="{% url 'movies:retrieve' movie.id %}">{{ movie.title }}</a></h5>
-                                <div>{% if movie.isbn %}{% trans 'ISBN：' %}{{ movie.isbn }}{% endif %}</div>
-                                <div>{% if movie.author %}{% trans '作者：' %}
-                                {% for author in movie.author %}
-                                    <span>{{ author }}</span>
+                                <h5 class="entity-card__title"><a href="{% url 'movies:retrieve' movie.id %}">
+                                        {% if movie.season %}
+                                        {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %} {{ movie.orig_title }} Season
+                                        {{ movie.season }}
+                                        <span class="entity-detail__title entity-detail__title--secondary">
+                                            ({{ movie.year }})
+                                        </span>
+                                        {% else %}
+                                        {{ movie.title }} {{ movie.orig_title }}
+                                        <span class="entity-detail__title entity-detail__title--secondary">
+                                            ({{ movie.year }})
+                                        </span>
+                                        {% endif %}
+                                </a></h5>
+                                <div>{% if movie.director %}{% trans '导演：' %}
+                                    {% for director in movie.director %}
+                                    <span>{{ director }}</span>{% if not forloop.last %} / {% endif %}
+                                    {% endfor %}
+                                    {% endif %}</div>
+                                <div>{% if movie.genre %}{% trans '类型：' %}
+                                    {% for genre in movie.get_genre_display %}
+                                    <span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+                                    {% endfor %}
+                                    {% endif %}</div>
+
+                                <div>{% if movie.actor %}{% trans '主演：' %}
+                                {% for actor in movie.actor %}
+                                    <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>{{ actor }}</span>
+                                    {% if forloop.counter <= 5 %}                                                    
+                                    {% if not forloop.last %} / {% endif %}
+                                    {% endif %}
                                 {% endfor %}
+
+                                {% if movie.actor|length > 5 %}
+                                    <a href="javascript:void(0);" id="actorMore">{% trans '更多' %}</a>
+                                    <script>
+                                        $("#actorMore").click(function(e) {
+                                            $(this).siblings("span:not(:visible)").each(function(e){
+                                                $(this).removeAttr('style');
+                                            });
+                                            $(this).remove();
+                                        })
+                                    </script>
+                                {% endif %}
+                                    
                                 {% endif %}</div>
-                                <div>{% if movie.pub_house %}{% trans '出版社：' %}{{ movie.pub_house }}{% endif %}</div>
-                                <div>{%if movie.pub_year %}{% trans '出版时间：' %}{{ movie.pub_year }}{% trans '年' %}{% if movie.pub_month %}{{ movie.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
-                                
+                                <div>{% if movie.showtime %}{% trans '上映时间：' %}
+                                    {% for showtime in movie.showtime %}
+                                    {% for time, region in showtime.items %}
+                                    <span>{{ time }}({{ region }})</span>
+                                    {% endfor %}
+                                    {% if not forloop.last %} / {% endif %}
+                                    {% endfor %}
+                                    {% endif %}</div>
+  
                                 {% if movie.rating %}
                                 {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ movie.rating | floatformat:"0" }}"> </span>
                                 <span class="entity-card__rating-score rating-score"> {{ movie.rating }} </span>

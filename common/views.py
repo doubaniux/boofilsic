@@ -12,6 +12,9 @@ from django.http import HttpResponseBadRequest
 # how many books have in each set at the home page
 BOOKS_PER_SET = 5
 
+# how many movies have in each set at the home page
+MOVIES_PER_SET = 5
+
 # how many items are showed in one search result page
 ITEMS_PER_PAGE = 20
 
@@ -38,6 +41,19 @@ def home(request):
             status=MarkStatusEnum.COLLECT).order_by("-edited_time")
         collect_books_more = True if collect_book_marks.count() > BOOKS_PER_SET else False
 
+
+        do_movie_marks = request.user.user_moviemarks.filter(
+            status=MarkStatusEnum.DO).order_by("-edited_time")
+        do_movies_more = True if do_movie_marks.count() > MOVIES_PER_SET else False
+
+        wish_movie_marks = request.user.user_moviemarks.filter(
+            status=MarkStatusEnum.WISH).order_by("-edited_time")
+        wish_movies_more = True if wish_movie_marks.count() > MOVIES_PER_SET else False
+        
+        collect_movie_marks = request.user.user_moviemarks.filter(
+            status=MarkStatusEnum.COLLECT).order_by("-edited_time")
+        collect_movies_more = True if collect_movie_marks.count() > MOVIES_PER_SET else False
+
         reports = Report.objects.order_by('-submitted_time').filter(is_read=False)
         # reports = Report.objects.latest('submitted_time').filter(is_read=False)
 
@@ -51,6 +67,12 @@ def home(request):
                 'do_books_more': do_books_more,
                 'wish_books_more': wish_books_more,
                 'collect_books_more': collect_books_more,
+                'do_movie_marks': do_movie_marks[:MOVIES_PER_SET],
+                'wish_movie_marks': wish_movie_marks[:MOVIES_PER_SET],
+                'collect_movie_marks': collect_movie_marks[:MOVIES_PER_SET],
+                'do_movies_more': do_movies_more,
+                'wish_movies_more': wish_movies_more,
+                'collect_movies_more': collect_movies_more,
                 'reports': reports,
             }
         )

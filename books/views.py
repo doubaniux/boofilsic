@@ -132,7 +132,7 @@ def retrieve(request, id):
         except ObjectDoesNotExist:
             mark = None
         if mark:
-            mark_tags = mark.mark_tags.all()
+            mark_tags = mark.bookmark_tags.all()
             mark.get_status_display = BookMarkStatusTranslator(mark.status)
             mark_form = BookMarkForm(instance=mark, initial={
                 'tags': mark_tags
@@ -239,7 +239,7 @@ def create_update_mark(request):
         if pk:
             mark = get_object_or_404(BookMark, pk=pk)
             old_rating = mark.rating
-            old_tags = mark.mark_tags.all()
+            old_tags = mark.bookmark_tags.all()
             # update
             form = BookMarkForm(request.POST, instance=mark)
         else:

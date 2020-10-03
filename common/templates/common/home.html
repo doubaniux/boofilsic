@@ -10,7 +10,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Nicedb - 主页' %}</title>
+    
+    {% if user == request.user %}
+        <title>{% trans 'NiceDB - 我的主页' %}</title>
+    {% else %}
+        <title>{% trans 'NiceDB - ' %}{{user.username}}{% trans '的主页' %}</title>
+    {% endif %}
+        
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/mastodon.js' %}"></script>
     <script src="{% static 'js/home.js' %}"></script>
@@ -101,6 +107,84 @@
                                                 alt="{{collect_book_mark.book.title}}" class="entity-sort__entity-img">
                                             <span class="entity-sort__entity-name"
                                                 title="{{collect_book_mark.book.title}}">{{ collect_book_mark.book.title }}</span>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="entity-sort" id="movieWish">
+                                <h5 class="entity-sort__label">
+                                    {% trans '想看的电影/剧集' %}
+                                </h5>
+                                {% if wish_movies_more %}
+                                <a href="{% url 'users:movie_list' user.id 'wish' %}"
+                                    class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+
+                                <ul class="entity-sort__entity-list">
+                                    {% for wish_movie_mark in wish_movie_marks %}
+                                    <li class="entity-sort__entity">
+
+                                        <a href="{% url 'movies:retrieve' wish_movie_mark.movie.id %}">
+                                            <img src="{{ wish_movie_mark.movie.cover.url }}"
+                                                alt="{{wish_movie_mark.movie.title}}" class="entity-sort__entity-img">
+                                            <div class="entity-sort__entity-name" title="wish_movie_mark.movie.title">
+                                                {{ wish_movie_mark.movie.title }}</div>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="entity-sort" id="movieWish">
+                                <h5 class="entity-sort__label">
+                                    {% trans '在看的电影/剧集' %}
+                                </h5>
+                                {% if do_movies_more %}
+                                <a href="{% url 'users:movie_list' user.id 'do' %}"
+                                    class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+
+                                <ul class="entity-sort__entity-list">
+                                    {% for do_movie_mark in do_movie_marks %}
+                                    <li class="entity-sort__entity">
+
+                                        <a href="{% url 'movies:retrieve' do_movie_mark.movie.id %}">
+                                            <img src="{{ do_movie_mark.movie.cover.url }}"
+                                                alt="{{do_movie_mark.movie.title}}" class="entity-sort__entity-img">
+                                            <div class="entity-sort__entity-name" title="{{do_movie_mark.movie.title}}">
+                                                {{ do_movie_mark.movie.title }}</div>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+
+                            <div class="entity-sort" id="movieCollect">
+                                <h5 class="entity-sort__label">
+                                    {% trans '看过的电影/剧集' %}
+                                </h5>
+                                {% if collect_movies_more %}
+                                <a href="{% url 'users:movie_list' user.id 'collect' %}"
+                                    class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+
+                                <ul class="entity-sort__entity-list">
+                                    {% for collect_movie_mark in collect_movie_marks %}
+                                    <li class="entity-sort__entity">
+
+                                        <a href="{% url 'movies:retrieve' collect_movie_mark.movie.id %}">
+                                            <img src="{{ collect_movie_mark.movie.cover.url }}"
+                                                alt="{{collect_movie_mark.movie.title}}" class="entity-sort__entity-img">
+                                            <span class="entity-sort__entity-name"
+                                                title="{{collect_movie_mark.movie.title}}">{{ collect_movie_mark.movie.title }}</span>
                                         </a>
                                     </li>
                                     {% empty %}

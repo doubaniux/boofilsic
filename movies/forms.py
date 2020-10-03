@@ -1,11 +1,9 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
-from .models import Movie, MovieMark, MovieReview
+from .models import Movie, MovieMark, MovieReview, MovieGenreEnum
 from common.models import MarkStatusEnum
-from common.forms import RadioBooleanField, RatingValidator, TagField, TagInput
-from common.forms import KeyValueInput
-from common.forms import PreviewImageInput
+from common.forms import *
 
 
 def MovieMarkStatusTranslator(status):
@@ -22,7 +20,24 @@ class MovieForm(forms.ModelForm):
     #     required=False, max_value=9999, min_value=0, label=_("出版年份"))
     # pub_month = forms.IntegerField(
     #     required=False, max_value=12, min_value=1, label=_("出版月份"))
+
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    genre =  forms.MultipleChoiceField(
+        choices=MovieGenreEnum.choices, 
+        widget= MultiSelect,
+        label=_("类型")
+    )
+    showtime = HstoreField(
+        required=False,
+        label=_("上映时间"),
+        widget=HstoreInput(
+            attrs={
+                'placeholder-key': _("日期"),
+                'placeholder-value': _("地区"),
+            }
+        )
+    )
+    other_info = JSONField(required=False, label=_("其他信息"))
 
     class Meta:
         model = Movie
@@ -31,7 +46,7 @@ class MovieForm(forms.ModelForm):
             'title',
             'orig_title',
             'other_title',
-            'imbd_code',
+            'imdb_code',
             'director',
             'playwright',
             'actor',
@@ -46,14 +61,15 @@ class MovieForm(forms.ModelForm):
             'episodes',
             'single_episode_length',
             'cover',
-            'brief',
             'is_series',
+            'brief',
+            'other_info',
         ]
         labels = {
             'title': _("标题"),
             'orig_title': _("原名"),
             'other_title': _("又名"),
-            'imbd_code': _("IMBd编号"),
+            'imdb_code': _("IMDb编号"),
             'director': _("导演"),
             'playwright': _("编剧"),
             'actor': _("主演"),
@@ -69,16 +85,20 @@ class MovieForm(forms.ModelForm):
             'single_episode_length': _("单集片长"),
             'cover': _("封面"),
             'brief': _("简介"),
-            'is_series': _("是否是剧集"),
+            'other_info': _("其他信息"),
+            'is_series': _("是否为剧集"),
         }
 
-        # widgets = {
-        #     'author': forms.TextInput(attrs={'placeholder': _("多个作者使用英文逗号分隔")}),
-        #     'translator': forms.TextInput(attrs={'placeholder': _("多个译者使用英文逗号分隔")}),
-        #     'other_info': KeyValueInput(),
-        #     # 'cover': forms.FileInput(),
-        #     'cover': PreviewImageInput(),
-        # }
+        widgets = {
+            'other_title': forms.TextInput(attrs={'placeholder': _("多个别名使用英文逗号分隔")}),
+            'director': forms.TextInput(attrs={'placeholder': _("多个导演使用英文逗号分隔")}),
+            'actor': forms.TextInput(attrs={'placeholder': _("多个主演使用英文逗号分隔")}),
+            'playwright': forms.TextInput(attrs={'placeholder': _("多个编剧使用英文逗号分隔")}),
+            'area': forms.TextInput(attrs={'placeholder': _("多个国家/地区使用英文逗号分隔")}),
+            'language': forms.TextInput(attrs={'placeholder': _("多种语言使用英文逗号分隔")}),
+            'cover': PreviewImageInput(),
+            'is_series': forms.CheckboxInput(attrs={'style': 'width: auto; position: relative; top: 2px'})
+        }
 
     # def clean_isbn(self):
     #     isbn = self.cleaned_data.get('isbn')

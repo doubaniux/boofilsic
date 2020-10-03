@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -11,7 +13,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Nicedb - ' %}{{ user.username }}{{ list_title }}</title>
+    <title>{% trans 'NiceDB - ' %}{{ user.username }}{{ list_title }}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
@@ -52,7 +54,18 @@
                                         <div class="entity-list__entity-text">
                                             <div class="entity-list__entity-title">
                                                 <a href="{% url 'movies:retrieve' mark.movie.id %}" class="entity-list__entity-link">
-                                                    {{ mark.movie.title }}
+                                                    {% if mark.movie.season %}
+                                                    {{ mark.movie.title }} {% trans '第' %}{{ mark.movie.season|apnumber }}{% trans '季' %} {{ mark.movie.orig_title }} Season
+                                                    {{ mark.movie.season }}
+                                                    <span class="entity-detail__title entity-detail__title--secondary">
+                                                        ({{ mark.movie.year }})
+                                                    </span>
+                                                    {% else %}
+                                                    {{ mark.movie.title }} {{ mark.movie.orig_title }}
+                                                    <span class="entity-detail__title entity-detail__title--secondary">
+                                                        ({{ mark.movie.year }})
+                                                    </span>
+                                                    {% endif %}
                                                 </a>
                                             </div>
                                             {% comment %}                                                
@@ -66,32 +79,36 @@
                                                 {% endif %} -->
                                             {% endcomment %}
                                             <span class="entity-list__entity-info entity-list__entity-info--full-length">
-                                            {% if mark.movie.pub_year %}
-                                            {{ mark.movie.pub_year }}{% trans '年' %} /
-                                                {% if mark.movie.pub_month %}
-                                                    {{ mark.movie.pub_month }}{% trans '月' %} /
-                                                {% endif %} 
-                                            {% endif %}
+
                                             
-                                            {% if mark.movie.author %}
-                                            {% trans '作者' %}
-                                            {% for author in mark.movie.author %}                  
-                                            {{ author }}{% if not forloop.last %},{% endif %}
-                                            {% endfor %}/
-                                            {% endif %}
+                                        {% if mark.movie.director %}{% trans '导演' %}
+                                        {% for director in mark.movie.director %}
+                                        {{ director }}{% if not forloop.last %} {% endif %}
+                                        {% endfor %}/
+                                        {% endif %}
         
-                                            {% if mark.movie.translator %}
-                                            {% trans '译者' %}
-                                            {% for translator in mark.movie.translator %}                  
-                                            {{ translator }}{% if not forloop.last %},{% endif %}
-                                            {% endfor %}/
-                                            {% endif %}                                    
-        
-                                            {% if mark.movie.orig_title %}
-                                            &nbsp;{% trans '原名' %}
-                                                {{ mark.movie.orig_title }}
+                                        {% if mark.movie.genre %}{% trans '类型' %}
+                                        {% for genre in mark.movie.get_genre_display %}
+                                        {{ genre }}{% if not forloop.last %} {% endif %}
+                                        {% endfor %}/
+                                        {% endif %}
+
+                                        {% if mark.movie.other_title %}{% trans '又名' %}
+                                        {% for other_title in mark.movie.other_title %}
+                                        {{ other_title }}{% if not forloop.last %} {% endif %}
+                                        {% endfor %}
+                                        {% endif %}
+                                            </span>       
+                                            <span class="entity-list__entity-info entity-list__entity-info--full-length">
+                                            {% if mark.movie.actor %}{% trans '主演' %}
+                                            {% for actor in mark.movie.actor %}
+                                            <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ actor }}</span>
+                                            {% if forloop.counter <= 5 %}
+                                            {% if not forloop.last %} / {% endif %}
                                             {% endif %}
-                                            </span>                    
+                                            {% endfor %}
+                                            {% endif %}
+                                            </span>                                                
                                             <p class="entity-list__entity-brief">
                                                 {{ mark.movie.brief | truncate:170 }}
                                             </p>

@@ -10,7 +10,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'Nicedb - 从豆瓣获取数据' %}</title>
+    <title>{% trans 'NiceDB - 从豆瓣获取数据' %}</title>
     <script src="https://cdn.staticfile.org/jquery/3.5.0/jquery.min.js"></script>
     <script src="{% static 'js/scrape.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
@@ -68,6 +68,7 @@ ISBN: 9787020104345
                                 <div id="scrapeForm">
                                     <form action="{% url 'books:create' %}" method="POST" enctype="multipart/form-data">
                                         {% csrf_token %}
+                                        {{ form.media }}
                                         {{ form }}
                                     </form>
                                     <a href="{% url 'books:scrape' %}" class="button add-button submit">{% trans '剽取！' %}</a>
@@ -97,7 +98,10 @@ ISBN: 9787020104345
 
     </div>
     <script>
-
+            // mark required
+            $("#content input[required]").each(function () {
+                $(this).prev().prepend("*");
+            })
     </script>
 </body>
 

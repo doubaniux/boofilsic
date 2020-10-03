@@ -300,7 +300,7 @@ def scrape_douban_movie(url):
     if duration_elem:
         duration = duration_elem[0].strip()
         if other_duration_elem:
-            duration += other_duration_elem[0]
+            duration += other_duration_elem[0].rstrip()
     else:
         duration = None
 
@@ -324,7 +324,7 @@ def scrape_douban_movie(url):
     is_series = True if episodes else False
 
     brief_elem = content.xpath("//span[@property='v:summary']/text()")
-    brief = brief[0].strip() if brief_elem else None
+    brief = brief_elem[0].strip() if brief_elem else None
 
     img_url_elem = content.xpath("//img[@rel='v:image']/@src")
     img_url = img_url_elem[0].strip() if img_url_elem else None
