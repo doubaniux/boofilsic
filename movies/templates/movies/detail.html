@@ -97,26 +97,26 @@
                                         {% endfor %}
                                         {% endif %}</div>
                                         <div>{% if movie.actor %}{% trans '主演：' %}
-                                        {% for actor in movie.actor %}
-                                            <span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>{{ actor }}</span>
-                                            {% if forloop.counter <= 5 %}                                                    
+                                            {% for actor in movie.actor %}
+                                            <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ actor }}</span>
+                                            {% if forloop.counter <= 5 %}
                                             {% if not forloop.last %} / {% endif %}
                                             {% endif %}
-                                        {% endfor %}
+                                            {% endfor %}
                                         
-                                        {% if movie.actor|length > 5 %}
+                                            {% if movie.actor|length > 5 %}
                                             <a href="javascript:void(0);" id="actorMore">{% trans '更多' %}</a>
                                             <script>
-                                                $("#actorMore").click(function(e) {
-                                                    $(this).siblings("span:not(:visible)").each(function(e){
+                                                $("#actorMore").click(function (e) {
+                                                    $(this).siblings("span:not(:visible)").each(function (e) {
                                                         $(this).removeAttr('style');
                                                     });
                                                     $(this).remove();
                                                 })
                                             </script>
-                                        {% endif %}
-                                            
-                                        {% endif %}</div>
+                                            {% endif %}
+                                        
+                                            {% endif %}</div>
                                         <div>{% if movie.genre %}{% trans '类型：' %}
                                         {% for genre in movie.get_genre_display %}
                                             <span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}

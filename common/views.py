@@ -87,6 +87,9 @@ def home(request):
 def search(request):
     if request.method == 'GET':
 
+        if not request.GET.get("q"):
+            return HttpResponseBadRequest()
+
         # category, book/movie/record etc
         category = request.GET.get("c", default='').strip().lower()
 
