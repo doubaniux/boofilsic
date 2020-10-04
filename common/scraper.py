@@ -318,7 +318,7 @@ def scrape_douban_movie(url):
 
     single_episode_length_elem = content.xpath(
         "//div[@id='info']//span[text()='单集片长:']/following-sibling::text()[1]")
-    single_episode_length = int(single_episode_length_elem[0].strip()) if single_episode_length_elem else None
+    single_episode_length = single_episode_length_elem[0].strip() if single_episode_length_elem else None
 
     # if has field `episodes` not none then must be series
     is_series = True if episodes else False
