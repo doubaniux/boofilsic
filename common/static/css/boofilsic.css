@@ -510,17 +510,37 @@ select::placeholder {
 
 .navbar .navbar__search-box {
   margin: 0 12% 0 15px;
-  display: inline-block;
+  display: -webkit-inline-box;
+  display: -ms-inline-flexbox;
+  display: inline-flex;
   -webkit-box-flex: 1;
       -ms-flex: 1;
           flex: 1;
 }
 
 .navbar .navbar__search-box > input[type="search"] {
+  border-top-right-radius: 0;
+  border-bottom-right-radius: 0;
   margin: 0;
   height: 32px;
   background-color: white !important;
   width: 100%;
+}
+
+.navbar .navbar__search-box .navbar__search-dropdown {
+  margin: 0;
+  margin-left: -1px;
+  padding: 0;
+  padding-left: 10px;
+  color: #606c76;
+  -webkit-appearance: auto;
+     -moz-appearance: auto;
+          appearance: auto;
+  background-color: white;
+  height: 32px;
+  width: 80px;
+  border-top-left-radius: 0;
+  border-bottom-left-radius: 0;
 }
 
 .navbar .navbar__dropdown-btn {
@@ -577,6 +597,11 @@ select::placeholder {
   .navbar .navbar__search-box > input[type="search"] {
     height: 26px;
     padding: 4px 6px;
+  }
+  .navbar .navbar__search-box .navbar__search-dropdown {
+    height: 26px;
+    width: 80px;
+    padding-left: 5px;
   }
 }
 
@@ -1128,6 +1153,13 @@ select::placeholder {
   display: block;
 }
 
+.entity-list .entity-list__entity-category {
+  color: #bbb;
+  margin-left: 5px;
+  position: relative;
+  top: -1px;
+}
+
 .entity-list .entity-list__entity-info {
   max-width: 73%;
   white-space: nowrap;
@@ -1635,6 +1667,13 @@ select::placeholder {
   margin-bottom: 8px;
 }
 
+.add-entity-entries .add-entity-entries__button {
+  line-height: unset;
+  height: unset;
+  padding: 4px 15px;
+  margin: 0 5px;
+}
+
 .action-panel {
   margin-bottom: 20px;
 }
@@ -1866,6 +1905,7 @@ select::placeholder {
   }
   .add-entity-entries .add-entity-entries__button {
     width: 100%;
+    margin: 5px 0 5px 0;
   }
   .aside-section-wrapper:first-child {
     margin-right: 0 !important;
@@ -1985,6 +2025,16 @@ select::placeholder {
   padding: 32px 36px;
   background-color: #f7f7f7;
   overflow: auto;
+}
+
+.single-section-wrapper .single-section-wrapper__link--secondary {
+  display: inline-block;
+  color: #ccc;
+  margin-bottom: 20px;
+}
+
+.single-section-wrapper .single-section-wrapper__link--secondary:hover {
+  color: #00a1cc;
 }
 
 .entity-form, .review-form {

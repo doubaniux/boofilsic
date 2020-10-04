@@ -63,12 +63,12 @@
                                         {% if movie.season %}
                                         {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %} {{ movie.orig_title }} Season {{ movie.season }}
                                         <span class="entity-detail__title entity-detail__title--secondary">
-                                            ({{ movie.year }})
+                                            {% if movie.year %}({{ movie.year }}){% endif %}
                                         </span>
                                         {% else %}
                                         {{ movie.title }} {{ movie.orig_title }} 
                                         <span class="entity-detail__title entity-detail__title--secondary">
-                                            ({{ movie.year }})
+                                            {% if movie.year %}({{ movie.year }}){% endif %}
                                         </span>
                                         {% endif %}
                                     </h5>
@@ -331,9 +331,9 @@
                                 <div class="action-panel__label">{% trans '标记这部电影' %}</div>
                                 {% endif %}
                                 <div class="action-panel__button-group">
-                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想读' %}</button>
-                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在读' %}</button>
-                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '读过' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想看' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在看' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '看过' %}</button>
                                 </div>
                             </div>                            
                             {% endif %}

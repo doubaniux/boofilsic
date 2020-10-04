@@ -70,6 +70,10 @@ class Book(Resource):
     def get_tags_manager(self):
         return self.book_tags
 
+    @property
+    def verbose_category_name(self):
+        return _("书籍")
+
 
 class BookMark(Mark):
     # maybe this is the better solution, for it has less complex index

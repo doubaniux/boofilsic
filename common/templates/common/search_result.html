@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -41,79 +43,181 @@
                                 {% endif %}
                                     
                                 <ul class="entity-list__entities">
+                                    {% for item in items %}
                                     
-                                    {% for book in items %}
-                                        
-                                    <li class="entity-list__entity">
-                                        <div class="entity-list__entity-img-wrapper">
-                                            <a href="{% url 'books:retrieve' book.id %}">
-                                                <img src="{{ book.cover.url }}" alt="" class="entity-list__entity-img">
-                                            </a>
-                                        </div>
-                                        <div class="entity-list__entity-text">
-        
-                                            <div class="entity-list__entity-title">
-
-                                                <a href="{% url 'books:retrieve' book.id %}" class="entity-list__entity-link">
-                                                    {% if request.GET.q %}
-                                                    {{ book.title | highlight:request.GET.q }}
-                                                    {% else %}
-                                                    {{ book.title }}
-                                                    {% endif %}
+                                    {% if item.category_name|lower == 'book' %}
+                                    
+                                        {% with book=item %}
+                                        <li class="entity-list__entity">
+                                            <div class="entity-list__entity-img-wrapper">
+                                                <a href="{% url 'books:retrieve' book.id %}">
+                                                    <img src="{{ book.cover.url }}" alt="" class="entity-list__entity-img">
                                                 </a>
                                             </div>
-
-                                            {% if book.rating %}                                             
-                                            <div class="rating-star entity-list__rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></div>
-                                            <span class="entity-list__rating-score rating-score">{{ book.rating }}</span>
-                                            {% else %}
-                                            <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
-                                            {% endif %} 
-
-                                            <span class="entity-list__entity-info">
-                                            {% if book.pub_year %}
-                                            {{ book.pub_year }}{% trans '年' %} 
-                                                {% if book.pub_month %}
-                                                    {{book.pub_month }}{% trans '月' %} /
-                                                {% endif %} 
-                                            {% endif %}
-                                            
-                                            {% if book.author %}
-                                            {% trans '作者' %}
-                                            {% for author in book.author %}                  
-                                            {{ author }}{% if not forloop.last %},{% endif %}
-                                            {% endfor %}/
-                                            {% endif %}
-        
-                                            {% if book.translator %}
-                                            {% trans '译者' %}
-                                            {% for translator in book.translator %}                  
-                                            {{ translator }}{% if not forloop.last %},{% endif %}
-                                            {% endfor %}/
-                                            {% endif %}                                    
-        
-                                            {% if book.orig_title %}
-                                            &nbsp;{% trans '原名' %}
-                                                {{ book.orig_title }}
-                                            {% endif %}
-                                            </span>                    
-                                            <p class="entity-list__entity-brief">
-                                                {{ book.brief }}
-                                            </p>
-
-                                            <div class="tag-collection">                 
-                                                {% for tag_dict in book.tag_list %}
-                                                {% for k, v in tag_dict.items %}
-                                                {% if k == 'content' %}
-                                                <span class="tag-collection__tag">
-                                                    <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
-                                                </span>
+                                            <div class="entity-list__entity-text">
+                                        
+                                                <div class="entity-list__entity-title">
+                                        
+                                                    <a href="{% url 'books:retrieve' book.id %}" class="entity-list__entity-link">
+                                                        {% if request.GET.q %}
+                                                        {{ book.title | highlight:request.GET.q }}
+                                                        {% else %}
+                                                        {{ book.title }}
+                                                        {% endif %}
+                                                    </a>
+                                                    {% if not request.GET.c or request.GET.c != 'movie' and request.GET.c != 'book'%}
+                                                    <span class="entity-list__entity-category">[{{item.verbose_category_name}}]</span>
+                                                    {% endif %}
+                                                </div>
+                                        
+                                                {% if book.rating %}
+                                                <div class="rating-star entity-list__rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></div>
+                                                <span class="entity-list__rating-score rating-score">{{ book.rating }}</span>
+                                                {% else %}
+                                                <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
                                                 {% endif %}
-                                                {% endfor %}
-                                                {% endfor %}
+                                        
+                                                <span class="entity-list__entity-info">
+                                                    {% if book.pub_year %}
+                                                    {{ book.pub_year }}{% trans '年' %}
+                                                    {% if book.pub_month %}
+                                                    {{book.pub_month }}{% trans '月' %} /
+                                                    {% endif %}
+                                                    {% endif %}
+                                        
+                                                    {% if book.author %}
+                                                    {% trans '作者' %}
+                                                    {% for author in book.author %}
+                                                    {{ author }}{% if not forloop.last %},{% endif %}
+                                                    {% endfor %}/
+                                                    {% endif %}
+                                        
+                                                    {% if book.translator %}
+                                                    {% trans '译者' %}
+                                                    {% for translator in book.translator %}
+                                                    {{ translator }}{% if not forloop.last %},{% endif %}
+                                                    {% endfor %}/
+                                                    {% endif %}
+                                        
+                                                    {% if book.orig_title %}
+                                                    &nbsp;{% trans '原名' %}
+                                                    {{ book.orig_title }}
+                                                    {% endif %}
+                                                </span>
+                                                <p class="entity-list__entity-brief">
+                                                    {{ book.brief }}
+                                                </p>
+                                        
+                                                <div class="tag-collection">
+                                                    {% for tag_dict in book.tag_list %}
+                                                    {% for k, v in tag_dict.items %}
+                                                    {% if k == 'content' %}
+                                                    <span class="tag-collection__tag">
+                                                        <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
+                                                    </span>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                    {% endfor %}
+                                                </div>
                                             </div>
-                                        </div>
-                                    </li>
+                                        </li>
+                                        {% endwith %}   
+
+                                    {% elif item.category_name|lower == 'movie' %}    
+                                        
+                                        {% with movie=item %}
+                                        <li class="entity-list__entity">
+                                            <div class="entity-list__entity-img-wrapper">
+                                                <a href="{% url 'movies:retrieve' movie.id %}">
+                                                    <img src="{{ movie.cover.url }}" alt="" class="entity-list__entity-img">
+                                                </a>
+                                            </div>
+                                            <div class="entity-list__entity-text">
+                                                <div class="entity-list__entity-title">
+                                                    <a href="{% url 'movies:retrieve' movie.id %}" class="entity-list__entity-link">
+                                                        {% if movie.season %}
+                                                        
+                                                            {% if request.GET.q %}
+                                                                {{ movie.title | highlight:request.GET.q }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %}
+                                                                {{ movie.orig_title | highlight:request.GET.q }} Season {{ movie.season }}
+                                                                {% if movie.year %}({{ movie.year }}){% endif %}
+                                                            {% else %}
+                                                                {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %}
+                                                                {{ movie.orig_title }} Season {{ movie.season }}
+                                                                {% if movie.year %}({{ movie.year }}){% endif %}
+                                                            {% endif %}
+                                        
+                                                        {% else %}
+                                                            {% if request.GET.q %}
+                                                                {{ movie.title | highlight:request.GET.q }} {{ movie.orig_title | highlight:request.GET.q }}
+                                                                {% if movie.year %}({{ movie.year }}){% endif %}
+                                                            {% else %}
+                                                                {{ movie.title }} {{ movie.orig_title }}
+                                                                {% if movie.year %}({{ movie.year }}){% endif %}
+                                                            {% endif %}
+                                                        {% endif %}
+                                                    </a>
+                                                    
+                                                    {% if not request.GET.c or request.GET.c != 'movie' and request.GET.c != 'book'%}
+                                                    <span class="entity-list__entity-category">[{{item.verbose_category_name}}]</span>
+                                                    {% endif %}
+                                                        
+                                                </div>
+
+                                                <span class="entity-list__entity-info entity-list__entity-info--full-length">
+                                        
+                                        
+                                                    {% if movie.director %}{% trans '导演' %}
+                                                    {% for director in movie.director %}
+                                                    {{ director }}{% if not forloop.last %} {% endif %}
+                                                    {% endfor %}/
+                                                    {% endif %}
+                                        
+                                                    {% if movie.genre %}{% trans '类型' %}
+                                                    {% for genre in movie.get_genre_display %}
+                                                    {{ genre }}{% if not forloop.last %} {% endif %}
+                                                    {% endfor %}/
+                                                    {% endif %}
+                                        
+                                                    {% if movie.other_title %}{% trans '又名' %}
+                                                    {% for other_title in movie.other_title %}
+                                                    {{ other_title }}{% if not forloop.last %} {% endif %}
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </span>
+                                                <span class="entity-list__entity-info entity-list__entity-info--full-length">
+                                                    {% if movie.actor %}{% trans '主演' %}
+                                                    {% for actor in movie.actor %}
+                                                    <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ actor }}</span>
+                                                    {% if forloop.counter <= 5 %}
+                                                        {% if not forloop.counter == 5 %} / {% endif %}
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                </span>
+                                                <p class="entity-list__entity-brief">
+                                                    {{ movie.brief | truncate:170 }}
+                                                </p>
+                                                <div class="tag-collection">
+                                                    {% for tag_dict in movie.tag_list %}
+                                                    {% for k, v in tag_dict.items %}
+                                                    {% if k == 'content' %}
+                                                    <span class="tag-collection__tag">
+                                                        <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
+                                                    </span>
+                                                    {% endif %}
+                                                    {% endfor %}
+                                                    {% endfor %}
+                                                </div>
+                                            </div>
+                                        
+                                        </li>
+                                        {% endwith %}
+                                                                                    
+                                    {% endif %}
+                                        
+                                        
+
                                     {% empty %}
                                     {% trans '无结果' %}
                                     {% endfor %}
@@ -153,19 +257,90 @@
                             <div class="add-entity-entries">
                                 <div class="add-entity-entries__entry">
                                     <div class="add-entity-entries__label">
-                                        没有想要的结果？
+                                        {% trans '没有想要的结果？' %}
                                     </div>
-                                    <a href="{% url 'books:create' %}">
-                                        <button class="add-entity-entries__button">添加一个条目</button>
-                                    </a>
+                                    {% if request.GET.c %}
+                                    
+                                        {% if request.GET.c|lower == 'book' %}
+                                            
+                                        <a href="{% url 'books:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加书' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'movie' %}
+                                        
+                                        <a href="{% url 'movies:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加电影/剧集' %}</button>
+                                        </a>
+
+                                        {% else %}
+                                        <a href="{% url 'books:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加书' %}</button>
+                                        </a>
+                                        <a href="{% url 'movies:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加电影/剧集' %}</button>
+                                        </a>
+                                        
+                                        {% endif %}
+                                        
+                                    {% else %}
+                                        <a href="{% url 'books:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加书' %}</button>
+                                        </a>
+                                        <a href="{% url 'movies:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加电影/剧集' %}</button>
+                                        </a>
+                                    {% endif %}
                                 </div>
                                 <div class="add-entity-entries__entry">
+                                    {% if request.GET.c %}
+                                    
+                                        {% if request.GET.c|lower == 'book' %}
+
+                                        <div class="add-entity-entries__label">
+                                            {% trans '或者(≖ ◡ ≖)✧' %}
+                                        </div>
+                                        <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '从表瓣剽取数据' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'movie' %}
+                                        
+                                        <div class="add-entity-entries__label">
+                                            {% trans '或者(≖ ◡ ≖)✧' %}
+                                        </div>
+                                        <a href="{% url 'movies:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '从表瓣剽取数据' %}</button>
+                                        </a>
+                                        
+                                        {% else %}
+                                        
+                                        <div class="add-entity-entries__label">
+                                            {% trans '或从表瓣剽取' %}
+                                        </div>
+                                        <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '书' %}</button>
+                                        </a>
+                                        <a href="{% url 'movies:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '电影/剧集' %}</button>
+                                        </a>
+                                        
+                                        {% endif %}
+                                        
+                                    {% else %}
+                                        
                                     <div class="add-entity-entries__label">
-                                        或者(≖ ◡ ≖)✧
+                                        {% trans '或从表瓣剽取' %}
                                     </div>
                                     <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
-                                        <button class="add-entity-entries__button">从表瓣剽取数据</button>
+                                        <button class="add-entity-entries__button">{% trans '书' %}</button>
                                     </a>
+                                    <a href="{% url 'movies:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                        <button class="add-entity-entries__button">{% trans '电影/剧集' %}</button>
+                                    </a>
+
+
+                                    {% endif %}
                                 </div>
 
                             </div>
