@@ -599,6 +599,7 @@ select::placeholder {
     padding: 4px 6px;
   }
   .navbar .navbar__search-box .navbar__search-dropdown {
+    cursor: pointer;
     height: 26px;
     width: 80px;
     padding-left: 5px;
