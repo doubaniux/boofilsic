@@ -234,6 +234,9 @@ def scrape_douban_movie(url):
     if title == '':
         title = orig_title
 
+    if title == orig_title:
+        orig_title = None
+
     # there are two html formats for authors and translators
     other_title_elem = content.xpath(
         "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]")
