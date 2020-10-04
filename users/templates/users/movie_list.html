@@ -57,27 +57,14 @@
                                                     {% if mark.movie.season %}
                                                     {{ mark.movie.title }} {% trans '第' %}{{ mark.movie.season|apnumber }}{% trans '季' %} {{ mark.movie.orig_title }} Season
                                                     {{ mark.movie.season }}
-                                                    <span class="entity-detail__title entity-detail__title--secondary">
-                                                        ({{ mark.movie.year }})
-                                                    </span>
+                                                    {% if mark.movie.year %}({{ mark.movie.year }}){% endif %}
+                                                        
                                                     {% else %}
                                                     {{ mark.movie.title }} {{ mark.movie.orig_title }}
-                                                    <span class="entity-detail__title entity-detail__title--secondary">
-                                                        ({{ mark.movie.year }})
-                                                    </span>
+                                                    {% if mark.movie.year %}({{ mark.movie.year }}){% endif %}
                                                     {% endif %}
                                                 </a>
                                             </div>
-                                            {% comment %}                                                
-                                                <!-- {% if mark.movie.rating %}
-                                                <div class="rating-star entity-list__rating-star" data-rating-score="{{ mark.movie.rating | floatformat:"0" }}"></div>
-                                                <span class="entity-list__rating-score rating-score">
-                                                    {{ mark.movie.rating }}
-                                                </span>
-                                                {% else %}
-                                                <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
-                                                {% endif %} -->
-                                            {% endcomment %}
                                             <span class="entity-list__entity-info entity-list__entity-info--full-length">
 
                                             
@@ -104,7 +91,7 @@
                                             {% for actor in mark.movie.actor %}
                                             <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ actor }}</span>
                                             {% if forloop.counter <= 5 %}
-                                            {% if not forloop.last %} / {% endif %}
+                                                {% if not forloop.counter == 5 %} / {% endif %}
                                             {% endif %}
                                             {% endfor %}
                                             {% endif %}
