@@ -42,14 +42,12 @@
                                         {% if movie.season %}
                                         {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %} {{ movie.orig_title }} Season
                                         {{ movie.season }}
-                                        <span class="entity-detail__title entity-detail__title--secondary">
-                                            ({{ movie.year }})
-                                        </span>
+                                        
+                                        {% if movie.year %}({{ movie.year }}){% endif %}
+                                            
                                         {% else %}
                                         {{ movie.title }} {{ movie.orig_title }}
-                                        <span class="entity-detail__title entity-detail__title--secondary">
-                                            ({{ movie.year }})
-                                        </span>
+                                            {% if movie.year %}({{ movie.year }}){% endif %}
                                         {% endif %}
                                 </a></h5>
                                 <div>{% if movie.director %}{% trans '导演：' %}

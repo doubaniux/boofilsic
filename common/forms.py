@@ -131,6 +131,12 @@ class TagField(forms.CharField):
 class MultiSelect(forms.SelectMultiple):
     template_name = 'widgets/multi_select.html'
 
+    class Media:
+        css = {
+            'all': ('lib/css/multiple-select.min.css',)
+        }
+        js = ('lib/js/multiple-select.min.js',)
+
 
 class HstoreInput(forms.Widget):
     template_name = 'widgets/hstore.html'
@@ -154,6 +160,9 @@ class HstoreField(forms.CharField):
     def to_python(self, value):
         if not value:
             return None
+        # already in python types
+        if isinstance(value, list):
+            return value
         pairs = eval(value)
         if len(pairs) == 1:
             pairs = (pairs,)

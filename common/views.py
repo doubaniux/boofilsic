@@ -1,6 +1,9 @@
+import operator
+from difflib import SequenceMatcher
 from django.shortcuts import render
 from django.contrib.auth.decorators import login_required
 from books.models import Book
+from movies.models import Movie
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from users.models import Report, User
@@ -83,28 +86,93 @@ def home(request):
 @login_required
 def search(request):
     if request.method == 'GET':
-        # in the future when more modules are added...
-        # category = request.GET.get("category")
-        q = Q()
-        query_args = []
 
-        # keywords
-        keywords = request.GET.get("q", default='').strip()
+        # category, book/movie/record etc
+        category = request.GET.get("c", default='').strip().lower()
 
-        for keyword in [keywords]:
+        def book_param_handler():
+            q = Q()
+            query_args = []
+            # keywords
+            keywords = request.GET.get("q", default='').strip()
 
-            q = q | Q(title__icontains=keyword)
-            q = q | Q(subtitle__icontains=keyword)
-            q = q | Q(orig_title__icontains=keyword)
+            for keyword in [keywords]:
+                q = q | Q(title__icontains=keyword)
+                q = q | Q(subtitle__icontains=keyword)
+                q = q | Q(orig_title__icontains=keyword)
 
-        # tag
-        tag = request.GET.get("tag", default='')
-        if tag:
-            q = q & Q(book_tags__content__iexact=tag)
+            # tag
+            tag = request.GET.get("tag", default='')
+            if tag:
+                q = q & Q(book_tags__content__iexact=tag)
 
-        query_args.append(q)
-        queryset = Book.objects.filter(*query_args).distinct()
+            query_args.append(q)
+            queryset = Book.objects.filter(*query_args).distinct()
 
+            def calculate_similarity(book):
+                similarity, n = 0, 0
+                for keyword in keywords:
+                    similarity += 1/2 * SequenceMatcher(None, keyword, book.title).quick_ratio() 
+                    + 1/3 * SequenceMatcher(None, keyword, book.orig_title).quick_ratio()
+                    + 1/6 * SequenceMatcher(None, keyword, book.subtitle).quick_ratio()
+                    n += 1
+                book.similarity = similarity / n
+                return book.similarity
+            ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            return ordered_queryset
+            
+        def movie_param_handler():
+            q = Q()
+            query_args = []
+            # keywords
+            keywords = request.GET.get("q", default='').strip()
+
+            for keyword in [keywords]:
+                q = q | Q(title__icontains=keyword)
+                q = q | Q(other_title__icontains=keyword)
+                q = q | Q(orig_title__icontains=keyword)
+
+            # tag
+            tag = request.GET.get("tag", default='')
+            if tag:
+                q = q & Q(movie_tags__content__iexact=tag)
+
+            query_args.append(q)
+            queryset = Movie.objects.filter(*query_args).distinct()
+
+            def calculate_similarity(movie):
+                similarity, n = 0, 0
+                for keyword in keywords:
+                    similarity += 1/2 * SequenceMatcher(None, keyword, movie.title).quick_ratio()
+                    + 1/4 * SequenceMatcher(None, keyword, movie.orig_title).quick_ratio()
+                    + 1/4 * SequenceMatcher(None, keyword, movie.other_title).quick_ratio()
+                    n += 1
+                movie.similarity = similarity / n
+                return movie.similarity
+            ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            return ordered_queryset
+
+        def all_param_handler():
+            book_queryset = book_param_handler()
+            movie_queryset = movie_param_handler()
+            ordered_queryset = sorted(
+                book_queryset + movie_queryset, 
+                key=operator.attrgetter('similarity'), 
+                reverse=True
+            )
+            return ordered_queryset
+
+        param_handler = {
+            'book': book_param_handler,
+            'movie': movie_param_handler,
+            'all': all_param_handler,
+            '': all_param_handler
+        }
+
+        try:
+            queryset = param_handler[category]()
+        except KeyError as e:
+            queryset = param_handler['all']()
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         items = paginator.get_page(page_number)

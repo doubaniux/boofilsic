@@ -336,7 +336,7 @@ def book_list(request, id, status):
         list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
         return render(
             request,
-            'books/list.html',
+            'users/book_list.html',
             {
                 'marks': marks,
                 'user': user,
@@ -393,7 +393,7 @@ def movie_list(request, id, status):
         list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的电影和剧集"))
         return render(
             request,
-            'movies/list.html',
+            'users/movie_list.html',
             {
                 'marks': marks,
                 'user': user,
