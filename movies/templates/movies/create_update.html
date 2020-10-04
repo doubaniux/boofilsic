@@ -25,6 +25,8 @@
             <section id="content" class="container">
                 <div class="grid">
                     <div class="single-section-wrapper" id="main">
+                        <a href="{% url 'movies:scrape' %}"
+                            class="single-section-wrapper__link single-section-wrapper__link--secondary">{% trans '>>> 试试一键剽取~ <<<' %}</a>
                         <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form.media }}
@@ -32,7 +34,7 @@
                             
                             {% if field.id_for_label == 'id_is_series' %}
                             <label for="{{ field.id_for_label }}"
-                                style="display: inline-block; position: relative; left: -4px;">{{ field.label }}</label>
+                                style="display: inline-block; position: relative;">{{ field.label }}</label>
                             {{ field }}
                             {% else %}
                             {% if field.id_for_label != 'id_id' %}
@@ -61,11 +63,29 @@
     {% endcomment %}
         
     <script>
-
         // mark required
         $("#content input[required]").each(function () {
                 $(this).prev().prepend("*");
         })
+        
+        // `is_seires` checkbox                  
+        $("#id_season, label[for='id_season']").hide();
+        $("#id_episodes, label[for='id_episodes']").hide();
+        $("#id_single_episode_length, label[for='id_single_episode_length']").hide();
+        $('#id_is_series').change(
+            function () {
+                if ($(this).is(':checked')) {
+                    $("#id_season, label[for='id_season']").show();
+                    $("#id_episodes, label[for='id_episodes']").show();
+                    $("#id_single_episode_length, label[for='id_single_episode_length']").show();
+                } else {
+                    $("#id_season, label[for='id_season']").hide();
+                    $("#id_episodes, label[for='id_episodes']").hide();
+                    $("#id_single_episode_length, label[for='id_single_episode_length']").hide();
+                }
+            }
+        );
+            
     </script>
 </body>
 

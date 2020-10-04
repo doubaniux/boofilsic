@@ -177,6 +177,13 @@ class Movie(Resource):
             translated_genre.append(MovieGenreTranslator[g])
         return translated_genre
 
+    @property
+    def verbose_category_name(self):
+        if self.is_series:
+            return _("剧集")
+        else:
+            return _("电影")
+
 
 class MovieMark(Mark):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='movie_marks', null=True)

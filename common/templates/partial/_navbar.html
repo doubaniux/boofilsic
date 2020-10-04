@@ -13,6 +13,11 @@
                     <!-- <input type="search" class="" name="q" id="searchInput" required="true" value="{% for v in request.GET.values %}{{ v }}{% endfor %}" -->
                     <input type="search" class="" name="q" id="searchInput" required="true" value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                         placeholder="搜索书影音">
+                    <select class="navbar__search-dropdown" id="searchCategory">
+                        <option value="all" {% if request.GET.c and request.GET.c != 'movie' and request.GET.c != 'book' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
+                        <option value="book" {% if request.GET.c and request.GET.c == 'book' %}selected{% endif %}>{% trans '书籍' %}</option>
+                        <option value="movie" {% if request.GET.c and request.GET.c == 'movie' %}selected{% endif %}>{% trans '电影' %}</option>
+                    </select>
                 </form>
                 <button class="navbar__dropdown-btn">• • •</button>
                 <ul class="navbar__link-list">
@@ -38,8 +43,9 @@
             $("#searchInput").on('keyup', function (e) {
                 if (e.keyCode === 13) {
                     let q = $(this).val();
+                    let c = $("#searchCategory").val();
                     if (q) {
-                        location.href = "{% url 'common:search' %}" + "?q=" + q;
+                        location.href = "{% url 'common:search' %}" + "?c=" + c + "&q=" + q;
                     }
                 }
             });

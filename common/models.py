@@ -81,21 +81,37 @@ class Resource(models.Model):
         Since relation between tag and resource is foreign key, and related name has to be unique,
         this method works like interface.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclass should implement this method.")
 
     def get_marks_manager(self):
         """
         Normally this won't be used. 
         There is no ocassion where visitor can simply view all the marks.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclass should implement this method.")
     
     def get_revies_manager(self):
         """
         Normally this won't be used.
         There is no ocassion where visitor can simply view all the reviews.
         """
-        raise NotImplementedError
+        raise NotImplementedError("Subclass should implement this method.")
+
+    @classmethod
+    def get_category_mapping_dict(cls):
+        category_mapping_dict = {}
+        for subclass in cls.__subclasses__():
+            category_mapping_dict[subclass.__name__.lower()] = subclass
+        return category_mapping_dict
+
+    @property
+    def category_name(self):
+        return self.__class__.__name__
+
+    @property
+    def verbose_category_name(self):
+        raise NotImplementedError("Subclass should implement this.")
+
 
 class UserOwnedEntity(models.Model):
     is_private = models.BooleanField()

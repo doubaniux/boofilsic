@@ -23,6 +23,7 @@ class MovieForm(forms.ModelForm):
 
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     genre =  forms.MultipleChoiceField(
+        required=False,
         choices=MovieGenreEnum.choices, 
         widget= MultiSelect,
         label=_("类型")

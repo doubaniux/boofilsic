@@ -37,13 +37,29 @@
 
     & &__search-box
         margin: 0 12% 0 15px
-        display: inline-block
+        display: inline-flex
         flex: 1
+        $widget-height: 32px
         & > input[type="search"]
+            border-top-right-radius: 0
+            border-bottom-right-radius: 0
             margin: 0
-            height: 32px
+            height: $widget-height
             background-color: white !important
             width: 100%
+
+        & .navbar__search-dropdown
+            margin: 0
+            margin-left: -1px
+            padding: 0
+            padding-left: 10px 
+            color: $color-secondary
+            appearance: auto
+            background-color: white
+            height: $widget-height 
+            width: 80px 
+            border-top-left-radius: 0
+            border-bottom-left-radius: 0
 
     & &__dropdown-btn
         display: none
@@ -91,9 +107,14 @@
         & &__search-box
             margin: 0
             width: 46vw
+            $widget-height: 26px
             & > input[type="search"]
-                height: 26px
+                height: $widget-height
                 padding: 4px 6px
+            & .navbar__search-dropdown
+                height: $widget-height
+                width: 80px                
+                padding-left: 5px
 // Medium devices (tablets, 768px and up)
 @media (max-width: $medium-devices)
 	pass
