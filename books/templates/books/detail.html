@@ -15,6 +15,7 @@
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ book.cover.url }}">
     <meta property="og:site_name" content="NiceDB">
+    <meta property="og:description" content="{{ book.brief }}">
     {% if book.author %}
     <meta property="og:book:author" content="{% for author in book.author %}{{ author }}{% if not forloop.last %},{% endif %}{% endfor %}">
     {% endif %}

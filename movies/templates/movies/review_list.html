@@ -106,10 +106,24 @@
                                         </a></h5>
                                 
                                     <div>{% if movie.director %}{% trans '导演：' %}
-                                        {% for director in movie.director %}
-                                        <span>{{ director }}</span>{% if not forloop.last %} / {% endif %}
-                                        {% endfor %}
-                                        {% endif %}</div>
+                                    {% for director in movie.director %}
+                                    <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+                                        <span class="director">{{ director }}</span>
+                                        {% if not forloop.last %} / {% endif %}
+                                    </span>
+                                    {% endfor %}
+                                    {% if movie.director|length > 5 %}
+                                    <a href="javascript:void(0);" id="directorMore">{% trans '更多' %}</a>
+                                    <script>
+                                        $("#directorMore").click(function (e) {
+                                            $("span.director:not(:visible)").each(function (e) {
+                                                $(this).parent().removeAttr('style');
+                                            });
+                                            $(this).remove();
+                                        })
+                                    </script>
+                                    {% endif %}
+                                    {% endif %}</div>
                                     <div>{% if movie.genre %}{% trans '类型：' %}
                                         {% for genre in movie.get_genre_display %}
                                         <span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}

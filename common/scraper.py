@@ -1,5 +1,7 @@
 import requests
+import functools
 import random
+import logging
 from lxml import html
 import re
 from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG
@@ -29,6 +31,25 @@ TIMEOUT = 10
 
 # luminati account credentials
 PORT = 22225
+
+logger = logging.getLogger(__name__)
+
+
+def log_url(func):
+    """
+    Catch exceptions and log then pass the exceptions.
+    First postion argument of decorated function must be the url.
+    """
+    @functools.wraps(func)
+    def wrapper(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            # log the url
+            logger.error(f"Scrape Failed URL: {args[0]}")
+            raise e
+
+    return wrapper
 
 
 def download_page(url, regex, headers):
@@ -85,6 +106,7 @@ def download_image(url):
     return raw_img
 
 
+@log_url
 def scrape_douban_book(url):
     regex = RE_DOUBAN_BOOK_URL
     headers = DEFAULT_REQUEST_HEADERS.copy()
@@ -214,6 +236,7 @@ def scrape_douban_book(url):
     return data, raw_img
 
 
+@log_url
 def scrape_douban_movie(url):
     regex = RE_DOUBAN_MOVIE_URL
     headers = DEFAULT_REQUEST_HEADERS.copy()

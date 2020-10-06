@@ -2180,3 +2180,7 @@ select::placeholder {
 .ms-parent > .ms-drop > ul > li > label > span {
   margin-left: 10px;
 }
+
+.ms-parent > .ms-drop > ul > li > label > input {
+  width: unset;
+}
