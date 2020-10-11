@@ -37,9 +37,16 @@ class JSONField(postgres.JSONField):
         if not value:
             return None
         json = {}
-        pairs = eval(value)
-        for pair in pairs:
-            json = {**json, **pair}
+        if isinstance(value, dict):
+            json = value
+        else:
+            pairs = eval(value)
+            if isinstance(pairs, dict):
+                json = pairs
+            else:
+                # list or tuple
+                for pair in pairs:
+                    json = {**json, **pair}
         return super().to_python(json)
 
 

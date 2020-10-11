@@ -172,7 +172,7 @@
                                         <div>{% if movie.showtime %}{% trans '上映时间：' %}
                                         {% for showtime in movie.showtime %}
                                             {% for time, region in showtime.items %}
-                                            <span>{{ time }}({{ region }})</span>
+                                            <span>{{ time }}{% if region != '' %}({{ region }}){% endif %}</span>
                                             {% endfor %}
                                             {% if not forloop.last %} / {% endif %}
                                         {% endfor %}

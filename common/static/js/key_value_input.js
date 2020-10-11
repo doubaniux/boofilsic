@@ -55,8 +55,18 @@ function keyValueInput(valueKeyWidget, hiddenInput) {
                 finalValue.push(JSON.stringify(json))
             });
             hiddenInput.val(finalValue.toString());
-        } else {
-
+        } else if(keys.length - values.length == 1) {
+            let finalValue = [];
+            keys.forEach(function (key, i) {
+                let json = new Object;
+                if (i < keys.length - 1) {
+                    json[key] = values[i];
+                } else {
+                    json[key] = ''
+                }
+                finalValue.push(JSON.stringify(json))
+            });
+            hiddenInput.val(finalValue.toString());  
         }
     });
 }
