@@ -297,8 +297,13 @@ def scrape_douban_movie(url):
     if showtime_elem:
         showtime = []
         for st in showtime_elem:
-            time = st.split('(')[0]
-            region = st.split('(')[1][0:-1]
+            parts = st.split('(')
+            if len(parts) == 1:
+                time = st.split('(')[0]
+                region = ''
+            else:
+                time = st.split('(')[0]
+                region = st.split('(')[1][0:-1]
             showtime.append({time: region})
     else:
         showtime = None

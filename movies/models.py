@@ -143,7 +143,7 @@ class Movie(Resource):
     )
 
     year = models.PositiveIntegerField(null=True, blank=True)
-    duration = models.CharField(blank=True, default='', max_length=100)
+    duration = models.CharField(blank=True, default='', max_length=200)
 
     cover = models.ImageField(_("poster"), upload_to=movie_cover_path, default=DEFAULT_MOVIE_IMAGE, blank=True)
 

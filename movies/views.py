@@ -571,6 +571,7 @@ def click_to_scrape(request):
                 return redirect(reverse('movies:retrieve', args=[form.instance.id]))
             else:
                 msg = _("爬取数据失败😫")
+                logger.error(str(form.errors))
                 return render(request, 'common/error.html', {'msg': msg})
         else:
             return HttpResponseBadRequest()

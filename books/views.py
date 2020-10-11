@@ -567,6 +567,7 @@ def click_to_scrape(request):
                     msg = _("ISBN与现有图书重复")
                 else:
                     msg = _("爬取数据失败😫")
+                    logger.error(str(form.errors))
                 return render(request, 'common/error.html', {'msg': msg})
         else:
             return HttpResponseBadRequest()
