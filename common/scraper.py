@@ -354,8 +354,10 @@ def scrape_douban_movie(url):
     # if has field `episodes` not none then must be series
     is_series = True if episodes else False
 
-    brief_elem = content.xpath("//span[@property='v:summary']/text()")
-    brief = brief_elem[0].strip() if brief_elem else None
+    brief_elem = content.xpath("//span[@class='all hidden']")
+    if not brief_elem:
+        brief_elem = content.xpath("//span[@property='v:summary']")
+    brief = brief_elem[0].xpath('./text()')[0].strip() if brief_elem else None
 
     img_url_elem = content.xpath("//img[@rel='v:image']/@src")
     img_url = img_url_elem[0].strip() if img_url_elem else None
