@@ -87,7 +87,8 @@ def home(request):
 def search(request):
     if request.method == 'GET':
 
-        if not request.GET.get("q"):
+        empty_querystring_criteria = {k: v for k, v in request.GET.items() if k != 'c'}
+        if not len(empty_querystring_criteria):
             return HttpResponseBadRequest()
 
         # category, book/movie/record etc
@@ -113,18 +114,24 @@ def search(request):
             queryset = Book.objects.filter(*query_args).distinct()
 
             def calculate_similarity(book):
-                similarity, n = 0, 0
-                for keyword in keywords:
-                    similarity += 1/2 * SequenceMatcher(None, keyword, book.title).quick_ratio() 
-                    + 1/3 * SequenceMatcher(None, keyword, book.orig_title).quick_ratio()
-                    + 1/6 * SequenceMatcher(None, keyword, book.subtitle).quick_ratio()
-                    n += 1
-                book.similarity = similarity / n
+                if keywords:
+                    # search by keywords
+                    similarity, n = 0, 0
+                    for keyword in keywords:
+                        similarity += 1/2 * SequenceMatcher(None, keyword, book.title).quick_ratio() 
+                        + 1/3 * SequenceMatcher(None, keyword, book.orig_title).quick_ratio()
+                        + 1/6 * SequenceMatcher(None, keyword, book.subtitle).quick_ratio()
+                        n += 1
+                    book.similarity = similarity / n
+
+                elif tag:
+                    # search by single tag
+                    book.similarity = 0 if book.rating_number is None else book.rating_number
                 return book.similarity
             if len(queryset) > 0:
                 ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
             else:
-                ordered_queryset = queryset
+                ordered_queryset = list(queryset)
             return ordered_queryset
             
         def movie_param_handler():
@@ -147,18 +154,23 @@ def search(request):
             queryset = Movie.objects.filter(*query_args).distinct()
 
             def calculate_similarity(movie):
-                similarity, n = 0, 0
-                for keyword in keywords:
-                    similarity += 1/2 * SequenceMatcher(None, keyword, movie.title).quick_ratio()
-                    + 1/4 * SequenceMatcher(None, keyword, movie.orig_title).quick_ratio()
-                    + 1/4 * SequenceMatcher(None, keyword, movie.other_title).quick_ratio()
-                    n += 1
-                movie.similarity = similarity / n
+                if keywords:
+                    # search by name
+                    similarity, n = 0, 0
+                    for keyword in keywords:
+                        similarity += 1/2 * SequenceMatcher(None, keyword, movie.title).quick_ratio()
+                        + 1/4 * SequenceMatcher(None, keyword, movie.orig_title).quick_ratio()
+                        + 1/4 * SequenceMatcher(None, keyword, movie.other_title).quick_ratio()
+                        n += 1
+                    movie.similarity = similarity / n
+                elif tag:
+                    # search by single tag
+                    movie.similarity = 0 if movie.rating_number is None else movie.rating_number
                 return movie.similarity
             if len(queryset) > 0:
                 ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
             else:
-                ordered_queryset = queryset
+                ordered_queryset = list(queryset)
             return ordered_queryset
 
         def all_param_handler():
