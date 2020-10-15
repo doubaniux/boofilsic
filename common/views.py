@@ -121,7 +121,10 @@ def search(request):
                     n += 1
                 book.similarity = similarity / n
                 return book.similarity
-            ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            if len(queryset) > 0:
+                ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            else:
+                ordered_queryset = queryset
             return ordered_queryset
             
         def movie_param_handler():
@@ -152,7 +155,10 @@ def search(request):
                     n += 1
                 movie.similarity = similarity / n
                 return movie.similarity
-            ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            if len(queryset) > 0:
+                ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            else:
+                ordered_queryset = queryset
             return ordered_queryset
 
         def all_param_handler():
