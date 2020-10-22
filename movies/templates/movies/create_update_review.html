@@ -17,7 +17,7 @@
     <script src="{% static 'js/create_update_review.js' %}"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
     <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
 </head>
@@ -159,7 +159,7 @@
     
     {% comment %}        
     <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
     <!--current user mastodon id--> 
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
     {% endcomment %}

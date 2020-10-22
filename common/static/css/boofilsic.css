@@ -597,6 +597,7 @@ select::placeholder {
   .navbar .navbar__search-box > input[type="search"] {
     height: 26px;
     padding: 4px 6px;
+    width: 32vw;
   }
   .navbar .navbar__search-box .navbar__search-dropdown {
     cursor: pointer;

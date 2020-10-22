@@ -164,7 +164,10 @@ class Movie(Resource):
 
 
     def __str__(self):
-        return self.title
+        if self.year:
+            return self.title + f"{self.year}"  
+        else:
+            return self.title
 
 
     def get_tags_manager(self):

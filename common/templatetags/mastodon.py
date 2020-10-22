@@ -1,12 +1,12 @@
 from django import template
 from django.conf import settings
-from django.utils.html import format_html
+from django.template.defaultfilters import stringfilter
 
 
 register = template.Library()
 
 
 @register.simple_tag
-def mastodon():
-    url = 'https://' + settings.MASTODON_DOMAIN_NAME
-    return format_html(url)    
+def mastodon(domain):
+    url = 'https://' + domain
+    return url 

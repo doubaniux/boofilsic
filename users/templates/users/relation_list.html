@@ -25,7 +25,7 @@
     {% endif %}
     <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
     <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
-    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
 </head>
 
 <body>
@@ -136,10 +136,14 @@
 
 
     <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
     <!--current user mastodon id-->
+    {% if user == request.user %}
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}?is_mastodon_id=true</div>
+    {% else %}
+    <div id="userMastodonID" hidden="true">{{ user.target_site_id }}</div>
+    {% endif %}
+    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
     <div id="spinner" hidden>
         <div class="spinner">
             <div></div>

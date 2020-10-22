@@ -11,15 +11,7 @@ def mastodon_request_included(func):
     def wrapper(*args, **kwargs):
         try:
             return func(*args, **kwargs)
-        except Timeout:
-            return render(
-                args[0],
-                'common/error.html',
-                {
-                    'msg': _("长毛象请求超时叻_(´ཀ`」 ∠)__ ")
-                }
-            )
-        except ConnectionError:
+        except (Timeout, ConnectionError):
             return render(
                 args[0],
                 'common/error.html',
