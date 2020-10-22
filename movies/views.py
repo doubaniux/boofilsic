@@ -198,8 +198,8 @@ def retrieve(request, id):
             }
         )
     else:
-        return HttpResponseBadRequest()
         logger.warning('non-GET method at /movie/<id>')
+        return HttpResponseBadRequest()
 
 
 @login_required

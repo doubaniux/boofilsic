@@ -47,6 +47,7 @@ def log_url(func):
         except Exception as e:
             # log the url
             logger.error(f"Scrape Failed URL: {args[0]}")
+            logger.error(str(e))
             raise e
 
     return wrapper
@@ -115,7 +116,7 @@ def scrape_douban_book(url):
 
     # parsing starts here
     try:
-        title = content.xpath("/html/body/div[3]/h1/span/text()")[0].strip()
+        title = content.xpath("/html/body//h1/span/text()")[0].strip()
     except IndexError:
         raise ValueError("given url contains no book info")
 

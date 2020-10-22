@@ -196,8 +196,8 @@ def retrieve(request, id):
             }
         )
     else:
-        return HttpResponseBadRequest()
         logger.warning('non-GET method at /book/<id>')
+        return HttpResponseBadRequest()
 
 
 @login_required
