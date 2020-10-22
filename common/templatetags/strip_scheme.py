@@ -6,7 +6,7 @@ register = template.Library()
 
 @register.filter(is_safe=True)
 @stringfilter
-def strip_protocol(value):
+def strip_scheme(value):
     """ Strip the `https://.../` part of urls"""
     if value.startswith("https://"):
         value = value.replace("https://", '')

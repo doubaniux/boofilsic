@@ -9,17 +9,17 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from .models import User, Report
 from .forms import ReportForm
-from common.mastodon.auth import *
-from common.mastodon.api import *
-from common.mastodon import mastodon_request_included
+from mastodon.auth import *
+from mastodon.api import *
+from mastodon import mastodon_request_included
 from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER, TAG_NUMBER_ON_LIST, MOVIES_PER_SET
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from books.models import *
 from movies.models import *
-from boofilsic.settings import MASTODON_DOMAIN_NAME, CLIENT_ID, CLIENT_SECRET
 from books.forms import BookMarkStatusTranslator
 from movies.forms import MovieMarkStatusTranslator
+from mastodon.models import MastodonApplication
 
 
 # Views
@@ -31,14 +31,18 @@ def OAuth2_login(request):
     """ oauth authentication and logging user into django system """
     if request.method == 'GET':
         code = request.GET.get('code')
+        site = request.COOKIES.get('mastodon_domain')
+
         # Network IO
-        token = obtain_token(request, code)
+        token = obtain_token(site, request, code)
         if token:
             # oauth is completed when token aquired
-            user = authenticate(request, token=token)
+            user = authenticate(request, token=token, site=site)
             if user:
                 auth_login(request, user, token)
-                return redirect(reverse('common:home'))
+                response = redirect(reverse('common:home'))
+                response.delete_cookie('mastodon_domain')
+                return response
             else:
                 # will be passed to register page
                 request.session['new_user_token'] = token
@@ -58,29 +62,16 @@ def OAuth2_login(request):
 # the 'login' page that user can see
 def login(request):
     if request.method == 'GET':
-        auth_url = f"https://{MASTODON_DOMAIN_NAME}{API_OAUTH_AUTHORIZE}?" +\
-        f"client_id={CLIENT_ID}&scope=read+write&" +\
-        f"redirect_uri=https://{request.get_host()}{reverse('users:OAuth2_login')}" +\
-        "&response_type=code"
+        selected_site = request.GET.get('site', default='')
 
-        proxy_site_auth_url = f"https://pleasedonotban.com{API_OAUTH_AUTHORIZE}?" +\
-        f"client_id={CLIENT_ID}&scope=read+write&" +\
-        f"redirect_uri=https://{request.get_host()}{reverse('users:OAuth2_login')}" +\
-        "&response_type=code"
-
-        from boofilsic.settings import DEBUG
-        if DEBUG:
-            auth_url = f"https://{MASTODON_DOMAIN_NAME}{API_OAUTH_AUTHORIZE}?" +\
-            f"client_id={CLIENT_ID}&scope=read+write&" +\
-            f"redirect_uri=http://{request.get_host()}{reverse('users:OAuth2_login')}" +\
-            "&response_type=code"
+        sites = MastodonApplication.objects.all().order_by("domain_name")
 
         return render(
             request,
             'users/login.html',
             {
-                'oauth_url': auth_url,
-                'proxy_site_oauth_url': proxy_site_auth_url
+                'sites': sites,
+                'selected_site': selected_site,
             }
         )
     else:
@@ -91,7 +82,7 @@ def login(request):
 @login_required
 def logout(request):
     if request.method == 'GET':
-        revoke_token(request.session['oauth_token'])
+        revoke_token(request.user.mastodon_site, request.session['oauth_token'])
         auth_logout(request)
         return redirect(reverse("users:login"))
     else:
@@ -113,15 +104,18 @@ def register(request):
             return HttpResponseBadRequest()
     elif request.method == 'POST':
         token = request.session['new_user_token']
-        user_data = get_user_data(token)
+        user_data = get_user_data(request.COOKIES['mastodon_domain'], token)
         new_user = User(
             username=user_data['username'],
-            mastodon_id=user_data['id']
+            mastodon_id=user_data['id'],
+            mastodon_site=request.COOKIES['mastodon_domain'],
         )
         new_user.save()
         del request.session['new_user_token']
         auth_login(request, new_user, token)
-        return redirect(reverse('common:home'))
+        response = redirect(reverse('common:home'))
+        response.delete_cookie('mastodon_domain')
+        return response
     else:
         return HttpResponseBadRequest()
 
@@ -134,9 +128,14 @@ def delete(request):
 @login_required
 def home(request, id):
     if request.method == 'GET':
-        if request.GET.get('is_mastodon_id', '').lower() == 'true':
-            query_kwargs = {'mastodon_id': id}
-        else:
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
             query_kwargs = {'pk': id}
         try:
             user = User.objects.get(**query_kwargs)
@@ -155,7 +154,7 @@ def home(request, id):
             return redirect("common:home")
         else:
             # mastodon request
-            relation = get_relationships([user.mastodon_id], request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -185,6 +184,9 @@ def home(request, id):
             collect_movie_marks = movie_marks.filter(status=MarkStatusEnum.COLLECT)
             collect_movies_more = True if collect_movie_marks.count() > BOOKS_PER_SET else False            
 
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
+
             return render(
                 request,
                 'common/home.html',
@@ -201,7 +203,7 @@ def home(request, id):
                     'collect_movie_marks': collect_movie_marks[:MOVIES_PER_SET],
                     'do_movies_more': do_movies_more,
                     'wish_movies_more': wish_movies_more,
-                    'collect_movies_more': collect_movies_more,                    
+                    'collect_movies_more': collect_movies_more,
                 }
             )
     else:
@@ -212,8 +214,17 @@ def home(request, id):
 @login_required
 def followers(request, id):  
     if request.method == 'GET':
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
         try:
-            user = User.objects.get(pk=id)
+            user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
             msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
             sec_msg = _("目前只开放本站用户注册")
@@ -227,7 +238,7 @@ def followers(request, id):
             )        
         # mastodon request
         if not user == request.user:
-            relation = get_relationships([user.mastodon_id], request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -237,6 +248,8 @@ def followers(request, id):
                         'msg': msg,
                     }
                 )
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
         return render(
             request,
             'users/relation_list.html',
@@ -253,8 +266,17 @@ def followers(request, id):
 @login_required
 def following(request, id):
     if request.method == 'GET':
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
         try:
-            user = User.objects.get(pk=id)
+            user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
             msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
             sec_msg = _("目前只开放本站用户注册")
@@ -268,7 +290,7 @@ def following(request, id):
             )        
         # mastodon request
         if not user == request.user:
-            relation = get_relationships([user.mastodon_id], request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -278,6 +300,8 @@ def following(request, id):
                         'msg': msg,
                     }
                 )
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
         return render(
             request,
             'users/relation_list.html',
@@ -296,8 +320,18 @@ def book_list(request, id, status):
     if request.method == 'GET':
         if not status.upper() in MarkStatusEnum.names:
             return HttpResponseBadRequest()
+            
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
         try:
-            user = User.objects.get(pk=id)
+            user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
             msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
             sec_msg = _("目前只开放本站用户注册")
@@ -311,7 +345,7 @@ def book_list(request, id, status):
             )        
         if not user == request.user:
             # mastodon request
-            relation = get_relationships([user.mastodon_id], request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -323,6 +357,8 @@ def book_list(request, id, status):
                 )
             queryset = BookMark.get_available_user_data(user, relation['following']).filter(
                 status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
         else:
             queryset = BookMark.objects.filter(
                 owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -353,8 +389,18 @@ def movie_list(request, id, status):
     if request.method == 'GET':
         if not status.upper() in MarkStatusEnum.names:
             return HttpResponseBadRequest()
+
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
         try:
-            user = User.objects.get(pk=id)
+            user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
             msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
             sec_msg = _("目前只开放本站用户注册")
@@ -368,7 +414,7 @@ def movie_list(request, id, status):
             )        
         if not user == request.user:
             # mastodon request
-            relation = get_relationships([user.mastodon_id], request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -380,6 +426,8 @@ def movie_list(request, id, status):
                 )
             queryset = MovieMark.get_available_user_data(user, relation['following']).filter(
                 status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
         else:
             queryset = MovieMark.objects.filter(
                 owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")

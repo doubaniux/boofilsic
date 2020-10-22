@@ -6,7 +6,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
 from markdownx.models import MarkdownxField
 from users.models import User
-from common.mastodon.api import get_relationships
+from mastodon.api import get_relationships, get_cross_site_id
 
 
 # abstract base classes
@@ -15,24 +15,30 @@ class Resource(models.Model):
 
     rating_total_score = models.PositiveIntegerField(null=True, blank=True)
     rating_number = models.PositiveIntegerField(null=True, blank=True)
-    rating = models.DecimalField(null=True, blank=True, max_digits=3, decimal_places=1)
+    rating = models.DecimalField(
+        null=True, blank=True, max_digits=3, decimal_places=1)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now_add=True)
-    last_editor = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='%(class)s_last_editor', null=True, blank=False)
+    last_editor = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name='%(class)s_last_editor', null=True, blank=False)
     brief = models.TextField(blank=True, default="")
-    other_info = postgres.JSONField(blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
+    other_info = postgres.JSONField(
+        blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
 
     class Meta:
         abstract = True
         constraints = [
-            models.CheckConstraint(check=models.Q(rating__gte=0), name='%(class)s_rating_lowerbound'),
-            models.CheckConstraint(check=models.Q(rating__lte=10), name='%(class)s_rating_upperbound'),
-        ]        
+            models.CheckConstraint(check=models.Q(
+                rating__gte=0), name='%(class)s_rating_lowerbound'),
+            models.CheckConstraint(check=models.Q(
+                rating__lte=10), name='%(class)s_rating_upperbound'),
+        ]
 
     def save(self, *args, **kwargs):
         """ update rating before save to db """
         if self.rating_number and self.rating_total_score:
-            self.rating = Decimal(str(round(self.rating_total_score  / self.rating_number, 1)))
+            self.rating = Decimal(
+                str(round(self.rating_total_score / self.rating_number, 1)))
         elif self.rating_number is None and self.rating_total_score is None:
             self.rating = None
         else:
@@ -40,9 +46,9 @@ class Resource(models.Model):
         super().save(*args, **kwargs)
 
     def calculate_rating(self, old_rating, new_rating):
-        if (not (self.rating and self.rating_total_score and self.rating_number)\
-            and (self.rating or self.rating_total_score or self.rating_number))\
-            or (not (self.rating or self.rating_number or self.rating_total_score) and old_rating is not None):
+        if (not (self.rating and self.rating_total_score and self.rating_number)
+                and (self.rating or self.rating_total_score or self.rating_number))\
+                or (not (self.rating or self.rating_number or self.rating_total_score) and old_rating is not None):
             raise IntegrityError("Rating integiry error.")
         if old_rating:
             if new_rating:
@@ -71,7 +77,7 @@ class Resource(models.Model):
             else:
                 # none -> none
                 pass
-        
+
     def update_rating(self, old_rating, new_rating):
         self.calculate_rating(old_rating, new_rating)
         self.save()
@@ -89,7 +95,7 @@ class Resource(models.Model):
         There is no ocassion where visitor can simply view all the marks.
         """
         raise NotImplementedError("Subclass should implement this method.")
-    
+
     def get_revies_manager(self):
         """
         Normally this won't be used.
@@ -115,7 +121,8 @@ class Resource(models.Model):
 
 class UserOwnedEntity(models.Model):
     is_private = models.BooleanField()
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_%(class)ss')
+    owner = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name='user_%(class)ss')
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now_add=True)
 
@@ -123,33 +130,48 @@ class UserOwnedEntity(models.Model):
         abstract = True
 
     @classmethod
-    def get_available(cls, resource, user, token):
+    def get_available(cls, resource, request_user, token):
+        # TODO add amount limit for once query
         """ 
         Returns all avaliable user-owned entities related to given resource. 
         This method handles mute/block relationships and private/public visibilities.
         """
-        # the foreign key field that points to resource 
+        # the foreign key field that points to resource
         # has to be named as the lower case name of that resource
         query_kwargs = {resource.__class__.__name__.lower(): resource}
-        user_owned_entities = cls.objects.filter(**query_kwargs).order_by("-edited_time")
+        user_owned_entities = cls.objects.filter(
+            **query_kwargs).order_by("-edited_time")
+
         # every user should only be abled to have one user owned entity for each resource
         # this is guaranteed by models
-        id_list = [e.owner.mastodon_id for e in user_owned_entities]
-        # Mastodon request
-        relationships = get_relationships(id_list, token)
-        mute_block_blocked = []
-        following = []
-        for r in relationships:
-            # check json data type
-            if r['blocking'] or r['blocked_by'] or r['muting']:
-                mute_block_blocked.append(r['id'])
-            if r['following']:
-                following.append(r['id'])
-        user_owned_entities = user_owned_entities.exclude(owner__mastodon_id__in=mute_block_blocked)
-        following.append(str(user.mastodon_id))
-        user_owned_entities = user_owned_entities.exclude(Q(is_private=True) & ~Q(owner__mastodon_id__in=following))
-        return user_owned_entities
+        id_list = []
 
+        for entity in user_owned_entities:
+            if entity.owner.mastodon_site == request_user.mastodon_site:
+                id_list.append(entity.owner.mastodon_id)
+            else:
+                # TODO there could be many requests therefore make the pulling asynchronized
+                id_list.append(get_cross_site_id(
+                    entity.owner, request_user.mastodon_site, token))
+
+        # Mastodon request
+        relationships = get_relationships(
+            request_user.mastodon_site, id_list, token)
+        mute_block_blocked_index = []
+        following_index = []
+        for i, r in enumerate(relationships):
+            # the order of relationships is corresponding to the id_list,
+            # and the order of id_list is the same as user_owned_entiies
+            if r['blocking'] or r['blocked_by'] or r['muting']:
+                mute_block_blocked_index.append(i)
+            if r['following']:
+                following_index.append(i)
+        available_entities = [
+            e for i, e in enumerate(user_owned_entities)
+                if ((e.is_private == True and i in following_index) or e.is_private == False or e.owner == request_user)
+                    and not i in mute_block_blocked_index
+        ]
+        return available_entities
 
     @classmethod
     def get_available_user_data(cls, owner, is_following):
@@ -184,8 +206,10 @@ class Mark(UserOwnedEntity):
     class Meta:
         abstract = True
         constraints = [
-            models.CheckConstraint(check=models.Q(rating__gte=0), name='mark_rating_lowerbound'),
-            models.CheckConstraint(check=models.Q(rating__lte=10), name='mark_rating_upperbound'),
+            models.CheckConstraint(check=models.Q(
+                rating__gte=0), name='mark_rating_lowerbound'),
+            models.CheckConstraint(check=models.Q(
+                rating__lte=10), name='mark_rating_upperbound'),
         ]
 
 
