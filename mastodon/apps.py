@@ -1,5 +1,5 @@
 from django.apps import AppConfig
 
 
-class CommonConfig(AppConfig):
+class MastodonConfig(AppConfig):
     name = 'mastodon'
