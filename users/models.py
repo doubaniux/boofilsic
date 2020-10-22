@@ -17,7 +17,15 @@ def report_image_path(instance, filename):
 
 
 class User(AbstractUser):
-    mastodon_id = models.IntegerField(unique=True)
+    mastodon_id = models.IntegerField(blank=False)
+    # mastodon domain name, eg donotban.com
+    mastodon_site = models.CharField(max_length=100, blank=False)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['username', 'mastodon_site'], name="unique_user_identity")
+        ]
 
     def save(self, *args, **kwargs):
         """ Automatically populate password field with DEFAULT_PASSWORD before saving."""

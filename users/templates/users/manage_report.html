@@ -13,7 +13,7 @@
     <title>{% trans 'NiceDB - 管理举报' %}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/create_update.js' %}"></script>
-    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
     <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
 </head>
@@ -53,7 +53,7 @@
     
     {% comment %}        
     <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
     <!--current user mastodon id--> 
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
     {% endcomment %}

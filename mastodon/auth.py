@@ -1,14 +1,15 @@
 from django.contrib.auth.backends import ModelBackend, UserModel
 from django.shortcuts import reverse
-from boofilsic.settings import MASTODON_DOMAIN_NAME, CLIENT_ID, CLIENT_SECRET
 from .api import *
+from .models import MastodonApplication
 
 
-def obtain_token(request, code):
+def obtain_token(site, request, code):
     """ Returns token if success else None. """
+    mast_app = MastodonApplication.objects.get(domain_name=site)
     payload = {
-        'client_id': CLIENT_ID,
-        'client_secret': CLIENT_SECRET,
+        'client_id': mast_app.client_id,
+        'client_secret': mast_app.client_secret,
         'redirect_uri': f"https://{request.get_host()}{reverse('users:OAuth2_login')}",
         'grant_type': 'authorization_code',
         'code': code,
@@ -17,7 +18,10 @@ def obtain_token(request, code):
     from boofilsic.settings import DEBUG
     if DEBUG:
         payload['redirect_uri']= f"http://{request.get_host()}{reverse('users:OAuth2_login')}",
-    url = 'https://' + MASTODON_DOMAIN_NAME + API_OBTAIN_TOKEN
+    if mast_app.is_proxy:
+        url = 'https://' + mast_app.proxy_to + API_OBTAIN_TOKEN
+    else:
+        url = 'https://' + mast_app.domain_name + API_OBTAIN_TOKEN
     response = post(url, data=payload)
     if response.status_code != 200:
         return
@@ -25,8 +29,8 @@ def obtain_token(request, code):
     return data.get('access_token')
 
 
-def get_user_data(token):
-    url = 'https://' + MASTODON_DOMAIN_NAME + API_VERIFY_ACCOUNT
+def get_user_data(site, token):
+    url = 'https://' + site + API_VERIFY_ACCOUNT
     headers = {
         'Authorization': f'Bearer {token}'
     }
@@ -36,19 +40,25 @@ def get_user_data(token):
     return response.json()
 
 
-def revoke_token(token):
+def revoke_token(site, token):
+    mast_app = MastodonApplication.objects.get(domain_name=site)
+
     payload = {
-        'client_id': CLIENT_ID,
-        'client_secret': CLIENT_SECRET,
+        'client_id': mast_app.client_id,
+        'client_secret': mast_app.client_secret,
         'scope': token
     }
-    url = 'https://' + MASTODON_DOMAIN_NAME + API_REVOKE_TOKEN
+
+    if mast_app.is_proxy:
+        url = 'https://' + mast_app.proxy_to + API_REVOKE_TOKEN
+    else:
+        url = 'https://' + site + API_REVOKE_TOKEN
     response = post(url, data=payload)
 
 
-def verify_token(token):
+def verify_token(site, token):
     """ Check if the token is valid and is of local instance. """
-    url = 'https://' + MASTODON_DOMAIN_NAME + API_VERIFY_ACCOUNT
+    url = 'https://' + site + API_VERIFY_ACCOUNT
     headers = {
         'Authorization': f'Bearer {token}'
     }
@@ -66,13 +76,13 @@ class OAuth2Backend(ModelBackend):
     # "authenticate() should check the credentials it gets and returns
     #  a user object that matches those credentials."
     # arg request is an interface specification, not used in this implementation
-    def authenticate(self, request, token=None, username=None, **kwargs):
+    def authenticate(self, request, token=None, username=None, site=None,  **kwargs):
         """ when username is provided, assume that token is newly obtained and valid """
-        if token is None:
+        if token is None or site is None:
             return
 
         if username is None:
-            user_data = get_user_data(token)
+            user_data = get_user_data(site, token)
             if user_data:
                 username = user_data['username']
             else:
