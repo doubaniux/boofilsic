@@ -289,7 +289,8 @@ def create_update_mark(request):
                 tags = ''
                 content = words + '\n' + url + '\n' + \
                     form.cleaned_data['text'] + '\n' + tags
-                response = post_toot(content, visibility, request.session['oauth_token'])
+                response = post_toot(
+                    request.user.mastodon_site, content, visibility, request.session['oauth_token'])
                 if response.status_code != 200:
                     mastodon_logger.error(f"CODE:{response.status_code} {response.text}")
                     return HttpResponseServerError("publishing mastodon status failed")
@@ -377,7 +378,8 @@ def create_review(request, book_id):
                 tags = ''
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(content, visibility, request.session['oauth_token'])
+                response = post_toot(
+                    request.user.mastodon_site, content, visibility, request.session['oauth_token'])
                 if response.status_code != 200:
                     mastodon_logger.error(
                         f"CODE:{response.status_code} {response.text}")
@@ -430,7 +432,8 @@ def update_review(request, id):
                 tags = ''
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(content, visibility, request.session['oauth_token'])
+                response = post_toot(
+                    request.user.mastodon_site, content, visibility, request.session['oauth_token'])
                 if response.status_code != 200:
                     mastodon_logger.error(f"CODE:{response.status_code} {response.text}")
                     return HttpResponseServerError("publishing mastodon status failed")
