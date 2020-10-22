@@ -9,9 +9,9 @@ from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from django.core.files.uploadedfile import SimpleUploadedFile
-from common.mastodon import mastodon_request_included
-from common.mastodon.api import check_visibility, post_toot, TootVisibilityEnum
-from common.mastodon.utils import rating_to_emoji
+from mastodon import mastodon_request_included
+from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
+from mastodon.utils import rating_to_emoji
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER
 from .models import *

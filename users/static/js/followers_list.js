@@ -3,6 +3,8 @@ $(document).ready( function() {
     
     let token = $("#oauth2Token").text();
     let mast_uri = $("#mastodonURI").text();
+    let mast_domain = new URL(mast_uri);
+    mast_domain = mast_domain.hostname;
     let id = $("#userMastodonID").text();
     let nextUrl = null;
     let requesting = false;
@@ -52,6 +54,8 @@ $(document).ready( function() {
                 if (userList.length > 4){
                     subUserList = userList.slice(0, 4);
                     $(".mast-followers-more").show();
+                } else {
+                    subUserList = userList;
                 }
                 let template = $(".mast-followers li").clone();
                 $(".mast-followers").html("");
@@ -63,7 +67,12 @@ $(document).ready( function() {
                     } else {
                         temp.find(".mast-displayname").text(data.username);
                     }
-                    let url = $("#userPageURL").text().replace('0', data.id);
+                    let url;
+                    if (data.acct.includes('@')) {
+                        url = $("#userPageURL").text().replace('0', data.acct);
+                    } else {
+                        url = $("#userPageURL").text().replace('0', data.acct + '@' + mast_domain);
+                    }
                     temp.find("a").attr('href', url);
                     $(".mast-followers").append(temp);
                 });
@@ -80,7 +89,12 @@ $(document).ready( function() {
                 } else {
                     temp.find(".mast-displayname").text(data.username);
                 }
-                let url = $("#userPageURL").text().replace('0', data.id);
+                let url;
+                if (data.acct.includes('@')) {
+                    url = $("#userPageURL").text().replace('0', data.acct);
+                } else {
+                    url = $("#userPageURL").text().replace('0', data.acct + '@' + mast_domain);
+                }
                 temp.find("a").attr('href', url);
                 temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
                 $(".mast-user:last").after(temp);             
@@ -119,7 +133,12 @@ $(document).ready( function() {
                     } else {
                         temp.find(".mast-displayname").text(data.username);
                     }
-                    let url = $("#userPageURL").text().replace('0', data.id);
+                    let url;
+                    if (data.acct.includes('@')) {
+                        url = $("#userPageURL").text().replace('0', data.acct);
+                    } else {
+                        url = $("#userPageURL").text().replace('0', data.acct + '@' + mast_domain);
+                    }
                     temp.find("a").attr('href', url);
                     $(".mast-following").append(temp);
                 });

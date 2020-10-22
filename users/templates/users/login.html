@@ -13,26 +13,58 @@
     <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
+    <!-- <link rel="stylesheet" href="{% static 'lib/css/chosen.min.css' %}"> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- <script src="{% static 'lib/js/chosen.jquery.min.js' %}"></script> -->
+    <script src="{% static 'lib/js/js.cookie.min.js' %}"></script>
     <title>{% trans 'NiceDB - 登录' %}</title>
 </head>
 <body>
+    <style>
+        select {
+            padding-left: 16px;
+            padding-right: 16px;
+            margin-bottom: 20px;;
+        }
+    </style>
     <div id="loginBox" class="box">
-
 
             <img src="{% static 'img/logo.svg' %}" class="logo" alt="boofilsic logo">
         
         <div id="loginButton">
             
+            
             {% if user.is_authenticated %}
-                <a href="{% url 'common:home' %}" class="button">{% trans '前往我的主页' %}</a>
-            {% else %}
-                <a href="{{ oauth_url }}" class="button">{% trans '使用长毛象授权登录' %}</a>
-                <br>
-                <a href="{{ proxy_site_oauth_url }}" class="button">{% trans '礼貌站登录入口' %}</a>
+            <a href="{% url 'common:home' %}" class="button">{% trans '前往我的主页' %}</a>
+            {% else %}            
+            <select name="sites" id="sitesSelect">
+                {% for site in sites %}
+                <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}</option>
+                {% endfor %}
+            </select>
+            <button name='login'>{% trans '授权登录' %}</button>
             {% endif %}
                 
         </div>
 
     </div>
+    {% if not user.is_authenticated %}
+    <script>
+        // $("#sitesSelect").chosen();
+        $("#sitesSelect").val("{{ selected_site }}");
+        $("button[name=login]").click(function(e) {
+            e.preventDefault();
+            let selected =  $("#sitesSelect").find(":selected");
+            let client_id = selected.data("client-id");
+            let domain = selected.val();
+
+            Cookies.set('mastodon_domain', domain);
+            
+            location.href = "https://" + domain + "/oauth/authorize?client_id=" + client_id + 
+                "&scope=read+write&redirect_uri=https://{{ request.get_host }}{% url 'users:OAuth2_login' %}" +
+                "&response_type=code";
+        });
+    </script>
+    {% endif %}
 </body>
 </html>

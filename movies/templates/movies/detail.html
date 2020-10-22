@@ -6,7 +6,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load strip_protocol %}
+{% load strip_scheme %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,7 +41,7 @@
     <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
     <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_modal.css' %}"> -->
     <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
-    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
 </head>
 
@@ -183,7 +183,7 @@
                                         {% endfor %}
                                         {% endif %}</div>
                                         <div>{% if movie.site %}{% trans '网站：' %}
-                                            <a href="{{ movie.site }}" target="_blank">{{ movie.site|strip_protocol }}</a>
+                                            <a href="{{ movie.site }}" target="_blank">{{ movie.site|strip_scheme }}</a>
                                         {% endif %}</div>
                                         {% if movie.other_info %}                                  
                                         {% for k, v in movie.other_info.items %}

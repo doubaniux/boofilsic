@@ -13,6 +13,11 @@ urlpatterns = [
     path('<int:id>/following/', following, name='following'),
     path('<int:id>/book/<str:status>/', book_list, name='book_list'),
     path('<int:id>/movie/<str:status>/', movie_list, name='movie_list'),
+    path('<str:id>/', home, name='home'),
+    path('<str:id>/followers/', followers, name='followers'),
+    path('<str:id>/following/', following, name='following'),
+    path('<str:id>/book/<str:status>/', book_list, name='book_list'),
+    path('<str:id>/movie/<str:status>/', movie_list, name='movie_list'),
     path('report/', report, name='report'),
     path('manage_report/', manage_report, name='manage_report'),
 ]
