@@ -199,7 +199,7 @@ $(document).ready( function() {
                                 url = $("#userPageURL").text().replace('0', data.acct + '@' + mast_domain);
                             }
                             temp.find("a").attr('href', url);
-                            temp.find(".mast-brief").text($(data.note).text());
+                            temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
                             // console.log($(temp).html())
                             $(".mast-user:last").after(temp);                
                         });                            
