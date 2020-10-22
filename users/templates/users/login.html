@@ -37,7 +37,7 @@
             {% if user.is_authenticated %}
             <a href="{% url 'common:home' %}" class="button">{% trans '前往我的主页' %}</a>
             {% else %}            
-            <select name="sites" id="sitesSelect">
+            <select name="sites" id="sitesSelect" placeholder="test">
                 {% for site in sites %}
                 <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}</option>
                 {% endfor %}
@@ -49,9 +49,15 @@
 
     </div>
     {% if not user.is_authenticated %}
+    
+    
     <script>
         // $("#sitesSelect").chosen();
+        {% if selected_site %}
         $("#sitesSelect").val("{{ selected_site }}");
+        {% else %}
+        $("#sitesSelect").val($("#sitesSelect option:first").val());
+        {% endif %}
         $("button[name=login]").click(function(e) {
             e.preventDefault();
             let selected =  $("#sitesSelect").find(":selected");

@@ -23,7 +23,7 @@ class MastodonApplicationModelAdmin(admin.ModelAdmin):
                     (not bool(request.POST.get('is_proxy')) and bool(request.POST.get('proxy_to'))):
                     request.POST['domain_name'] = _("请同时填写is_proxy和proxy_to。")
                 else:
-                    if request.POST['is_proxy']:
+                    if request.POST.get("is_proxy"):
                         try:
                             origin = MastodonApplication.objects.get(domain_name=request.POST['proxy_to'])
                             # set proxy credentials to those of its original site
