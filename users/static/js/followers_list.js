@@ -193,7 +193,7 @@ $(document).ready( function() {
                             }
                             let url = $("#userPageURL").text().replace('0', data.id);
                             temp.find("a").attr('href', url);
-                            temp.find(".mast-brief").text($(data.note).text());
+                            temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
                             // console.log($(temp).html())
                             $(".mast-user:last").after(temp);               
                         });                            
