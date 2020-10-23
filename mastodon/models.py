@@ -34,3 +34,6 @@ class CrossSiteUserInfo(models.Model):
             models.UniqueConstraint(
                 fields=['uid', 'target_site'], name="unique_cross_site_user_info")
         ]
+
+    def __str__(self):
+        return f"{self.uid}({self.local_id}) in {self.target_site}({self.site_id})"
