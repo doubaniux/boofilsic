@@ -146,13 +146,24 @@ class UserOwnedEntity(models.Model):
         # this is guaranteed by models
         id_list = []
 
-        for entity in user_owned_entities:
+        # none_index tracks those failed cross site id query
+        none_index = []
+
+        for (i, entity) in enumerate(user_owned_entities):
             if entity.owner.mastodon_site == request_user.mastodon_site:
                 id_list.append(entity.owner.mastodon_id)
             else:
                 # TODO there could be many requests therefore make the pulling asynchronized
-                id_list.append(get_cross_site_id(
-                    entity.owner, request_user.mastodon_site, token))
+                cross_site_id = get_cross_site_id(
+                    entity.owner, request_user.mastodon_site, token)
+                if not cross_site_id is None:
+                    id_list.append(cross_site_id)
+                else:
+                    none_index.append(i)
+                    # populate those query-failed None postions
+                    # to ensure the consistency of the orders of 
+                    # the three(id_list, user_owned_entities, relationships)
+                    id_list.append(request_user.mastodon_id)
 
         # Mastodon request
         relationships = get_relationships(
@@ -169,7 +180,7 @@ class UserOwnedEntity(models.Model):
         available_entities = [
             e for i, e in enumerate(user_owned_entities)
                 if ((e.is_private == True and i in following_index) or e.is_private == False or e.owner == request_user)
-                    and not i in mute_block_blocked_index
+                    and not i in mute_block_blocked_index and not i in none_index
         ]
         return available_entities
 
