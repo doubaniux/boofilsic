@@ -65,10 +65,15 @@
             let domain = selected.val();
 
             Cookies.set('mastodon_domain', domain);
-            
+            {% if debug %}
+            location.href = "https://" + domain + "/oauth/authorize?client_id=" + client_id + 
+                "&scope=read+write&redirect_uri=http://{{ request.get_host }}{% url 'users:OAuth2_login' %}" +
+                "&response_type=code";
+            {% else %}
             location.href = "https://" + domain + "/oauth/authorize?client_id=" + client_id + 
                 "&scope=read+write&redirect_uri=https://{{ request.get_host }}{% url 'users:OAuth2_login' %}" +
                 "&response_type=code";
+            {% endif %}
         });
     </script>
     {% endif %}

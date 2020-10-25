@@ -768,6 +768,7 @@ select::placeholder {
 
 .footer__link {
   margin: 0 12px;
+  white-space: nowrap;
 }
 
 @media (max-width: 575.98px) {
