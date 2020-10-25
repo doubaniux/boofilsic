@@ -217,7 +217,7 @@ def delete(request, id):
             # only staff has right to delete
             book = get_object_or_404(Book, pk=id)
             book.delete()
-            return redirect(reverse("common:search"))
+            return redirect(reverse("common:home"))
         else:
             raise PermissionDenied()
     else:
