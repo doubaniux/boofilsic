@@ -71,7 +71,7 @@ ISBN: 9787020104345
                                         {{ form.media }}
                                         {{ form }}
                                     </form>
-                                    <a href="{% url 'books:scrape' %}" class="button add-button submit">{% trans '剽取！' %}</a>
+                                    <a href="#" class="button add-button submit">{% trans '剽取！' %}</a>
                                 </div>
                             </div>
                         </div>
@@ -99,9 +99,13 @@ ISBN: 9787020104345
     </div>
     <script>
             // mark required
-            $("#content input[required]").each(function () {
-                $(this).prev().prepend("*");
-            })
+        $("#content input[required]").each(function () {
+            $(this).prev().prepend("*");
+        });
+        $('form').submit(function () {
+            $(this).find("input[type='submit']").prop('disabled', true);
+            $(this).find("button[type='submit']").prop('disabled', true);
+        });
     </script>
 </body>
 
