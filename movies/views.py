@@ -219,7 +219,7 @@ def delete(request, id):
             # only staff has right to delete
             movie = get_object_or_404(Movie, pk=id)
             movie.delete()
-            return redirect(reverse("common:search"))
+            return redirect(reverse("common:home"))
         else:
             raise PermissionDenied()
     else:
