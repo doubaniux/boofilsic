@@ -53,7 +53,7 @@
                                         <a href="{% url 'books:retrieve' wish_book_mark.book.id %}">
                                             <img src="{{ wish_book_mark.book.cover.url }}"
                                                 alt="{{wish_book_mark.book.title}}" class="entity-sort__entity-img">
-                                            <div class="entity-sort__entity-name" title="wish_book_mark.book.title">
+                                            <div class="entity-sort__entity-name" title="{{ wish_book_mark.book.title }}">
                                                 {{ wish_book_mark.book.title }}</div>
                                         </a>
                                     </li>
@@ -131,7 +131,7 @@
                                         <a href="{% url 'movies:retrieve' wish_movie_mark.movie.id %}">
                                             <img src="{{ wish_movie_mark.movie.cover.url }}"
                                                 alt="{{wish_movie_mark.movie.title}}" class="entity-sort__entity-img">
-                                            <div class="entity-sort__entity-name" title="wish_movie_mark.movie.title">
+                                            <div class="entity-sort__entity-name" title="{{wish_movie_mark.movie.title}}">
                                                 {{ wish_movie_mark.movie.title }}</div>
                                         </a>
                                     </li>
