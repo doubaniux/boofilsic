@@ -165,7 +165,7 @@ class Movie(Resource):
 
     def __str__(self):
         if self.year:
-            return self.title + f"{self.year}"  
+            return self.title + f"({self.year})"  
         else:
             return self.title
 

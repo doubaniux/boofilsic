@@ -1,6 +1,6 @@
 import logging
 from django.shortcuts import render, get_object_or_404, redirect, reverse
-from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
 from django.http import HttpResponseBadRequest, HttpResponseServerError
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -202,6 +202,7 @@ def retrieve(request, id):
         return HttpResponseBadRequest()
 
 
+@permission_required("movies.delete_movie")
 @login_required
 def delete(request, id):
     if request.method == 'GET':
@@ -240,6 +241,8 @@ def create_update_mark(request):
         old_tags = None
         if pk:
             mark = get_object_or_404(MovieMark, pk=pk)
+            if request.user != mark.owner:
+                return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.moviemark_tags.all()
             # update
@@ -335,6 +338,8 @@ def retrieve_mark_list(request, movie_id):
 def delete_mark(request, id):
     if request.method == 'POST':
         mark = get_object_or_404(MovieMark, pk=id)
+        if request.user != mark.owner:
+            return HttpResponseBadRequest()
         movie_id = mark.movie.id
         try:
             with transaction.atomic():
@@ -397,8 +402,6 @@ def create_review(request, movie_id):
 @mastodon_request_included
 @login_required
 def update_review(request, id):
-    # owner check
-    # edited time
     if request.method == 'GET':
         review = get_object_or_404(MovieReview, pk=id)
         if request.user != review.owner:
