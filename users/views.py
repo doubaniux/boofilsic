@@ -34,7 +34,10 @@ def OAuth2_login(request):
         site = request.COOKIES.get('mastodon_domain')
 
         # Network IO
-        token = obtain_token(site, request, code)
+        try:
+            token = obtain_token(site, request, code)
+        except ObjectDoesNotExist:
+            return HttpResponseBadRequest("Mastodon site not registered")
         if token:
             # oauth is completed when token aquired
             user = authenticate(request, token=token, site=site)
