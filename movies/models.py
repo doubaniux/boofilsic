@@ -69,7 +69,7 @@ class Movie(Resource):
         _("original title"), blank=True, default='', max_length=200)
     other_title = postgres.ArrayField(
         models.CharField(_("other title"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=300),
         null=True,
         blank=True,
         default=list,
