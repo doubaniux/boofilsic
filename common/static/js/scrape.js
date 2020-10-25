@@ -2,7 +2,14 @@ $(document).ready( function() {
     
     $(".submit").click(function(e) {
         e.preventDefault();
-        $("#scrapeForm form").submit();
+        let form = $("#scrapeForm form");
+        if (form.data('submitted') === true) {
+            // Previously submitted - don't submit again
+        } else {
+            // Mark it so that the next submit can be ignored
+            form.data('submitted', true);
+            $("#scrapeForm form").submit();
+        }
     });
 
     // assume there  is only one input[file] on page
