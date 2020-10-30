@@ -32,6 +32,9 @@ class User(AbstractUser):
         self.set_password(DEFAULT_PASSWORD)
         return super().save(*args, **kwargs)
 
+    def __str__(self):
+        return self.username + '@' + self.mastodon_site
+
 
 class Report(models.Model):
     submit_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='sumbitted_reports', null=True)
