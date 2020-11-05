@@ -274,8 +274,8 @@ def create_update_mark(request):
                                 mark=form.instance
                             )
             except IntegrityError as e:
-                return HttpResponseServerError("integrity error")
                 logger.error(e.__str__())
+                return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
                 if form.cleaned_data['is_private']:
