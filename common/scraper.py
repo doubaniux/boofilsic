@@ -266,9 +266,9 @@ def scrape_douban_movie(url):
         "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]")
     other_title = other_title_elem[0].strip().split(' / ') if other_title_elem else None
 
-    imbd_elem = content.xpath(
+    imdb_elem = content.xpath(
         "//div[@id='info']//span[text()='IMDb链接:']/following-sibling::a[1]/text()")
-    imbd_code = imbd_elem[0].strip() if imbd_elem else None
+    imdb_code = imdb_elem[0].strip() if imdb_elem else None
 
     director_elem = content.xpath("//div[@id='info']//span[text()='导演']/following-sibling::span[1]/a/text()")
     director = director_elem if director_elem else None
@@ -368,7 +368,7 @@ def scrape_douban_movie(url):
         'title': title,
         'orig_title': orig_title,
         'other_title': other_title,
-        'imbd_code': imbd_code,
+        'imdb_code': imdb_code,
         'director': director,
         'playwright': playwright,
         'actor': actor,
