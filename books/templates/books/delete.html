@@ -57,6 +57,14 @@
                                 {% endif %}
                                     
                                 <div>{% trans '上次编辑时间：' %}{{ book.edited_time }}</div>
+                                
+                                {% if book.book_marks.all %}
+                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ book.book_marks.count }}</a> 个标记</strong></div>
+                                {% endif %}
+                                {% if book.book_reviews.all %}
+                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ book.book_reviews.count }}</a> 个评论</strong></div>
+                                {% endif %}
+                                    
                             </div>
                         </div>
                         <div class="dividing-line"></div>

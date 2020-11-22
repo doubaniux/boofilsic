@@ -66,6 +66,14 @@
                                 {% endif %}
                                     
                                 <div>{% trans '上次编辑时间：' %}{{ movie.edited_time }}</div>
+
+                                {% if movie.movie_marks.all %}
+                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ movie.movie_marks.count }}</a> 个标记</strong></div>
+                                {% endif %}
+                                {% if movie.movie_reviews.all %}
+                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ movie.movie_reviews.count }}</a> 个评论</strong></div>
+                                {% endif %}
+
                             </div>
                         </div>
                         <div class="dividing-line"></div>
