@@ -7,10 +7,15 @@ from django.db.models import Q
 from markdownx.models import MarkdownxField
 from users.models import User
 from mastodon.api import get_relationships, get_cross_site_id
+from .utils import clean_url
 
 
 # abstract base classes
 ###################################
+class SourceSiteEnum(models.IntegerChoices):
+    DOUBAN = 1, _("豆瓣")
+
+
 class Resource(models.Model):
 
     rating_total_score = models.PositiveIntegerField(null=True, blank=True)
@@ -24,6 +29,8 @@ class Resource(models.Model):
     brief = models.TextField(blank=True, default="")
     other_info = postgres.JSONField(
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
+    # source_url = models.URLField(max_length=500)
+    # source_site = models.SmallIntegerField()
 
     class Meta:
         abstract = True
@@ -35,7 +42,7 @@ class Resource(models.Model):
         ]
 
     def save(self, *args, **kwargs):
-        """ update rating before save to db """
+        """ update rating and strip source url scheme & querystring before save to db """
         if self.rating_number and self.rating_total_score:
             self.rating = Decimal(
                 str(round(self.rating_total_score / self.rating_number, 1)))
@@ -43,6 +50,7 @@ class Resource(models.Model):
             self.rating = None
         else:
             raise IntegrityError()
+        # self.source = clean_url(self.source)
         super().save(*args, **kwargs)
 
     def calculate_rating(self, old_rating, new_rating):
