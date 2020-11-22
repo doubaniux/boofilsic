@@ -554,9 +554,9 @@ def click_to_scrape(request):
     if request.method == "POST":
         url = request.POST.get("url")
         if url:
-            from common.scraper import scrape_douban_book
+            from common.scraper import DoubanBookScraper
             try:
-                scraped_book, raw_cover = scrape_douban_book(url)
+                scraped_book, raw_cover = DoubanBookScraper.scrape(url)
             except TimeoutError:
                 return render(request, 'common/error.html', {'msg': _("爬取数据失败😫，请重试")})
             except ValueError:
