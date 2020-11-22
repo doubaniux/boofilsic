@@ -558,9 +558,9 @@ def click_to_scrape(request):
     if request.method == "POST":
         url = request.POST.get("url")
         if url:
-            from common.scraper import scrape_douban_movie
+            from common.scraper import DoubanMovieScraper
             try:
-                scraped_movie, raw_cover = scrape_douban_movie(url)
+                scraped_movie, raw_cover = DoubanMovieScraper.scrape(url)
             except TimeoutError:
                 return render(request, 'common/error.html', {'msg': _("爬取数据失败😫，请重试")})
             except ValueError:
