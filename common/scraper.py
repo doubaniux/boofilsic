@@ -407,6 +407,7 @@ class DoubanMovieScraper(AbstractScraper):
             duration = None
 
         season_elem = content.xpath(
+
             "//*[@id='season']/option[@selected='selected']/text()")
         if not season_elem:
             season_elem = content.xpath(
