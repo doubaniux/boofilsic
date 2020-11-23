@@ -50,9 +50,30 @@
     <script>
 
         // mark required
-        $("#content input[required]").each(function () {
+        $("#content *[required]").each(function () {
                 $(this).prev().prepend("*");
-        })
+        });
+
+        // when source site is this site, hide url input box and populate it with fake url
+        // the backend would update this field
+        if ($("select[name='source_site']").val() == {{ this_site_enum_value }}) {
+            $("input[name='source_url']").hide();
+            $("label[for='id_source_url']").hide();
+            $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());
+        }
+        $("select[name='source_site']").change(function () {
+            let value = $(this).val();
+            if (value == {{ this_site_enum_value }}) {
+                $("input[name='source_url']").hide();
+                $("label[for='id_source_url']").hide();
+                $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());
+            } else {
+                $("input[name='source_url']").show();
+                $("label[for='id_source_url']").show();
+                $("input[name='source_url']").val("");
+            }
+        });
+
     </script>
 </body>
 

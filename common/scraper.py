@@ -6,8 +6,11 @@ from lxml import html
 import re
 from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG
 from django.utils.translation import ugettext_lazy as _
-from movies.models import MovieGenreEnum
 from common.models import SourceSiteEnum
+from movies.models import Movie, MovieGenreEnum
+from movies.forms import MovieForm
+from books.models import Book
+from books.forms import BookForm
 
 
 RE_NUMBERS = re.compile(r"\d+\d*")
@@ -36,8 +39,8 @@ PORT = 22225
 logger = logging.getLogger(__name__)
 
 
-# register all implemented scraper in form of {host: class,}
-registry = {}
+# register all implemented scraper in form of {host: scraper_class,}
+scraper_registry = {}
 
 
 def log_url(func):
@@ -61,36 +64,52 @@ def log_url(func):
 class AbstractScraper:
 
     # subclasses must specify those two variables
+    # site means general sites, like amazon/douban etc
     site = None
+    # host means technically hostname
     host = None
+    # corresponding data class
+    data_class = None
+    # corresponding form class
+    form_class = None
+    # used to extract effective url
+    regex = None
 
     def __init_subclass__(cls, **kwargs):
         # this statement initialize the subclasses
         super().__init_subclass__(**kwargs)
         assert cls.site is not None, "class variable `site` must be specified"
         assert cls.host is not None, "class variable `host` must be specified"
+        assert cls.data_class is not None, "class variable `data_class` must be specified"
+        assert cls.form_class is not None, "class variable `form_class` must be specified"
+        assert cls.regex is not None, "class variable `regex` must be specified"
         assert isinstance(cls.host, str), "`host` must be type str"
         assert isinstance(cls.site, int), "`site` must be type int"
         assert hasattr(cls, 'scrape') and callable(cls.scrape), "scaper must have method `.scrape()`"
         # decorate the scrape method
         cls.scrape = classmethod(log_url(cls.scrape))
-        registry[cls.host] = cls
+        scraper_registry[cls.host] = cls
 
 
     def scrape(self, url):
         """
         Scrape/request model schema specified data from given url and return it.
         Implementations of subclasses to this method would be decorated as class method.
+        return (data_dict, image)
         """
         raise NotImplementedError("Subclass should implement this method")
 
+
     @classmethod
-    def download_page(cls, url, regex, headers):
-        url = regex.findall(url)
+    def get_effective_url(cls, raw_url):
+        url = cls.regex.findall(raw_url)[0]
         if not url:
             raise ValueError("not valid url")
-        else:
-            url = url[0] + '/'
+        return url
+
+    @classmethod
+    def download_page(cls, url, headers):
+        url = cls.get_effective_url(url)
 
         session_id = random.random()
         proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
@@ -142,13 +161,15 @@ class AbstractScraper:
 class DoubanBookScraper(AbstractScraper):
     site = SourceSiteEnum.DOUBAN.value
     host = "book.douban.com"
-    regex = re.compile(r"https://book.douban.com/subject/\d+")
+    data_class = Book
+    form_class = BookForm
+
+    regex = re.compile(r"https://book.douban.com/subject/\d+/{0,1}")
 
     def scrape(self, url):
-        regex = self.regex
         headers = DEFAULT_REQUEST_HEADERS.copy()
         headers['Host'] = self.host
-        content = self.download_page(url, regex, headers)
+        content = self.download_page(url, headers)
 
         # parsing starts here
         try:
@@ -289,7 +310,9 @@ class DoubanBookScraper(AbstractScraper):
             'isbn': isbn,
             'brief': brief,
             'contents': contents,
-            'other_info': other
+            'other_info': other,
+            'source_site': self.site,
+            'source_url': self.get_effective_url(url),
         }
         return data, raw_img
 
@@ -297,13 +320,15 @@ class DoubanBookScraper(AbstractScraper):
 class DoubanMovieScraper(AbstractScraper):
     site = SourceSiteEnum.DOUBAN.value
     host = 'movie.douban.com'
-    regex = re.compile(r"https://movie.douban.com/subject/\d+")
+    data_class = Movie
+    form_class = MovieForm
+
+    regex = re.compile(r"https://movie.douban.com/subject/\d+/{0,1}")
 
     def scrape(self, url):
-        regex = self.regex
         headers = DEFAULT_REQUEST_HEADERS.copy()
         headers['Host'] = 'movie.douban.com'
-        content = self.download_page(url, regex, headers)
+        content = self.download_page(url, headers)
 
         # parsing starts here
         try:
@@ -458,6 +483,8 @@ class DoubanMovieScraper(AbstractScraper):
             'single_episode_length': single_episode_length,
             'brief': brief,
             'is_series': is_series,
+            'source_site': self.site,
+            'source_url': self.get_effective_url(url),
         }
         return data, raw_img
  

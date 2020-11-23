@@ -63,28 +63,31 @@
     {% endcomment %}
         
     <script>
-        // mark required
-        $("#content input[required]").each(function () {
+            // mark required
+            $("#content *[required]").each(function () {
                 $(this).prev().prepend("*");
-        })
-        
-        // `is_seires` checkbox                  
-        $("#id_season, label[for='id_season']").hide();
-        $("#id_episodes, label[for='id_episodes']").hide();
-        $("#id_single_episode_length, label[for='id_single_episode_length']").hide();
-        $('#id_is_series').change(
-            function () {
-                if ($(this).is(':checked')) {
-                    $("#id_season, label[for='id_season']").show();
-                    $("#id_episodes, label[for='id_episodes']").show();
-                    $("#id_single_episode_length, label[for='id_single_episode_length']").show();
-                } else {
-                    $("#id_season, label[for='id_season']").hide();
-                    $("#id_episodes, label[for='id_episodes']").hide();
-                    $("#id_single_episode_length, label[for='id_single_episode_length']").hide();
-                }
+            });
+
+            // when source site is this site, hide url input box and populate it with fake url
+            // the backend would update this field
+            if ($("select[name='source_site']").val() == {{ this_site_enum_value }}) {
+                $("input[name='source_url']").hide();
+                $("label[for='id_source_url']").hide();
+                $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());
+            }            
+            $("select[name='source_site']").change(function () {
+                let value = $(this).val();
+                if (value == {{ this_site_enum_value }
+            }) {
+                $("input[name='source_url']").hide();
+                $("label[for='id_source_url']").hide();
+                $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());
+            } else {
+                $("input[name='source_url']").show();
+                $("label[for='id_source_url']").show();
+                $("input[name='source_url']").val("");
             }
-        );
+        });
             
     </script>
 </body>

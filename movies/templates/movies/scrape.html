@@ -97,7 +97,7 @@
     </div>
     <script>
         // mark required
-        $("#content input[required]").each(function () {
+        $("#content *[required]").each(function () {
             $(this).prev().prepend("*");
         });
         $('form').submit(function () {
