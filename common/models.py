@@ -7,16 +7,17 @@ from django.db.models import Q
 from markdownx.models import MarkdownxField
 from users.models import User
 from mastodon.api import get_relationships, get_cross_site_id
-from .utils import clean_url
+from boofilsic.settings import CLIENT_NAME
 
 
 # abstract base classes
 ###################################
 class SourceSiteEnum(models.IntegerChoices):
-    DOUBAN = 1, _("豆瓣")
+    IN_SITE = 1, CLIENT_NAME
+    DOUBAN = 2, _("豆瓣")
 
 
-class Resource(models.Model):
+class Entity(models.Model):
 
     rating_total_score = models.PositiveIntegerField(null=True, blank=True)
     rating_number = models.PositiveIntegerField(null=True, blank=True)
@@ -29,8 +30,9 @@ class Resource(models.Model):
     brief = models.TextField(blank=True, default="")
     other_info = postgres.JSONField(
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
-    # source_url = models.URLField(max_length=500)
-    # source_site = models.SmallIntegerField()
+    # source_url should include shceme, which is normally https://
+    source_url = models.URLField(_("URL"), max_length=500, unique=True)
+    source_site = models.SmallIntegerField(_("源网站"), choices=SourceSiteEnum.choices)
 
     class Meta:
         abstract = True
@@ -41,6 +43,10 @@ class Resource(models.Model):
                 rating__lte=10), name='%(class)s_rating_upperbound'),
         ]
 
+
+    def get_absolute_url(self):
+        raise NotImplementedError("Subclass should implement this method")
+
     def save(self, *args, **kwargs):
         """ update rating and strip source url scheme & querystring before save to db """
         if self.rating_number and self.rating_total_score:
@@ -50,7 +56,6 @@ class Resource(models.Model):
             self.rating = None
         else:
             raise IntegrityError()
-        # self.source = clean_url(self.source)
         super().save(*args, **kwargs)
 
     def calculate_rating(self, old_rating, new_rating):
@@ -92,7 +97,7 @@ class Resource(models.Model):
 
     def get_tags_manager(self):
         """
-        Since relation between tag and resource is foreign key, and related name has to be unique,
+        Since relation between tag and entity is foreign key, and related name has to be unique,
         this method works like interface.
         """
         raise NotImplementedError("Subclass should implement this method.")
@@ -138,19 +143,19 @@ class UserOwnedEntity(models.Model):
         abstract = True
 
     @classmethod
-    def get_available(cls, resource, request_user, token):
+    def get_available(cls, entity, request_user, token):
         # TODO add amount limit for once query
         """ 
-        Returns all avaliable user-owned entities related to given resource. 
+        Returns all avaliable user-owned entities related to given entity. 
         This method handles mute/block relationships and private/public visibilities.
         """
-        # the foreign key field that points to resource
-        # has to be named as the lower case name of that resource
-        query_kwargs = {resource.__class__.__name__.lower(): resource}
+        # the foreign key field that points to entity
+        # has to be named as the lower case name of that entity
+        query_kwargs = {entity.__class__.__name__.lower(): entity}
         user_owned_entities = cls.objects.filter(
             **query_kwargs).order_by("-edited_time")
 
-        # every user should only be abled to have one user owned entity for each resource
+        # every user should only be abled to have one user owned entity for each entity
         # this is guaranteed by models
         id_list = []
 

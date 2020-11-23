@@ -45,6 +45,8 @@ class MovieForm(forms.ModelForm):
         fields = [
             'id',
             'title',
+            'source_site',
+            'source_url',
             'orig_title',
             'other_title',
             'imdb_code',
