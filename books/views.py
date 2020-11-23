@@ -14,6 +14,7 @@ from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from mastodon.utils import rating_to_emoji
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER
+from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
 from .forms import BookMarkStatusTranslator
@@ -48,7 +49,9 @@ def create(request):
             {
                 'form': form,
                 'title': _('添加书籍'),
-                'submit_url': reverse("books:create")
+                'submit_url': reverse("books:create"),
+                # provided for frontend js
+                'this_site_enum_value': SourceSiteEnum.IN_SITE.value,
             }
         )
     elif request.method == 'POST':
@@ -57,7 +60,16 @@ def create(request):
             form = BookForm(request.POST, request.FILES)
             if form.is_valid():
                 form.instance.last_editor = request.user
-                form.save()
+                try:
+                    with transaction.atomic():
+                        form.save()
+                        if form.instance.source_site == SourceSiteEnum.IN_SITE.value:
+                            real_url = form.instance.get_absolute_url()
+                            form.instance.source_url = real_url
+                            form.instance.save()
+                except IntegrityError as e:
+                    logger.error(e.__str__())
+                    return HttpResponseServerError("integrity error")
                 return redirect(reverse("books:retrieve", args=[form.instance.id]))
             else:
                 return render(
@@ -66,7 +78,9 @@ def create(request):
                     {
                         'form': form,
                         'title': _('添加书籍'),
-                        'submit_url': reverse("books:create")
+                        'submit_url': reverse("books:create"),
+                        # provided for frontend js
+                        'this_site_enum_value': SourceSiteEnum.IN_SITE.value,
                     }
                 )
         else:
@@ -86,7 +100,9 @@ def update(request, id):
             {
                 'form': form,
                 'title': _('修改书籍'),
-                'submit_url': reverse("books:update", args=[book.id])
+                'submit_url': reverse("books:update", args=[book.id]),
+                # provided for frontend js
+                'this_site_enum_value': SourceSiteEnum.IN_SITE.value,
             }
         )
     elif request.method == 'POST':
@@ -95,7 +111,16 @@ def update(request, id):
         if form.is_valid():
             form.instance.last_editor = request.user
             form.instance.edited_time = timezone.now()
-            form.save()
+            try:
+                with transaction.atomic():
+                    form.save()
+                    if form.instance.source_site == SourceSiteEnum.IN_SITE.value:
+                        real_url = form.instance.get_absolute_url()
+                        form.instance.source_url = real_url
+                        form.instance.save()
+            except IntegrityError as e:
+                logger.error(e.__str__())
+                return HttpResponseServerError("integrity error")
         else:
             return render(
                 request,
@@ -103,7 +128,9 @@ def update(request, id):
                 {
                     'form': form,
                     'title': _('修改书籍'),
-                    'submit_url': reverse("books:update", args=[book.id])
+                    'submit_url': reverse("books:update", args=[book.id]),
+                    # provided for frontend js
+                    'this_site_enum_value': SourceSiteEnum.IN_SITE.value,
                 }
             )
         return redirect(reverse("books:retrieve", args=[form.instance.id]))

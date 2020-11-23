@@ -63,16 +63,3 @@ def ChoicesDictGenerator(choices_enum):
         if not '__' in attr:
             choices_dict[getattr(choices_enum, attr).value] = getattr(choices_enum, attr).label
     return choices_dict
-
-
-def clean_url(url):
-    """
-    strip scheme and querystring of the url.
-    """
-    if url.startswith("https://"):
-        url = url.lstrip("https://")
-    elif url.startswith("http://"):
-        url = url.lstrip("http://")
-    if url.endswith('/'):
-        url = url.rstrip("/")
-    url = url.source.split('?')[0].split('#')[0]
