@@ -3,7 +3,8 @@ import django.contrib.postgres.fields as postgres
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
-from common.models import Resource, Mark, Review, Tag
+from django.shortcuts import reverse
+from common.models import Entity, Mark, Review, Tag
 from common.utils import ChoicesDictGenerator
 from boofilsic.settings import MOVIE_MEDIA_PATH_ROOT, DEFAULT_MOVIE_IMAGE
 from django.utils import timezone
@@ -58,7 +59,7 @@ class MovieGenreEnum(models.TextChoices):
 MovieGenreTranslator = ChoicesDictGenerator(MovieGenreEnum)
 
 
-class Movie(Resource):
+class Movie(Entity):
     '''
     Can either be movie or series.
     '''
@@ -75,7 +76,7 @@ class Movie(Resource):
         default=list,
     )
     imdb_code = models.CharField(
-        blank=True, max_length=10, null=True, unique=True, db_index=True)
+        blank=True, max_length=10, null=True, db_index=True)
     director = postgres.ArrayField(
         models.CharField(_("director"), blank=True,
                          default='', max_length=100),
@@ -169,6 +170,9 @@ class Movie(Resource):
         else:
             return self.title
 
+
+    def get_absolute_url(self):
+        return reverse("movies:retrieve", args=[self.id])
 
     def get_tags_manager(self):
         return self.movie_tags

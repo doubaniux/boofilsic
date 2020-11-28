@@ -3,7 +3,8 @@ import django.contrib.postgres.fields as postgres
 from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
-from common.models import Resource, Mark, Review, Tag
+from django.shortcuts import reverse
+from common.models import Entity, Mark, Review, Tag
 from boofilsic.settings import BOOK_MEDIA_PATH_ROOT, DEFAULT_BOOK_IMAGE
 from django.utils import timezone
 
@@ -19,7 +20,7 @@ def book_cover_path(instance, filename):
     return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
 
 
-class Book(Resource):
+class Book(Entity):
     # widely recognized name, usually in Chinese
     title = models.CharField(_("title"), max_length=200)
     subtitle = models.CharField(_("subtitle"), blank=True, default='', max_length=200)
@@ -46,7 +47,7 @@ class Book(Resource):
     # since data origin is not formatted and might be CNY USD or other currency, use char instead
     price = models.CharField(_("pricing"), blank=True, default='', max_length=50)
     pages = models.PositiveIntegerField(_("pages"), null=True, blank=True)
-    isbn = models.CharField(_("ISBN"), blank=True, null=True, max_length=20, unique=True, db_index=True)
+    isbn = models.CharField(_("ISBN"), blank=True, null=True, max_length=20, db_index=True)
     # to store previously scrapped data 
     cover = models.ImageField(_("cover picture"), upload_to=book_cover_path, default=DEFAULT_BOOK_IMAGE, blank=True)
     contents = models.TextField(blank=True, default="")
@@ -66,6 +67,9 @@ class Book(Resource):
 
     def __str__(self):
         return self.title
+    
+    def get_absolute_url(self):
+        return reverse("books:retrieve", args=[self.id])
 
     def get_tags_manager(self):
         return self.book_tags
@@ -76,8 +80,6 @@ class Book(Resource):
 
 
 class BookMark(Mark):
-    # maybe this is the better solution, for it has less complex index
-    # book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_marks', null=True, unique=True)
     book = models.ForeignKey(Book, on_delete=models.CASCADE, related_name='book_marks', null=True)
     class Meta:
         constraints = [
