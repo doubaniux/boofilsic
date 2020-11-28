@@ -261,7 +261,8 @@ def jump_or_scrape(request, url):
         scraper = scraper_registry[matched_host]
         try:
             # raise ObjectDoesNotExist
-            entity = scraper.data_class.objects.get(source_url=url)
+            effective_url = scraper.get_effective_url(url)
+            entity = scraper.data_class.objects.get(source_url=effective_url)
             # if exists then jump to detail page
             return redirect(entity)
         except ObjectDoesNotExist:
