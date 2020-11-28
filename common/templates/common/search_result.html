@@ -164,6 +164,13 @@
                                                         
                                                 </div>
 
+                                                {% if movie.rating %}
+                                                <div class="rating-star entity-list__rating-star" data-rating-score="{{ movie.rating | floatformat:"0" }}"></div>
+                                                <span class="entity-list__rating-score rating-score">{{ movie.rating }}</span>
+                                                {% else %}
+                                                <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
+                                                {% endif %}
+
                                                 <span class="entity-list__entity-info entity-list__entity-info--full-length">
                                         
                                         
@@ -176,14 +183,9 @@
                                                     {% if movie.genre %}{% trans '类型' %}
                                                     {% for genre in movie.get_genre_display %}
                                                     {{ genre }}{% if not forloop.last %} {% endif %}
-                                                    {% endfor %}/
-                                                    {% endif %}
-                                        
-                                                    {% if movie.other_title %}{% trans '又名' %}
-                                                    {% for other_title in movie.other_title %}
-                                                    {{ other_title }}{% if not forloop.last %} {% endif %}
                                                     {% endfor %}
                                                     {% endif %}
+                                        
                                                 </span>
                                                 <span class="entity-list__entity-info entity-list__entity-info--full-length">
                                                     {% if movie.actor %}{% trans '主演' %}
