@@ -84,7 +84,7 @@ class AbstractScraper:
         assert cls.form_class is not None, "class variable `form_class` must be specified"
         assert cls.regex is not None, "class variable `regex` must be specified"
         assert isinstance(cls.host, str), "`host` must be type str"
-        assert isinstance(cls.site, int), "`site` must be type int"
+        assert cls.site in SourceSiteEnum, "`site` must be one of `SourceSiteEnum` value"
         assert hasattr(cls, 'scrape') and callable(cls.scrape), "scaper must have method `.scrape()`"
         # decorate the scrape method
         cls.scrape = classmethod(log_url(cls.scrape))
