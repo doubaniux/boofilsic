@@ -167,7 +167,7 @@ def home(request, id):
                         'msg': msg,
                     }
                 )
-            book_marks = BookMark.get_available_user_data(user, relation['following'])
+            book_marks = BookMark.get_available_by_user(user, relation['following'])
             do_book_marks = book_marks.filter(status=MarkStatusEnum.DO)
             do_books_more = True if do_book_marks.count() > BOOKS_PER_SET else False
 
@@ -177,7 +177,7 @@ def home(request, id):
             collect_book_marks = book_marks.filter(status=MarkStatusEnum.COLLECT)
             collect_books_more = True if collect_book_marks.count() > BOOKS_PER_SET else False            
 
-            movie_marks = MovieMark.get_available_user_data(user, relation['following'])
+            movie_marks = MovieMark.get_available_by_user(user, relation['following'])
             do_movie_marks = movie_marks.filter(status=MarkStatusEnum.DO)
             do_movies_more = True if do_movie_marks.count() > BOOKS_PER_SET else False
 
@@ -358,7 +358,7 @@ def book_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            queryset = BookMark.get_available_user_data(user, relation['following']).filter(
+            queryset = BookMark.get_available_by_user(user, relation['following']).filter(
                 status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
@@ -427,7 +427,7 @@ def movie_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            queryset = MovieMark.get_available_user_data(user, relation['following']).filter(
+            queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
                 status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
