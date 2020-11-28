@@ -12,9 +12,9 @@ from boofilsic.settings import CLIENT_NAME
 
 # abstract base classes
 ###################################
-class SourceSiteEnum(models.IntegerChoices):
-    IN_SITE = 1, CLIENT_NAME
-    DOUBAN = 2, _("豆瓣")
+class SourceSiteEnum(models.TextChoices):
+    IN_SITE = "in-site", CLIENT_NAME
+    DOUBAN = "douban",  _("豆瓣")
 
 
 class Entity(models.Model):
@@ -32,7 +32,7 @@ class Entity(models.Model):
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
     # source_url should include shceme, which is normally https://
     source_url = models.URLField(_("URL"), max_length=500, unique=True)
-    source_site = models.SmallIntegerField(_("源网站"), choices=SourceSiteEnum.choices)
+    source_site = models.CharField(_("源网站"), choices=SourceSiteEnum.choices, max_length=50)
 
     class Meta:
         abstract = True
@@ -198,9 +198,10 @@ class UserOwnedEntity(models.Model):
         return available_entities
 
     @classmethod
-    def get_available_user_data(cls, owner, is_following):
+    def get_available_by_user(cls, owner, is_following):
         """ 
-        Returns all avaliable owner's entities. 
+        Returns all avaliable owner's entities.
+        Mute/Block relation is not handled in this method.
 
         :param owner: visited user
         :param is_following: if the current user is following the owner
@@ -213,19 +214,19 @@ class UserOwnedEntity(models.Model):
 
 # commonly used entity classes
 ###################################
-class MarkStatusEnum(models.IntegerChoices):
-    WISH = 1, _('Wish')
-    DO = 2, _('Do')
-    COLLECT = 3, _('Collect')
+class MarkStatusEnum(models.TextChoices):
+    WISH = 'wish', _('Wish')
+    DO = 'do', _('Do')
+    COLLECT = 'collect', _('Collect')
 
 
 class Mark(UserOwnedEntity):
-    status = models.SmallIntegerField(choices=MarkStatusEnum.choices)
+    status = models.CharField(choices=MarkStatusEnum.choices, max_length=20)
     rating = models.PositiveSmallIntegerField(blank=True, null=True)
     text = models.CharField(max_length=500, blank=True, default='')
 
     def __str__(self):
-        return f"({self.id}) {self.owner} {self.status}"
+        return f"({self.id}) {self.owner} {self.status.upper()}"
 
     class Meta:
         abstract = True
