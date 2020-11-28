@@ -40,6 +40,9 @@
                                 <a href="{% url 'books:retrieve' book.id %}">
                                     <h5 class="entity-card__title">
                                     {{ book.title }}
+                                    <a href="{{ book.source_url }}">
+                                        <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+                                    </a>
                                     </h5>
                                 </a>
                                 {% if book.rating %}

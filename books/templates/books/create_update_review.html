@@ -36,7 +36,11 @@
                             </div>
                             <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
                                 
-                                <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
+                                <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a>
+                                    <a href="{{ book.source_url }}">
+                                        <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+                                    </a>
+                                </h5>
                                 <div>{% if book.isbn %}{% trans 'ISBN：' %}{{ book.isbn }}{% endif %}</div>
                                 <div>{% if book.author %}{% trans '作者：' %}
                                 {% for author in book.author %}

@@ -54,6 +54,9 @@
                                                 <a href="{% url 'books:retrieve' mark.book.id %}" class="entity-list__entity-link">
                                                     {{ mark.book.title }}
                                                 </a>
+                                                <a href="{{ mark.book.source_url }}">
+                                                    <span class="source-label source-label__{{ mark.book.source_site }}">{{ mark.book.get_source_site_display }}</span>
+                                                </a>
                                             </div>
                                             {% comment %}                                                
                                                 <!-- {% if mark.book.rating %}

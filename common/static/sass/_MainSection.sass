@@ -352,9 +352,7 @@ $mark-review-padding-wider: 6px 0
 
 // tag list
 .tag-collection
-	$tag-margin: 3px
-	position: relative
-	left: -$tag-margin
+	margin-left: -9px
 	& &__tag
 		position: relative;
 		display: block;
@@ -406,6 +404,7 @@ $mark-review-padding-wider: 6px 0
 			max-width: 170px;
 		& &__fields
 			width: unset
+			margin-left: unset
 
 	.entity-marks
 		& &__mark-list
@@ -433,6 +432,9 @@ $mark-review-padding-wider: 6px 0
 			float: unset
 		& &__actions
 			float: unset
+
+	.tag-collection
+		margin-left: -3px
 // Medium devices (tablets, 768px and up)
 @media (max-width: $medium-devices)
 	pass

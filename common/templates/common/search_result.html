@@ -64,10 +64,14 @@
                                                         {% else %}
                                                         {{ book.title }}
                                                         {% endif %}
+                                                        
                                                     </a>
                                                     {% if not request.GET.c or request.GET.c != 'movie' and request.GET.c != 'book'%}
                                                     <span class="entity-list__entity-category">[{{item.verbose_category_name}}]</span>
                                                     {% endif %}
+                                                    <a href="{{ book.source_url }}">
+                                                        <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+                                                    </a>
                                                 </div>
                                         
                                                 {% if book.rating %}
@@ -161,7 +165,9 @@
                                                     {% if not request.GET.c or request.GET.c != 'movie' and request.GET.c != 'book'%}
                                                     <span class="entity-list__entity-category">[{{item.verbose_category_name}}]</span>
                                                     {% endif %}
-                                                        
+                                                    <a href="{{ movie.source_url }}">
+                                                        <span class="source-label source-label__{{ movie.source_site }}">{{ movie.get_source_site_display }}</span>
+                                                    </a>
                                                 </div>
 
                                                 {% if movie.rating %}

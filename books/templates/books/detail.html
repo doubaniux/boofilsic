@@ -50,6 +50,9 @@
                                 <div class="entity-detail__info">
                                     <h5 class="entity-detail__title">
                                         {{ book.title }}
+                                        <a href="{{ book.source_url }}">
+                                            <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+                                        </a>
                                     </h5>
                                     
                                     <div class="entity-detail__fields">
