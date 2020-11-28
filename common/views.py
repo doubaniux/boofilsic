@@ -103,7 +103,7 @@ def search(request):
 
         # test if user input an URL, if so jump to URL handling function
         url_validator = URLValidator()
-        input_string = request.GET.get('q').strip()
+        input_string = request.GET.get('q', default='').strip()
         try:
             url_validator(input_string)
             # validation success
