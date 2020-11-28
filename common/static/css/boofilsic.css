@@ -1112,6 +1112,33 @@ select::placeholder {
   }
 }
 
+.source-label {
+  display: inline;
+  background: transparent;
+  border-radius: .3rem;
+  border-style: solid;
+  border-width: .1rem;
+  line-height: 1.2rem;
+  font-size: 1.1rem;
+  margin: 3px;
+  padding: 1px 3px;
+  padding-top: 2px;
+  font-weight: lighter;
+  letter-spacing: 0.1rem;
+  position: relative;
+  top: -1px;
+}
+
+.source-label.source-label__in-site {
+  border-color: #00a1cc;
+  color: #00a1cc;
+}
+
+.source-label.source-label__douban {
+  border-color: #319840;
+  color: #319840;
+}
+
 .main-section-wrapper {
   padding: 32px 48px 32px 36px;
   background-color: #f7f7f7;
@@ -1532,8 +1559,7 @@ select::placeholder {
 }
 
 .tag-collection {
-  position: relative;
-  left: -3px;
+  margin-left: -9px;
 }
 
 .tag-collection .tag-collection__tag {
@@ -1609,6 +1635,7 @@ select::placeholder {
   }
   .entity-detail .entity-detail__fields {
     width: unset;
+    margin-left: unset;
   }
   .dividing-line {
     margin-top: 24px;
@@ -1625,6 +1652,9 @@ select::placeholder {
   }
   .review-head .review-head__actions {
     float: unset;
+  }
+  .tag-collection {
+    margin-left: -3px;
   }
 }
 

@@ -1,0 +1,29 @@
+// source label name should match the enum value in `common.models.SourceSiteEnum`
+
+$douban-color: #319840
+$in-site-color: $color-primary
+
+.source-label
+    display: inline
+    background: transparent
+    border-radius: .3rem
+    border-style: solid
+    border-width: .1rem
+    line-height: 1.2rem
+    font-size: 1.1rem
+    margin: 3px
+    padding: 1px 3px
+    padding-top: 2px;
+    font-weight: lighter;
+    letter-spacing: 0.1rem;
+
+    position: relative;
+    top: -1px;
+
+    &.source-label__in-site
+        border-color: $in-site-color
+        color: $in-site-color
+    &.source-label__douban
+        border-color: $douban-color
+        color: $douban-color
+    &.source-label__amazon

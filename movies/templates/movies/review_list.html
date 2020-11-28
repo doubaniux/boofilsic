@@ -103,7 +103,9 @@
                                             {{ movie.title }} {{ movie.orig_title }}
                                                 {% if movie.year %}({{ movie.year }}){% endif %}
                                             {% endif %}
-                                        </a></h5>
+                                        </a>
+                                        <a href="{{ movie.source_url }}"><span class="source-label source-label__{{ movie.source_site }}">{{ movie.get_source_site_display }}</span></a>
+                                    </h5>
                                 
                                     <div>{% if movie.director %}{% trans '导演：' %}
                                     {% for director in movie.director %}

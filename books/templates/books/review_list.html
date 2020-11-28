@@ -92,7 +92,11 @@
                                             class="entity-card__img"></a>
                                 </div>
                                 <div class="entity-card__info-wrapper">
-                                    <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
+                                    <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a>
+                                        <a href="{{ book.source_url }}">
+                                            <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+                                        </a>
+                                    </h5>
                     
                                     {% if book.isbn %}
                                     <div>ISBN: {{ book.isbn }}</div>

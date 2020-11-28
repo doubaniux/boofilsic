@@ -64,6 +64,9 @@
                                                     {% if mark.movie.year %}({{ mark.movie.year }}){% endif %}
                                                     {% endif %}
                                                 </a>
+                                                <a href="{{ mark.movie.source_url }}">
+                                                    <span class="source-label source-label__{{ mark.movie.source_site }}">{{ mark.movie.get_source_site_display }}</span>
+                                                </a>
                                             </div>
                                             <span class="entity-list__entity-info entity-list__entity-info--full-length">
 

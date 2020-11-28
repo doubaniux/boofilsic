@@ -37,6 +37,9 @@
                             <div class="review-head">
                                 <h5 class="review-head__title">
                                     {{ review.title }}
+                                    <a href="{{ book.source_url }}">
+                                        <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+                                    </a>
                                 </h5>
                                 {% if review.is_private %}
                                 <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg
