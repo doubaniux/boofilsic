@@ -313,7 +313,7 @@ def create_update_mark(request):
                     visibility = TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("movies:retrieve",
                                                                 args=[movie.id])
-                words = MovieMarkStatusTranslator(int(form.cleaned_data['status'])) +\
+                words = MovieMarkStatusTranslator(form.cleaned_data['status']) +\
                     f"《{movie.title}》" + \
                     rating_to_emoji(form.cleaned_data['rating'])
 
