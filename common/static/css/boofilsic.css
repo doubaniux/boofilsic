@@ -1179,6 +1179,10 @@ select::placeholder {
   width: 100%;
 }
 
+.entity-list .entity-list__entity-text .tag-collection {
+  margin-left: -3px;
+}
+
 .entity-list .entity-list__entity-link {
   font-size: 1.2em;
 }
