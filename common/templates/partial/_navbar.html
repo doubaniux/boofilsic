@@ -9,7 +9,7 @@
                 <a href="{% url 'common:home' %}" class="navbar__logo">
                     <img src="{% static 'img/logo.svg' %}" alt="" class="navbar__logo-img">
                 </a>
-                <form action="#" οnsubmit="" class="navbar__search-box">
+                <div class="navbar__search-box">
                     <!-- <input type="search" class="" name="q" id="searchInput" required="true" value="{% for v in request.GET.values %}{{ v }}{% endfor %}" -->
                     <input type="search" class="" name="q" id="searchInput" required="true" value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                         placeholder="搜索书影音">
@@ -18,7 +18,7 @@
                         <option value="book" {% if request.GET.c and request.GET.c == 'book' %}selected{% endif %}>{% trans '书籍' %}</option>
                         <option value="movie" {% if request.GET.c and request.GET.c == 'movie' %}selected{% endif %}>{% trans '电影' %}</option>
                     </select>
-                </form>
+                </div>
                 <button class="navbar__dropdown-btn">• • •</button>
                 <ul class="navbar__link-list">
                     
@@ -41,7 +41,7 @@
     </nav>
     <script>
             $("#searchInput").on('keyup', function (e) {
-                e.preventDefault();
+                // e.preventDefault();
                 if (e.keyCode === 13) {
                     let q = $(this).val();
                     let c = $("#searchCategory").val();
