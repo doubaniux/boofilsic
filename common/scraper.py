@@ -46,7 +46,7 @@ scraper_registry = {}
 def log_url(func):
     """
     Catch exceptions and log then pass the exceptions.
-    First postion argument of decorated function must be the url.
+    First postion argument (except cls/self) of decorated function must be the url.
     """
     @functools.wraps(func)
     def wrapper(*args, **kwargs):
@@ -54,7 +54,7 @@ def log_url(func):
             return func(*args, **kwargs)
         except Exception as e:
             # log the url
-            logger.error(f"Scrape Failed URL: {args[0]}")
+            logger.error(f"Scrape Failed URL: {args[1]}")
             logger.error(str(e))
             raise e
 
@@ -102,10 +102,10 @@ class AbstractScraper:
 
     @classmethod
     def get_effective_url(cls, raw_url):
-        url = cls.regex.findall(raw_url)[0]
+        url = cls.regex.findall(raw_url)
         if not url:
             raise ValueError("not valid url")
-        return url
+        return url[0]
 
     @classmethod
     def download_page(cls, url, headers):
