@@ -311,7 +311,7 @@ def create_update_mark(request):
                     visibility = TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("books:retrieve",
                                                                 args=[book.id])
-                words = BookMarkStatusTranslator(int(form.cleaned_data['status'])) +\
+                words = BookMarkStatusTranslator(form.cleaned_data['status']) +\
                     f"《{book.title}》" + \
                     rating_to_emoji(form.cleaned_data['rating'])
 
