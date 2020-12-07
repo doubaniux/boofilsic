@@ -4,7 +4,7 @@ import random
 import functools
 from django.core.exceptions import ObjectDoesNotExist
 from boofilsic.settings import MASTODON_TIMEOUT
-from boofilsic.settings import CLIENT_NAME, APP_WEBSITE
+from boofilsic.settings import CLIENT_NAME, APP_WEBSITE, REDIRECT_URIS
 from .models import CrossSiteUserInfo
 
 # See https://docs.joinmastodon.org/methods/accounts/
@@ -98,13 +98,13 @@ def create_app(domain_name):
     payload = {
         'client_name': CLIENT_NAME,
         'scopes': 'read write follow',
-        'redirect_uris': f'{APP_WEBSITE}/users/OAuth2_login/',
+        'redirect_uris': REDIRECT_URIS,
         'website': APP_WEBSITE
     }
 
     from boofilsic.settings import DEBUG
     if DEBUG:
-        payload['redirect_uris'] = 'http://localhost/users/OAuth2_login/'
+        payload['redirect_uris'] = 'http://localhost/users/OAuth2_login/\nurn:ietf:wg:oauth:2.0:oob'
 
     response = post(url, data=payload)
     return response

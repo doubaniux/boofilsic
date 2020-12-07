@@ -75,7 +75,7 @@ $(document).ready( function() {
     });
     
     // hide rating star when select wish
-    const WISH_CODE = 1;
+    const WISH_CODE = "wish";
     if ($("#statusSelection input[type='radio']:checked").val() == WISH_CODE) {
         $(".mark-modal .rating-star-edit").hide();
     }
