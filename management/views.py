@@ -25,6 +25,9 @@ class AnnouncementListView(ListView):
     # paginate_by = 1
     template_name = "management/list.html"
 
+    def get_queryset(self):
+        return Announcement.objects.all().order_by('-pk')
+
 
 @method_decorator(decorators, name='dispatch')
 class AnnouncementDeleteView(DeleteView):
