@@ -128,6 +128,7 @@ $sub-section-title-margin: 8px
 			margin: 1px 0
 		& + .tag-collection
 			margin-top: 5px
+			margin-left: 6px
 
 	& &__rating
 		position: relative
@@ -407,6 +408,8 @@ $mark-review-padding-wider: 6px 0
 		& &__fields
 			width: unset
 			margin-left: unset
+			& + .tag-collection
+				margin-left: -3px
 
 	.entity-marks
 		& &__mark-list
@@ -435,8 +438,7 @@ $mark-review-padding-wider: 6px 0
 		& &__actions
 			float: unset
 
-	.tag-collection
-		margin-left: -3px
+
 // Medium devices (tablets, 768px and up)
 @media (max-width: $medium-devices)
 	pass
