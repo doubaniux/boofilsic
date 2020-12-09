@@ -44,8 +44,12 @@ def home(request):
 
         unread_announcements = Announcement.objects.filter(
             pk__gt=request.user.read_announcement_index).order_by('-pk')
-        request.user.read_announcement_index = Announcement.objects.latest('pk').pk
-        request.user.save(update_fields=['read_announcement_index'])
+        try:
+            request.user.read_announcement_index = Announcement.objects.latest('pk').pk
+            request.user.save(update_fields=['read_announcement_index'])
+        except ObjectDoesNotExist as e:
+            # when there is no annoucenment
+            pass
 
         do_book_marks = request.user.user_bookmarks.filter(
             status=MarkStatusEnum.DO).order_by("-edited_time")
