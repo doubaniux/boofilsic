@@ -1,0 +1,39 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/skeleton-css@2.0.4/css/normalize.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/skeleton-css@2.0.4/css/skeleton.css">
+    <title>Create/Update Announcement</title>
+</head>
+<body>
+    <div class="container">
+        <style>
+            textarea {
+                width: 100%;
+                min-height: 200px;
+            }
+            body {
+               padding-top: 40px;
+            }
+        </style>
+        <form method="post">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="Save">
+        </form>
+        {{ form.media }}
+    </div>
+    <script>
+        function convertToSlug(text) {
+            // return encodeURI(text.toLowerCase().replace(/ +/g, '-'));
+            return text.toLowerCase().replace(/ +/g, '-');
+        }
+        document.getElementById("id_title").addEventListener('input', function (evt) {
+            document.getElementById("id_slug").value = convertToSlug(this.value);
+        });
+    </script>
+</body>
+</html>

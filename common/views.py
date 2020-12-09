@@ -18,6 +18,7 @@ from mastodon.decorators import mastodon_request_included
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from common.scraper import scraper_registry
+from management.models import Announcement
 
 
 # how many books have in each set at the home page
@@ -40,6 +41,11 @@ logger = logging.getLogger(__name__)
 @login_required
 def home(request):
     if request.method == 'GET':
+
+        unread_announcements = Announcement.objects.filter(
+            pk__gt=request.user.read_announcement_index).order_by('-pk')
+        request.user.read_announcement_index = Announcement.objects.latest('pk').pk
+        request.user.save(update_fields=['read_announcement_index'])
 
         do_book_marks = request.user.user_bookmarks.filter(
             status=MarkStatusEnum.DO).order_by("-edited_time")
@@ -86,6 +92,7 @@ def home(request):
                 'wish_movies_more': wish_movies_more,
                 'collect_movies_more': collect_movies_more,
                 'reports': reports,
+                'unread_announcements': unread_announcements,
             }
         )
     else:

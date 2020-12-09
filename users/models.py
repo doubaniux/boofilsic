@@ -20,6 +20,9 @@ class User(AbstractUser):
     mastodon_id = models.IntegerField(blank=False)
     # mastodon domain name, eg donotban.com
     mastodon_site = models.CharField(max_length=100, blank=False)
+    # store the latest read announcement id, 
+    # every time user read the announcement update this field
+    read_announcement_index = models.PositiveIntegerField(default=0)
 
     class Meta:
         constraints = [

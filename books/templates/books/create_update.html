@@ -12,8 +12,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{% trans 'NiceDB - ' %}{{ title }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
-    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}"> -->
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
 </head>
 
@@ -56,14 +54,14 @@
 
         // when source site is this site, hide url input box and populate it with fake url
         // the backend would update this field
-        if ($("select[name='source_site']").val() == {{ this_site_enum_value }}) {
+        if ($("select[name='source_site']").val() == "{{ this_site_enum_value }}") {
             $("input[name='source_url']").hide();
             $("label[for='id_source_url']").hide();
             $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());
         }
         $("select[name='source_site']").change(function () {
             let value = $(this).val();
-            if (value == {{ this_site_enum_value }}) {
+            if (value == "{{ this_site_enum_value }}") {
                 $("input[name='source_url']").hide();
                 $("label[for='id_source_url']").hide();
                 $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());

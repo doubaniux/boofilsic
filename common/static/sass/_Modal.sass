@@ -98,9 +98,26 @@
 .confirm-modal
     @include modal
 
+.announcement-modal
+    @include modal
+
+    & &__body
+        overflow-y: auto
+        max-height: 64vh
+        & .announcement
+            &__title
+                display: inline-block
+
+            &__datetime
+                color: $color-light
+                margin-left: 10px 
+
+            &__content
+
+
 // Small devices (landscape phones, 576px and up)
 @media (max-width: $small-devices)
-    .mark-modal, .confirm-modal
+    .mark-modal, .confirm-modal, .announcement-modal
         width: 100%
 // Medium devices (tablets, 768px and up)
 @media (max-width: $medium-devices)
