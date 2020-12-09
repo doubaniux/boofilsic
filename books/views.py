@@ -13,7 +13,7 @@ from mastodon import mastodon_request_included
 from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from mastodon.utils import rating_to_emoji
 from common.utils import PageLinksGenerator
-from common.views import PAGE_LINK_NUMBER
+from common.views import PAGE_LINK_NUMBER, jump_or_scrape
 from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
@@ -581,27 +581,7 @@ def click_to_scrape(request):
     if request.method == "POST":
         url = request.POST.get("url")
         if url:
-            from common.scraper import DoubanBookScraper
-            try:
-                scraped_book, raw_cover = DoubanBookScraper.scrape(url)
-            except TimeoutError:
-                return render(request, 'common/error.html', {'msg': _("爬取数据失败😫，请重试")})
-            except ValueError:
-                return render(request, 'common/error.html', {'msg': _("链接非法，爬取失败")})
-            scraped_cover = {
-                'cover': SimpleUploadedFile('temp.jpg', raw_cover)}
-            form = BookForm(scraped_book, scraped_cover)
-            if form.is_valid():
-                form.instance.last_editor = request.user
-                form.save()
-                return redirect(reverse('books:retrieve', args=[form.instance.id]))
-            else:
-                if 'isbn' in form.errors:
-                    msg = _("ISBN与现有图书重复")
-                else:
-                    msg = _("爬取数据失败😫")
-                    logger.error(str(form.errors))
-                return render(request, 'common/error.html', {'msg': msg})
+            return jump_or_scrape(request, url)
         else:
             return HttpResponseBadRequest()
     else:
