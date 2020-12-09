@@ -1160,6 +1160,10 @@ select::placeholder {
   margin-left: 10px;
 }
 
+.announcement-modal .announcement-modal__body .announcement__content {
+  word-break: break-all;
+}
+
 @media (max-width: 575.98px) {
   .mark-modal, .confirm-modal, .announcement-modal {
     width: 100%;
