@@ -359,7 +359,7 @@
                                 <h5 class="announcement__title">{{ ann.title }}</h5>
                             </a>
                             <span class="announcement__datetime">{{ ann.created_time }}</span>
-                            <p>{{ ann.content | truncate:200 }}</p>
+                            <p>{{ ann.get_plain_content | truncate:200 }}</p>
                         </li>
                         {% if not forloop.last %}
                             <div class="dividing-line" style="border-top-style: dashed;"></div>
