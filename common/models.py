@@ -1,5 +1,7 @@
 import django.contrib.postgres.fields as postgres
+import re
 from decimal import *
+from markdown import markdown
 from django.utils.translation import ugettext_lazy as _
 from django.db import models, IntegrityError
 from django.core.serializers.json import DjangoJSONEncoder
@@ -8,6 +10,9 @@ from markdownx.models import MarkdownxField
 from users.models import User
 from mastodon.api import get_relationships, get_cross_site_id
 from boofilsic.settings import CLIENT_NAME
+
+
+RE_HTML_TAG = re.compile(r"<[^>]*>")
 
 
 # abstract base classes
@@ -244,6 +249,13 @@ class Review(UserOwnedEntity):
 
     def __str__(self):
         return self.title
+
+    def get_plain_content(self):
+        """
+        Get plain text format content
+        """
+        html = markdown(self.content)
+        return RE_HTML_TAG.sub(' ', html)
 
     class Meta:
         abstract = True

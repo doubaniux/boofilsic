@@ -27,9 +27,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
-    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_browse.css' %}"> -->
-    <!-- <link rel="stylesheet" href="{% static 'css/boofilsic_modal.css' %}"> -->
-    <!-- <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}"> -->
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
 </head>
@@ -191,6 +188,7 @@
                                     {% endif %}
                                     <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
                                     <span class="entity-reviews__review-title"> <a href="{% url 'books:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
+                                    <span>{{ others_review.get_plain_content | truncate:100 }}</span>
                                 </li>
                                 {% endfor %}
                                 </ul>

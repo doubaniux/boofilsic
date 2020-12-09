@@ -1,3 +1,4 @@
+@import url(https://cdn.jsdelivr.net/npm/skeleton-css@2.0.4/css/normalize.css);
 .button,
 button,
 input[type='button'],
@@ -1106,8 +1107,61 @@ select::placeholder {
   float: right;
 }
 
+.announcement-modal {
+  z-index: 2;
+  display: none;
+  position: fixed;
+  width: 500px;
+  top: 50%;
+  left: 50%;
+  -webkit-transform: translate(-50%, -50%);
+          transform: translate(-50%, -50%);
+  background-color: #f7f7f7;
+  padding: 20px 20px 10px 20px;
+  color: #606c76;
+}
+
+.announcement-modal .announcement-modal__head {
+  margin-bottom: 20px;
+}
+
+.announcement-modal .announcement-modal__head::after {
+  content: ' ';
+  clear: both;
+  display: table;
+}
+
+.announcement-modal .announcement-modal__title {
+  font-weight: bold;
+  font-size: 1.2em;
+  float: left;
+}
+
+.announcement-modal .announcement-modal__close-button {
+  float: right;
+  cursor: pointer;
+}
+
+.announcement-modal .announcement-modal__confirm-button {
+  float: right;
+}
+
+.announcement-modal .announcement-modal__body {
+  overflow-y: auto;
+  max-height: 64vh;
+}
+
+.announcement-modal .announcement-modal__body .announcement__title {
+  display: inline-block;
+}
+
+.announcement-modal .announcement-modal__body .announcement__datetime {
+  color: #ccc;
+  margin-left: 10px;
+}
+
 @media (max-width: 575.98px) {
-  .mark-modal, .confirm-modal {
+  .mark-modal, .confirm-modal, .announcement-modal {
     width: 100%;
   }
 }
@@ -2174,6 +2228,10 @@ select::placeholder {
 
 .markdownx-preview {
   min-height: 100px;
+}
+
+.markdownx-preview ul li {
+  list-style: circle inside;
 }
 
 .rating-star .jq-star {

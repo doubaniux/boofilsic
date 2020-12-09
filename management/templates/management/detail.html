@@ -1,0 +1,47 @@
+{% load static %}
+{% load i18n %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <title>NiceDB - {{ object.title }}</title>
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+            <div class="grid">
+                <div class="single-section-wrapper">
+                    <h3>{{ object.title }}</h3>
+                    <div>
+                        {{ object.created_time }} | {{ object.edited_time }}
+                        {% if request.user.is_superuser %}
+                        <span class="operations">
+                            <a href="{% url 'management:delete' object.pk %}">{% trans '删除' %}</a>
+                            <a href="{% url 'management:update' object.pk %}">{% trans '编辑' %}</a>
+                        </span>
+                        {% endif %}
+                    </div>
+                    <div class="dividing-line"></div>
+                    <p>{{ form.content }}</p>
+                    <div style="margin-top: 30px; text-align: center;">
+                        <a href="{% url 'management:list' %}">{% trans '返回公告栏' %}</a>
+                    </div>
+                    {{ form.media }}
+                </div>
+            </div>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+    <script>
+        document.querySelector(".markdownx textarea").style.display = 'none';
+        // $(".markdownx textarea").hide();
+    </script>
+</body>
+
+</html>

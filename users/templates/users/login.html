@@ -10,12 +10,11 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/skeleton-css@2.0.4/css/normalize.css">
     <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
-    <!-- <link rel="stylesheet" href="{% static 'lib/css/chosen.min.css' %}"> -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <!-- <script src="{% static 'lib/js/chosen.jquery.min.js' %}"></script> -->
     <script src="{% static 'lib/js/js.cookie.min.js' %}"></script>
     <title>{% trans 'NiceDB - 登录' %}</title>
 </head>
