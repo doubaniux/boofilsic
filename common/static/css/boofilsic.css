@@ -1338,6 +1338,7 @@ select::placeholder {
 
 .entity-detail .entity-detail__fields + .tag-collection {
   margin-top: 5px;
+  margin-left: 6px;
 }
 
 .entity-detail .entity-detail__rating {
@@ -1699,6 +1700,9 @@ select::placeholder {
     width: unset;
     margin-left: unset;
   }
+  .entity-detail .entity-detail__fields + .tag-collection {
+    margin-left: -3px;
+  }
   .dividing-line {
     margin-top: 24px;
   }
@@ -1714,9 +1718,6 @@ select::placeholder {
   }
   .review-head .review-head__actions {
     float: unset;
-  }
-  .tag-collection {
-    margin-left: -3px;
   }
 }
 
