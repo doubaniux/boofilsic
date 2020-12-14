@@ -35,9 +35,6 @@
                             <div class="review-head">
                                 <h5 class="review-head__title">
                                     {{ review.title }}
-                                    <a href="{{ book.source_url }}">
-                                        <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
-                                    </a>
                                 </h5>
                                 {% if review.is_private %}
                                 <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg
@@ -86,7 +83,12 @@
                                             class="entity-card__img"></a>
                                 </div>
                                 <div class="entity-card__info-wrapper">
-                                    <h5 class="entity-card__title"><a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a></h5>
+                                    <h5 class="entity-card__title">
+                                        <a href="{% url 'books:retrieve' book.id %}">{{ book.title }}</a>
+                                        <a href="{{ book.source_url }}">
+                                            <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+                                        </a>
+                                    </h5>
                     
                                     {% if book.isbn %}
                                     <div>ISBN: {{ book.isbn }}</div>
