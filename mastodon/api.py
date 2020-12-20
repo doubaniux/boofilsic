@@ -111,12 +111,12 @@ def create_app(domain_name):
     return response
 
 
-def get_site_id(username, site, token):
-    url = 'https://' + site + API_SEARCH
+def get_site_id(username, user_site, target_site, token):
+    url = 'https://' + target_site + API_SEARCH
     payload = {
         'limit': 1,
         'type': 'accounts',
-        'q': f"{username}@{site}"
+        'q': f"{username}@{user_site}"
     }
     headers = {
         'Authorization': f'Bearer {token}'
@@ -155,7 +155,7 @@ def get_cross_site_id(target_user, target_site, token):
         )
     except ObjectDoesNotExist:
         cross_site_id = get_site_id(
-            target_user.username, target_site, token)
+            target_user.username, target_user.mastodon_site, target_site, token)
         if not cross_site_id:
             return None
         cross_site_info = CrossSiteUserInfo.objects.create(
