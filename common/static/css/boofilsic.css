@@ -1183,6 +1183,7 @@ select::placeholder {
   padding-top: 2px;
   font-weight: lighter;
   letter-spacing: 0.1rem;
+  word-break: keep-all;
   position: relative;
   top: -1px;
 }
