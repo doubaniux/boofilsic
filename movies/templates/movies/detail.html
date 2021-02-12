@@ -204,7 +204,7 @@
                                         <a href="{% url 'movies:update' movie.id %}">{% trans '编辑这部电影' %}</a>
                                         {% endif %}
                                         {% if user.is_staff %}
-                                        <a href="{% url 'movies:delete' movie.id %}"> / {% trans '删除' %}</a>
+                                        /<a href="{% url 'movies:delete' movie.id %}"> {% trans '删除' %}</a>
                                         {% endif %}
                                         </div>
                                     </div>
@@ -240,15 +240,6 @@
                                 
                             </div>
                             
-                            {% if movie.contents %}
-                            <div class="entity-desc" id="contents">
-                                <h5 class="entity-desc__title">{% trans '目录' %}</h5>
-                                <p class="entity-desc__content">{{ movie.contents | linebreaksbr }}</p>
-                                <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
-                                    <a href="javascript:void(0);">展开全部</a>
-                                </div>
-                            </div>
-                            {% endif %}
                                 
                             <div class="entity-marks">
                                 

@@ -1,0 +1,170 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'NiceDB - ' %}{{ album.title }}{% trans '的标记' %}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main" id="main">
+                        <div class="main-section-wrapper">
+                            <div class="entity-marks">
+                                <h5 class="entity-marks__title entity-marks__title--stand-alone">
+                                    <a href="{% url 'music:retrieve_album' album.id %}">{{ album.title }}</a>{% trans '的标记' %}
+                                </h5>
+                                <ul class="entity-marks__mark-list">
+
+                                    {% for mark in marks %}
+
+                                    <li class="entity-marks__mark entity-marks__mark--wider">
+                                        <a href="{% url 'users:home' mark.owner.id %}"
+                                            class="entity-marks__owner-link">{{ mark.owner.username }}</a>
+                                        <span>{{ mark.get_status_display }}</span>
+                                        {% if mark.rating %}
+                                        <span class="entity-marks__rating-star rating-star"
+                                            data-rating-score="{{ mark.rating | floatformat:" 0" }}"></span>
+                                        {% endif %}
+                                        {% if mark.is_private %}
+                                        <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"
+                                                viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg"
+                                                    viewBox="0 0 20 20">
+                                                    <path
+                                                        d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                                                </svg></span>
+                                        {% endif %}
+                                        <span class="entity-marks__mark-time">{{ mark.edited_time }}</span>
+                                        {% if mark.text %}
+                                        <p class="entity-marks__mark-content">{{ mark.text }}</p>
+                                        {% endif %}
+                                    </li>
+
+                                    {% empty %}
+                                    <div>
+                                        {% trans '无结果' %}
+                                    </div>
+                                    {% endfor %}
+
+                                </ul>
+                            </div>
+                            <div class="pagination">
+
+                                {% if marks.pagination.has_prev %}
+                                <a href="?page=1" class="pagination__nav-link pagination__nav-link">&laquo;</a>
+                                <a href="?page={{ marks.previous_page_number }}"
+                                    class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+                                {% endif %}
+
+                                {% for page in marks.pagination.page_range %}
+
+                                {% if page == marks.pagination.current_page %}
+                                <a href="?page={{ page }}"
+                                    class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+                                {% else %}
+                                <a href="?page={{ page }}" class="pagination__page-link">{{ page }}</a>
+                                {% endif %}
+
+                                {% endfor %}
+
+                                {% if marks.pagination.has_next %}
+                                <a href="?page={{ marks.next_page_number }}"
+                                    class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                <a href="?page={{ marks.pagination.last_page }}"
+                                    class="pagination__nav-link">&raquo;</a>
+                                {% endif %}
+
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid__aside" id="aside">
+                        <div class="aside-section-wrapper">
+                            <div class="entity-card">
+                                <div class="entity-card__img-wrapper">
+                                    <a href="{% url 'music:retrieve_album' album.id %}"><img src="{{ album.cover.url }}"
+                                            alt="" class="entity-card__img"></a>
+                                </div>
+                                <div class="entity-card__info-wrapper">
+                                    <h5 class="entity-card__title"><a href="{% url 'music:retrieve_album' album.id %}">
+                                            {{ album.title }}
+                                        </a>
+                                        <a href="{{ album.source_url }}"><span
+                                                class="source-label source-label__{{ album.source_site }}">
+                                                {{ album.get_source_site_display }}</span></a>
+                                    </h5>
+
+                                    <div>{% if album.artist %}{% trans '艺术家：' %}
+                                        {% for artist in album.artist %}
+                                        <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+                                            <span class="artist">{{ artist }}</span>
+                                            {% if not forloop.last %} / {% endif %}
+                                        </span>
+                                        {% endfor %}
+                                        {% if album.artist|length > 5 %}
+                                        <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
+                                        <script>
+                                            $("#artistMore").click(function (e) {
+                                                $("span.artist:not(:visible)").each(function (e) {
+                                                    $(this).parent().removeAttr('style');
+                                                });
+                                                $(this).remove();
+                                            })
+                                        </script>
+                                        {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div>{% if album.genre %}{% trans '流派：' %}{{ album.genre }}{% endif %}</div>
+
+                                    <div>{% if album.release_date %}{% trans '发行日期：' %}{{ album.release_date}}{% endif %}</div>
+                                    {% if album.rating %}
+                                    {% trans '评分: ' %}<span class="entity-card__rating-star rating-star"
+                                        data-rating-score="{{ album.rating | floatformat:" 0" }}"></span>
+                                    <span class="entity-card__rating-score rating-score">{{ album.rating }}</span>
+                                    {% endif %}
+                                </div>
+
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+
+
+    {% comment %}
+    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon request.user.mastodon_site %}</div>
+    <!--current user mastodon id-->
+    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    {% endcomment %}
+
+    <script>
+
+    </script>
+</body>
+
+
+</html>

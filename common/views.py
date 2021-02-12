@@ -13,6 +13,7 @@ from django.db.models import Q, Count
 from django.http import HttpResponseBadRequest
 from books.models import Book
 from movies.models import Movie
+from music.models import Album, Song
 from users.models import Report, User
 from mastodon.decorators import mastodon_request_included
 from common.models import MarkStatusEnum
@@ -122,22 +123,25 @@ def search(request):
         except ValidationError as e:
             pass
 
-        # category, book/movie/record etc
+        # category, book/movie/music etc
         category = request.GET.get("c", default='').strip().lower()
 
         def book_param_handler():
             q = Q()
             query_args = []
+
             # keywords
             keywords = request.GET.get("q", default='').strip()
+            # tag
+            tag = request.GET.get("tag", default='')
+
+            if not (keywords or tag):
+                return []
 
             for keyword in [keywords]:
                 q = q | Q(title__icontains=keyword)
                 q = q | Q(subtitle__icontains=keyword)
                 q = q | Q(orig_title__icontains=keyword)
-
-            # tag
-            tag = request.GET.get("tag", default='')
             if tag:
                 q = q & Q(book_tags__content__iexact=tag)
 
@@ -158,6 +162,8 @@ def search(request):
                 elif tag:
                     # search by single tag
                     book.similarity = 0 if book.rating_number is None else book.rating_number
+                else:
+                    book.similarity = 0
                 return book.similarity
             if len(queryset) > 0:
                 ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
@@ -168,16 +174,19 @@ def search(request):
         def movie_param_handler():
             q = Q()
             query_args = []
+
             # keywords
             keywords = request.GET.get("q", default='').strip()
+            # tag
+            tag = request.GET.get("tag", default='')
+
+            if not (keywords or tag):
+                return []
 
             for keyword in [keywords]:
                 q = q | Q(title__icontains=keyword)
                 q = q | Q(other_title__icontains=keyword)
                 q = q | Q(orig_title__icontains=keyword)
-
-            # tag
-            tag = request.GET.get("tag", default='')
             if tag:
                 q = q & Q(movie_tags__content__iexact=tag)
 
@@ -197,7 +206,50 @@ def search(request):
                 elif tag:
                     # search by single tag
                     movie.similarity = 0 if movie.rating_number is None else movie.rating_number
+                else:
+                    movie.similarity = 0
                 return movie.similarity
+            if len(queryset) > 0:
+                ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            else:
+                ordered_queryset = list(queryset)
+            return ordered_queryset
+
+        def music_param_handler():
+            q = Q()
+            query_args = []
+
+            # keywords
+            keywords = request.GET.get("q", default='').strip()
+            # tag
+            tag = request.GET.get("tag", default='')
+
+            if not (keywords or tag):
+                return []
+
+            # search albums
+            for keyword in [keywords]:
+                q = q | Q(title__icontains=keyword)
+            if tag:
+                q = q & Q(album_tags__content__iexact=tag)
+
+            query_args.append(q)
+            queryset = Album.objects.filter(*query_args).distinct()
+
+            def calculate_similarity(music):
+                if keywords:
+                    # search by name
+                    similarity, n = 0, 0
+                    for keyword in keywords:
+                        similarity += SequenceMatcher(None, keyword, music.title).quick_ratio()
+                        n += 1
+                    music.similarity = similarity / n
+                elif tag:
+                    # search by single tag
+                    music.similarity = 0 if music.rating_number is None else music.rating_number
+                else:
+                    music.similarity = 0
+                return music.similarity
             if len(queryset) > 0:
                 ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
             else:
@@ -207,8 +259,9 @@ def search(request):
         def all_param_handler():
             book_queryset = book_param_handler()
             movie_queryset = movie_param_handler()
+            music_queryset = music_param_handler()
             ordered_queryset = sorted(
-                book_queryset + movie_queryset, 
+                book_queryset + movie_queryset + music_queryset, 
                 key=operator.attrgetter('similarity'), 
                 reverse=True
             )
@@ -217,6 +270,7 @@ def search(request):
         param_handler = {
             'book': book_param_handler,
             'movie': movie_param_handler,
+            'music': music_param_handler,
             'all': all_param_handler,
             '': all_param_handler
         }
