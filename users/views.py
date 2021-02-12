@@ -108,6 +108,14 @@ def register(request):
     elif request.method == 'POST':
         token = request.session['new_user_token']
         user_data = get_user_data(request.COOKIES['mastodon_domain'], token)
+        if user_data is None:
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': _("长毛象访问失败😫")
+                }
+            )
         new_user = User(
             username=user_data['username'],
             mastodon_id=user_data['id'],

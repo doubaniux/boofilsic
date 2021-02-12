@@ -17,6 +17,7 @@
                         <option value="all" {% if request.GET.c and request.GET.c != 'movie' and request.GET.c != 'book' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
                         <option value="book" {% if request.GET.c and request.GET.c == 'book' %}selected{% endif %}>{% trans '书籍' %}</option>
                         <option value="movie" {% if request.GET.c and request.GET.c == 'movie' %}selected{% endif %}>{% trans '电影' %}</option>
+                        <option value="music" {% if request.GET.c and request.GET.c == 'music' %}selected{% endif %}>{% trans '音乐' %}</option>
                     </select>
                 </div>
                 <button class="navbar__dropdown-btn">• • •</button>

@@ -12,7 +12,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'NiceDB - 删除电影/剧集' %}</title>
+    <title>{% trans 'NiceDB - 删除音乐' %}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
@@ -28,59 +28,52 @@
             <section id="content">
                 <div class="grid">
                     <div class="single-section-wrapper" id="main">
-                        <h5>{% trans '确认删除这部电影/剧集吗？相关评论和标记将一并删除。' %}</h5>
+                        <h5>{% trans '确认删除这个作品吗？相关评论和标记将一并删除。' %}</h5>
                     
                         <div class="entity-card entity-card--horizontal">
                             <div class="entity-card__img-wrapper">
-                                <a href="{% url 'movies:retrieve' movie.id %}">
-                                    <img src="{{ movie.cover.url }}" alt="" class="item-image float-left">
+                                <a href="{% url 'music:retrieve_album' album.id %}">
+                                    <img src="{{ album.cover.url }}" alt="" class="item-image float-left">
                                 </a>
                             </div>
                             <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
-                                <a href="{% url 'movies:retrieve' movie.id %}">
+                                <a href="{% url 'music:retrieve_album' album.id %}">
                                     <h5 class="entity-card__title">
-                                        {% if movie.season %}
-                                        {{ movie.title }} {% trans '第' %}{{ movie.season|apnumber }}{% trans '季' %} {{ movie.orig_title }} Season
-                                        {{ movie.season }}
-                                            {% if movie.year %}({{ movie.year }}){% endif %}
-                                        {% else %}
-                                        {{ movie.title }} {{ movie.orig_title }}
-                                            {% if movie.year %}({{ movie.year }}){% endif %}
-                                        {% endif %}
-                                        <a href="{{ movie.source_url }}"><span class="source-label source-label__{{ movie.source_site }}">{{ movie.get_source_site_display }}</span></a>
+                                        {{ album.title }}
+                                        <a href="{{ album.source_url }}"><span class="source-label source-label__{{ album.source_site }}">{{ album.get_source_site_display }}</span></a>
                                     </h5>
                                 </a>
-                                {% if movie.rating %}
-                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ movie.rating | floatformat:"0" }}">
+                                {% if album.rating %}
+                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ album.rating | floatformat:"0" }}">
                                 </span>
-                                <span class="entity-card__rating-score">{{ movie.rating }}</span>
+                                <span class="entity-card__rating-score">{{ album.rating }}</span>
                                 {% else %}
                                 <span>{% trans '评分：暂无评分' %}</span>
                                 {% endif %}
                                 
-                                {% if movie.last_editor %}
+                                {% if album.last_editor %}
                                 <div>
                                     {% trans '最近编辑者：' %}
-                                    <a href="{% url 'users:home' movie.last_editor.id %}">
-                                        <span>{{ movie.last_editor | default:"" }}</span>
+                                    <a href="{% url 'users:home' album.last_editor.id %}">
+                                        <span>{{ album.last_editor | default:"" }}</span>
                                     </a>
                                 </div>
                                 {% endif %}
                                     
-                                <div>{% trans '上次编辑时间：' %}{{ movie.edited_time }}</div>
+                                <div>{% trans '上次编辑时间：' %}{{ album.edited_time }}</div>
 
-                                {% if movie.movie_marks.all %}
-                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ movie.movie_marks.count }}</a> 个标记</strong></div>
+                                {% if album.album_marks.all %}
+                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ album.album_marks.count }}</a> 个标记</strong></div>
                                 {% endif %}
-                                {% if movie.movie_reviews.all %}
-                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ movie.movie_reviews.count }}</a> 个评论</strong></div>
+                                {% if album.album_reviews.all %}
+                                <div><strong>{% trans '这个条目有' %} <a href="javascript:void();">{{ album.album_reviews.count }}</a> 个评论</strong></div>
                                 {% endif %}
 
                             </div>
                         </div>
                         <div class="dividing-line"></div>
                         <div class="clearfix">
-                            <form action="{% url 'movies:delete' movie.id %}" method="post" class="float-right">
+                            <form action="{% url 'music:delete_album' album.id %}" method="post" class="float-right">
                                 {% csrf_token %}
                                 <input class="button" type="submit" value="{% trans '确认' %}">
                             </form>

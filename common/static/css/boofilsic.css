@@ -374,6 +374,9 @@ input[type='search'],
 input[type='tel'],
 input[type='text'],
 input[type='url'],
+input[type='date'],
+input[type='time'],
+input[type='color'],
 textarea,
 select {
   -webkit-appearance: none;
@@ -396,6 +399,9 @@ input[type='search']:focus,
 input[type='tel']:focus,
 input[type='text']:focus,
 input[type='url']:focus,
+input[type='date']:focus,
+input[type='time']:focus,
+input[type='color']:focus,
 textarea:focus,
 select:focus {
   border-color: #00a1cc;
@@ -409,6 +415,9 @@ input[type='search']::-webkit-input-placeholder,
 input[type='tel']::-webkit-input-placeholder,
 input[type='text']::-webkit-input-placeholder,
 input[type='url']::-webkit-input-placeholder,
+input[type='date']::-webkit-input-placeholder,
+input[type='time']::-webkit-input-placeholder,
+input[type='color']::-webkit-input-placeholder,
 textarea::-webkit-input-placeholder,
 select::-webkit-input-placeholder {
   color: #ccc;
@@ -421,6 +430,9 @@ input[type='search']:-ms-input-placeholder,
 input[type='tel']:-ms-input-placeholder,
 input[type='text']:-ms-input-placeholder,
 input[type='url']:-ms-input-placeholder,
+input[type='date']:-ms-input-placeholder,
+input[type='time']:-ms-input-placeholder,
+input[type='color']:-ms-input-placeholder,
 textarea:-ms-input-placeholder,
 select:-ms-input-placeholder {
   color: #ccc;
@@ -433,6 +445,9 @@ input[type='search']::-ms-input-placeholder,
 input[type='tel']::-ms-input-placeholder,
 input[type='text']::-ms-input-placeholder,
 input[type='url']::-ms-input-placeholder,
+input[type='date']::-ms-input-placeholder,
+input[type='time']::-ms-input-placeholder,
+input[type='color']::-ms-input-placeholder,
 textarea::-ms-input-placeholder,
 select::-ms-input-placeholder {
   color: #ccc;
@@ -445,6 +460,9 @@ input[type='search']::placeholder,
 input[type='tel']::placeholder,
 input[type='text']::placeholder,
 input[type='url']::placeholder,
+input[type='date']::placeholder,
+input[type='time']::placeholder,
+input[type='color']::placeholder,
 textarea::placeholder,
 select::placeholder {
   color: #ccc;
@@ -1267,7 +1285,9 @@ select::placeholder {
 }
 
 .entity-list .entity-list__entity-info--full-length {
+  display: block;
   max-width: 100%;
+  margin-bottom: 12px;
 }
 
 .entity-list .entity-list__entity-brief {
@@ -1771,7 +1791,7 @@ select::placeholder {
   line-height: unset;
   height: unset;
   padding: 4px 15px;
-  margin: 0 5px;
+  margin: 5px;
 }
 
 .action-panel {

@@ -174,3 +174,55 @@ class HstoreField(forms.CharField):
         if len(pairs) == 1:
             pairs = (pairs,)
         return pairs
+
+
+#############################
+# Form
+#############################
+
+class MarkForm(forms.ModelForm):
+    IS_PRIVATE_CHOICES = [
+        (True, _("仅关注者")),
+        (False, _("公开")),
+    ]
+    
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    share_to_mastodon = forms.BooleanField(
+        label=_("分享到长毛象"), initial=True, required=False)
+    rating = forms.IntegerField(
+        validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
+    is_private = RadioBooleanField(
+        label=_("可见性"),
+        initial=True,
+        choices=IS_PRIVATE_CHOICES
+    )
+    tags = TagField(
+        required=False,
+        widget=TagInput(attrs={'placeholder': _("回车增加标签")}),
+        label=_("标签")
+    )
+    text = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": _("最多只能写360字哦~"),
+                "maxlength": 360
+            }
+        ),
+
+        label=_("短评"),
+    )
+
+class ReviewForm(forms.ModelForm):
+    IS_PRIVATE_CHOICES = [
+        (True, _("仅关注者")),
+        (False, _("公开")),
+    ]
+    share_to_mastodon = forms.BooleanField(
+        label=_("分享到长毛象"), initial=True, required=False)
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    is_private = RadioBooleanField(
+        label=_("可见性"),
+        initial=True,
+        choices=IS_PRIVATE_CHOICES
+    )

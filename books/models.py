@@ -47,7 +47,7 @@ class Book(Entity):
     # since data origin is not formatted and might be CNY USD or other currency, use char instead
     price = models.CharField(_("pricing"), blank=True, default='', max_length=50)
     pages = models.PositiveIntegerField(_("pages"), null=True, blank=True)
-    isbn = models.CharField(_("ISBN"), blank=True, null=True, max_length=20, db_index=True)
+    isbn = models.CharField(_("ISBN"), blank=True, null=False, max_length=20, db_index=True, default='')
     # to store previously scrapped data 
     cover = models.ImageField(_("cover picture"), upload_to=book_cover_path, default=DEFAULT_BOOK_IMAGE, blank=True)
     contents = models.TextField(blank=True, default="")

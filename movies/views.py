@@ -17,7 +17,6 @@ from common.views import PAGE_LINK_NUMBER, jump_or_scrape
 from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
-from .forms import MovieMarkStatusTranslator
 from boofilsic.settings import MASTODON_TAGS
 
 
@@ -225,7 +224,7 @@ def retrieve(request, id):
             }
         )
     else:
-        logger.warning('non-GET method at /movie/<id>')
+        logger.warning('non-GET method at /movies/<id>')
         return HttpResponseBadRequest()
 
 

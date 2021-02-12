@@ -1,0 +1,131 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% trans 'NiceDB - ' %}{{ title }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'js/create_update_review.js' %}"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+        
+            <section id="content">
+                <div class="grid">
+                    <div class="single-section-wrapper">
+                        <div class="entity-card entity-card--horizontal">
+                            <div class="entity-card__img-wrapper">
+                                <a href="{% url 'music:retrieve_album' album.id %}">
+                                    <img src="{{ album.cover.url }}" alt="" class="item-image float-left">
+                                </a>
+                            </div>
+                            <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
+                                
+                                <h5 class="entity-card__title"><a href="{% url 'music:retrieve_album' album.id %}">
+                                        {{ album.title }}
+                                    </a>
+                                    <a href="{{ album.source_url }}"><a href="{{ album.source_url }}"><span class="source-label source-label__{{ album.source_site }}">{{ album.get_source_site_display }}</span></a></a>
+                                </h5>
+                                    <div>{% if album.artist %}{% trans '艺术家：' %}
+                                        {% for artist in album.artist %}
+                                        <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+                                            <span class="artist">{{ artist }}</span>
+                                            {% if not forloop.last %} / {% endif %}
+                                        </span>
+                                        {% endfor %}
+                                        {% if album.artist|length > 5 %}
+                                        <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
+                                        <script>
+                                            $("#artistMore").click(function (e) {
+                                                $("span.artist:not(:visible)").each(function (e) {
+                                                    $(this).parent().removeAttr('style');
+                                                });
+                                                $(this).remove();
+                                            })
+                                        </script>
+                                        {% endif %}
+                                        {% endif %}
+                                    </div>
+                                    <div>{% if album.genre %}{% trans '流派：' %}{{ album.genre }}{% endif %}</div>
+                                    
+                                    <div>{% if album.release_date %}{% trans '发行日期：' %}{{ album.release_date}}{% endif %}</div>
+  
+                                {% if album.rating %}
+                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ album.rating | floatformat:"0" }}"> </span>
+                                <span class="entity-card__rating-score rating-score"> {{ album.rating }} </span>
+                                {% endif %}              
+                            </div>
+                        </div>
+                        <div class="dividing-line"></div>
+
+                            <form action="{{ submit_url }}" method="post" class="review-form">
+                                {% csrf_token %}
+                                {{ form.album }}
+                                <div>
+                                {{ form.title.label }}
+                                </div>
+                                {{ form.title }}
+                                <div class="clearfix">
+                                    <span class="float-left">
+                                        {{ form.content.label }}
+                                    </span>
+                                    <span class="float-right">
+                                        <span class="review-form__preview-button">{% trans '预览' %}</span>
+                                    </span>
+                                </div>
+                                <div id="rawContent">
+                                    {{ form.content }}
+                                </div>
+                                <div class="review-form__fyi">{% trans '不知道什么是Markdown？可以参考' %}<a target="_blank" href="https://www.markdownguide.org/">{% trans '这里' %}</a></div>
+                                <div class="review-form__option">
+                                    <div class="review-form__visibility-radio">
+
+                                        {{ form.is_private.label }}{{ form.is_private }}
+                                    </div>
+                                    <div class="review-form__share-checkbox">
+                                        {{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}
+                                    </div>
+                                </div>
+                                <div class="clearfix">
+                                    <input class="button float-right" type="submit" value="{% trans '提交' %}">
+                                </div>
+                                {{ form.media }}
+                            </form>
+
+                    </div>
+                    
+                </div>
+            </section>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+    
+    {% comment %}        
+    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
+    <!--current user mastodon id--> 
+    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    {% endcomment %}
+        
+    <script>
+
+    </script>
+</body>
+
+
+</html>

@@ -4,6 +4,7 @@ import random
 import logging
 from lxml import html
 import re
+import dateparser
 from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG
 from django.utils.translation import ugettext_lazy as _
 from common.models import SourceSiteEnum
@@ -11,6 +12,8 @@ from movies.models import Movie, MovieGenreEnum
 from movies.forms import MovieForm
 from books.models import Book
 from books.forms import BookForm
+from music.models import Album, Song
+from music.forms import AlbumForm, SongForm
 
 
 RE_NUMBERS = re.compile(r"\d+\d*")
@@ -18,7 +21,7 @@ RE_WHITESPACES = re.compile(r"\s+")
 
 
 DEFAULT_REQUEST_HEADERS = {
-    'Host': 'book.douban.com',
+    'Host': '',
     'User-Agent': 'Mozilla/5.0 (Windows NT 6.1; rv:70.0) Gecko/20100101 Firefox/70.0',
     'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
     'Accept-Language': 'zh-CN,zh;q=0.8,zh-TW;q=0.7,zh-HK;q=0.5,en-US;q=0.3,en;q=0.2',
@@ -65,7 +68,7 @@ class AbstractScraper:
 
     # subclasses must specify those two variables
     # site means general sites, like amazon/douban etc
-    site = None
+    site_name = None
     # host means technically hostname
     host = None
     # corresponding data class
@@ -78,18 +81,26 @@ class AbstractScraper:
     def __init_subclass__(cls, **kwargs):
         # this statement initialize the subclasses
         super().__init_subclass__(**kwargs)
-        assert cls.site is not None, "class variable `site` must be specified"
-        assert cls.host is not None, "class variable `host` must be specified"
+        assert cls.site_name is not None, "class variable `site_name` must be specified"
+        assert bool(cls.host), "class variable `host` must be specified"
         assert cls.data_class is not None, "class variable `data_class` must be specified"
         assert cls.form_class is not None, "class variable `form_class` must be specified"
         assert cls.regex is not None, "class variable `regex` must be specified"
-        assert isinstance(cls.host, str), "`host` must be type str"
-        assert cls.site in SourceSiteEnum, "`site` must be one of `SourceSiteEnum` value"
-        assert hasattr(cls, 'scrape') and callable(cls.scrape), "scaper must have method `.scrape()`"
+        assert isinstance(cls.host, str) or (isinstance(cls.host, list) and isinstance(
+            cls.host[0], str)), "`host` must be type str or list"
+        assert cls.site_name in SourceSiteEnum, "`site_name` must be one of `SourceSiteEnum` value"
+        assert hasattr(cls, 'scrape') and callable(
+            cls.scrape), "scaper must have method `.scrape()`"
+
         # decorate the scrape method
         cls.scrape = classmethod(log_url(cls.scrape))
-        scraper_registry[cls.host] = cls
-
+        
+        # register scraper
+        if isinstance(cls.host, list):
+            for host in cls.host:
+                scraper_registry[host] = cls
+        else:
+            scraper_registry[cls.host] = cls
 
     def scrape(self, url):
         """
@@ -98,7 +109,6 @@ class AbstractScraper:
         return (data_dict, image)
         """
         raise NotImplementedError("Subclass should implement this method")
-
 
     @classmethod
     def get_effective_url(cls, raw_url):
@@ -113,14 +123,15 @@ class AbstractScraper:
 
         session_id = random.random()
         proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
-                    (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
+                     (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
         proxies = {
             'http': proxy_url,
             'https': proxy_url,
         }
         # if DEBUG:
         #     proxies = None
-        r = requests.get(url, proxies=proxies, headers=headers, timeout=TIMEOUT)
+        r = requests.get(url, proxies=proxies,
+                         headers=headers, timeout=TIMEOUT)
         # r = requests.get(url, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
 
         return html.fromstring(r.content.decode('utf-8'))
@@ -132,7 +143,7 @@ class AbstractScraper:
         raw_img = None
         session_id = random.random()
         proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
-                    (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
+                     (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
         proxies = {
             'http': proxy_url,
             'https': proxy_url,
@@ -159,7 +170,7 @@ class AbstractScraper:
 
 
 class DoubanBookScraper(AbstractScraper):
-    site = SourceSiteEnum.DOUBAN.value
+    site_name = SourceSiteEnum.DOUBAN.value
     host = "book.douban.com"
     data_class = Book
     form_class = BookForm
@@ -234,7 +245,8 @@ class DoubanBookScraper(AbstractScraper):
 
         brief_elem = content.xpath(
             "//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro'][not(ancestor::span[@class='short'])]/p/text()")
-        brief = '\n'.join(p.strip() for p in brief_elem) if brief_elem else None
+        brief = '\n'.join(p.strip()
+                          for p in brief_elem) if brief_elem else None
 
         contents = None
         try:
@@ -311,14 +323,14 @@ class DoubanBookScraper(AbstractScraper):
             'brief': brief,
             'contents': contents,
             'other_info': other,
-            'source_site': self.site,
+            'source_site': self.site_name,
             'source_url': self.get_effective_url(url),
         }
         return data, raw_img
 
 
 class DoubanMovieScraper(AbstractScraper):
-    site = SourceSiteEnum.DOUBAN.value
+    site_name = SourceSiteEnum.DOUBAN.value
     host = 'movie.douban.com'
     data_class = Movie
     form_class = MovieForm
@@ -327,7 +339,7 @@ class DoubanMovieScraper(AbstractScraper):
 
     def scrape(self, url):
         headers = DEFAULT_REQUEST_HEADERS.copy()
-        headers['Host'] = 'movie.douban.com'
+        headers['Host'] = self.host
         content = self.download_page(url, headers)
 
         # parsing starts here
@@ -483,8 +495,105 @@ class DoubanMovieScraper(AbstractScraper):
             'single_episode_length': single_episode_length,
             'brief': brief,
             'is_series': is_series,
-            'source_site': self.site,
+            'source_site': self.site_name,
             'source_url': self.get_effective_url(url),
         }
         return data, raw_img
- 
+
+
+class DoubanAlbumScraper(AbstractScraper):
+    site_name = SourceSiteEnum.DOUBAN.value
+    host = 'music.douban.com'
+    data_class = Album
+    form_class = AlbumForm
+
+    regex = re.compile(r"https://music.douban.com/subject/\d+/{0,1}")
+
+    def scrape(self, url):
+        headers = DEFAULT_REQUEST_HEADERS.copy()
+        headers['Host'] = self.host
+        content = self.download_page(url, headers)
+
+        # parsing starts here
+        try:
+            title = content.xpath("//h1/span/text()")[0].strip()
+        except IndexError:
+            raise ValueError("given url contains no album info")
+        if not title:
+            raise ValueError("given url contains no album info")
+            
+
+        artists_elem = content.xpath("""//div[@id='info']/span/span[@class='pl']/a/text()""")
+        artist = None if not artists_elem else artists_elem
+
+        genre_elem = content.xpath(
+            "//div[@id='info']//span[text()='流派:']/following::text()[1]")
+        genre = genre_elem[0].strip() if genre_elem else None
+
+        date_elem = content.xpath(
+            "//div[@id='info']//span[text()='发行时间:']/following::text()[1]")
+        release_date = dateparser.parse(date_elem[0].strip(), settings={
+                                        'PREFER_DAY_OF_MONTH': 'first'}) if date_elem else None
+
+        company_elem = content.xpath(
+            "//div[@id='info']//span[text()='出版者:']/following::text()[1]")
+        company = company_elem[0].strip() if company_elem else None
+
+        track_list_elem = content.xpath(
+            "//div[@class='track-list']/div[@class='indent']/div/text()"
+        )
+        if track_list_elem:
+            track_list = '\n'.join([track.strip() for track in track_list_elem])
+        else:
+            track_list = None
+
+        brief_elem = content.xpath("//span[@class='all hidden']")
+        if not brief_elem:
+            brief_elem = content.xpath("//span[@property='v:summary']")
+        brief = '\n'.join([e.strip() for e in brief_elem[0].xpath(
+            './text()')]) if brief_elem else None
+
+        other_info = {}
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]")
+        if other_elem:
+            other_info['又名'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='专辑类型:']/following-sibling::text()[1]")
+        if other_elem:
+            other_info['专辑类型'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='介质:']/following-sibling::text()[1]")
+        if other_elem:
+            other_info['介质'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='ISRC:']/following-sibling::text()[1]")
+        if other_elem:
+            other_info['ISRC'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='条形码:']/following-sibling::text()[1]")
+        if other_elem:
+            other_info['条形码'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='碟片数:']/following-sibling::text()[1]")
+        if other_elem:
+            other_info['碟片数'] = other_elem[0].strip()
+
+        img_url_elem = content.xpath("//div[@id='mainpic']//img/@src")
+        img_url = img_url_elem[0].strip() if img_url_elem else None
+        raw_img = self.download_image(img_url)
+
+        data = {
+            'title': title,
+            'artist': artist,
+            'genre': genre,
+            'release_date': release_date,
+            'duration': None,
+            'company': company,
+            'track_list': track_list,
+            'brief': brief,
+            'other_info': other_info,
+            'source_site': self.site_name,
+            'source_url': self.get_effective_url(url),
+        }
+        return data, raw_img
