@@ -52,9 +52,12 @@
                                 {% endif %}
                                 
                                 {% if book.last_editor %}
-                                <a href="{% url 'users:home' book.last_editor.id %}">
-                                    <div>{% trans '最近编辑者：' %}{{ book.last_editor | default:"" }}</div>
-                                </a>
+                                <div>
+                                    {% trans '最近编辑者：' %}
+                                    <a href="{% url 'users:home' book.last_editor.id %}">
+                                        <span>{{ book.last_editor | default:"" }}</span>
+                                    </a>
+                                </div>
                                 {% endif %}
                                     
                                 <div>{% trans '上次编辑时间：' %}{{ book.edited_time }}</div>

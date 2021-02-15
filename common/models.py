@@ -20,6 +20,7 @@ RE_HTML_TAG = re.compile(r"<[^>]*>")
 class SourceSiteEnum(models.TextChoices):
     IN_SITE = "in-site", CLIENT_NAME
     DOUBAN = "douban",  _("豆瓣")
+    SPOTIFY = "spotify", _("Spotify")
 
 
 class Entity(models.Model):
@@ -32,8 +33,8 @@ class Entity(models.Model):
     edited_time = models.DateTimeField(auto_now_add=True)
     last_editor = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='%(class)s_last_editor', null=True, blank=False)
-    brief = models.TextField(blank=True, default="")
-    other_info = postgres.JSONField(
+    brief = models.TextField(_("简介"), blank=True, default="")
+    other_info = postgres.JSONField(_("其他信息"),
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
     # source_url should include shceme, which is normally https://
     source_url = models.URLField(_("URL"), max_length=500, unique=True)
@@ -114,7 +115,7 @@ class Entity(models.Model):
         """
         raise NotImplementedError("Subclass should implement this method.")
 
-    def get_revies_manager(self):
+    def get_reviews_manager(self):
         """
         Normally this won't be used.
         There is no ocassion where visitor can simply view all the reviews.

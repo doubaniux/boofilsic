@@ -99,7 +99,7 @@
                                         <div>
                                         <a href="{% url 'books:update' book.id %}">{% trans '编辑这本书' %}</a>
                                         {% if user.is_staff %}
-                                        <a href="{% url 'books:delete' book.id %}"> / {% trans '删除' %}</a>
+                                        /<a href="{% url 'books:delete' book.id %}"> {% trans '删除' %}</a>
                                         {% endif %}
                                         </div>
                                     </div>
@@ -120,20 +120,18 @@
                                 </div>
                             </div>
                             <div class="dividing-line"></div>
+                            {% if book.brief %}
                             <div class="entity-desc" id="description">
                                 <h5 class="entity-desc__title">{% trans '简介' %}</h5>
-                                {% if book.brief %}
 
                                     <p class="entity-desc__content">{{ book.brief | linebreaksbr }}</p>
                                     <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
                                         <a href="javascript:void(0);">展开全部</a>
                                     </div>
 
-                                {% else %}
-                                <div>{% trans '暂无简介' %}</div>
-                                {% endif %}
-                                
+                                    
                             </div>
+                            {% endif %}
                             
                             {% if book.contents %}
                             <div class="entity-desc" id="contents">
@@ -160,7 +158,7 @@
                                     <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
                                     {% endif %}
                                     {% if others_mark.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-marks__mark-time">{{ others_mark.edited_time }}</span>
                                     {% if others_mark.text %}
@@ -184,7 +182,7 @@
                                 <li class="entity-reviews__review">
                                     <a href="{% url 'users:home' others_review.owner.id %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
                                     {% if others_review.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
                                     <span class="entity-reviews__review-title"> <a href="{% url 'books:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
@@ -212,7 +210,7 @@
                                     {% endif %}
                                 {% endif %}
                                 {% if mark.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                 {% endif %}                                        
                                 <span class="mark-panel__actions">
                                     <a href="" class="edit">{% trans '修改' %}</a>
@@ -255,7 +253,7 @@
    
                                 <span class="review-panel__label">{% trans '我的评论' %}</span>
                                 {% if review.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
                                 {% endif %}
 
                                 <span class="review-panel__actions">

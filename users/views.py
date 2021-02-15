@@ -17,8 +17,10 @@ from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from books.models import *
 from movies.models import *
+from music.models import *
 from books.forms import BookMarkStatusTranslator
 from movies.forms import MovieMarkStatusTranslator
+from music.forms import MusicMarkStatusTranslator
 from mastodon.models import MastodonApplication
 
 
@@ -108,6 +110,14 @@ def register(request):
     elif request.method == 'POST':
         token = request.session['new_user_token']
         user_data = get_user_data(request.COOKIES['mastodon_domain'], token)
+        if user_data is None:
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': _("长毛象访问失败😫")
+                }
+            )
         new_user = User(
             username=user_data['username'],
             mastodon_id=user_data['id'],
@@ -372,7 +382,7 @@ def book_list(request, id, status):
             mark.book.tag_list = mark.book.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
+        list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("标记的书"))
         return render(
             request,
             'users/book_list.html',
@@ -441,10 +451,90 @@ def movie_list(request, id, status):
             mark.movie.tag_list = mark.movie.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的电影和剧集"))
+        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("标记的电影和剧集"))
         return render(
             request,
             'users/movie_list.html',
+            {
+                'marks': marks,
+                'user': user,
+                'list_title' : list_title,
+            }
+        )
+    else:
+        return HttpResponseBadRequest()
+            
+
+@mastodon_request_included
+@login_required
+def music_list(request, id, status):
+    if request.method == 'GET':
+        if not status.upper() in MarkStatusEnum.names:
+            return HttpResponseBadRequest()
+
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
+        try:
+            user = User.objects.get(**query_kwargs)
+        except ObjectDoesNotExist:
+            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            sec_msg = _("目前只开放本站用户注册")
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': msg,
+                    'secondary_msg': sec_msg,
+                }
+            )        
+        if not user == request.user:
+            # mastodon request
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            if relation['blocked_by']:
+                msg = _("你没有访问TA主页的权限😥")
+                return render(
+                    request,
+                    'common/error.html',
+                    {
+                        'msg': msg,
+                    }
+                )
+            queryset = list(AlbumMark.get_available_by_user(user, relation['following']).filter(
+                status=MarkStatusEnum[status.upper()])) \
+                + list(SongMark.get_available_by_user(user, relation['following']).filter(
+                    status=MarkStatusEnum[status.upper()]))
+            
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
+        else:
+            queryset = list(AlbumMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()])) \
+                + list(SongMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]))
+        queryset = sorted(queryset, key=lambda e: e.edited_time, reverse=True)
+        paginator = Paginator(queryset, ITEMS_PER_PAGE)
+        page_number = request.GET.get('page', default=1)
+        marks = paginator.get_page(page_number)
+        for mark in marks:
+            if mark.__class__ == AlbumMark:
+                mark.music = mark.album
+                mark.music.tag_list = mark.album.get_tags_manager().values('content').annotate(
+                    tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
+            elif mark.__class__ == SongMark:
+                mark.music = mark.song
+                mark.music.tag_list = mark.song.get_tags_manager().values('content').annotate(
+                    tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
+
+        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("标记的音乐"))
+        return render(
+            request,
+            'users/music_list.html',
             {
                 'marks': marks,
                 'user': user,

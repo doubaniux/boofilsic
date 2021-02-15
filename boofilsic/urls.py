@@ -25,7 +25,13 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path('books/', include('books.urls')),
     path('movies/', include('movies.urls')),
+    path('music/', include('music.urls')),
     path('announcement/', include('management.urls')),
     path('', include('common.urls')),
 
 ]
+
+if settings.DEBUG:
+    from django.conf.urls.static import static
+    urlpatterns += static(settings.MEDIA_URL,
+                          document_root=settings.MEDIA_ROOT)
