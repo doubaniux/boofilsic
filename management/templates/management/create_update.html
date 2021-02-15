@@ -29,7 +29,7 @@
     <script>
         function convertToSlug(text) {
             // return encodeURI(text.toLowerCase().replace(/ +/g, '-'));
-            return text.toLowerCase().replace(/ +/g, '-');
+            return text.toLowerCase().replace(/[ ;\.\:\?\!@#\$%\^&\*\(\)\=\+\<\>`~·，。“”？！《》【】：；\\{}\[\]]+/g, '-');
         }
         document.getElementById("id_title").addEventListener('input', function (evt) {
             document.getElementById("id_slug").value = convertToSlug(this.value);
