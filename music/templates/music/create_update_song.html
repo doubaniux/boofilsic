@@ -36,7 +36,8 @@
                             {% for field in form %}
                             {% if field.name == 'release_date' %}
                                 {{ field.label_tag }}
-                                <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}">
+                                <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}" 
+                                    value="{{ form.instance.release_date | date:"Y-m-d" }}">
                             {% else %}
                                 {% if field.name != 'id' %}
                                     {{ field.label_tag }}

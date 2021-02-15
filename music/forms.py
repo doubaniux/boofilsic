@@ -19,6 +19,7 @@ class SongForm(forms.ModelForm):
 
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     other_info = JSONField(required=False, label=_("其他信息"))
+    duration = DurationField(required=False)
 
     class Meta:
         model = Song
@@ -100,6 +101,7 @@ class AlbumForm(forms.ModelForm):
 
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     other_info = JSONField(required=False, label=_("其他信息"))
+    duration = DurationField(required=False)
 
     class Meta:
         model = Album

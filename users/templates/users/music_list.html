@@ -1,5 +1,7 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
@@ -40,64 +42,68 @@
                                 <ul class="entity-list__entities">
                                     
                                     {% for mark in marks %}
+                                    
+                                    {% with mark.music as music %}
                                         
                                     <li class="entity-list__entity">
                                         <div class="entity-list__entity-img-wrapper">
-                                            <a href="{% url 'books:retrieve' mark.book.id %}">
-                                                <img src="{{ mark.book.cover.url }}" alt="" class="entity-list__entity-img">
+                                            {% if music.category_name|lower == 'album' %}
+                                            <a href="{% url 'music:retrieve_album' music.id %}">
+                                                <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
                                             </a>
+                                            {% elif music.category_name|lower == 'song' %}
+                                            <a href="{% url 'music:retrieve_song' music.id %}">
+                                                <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
+                                            </a>
+                                            {% endif %}
                                         </div>
                                         <div class="entity-list__entity-text">
                                             <div class="entity-list__entity-title">
-                                                <a href="{% url 'books:retrieve' mark.book.id %}" class="entity-list__entity-link">
-                                                    {{ mark.book.title }}
+                                                {% if music.category_name|lower == 'album' %}
+                                                <a href="{% url 'music:retrieve_album' music.id %}" class="entity-list__entity-link">
+                                                    {{ music.title }}
                                                 </a>
-                                                <a href="{{ mark.book.source_url }}">
-                                                    <span class="source-label source-label__{{ mark.book.source_site }}">{{ mark.book.get_source_site_display }}</span>
+                                                {% elif music.category_name|lower == 'song' %}
+                                                <a href="{% url 'music:retrieve_song' music.id %}" class="entity-list__entity-link">
+                                                    {{ music.title }}
+                                                </a>
+                                                {% endif %}
+                                                <a href="{{ music.source_url }}">
+                                                    <span class="source-label source-label__{{ music.source_site }}">{{ music.get_source_site_display }}</span>
                                                 </a>
                                             </div>
-                                            {% comment %}                                                
-                                                <!-- {% if mark.book.rating %}
-                                                <div class="rating-star entity-list__rating-star" data-rating-score="{{ mark.book.rating | floatformat:"0" }}"></div>
-                                                <span class="entity-list__rating-score rating-score">
-                                                    {{ mark.book.rating }}
-                                                </span>
-                                                {% else %}
-                                                <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
-                                                {% endif %} -->
-                                            {% endcomment %}
-                                            <span class="entity-list__entity-info entity-list__entity-info--full-length">
-                                            {% if mark.book.pub_year %}
-                                            {{ mark.book.pub_year }}{% trans '年' %} /
-                                                {% if mark.book.pub_month %}
-                                                    {{ mark.book.pub_month }}{% trans '月' %} /
-                                                {% endif %} 
-                                            {% endif %}
+                                            <span class="entity-list__entity-info ">
+                                                {% if music.artist %}{% trans '艺术家' %}
+                                                {% for artist in music.artist %}
+                                                <span>{{ artist }}</span>
+                                                {% if not forloop.last %} {% endif %}
+                                                {% endfor %}
+                                                {% endif %}
                                             
-                                            {% if mark.book.author %}
-                                            {% trans '作者' %}
-                                            {% for author in mark.book.author %}                  
-                                            {{ author }}{% if not forloop.last %},{% endif %}
-                                            {% endfor %}/
-                                            {% endif %}
-        
-                                            {% if mark.book.translator %}
-                                            {% trans '译者' %}
-                                            {% for translator in mark.book.translator %}                  
-                                            {{ translator }}{% if not forloop.last %},{% endif %}
-                                            {% endfor %}/
-                                            {% endif %}                                    
-        
-                                            {% if mark.book.orig_title %}
-                                            &nbsp;{% trans '原名' %}
-                                                {{ mark.book.orig_title }}
-                                            {% endif %}
-                                            </span>                    
+                                                {% if music.genre %}/ {% trans '流派' %}
+                                                {{ music.genre }}
+                                                {% endif %}
+                                            
+                                                {% if music.release_date %}/ {% trans '发行日期' %}
+                                                {{ music.release_date }}
+                                                {% endif %}
+                                            </span>
+                                            {% if music.brief %}
                                             <p class="entity-list__entity-brief">
-                                                {{ mark.book.brief | truncate:170 }}
+                                                {{ music.brief }}
                                             </p>
+                                            {% elif music.category_name|lower == 'album' %}
+                                            <p class="entity-list__entity-brief">
+                                                {% trans '曲目：' %}{{ music.track_list }}
+                                            </p>
+                                            {% else %}
+                                            <!-- song -->
+                                            <p class="entity-list__entity-brief">
+                                                {% trans '所属专辑：' %}{{ music.album }}
+                                            </p>
+                                            {% endif %}
                                             <div class="tag-collection">
-                                                {% for tag_dict in mark.book.tag_list %}
+                                                {% for tag_dict in music.tag_list %}
                                                 {% for k, v in tag_dict.items %}
                                                 {% if k == 'content' %}
                                                 <span class="tag-collection__tag">
@@ -119,8 +125,7 @@
                                                         {% endif %}
                                                         {% if mark.is_private %}
                                                         <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                                                                    <path
-                                                                        d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                                                                    <path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
                                                                 </svg></span>
                                                         {% endif %}
                                                         <span class="entity-marks__mark-time">{% trans '于' %} {{ mark.edited_time }} {% trans '标记' %}</span>
@@ -133,6 +138,9 @@
                                         </div>
 
                                     </li>
+
+                                    {% endwith %}
+
                                     {% empty %}
                                     <div>{% trans '无结果' %}</div>
                                     {% endfor %}
