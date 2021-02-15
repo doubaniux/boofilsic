@@ -8,6 +8,8 @@ function keyValueInput(valueKeyWidget, hiddenInput) {
     if (placeholderValue == null) {
         placeholderValue = '';
     }
+    // assign existing pairs to hidden input
+    setHiddenInput(valueKeyWidget);
 
     let newInputPair = $('<input type="text"' + 'placeholder=' + placeholderKey + '><input type="text"' + 'placeholder=' + placeholderValue + '>');
     valueKeyWidget.append(newInputPair.clone());
@@ -27,7 +29,7 @@ function keyValueInput(valueKeyWidget, hiddenInput) {
             $(this).next().remove();
             $(this).remove();
         }
-    });
+    }); 
 
     valueKeyWidget.on('input', ':nth-last-child(3)', function () {
         if (!$(this).val() && !$(this).prev().val() && valueKeyWidget.children("input").length > 2) {
@@ -37,12 +39,16 @@ function keyValueInput(valueKeyWidget, hiddenInput) {
     });
 
     valueKeyWidget.on('input', function () {
-        let keys = $(this).children(":nth-child(odd)").map(function () {
+        setHiddenInput(this);
+    });
+
+    function setHiddenInput(elem) {
+        let keys = $(elem).children(":nth-child(odd)").map(function () {
             if ($(this).val()) {
                 return $(this).val();
             }
         }).get();
-        let values = $(this).children(":nth-child(even)").map(function () {
+        let values = $(elem).children(":nth-child(even)").map(function () {
             if ($(this).val()) {
                 return $(this).val();
             }
@@ -55,7 +61,7 @@ function keyValueInput(valueKeyWidget, hiddenInput) {
                 finalValue.push(JSON.stringify(json))
             });
             hiddenInput.val(finalValue.toString());
-        } else if(keys.length - values.length == 1) {
+        } else if (keys.length - values.length == 1) {
             let finalValue = [];
             keys.forEach(function (key, i) {
                 let json = new Object;
@@ -66,8 +72,10 @@ function keyValueInput(valueKeyWidget, hiddenInput) {
                 }
                 finalValue.push(JSON.stringify(json))
             });
-            hiddenInput.val(finalValue.toString());  
+            hiddenInput.val(finalValue.toString());
         }
-    });
+    }
+
+
 }
 

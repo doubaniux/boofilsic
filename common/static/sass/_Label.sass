@@ -1,7 +1,10 @@
 // source label name should match the enum value in `common.models.SourceSiteEnum`
 
-$douban-color: #319840
+$douban-color-primary: #319840
+$douban-color-secondary: white
 $in-site-color: $color-primary
+$spotify-color-primary: #1ed760
+$spotify-color-secondary: black
 
 .source-label
     display: inline
@@ -17,6 +20,8 @@ $in-site-color: $color-primary
     font-weight: lighter
     letter-spacing: 0.1rem
     word-break: keep-all
+    opacity: 0.8
+
 
     position: relative
     top: -1px
@@ -25,6 +30,12 @@ $in-site-color: $color-primary
         border-color: $in-site-color
         color: $in-site-color
     &.source-label__douban
-        border-color: $douban-color
-        color: $douban-color
+        border: none
+        color: $douban-color-secondary
+        background-color: $douban-color-primary
     &.source-label__amazon
+    &.source-label__spotify
+        background-color: $spotify-color-primary
+        color: $spotify-color-secondary
+        border: none
+        font-weight: bold

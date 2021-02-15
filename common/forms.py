@@ -7,25 +7,37 @@ import json
 
 
 class KeyValueInput(forms.Widget):
-    template_name = 'widgets/key_value.html'
-
+    """
+    Input widget for Json field
+    """
+    template_name = 'widgets/hstore.html'
+    
     def get_context(self, name, value, attrs):
-        """ called when rendering """
-        context = {}
-        context['widget'] = {
-            'name': name,
-            'is_hidden': self.is_hidden,
-            'required': self.is_required,
-            'value': self.format_value(value),
-            'attrs': self.build_attrs(self.attrs, attrs),
-            'template_name': self.template_name,
-            'keyvalue_pairs': {},
-        }
-        if context['widget']['value']:
-            key_value_pairs = json.loads(context['widget']['value'])
-            # for kv in key_value_pairs:
-            context['widget']['keyvalue_pairs'] = key_value_pairs
+        context = super().get_context(name, value, attrs)
+        data = json.loads(context['widget']['value'])
+        context['widget']['value'] = [ {p[0]: p[1]} for p in data.items()]
         return context
+
+    class Media:
+        js = ('js/key_value_input.js',)
+
+
+class HstoreInput(forms.Widget):
+    """
+    Input widget for Hstore field
+    """
+    template_name = 'widgets/hstore.html'
+
+    def format_value(self, value):
+        """
+        Return a value as it should appear when rendered in a template.
+        """
+        if value == '' or value is None:
+            return None
+        if self.is_localized:
+            return formats.localize_input(value)
+        # do not return str
+        return value
 
     class Media:
         js = ('js/key_value_input.js',)
@@ -145,23 +157,6 @@ class MultiSelect(forms.SelectMultiple):
         js = ('lib/js/multiple-select.min.js',)
 
 
-class HstoreInput(forms.Widget):
-    template_name = 'widgets/hstore.html'
-
-    def format_value(self, value):
-        """
-        Return a value as it should appear when rendered in a template.
-        """
-        if value == '' or value is None:
-            return None
-        if self.is_localized:
-            return formats.localize_input(value)
-        return value
-
-    class Media:
-        js = ('js/key_value_input.js',)
-
-
 class HstoreField(forms.CharField):
     widget = HstoreInput
     def to_python(self, value):
@@ -174,3 +169,104 @@ class HstoreField(forms.CharField):
         if len(pairs) == 1:
             pairs = (pairs,)
         return pairs
+
+
+class DurationInput(forms.TextInput):
+    """
+    HH:mm:ss input widget
+    """
+    input_type = "time"
+
+    def get_context(self, name, value, attrs):
+        context = super().get_context(name, value, attrs)
+        # context['widget']['type'] = self.input_type
+        context['widget']['attrs']['step'] = "1"
+        return context
+
+    def format_value(self, value):
+        """
+        Given `value` is an integer in ms
+        """
+        ms = value
+        if not ms:
+            return super().format_value(None)
+        x = ms // 1000
+        seconds = x % 60
+        x //= 60
+        if x == 0:
+            return super().format_value(f"00:00:{seconds:0>2}")
+        minutes = x % 60
+        x //= 60
+        if x == 0:
+            return super().format_value(f"00:{minutes:0>2}:{seconds:0>2}")
+        hours = x % 24
+        return super().format_value(f"{hours:0>2}:{minutes:0>2}:{seconds:0>2}")
+
+
+class DurationField(forms.TimeField):
+    widget = DurationInput
+    def to_python(self, value):
+
+        # empty value
+        if value is None or value == '':
+            return
+
+        # if value is integer in ms
+        if isinstance(value, int):
+            return value
+
+        # if value is string in time format
+        h, m, s = value.split(':')
+        return (int(h) * 3600 + int(m) * 60 + int(s)) * 1000
+
+
+#############################
+# Form
+#############################
+
+class MarkForm(forms.ModelForm):
+    IS_PRIVATE_CHOICES = [
+        (True, _("仅关注者")),
+        (False, _("公开")),
+    ]
+    
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    share_to_mastodon = forms.BooleanField(
+        label=_("分享到长毛象"), initial=True, required=False)
+    rating = forms.IntegerField(
+        validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
+    is_private = RadioBooleanField(
+        label=_("可见性"),
+        initial=True,
+        choices=IS_PRIVATE_CHOICES
+    )
+    tags = TagField(
+        required=False,
+        widget=TagInput(attrs={'placeholder': _("回车增加标签")}),
+        label=_("标签")
+    )
+    text = forms.CharField(
+        required=False,
+        widget=forms.Textarea(
+            attrs={
+                "placeholder": _("最多只能写360字哦~"),
+                "maxlength": 360
+            }
+        ),
+
+        label=_("短评"),
+    )
+
+class ReviewForm(forms.ModelForm):
+    IS_PRIVATE_CHOICES = [
+        (True, _("仅关注者")),
+        (False, _("公开")),
+    ]
+    share_to_mastodon = forms.BooleanField(
+        label=_("分享到长毛象"), initial=True, required=False)
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    is_private = RadioBooleanField(
+        label=_("可见性"),
+        initial=True,
+        choices=IS_PRIVATE_CHOICES
+    )

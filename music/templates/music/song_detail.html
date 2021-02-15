@@ -1,0 +1,400 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load strip_scheme %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="NiceDB音乐 - {{ song.title }}">
+    <meta property="og:type" content="music.song">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ song.cover.url }}">
+    <meta property="og:site_name" content="NiceDB">
+    <meta property="og:description"content="{{ song.brief }}">
+
+    <title>{% trans 'NiceDB - 音乐详情' %} | {{ song.title }}</title>
+        
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/detail.js' %}"></script>    
+    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+        
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main" id="main">
+                        <div class="main-section-wrapper">
+                            <div class="entity-detail">
+
+                                <img src="{{ song.cover.url }}" class="entity-detail__img" alt="{{ song.title }}">
+
+                                <div class="entity-detail__info">
+                                    <h5 class="entity-detail__title">
+
+                                        {{ song.title }}
+                                        <a href="{{ song.source_url }}"><span class="source-label source-label__{{ song.source_site }}">{{ song.get_source_site_display }}</span></a>
+                                    </h5>
+                                    
+                                    <div class="entity-detail__fields">
+                                        <div class="entity-detail__rating">
+                                            {% if song.rating %}
+                                            <span class="entity-detail__rating-star rating-star" data-rating-score="{{ song.rating | floatformat:"0" }}"></span>
+                                            <span class="entity-detail__rating-score"> {{ song.rating }} </span>
+                                            {% else %}
+                                            <span> {% trans '评分：暂无评分' %}</span>
+                                            {% endif %}
+                                        </div>
+                                        <div>{% if song.artist %}{% trans '艺术家：' %}
+                                        {% for artist in song.artist %}
+                                            <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+                                                <span class="artist">{{ artist }}</span>
+                                                {% if not forloop.last %} / {% endif %}
+                                            </span>
+                                        {% endfor %}
+                                            {% if song.artist|length > 5 %}
+                                            <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
+                                            <script>
+                                                $("#artistMore").click(function (e) {
+                                                    $("span.artist:not(:visible)").each(function (e) {
+                                                        $(this).parent().removeAttr('style');
+                                                    });
+                                                    $(this).remove();
+                                                })
+                                            </script>
+                                            {% endif %}                                        
+                                        {% endif %}</div>
+                                        <div>{% if song.release_date %}
+                                            {% trans '发行日期：' %}{{ song.release_date }}
+                                            {% endif %}
+                                        </div>
+                                        <div>{% if song.duration %}
+                                            {% trans '时长：' %}{{ song.get_duration_display }}
+                                            {% endif %}
+                                        </div>
+                                        <div>{% if song.genre %}
+                                            {% trans '流派：' %}{{ song.genre }}
+                                            {% endif %}
+                                        </div>
+
+                             
+                                    </div>
+                                    <div class="entity-detail__fields">
+                                        <div>{% if song.isrc %}
+                                            {% trans 'ISRC：' %}{{ song.isrc }}
+                                            {% endif %}
+                                        </div>
+                                        <div>{% if song.album %}
+                                            {% trans '所属专辑：' %}<a href="{% url 'music:retrieve_album' song.album.id %}">{{ song.album }}</a> 
+                                            {% endif %}
+                                        </div>
+                                        {% if song.other_info %}                                  
+                                        {% for k, v in song.other_info.items %}
+                                        <div>
+                                            {{k}}：{{v}}
+                                        </div>
+                                        {% endfor %}
+                                        {% endif %}
+                                        
+                                    
+                                        {% if song.last_editor %}
+                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' song.last_editor.id %}">{{ song.last_editor | default:"" }}</a></div>
+                                        {% endif %}
+
+                                        <div>
+                                        <a href="{% url 'music:update_song' song.id %}">{% trans '编辑这个作品' %}</a>
+                                        {% if user.is_staff %}
+                                        /<a href="{% url 'music:delete_song' song.id %}"> {% trans '删除' %}</a>
+                                        {% endif %}
+                                        </div>
+                                    </div>
+                                        
+                                    <div class="tag-collection">
+                                        
+                                        {% for tag_dict in song_tag_list %}
+                                        {% for k, v in tag_dict.items %}
+                                            {% if k == 'content' %}
+                                            <span class="tag-collection__tag">
+                                                <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
+                                            </span>
+                                            {% endif %}
+                                        {% endfor %}
+                                        {% endfor %}
+                                        
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="dividing-line"></div>
+                            {% if song.brief %}
+                            <div class="entity-desc" id="description">
+                                <h5 class="entity-desc__title">{% trans '简介' %}</h5>
+
+                                    <p class="entity-desc__content">{{ song.brief | linebreaksbr }}</p>
+                                    <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
+                                        <a href="javascript:void(0);">展开全部</a>
+                                    </div>
+
+                                    
+                            </div>
+                            {% endif %}
+                            
+                                
+                            <div class="entity-marks">
+                                
+                                <h5 class="entity-marks__title">{% trans '这部作品的标记' %}</h5>
+                                {% if mark_list_more %}
+                                <a href="{% url 'music:retrieve_song_mark_list' song.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+                                {% if mark_list %}
+                                <ul class="entity-marks__mark-list">                                    
+                                {% for others_mark in mark_list %}
+                                <li class="entity-marks__mark">
+                                    <a href="{% url 'users:home' others_mark.owner.id %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
+                                    <span>{{ others_mark.get_status_display }}</span>
+                                    {% if others_mark.rating %}
+                                    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
+                                    {% endif %}
+                                    {% if others_mark.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    {% endif %}
+                                    <span class="entity-marks__mark-time">{{ others_mark.edited_time }}</span>
+                                    {% if others_mark.text %}
+                                    <p class="entity-marks__mark-content">{{ others_mark.text }}</p>
+                                    {% endif %}
+                                </li>
+                                {% endfor %}
+                                </ul>
+                                {% else %}
+                                <div>{% trans '暂无标记' %}</div>    
+                                {% endif %}
+                            </div>
+                            <div class="entity-reviews">
+                                <h5 class="entity-reviews__title">{% trans '这部作品的评论' %}</h5>
+
+                                {% if review_list_more %}
+                                <a href="{% url 'music:retrieve_song_review_list' song.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+                                {% if review_list %}
+                                <ul class="entity-reviews__review-list">
+                                {% for others_review in review_list %}
+                                <li class="entity-reviews__review">
+                                    <a href="{% url 'users:home' others_review.owner.id %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
+                                    {% if others_review.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    {% endif %}
+                                    <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
+                                    <span class="entity-reviews__review-title"> <a href="{% url 'music:retrieve_song_review' others_review.id %}">{{ others_review.title }}</a></span>
+                                    <span>{{ others_review.get_plain_content | truncate:100 }}</span>
+                                </li>
+                                {% endfor %}
+                                </ul>
+                                {% else %}
+                                <div>{% trans '暂无评论' %}</div>    
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid__aside" id="aside">
+                        <div class="aside-section-wrapper">
+                            
+                            {% if mark %}
+                            <div class="mark-panel">
+
+                                <span class="mark-panel__status">{% trans '我' %}{{ mark.get_status_display }}</span>
+                                {% if mark.status == status_enum.DO.value or mark.status == status_enum.COLLECT.value%}
+                                    {% if mark.rating %}
+                                    <span class="mark-panel__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
+                                    {% endif %}
+                                {% endif %}
+                                {% if mark.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                {% endif %}                                        
+                                <span class="mark-panel__actions">
+                                    <a href="" class="edit">{% trans '修改' %}</a>
+                                    <form action="{% url 'music:delete_song_mark' mark.id %}" method="post">
+                                        {% csrf_token %}
+                                        <a href="" class="delete">{% trans '删除' %}</a>
+                                    </form>
+                                </span>
+                                <div class="mark-panel__clear"></div>
+
+                                <div class="mark-panel__time">{{ mark.edited_time }}</div>
+
+                                {% if mark.text %}
+                                <p class="mark-panel__text">{{ mark.text }}</p>
+                                {% endif %}
+                                <div class="tag-collection">
+                                    
+                                    {% for tag in mark_tags %}
+                                        <span class="tag-collection__tag">{{ tag }}</span>
+                                    {% endfor %}
+                                        
+                                </div>
+                            </div>
+                            {% else %}
+                            <div class="action-panel" id="addMarkPanel">
+                                <div class="action-panel__label">{% trans '标记这部作品' %}</div>
+                                <div class="action-panel__button-group">
+                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想听' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在听' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '听过' %}</button>
+                                </div>
+                            </div>                            
+                            {% endif %}
+                                
+                        </div>
+                        
+                        <div class="aside-section-wrapper">
+                            {% if review %}
+                            <div class="review-panel">
+   
+                                <span class="review-panel__label">{% trans '我的评论' %}</span>
+                                {% if review.is_private %}
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
+                                {% endif %}
+
+                                <span class="review-panel__actions">
+                                    <a href="{% url 'music:update_song_review' review.id %}">{% trans '编辑' %}</a>
+                                    <a href="{% url 'music:delete_song_review' review.id %}">{% trans '删除' %}</a>
+                                </span>
+
+                                <div class="review-panel__time">{{ review.edited_time }}</div>
+
+                                <a href="{% url 'music:retrieve_song_review' review.id %}" class="review-panel__review-title">
+                                    {{ review.title }}
+                                </a>                                                           
+                            </div>
+                            {% else %}
+
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '我的评论' %}</div>
+                                <div class="action-panel__button-group action-panel__button-group--center">
+
+                                    <a href="{% url 'music:create_song_review' song.id %}">
+                                        <button class="action-panel__button">{% trans '去写评论' %}</button>
+                                    </a>
+                                </div>
+                            </div>     
+
+                            {% endif %}
+                        </div>
+                                
+                    </div>
+                </div>
+            </section>
+            
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+    
+    <div id="modals">
+        <div class="mark-modal modal">
+            <div class="mark-modal__head">
+                
+                {% if not mark %}
+                
+                <style>
+                    .mark-modal__title::after {
+                        content: "{% trans '这部作品' %}";
+                    }
+                </style>
+                    
+                <span class="mark-modal__title"></span>
+                {% else %}
+                <span class="mark-modal__title">{% trans '我的标记' %}</span>
+                {% endif %}
+                
+                <span class="mark-modal__close-button modal-close">
+                    <span class="icon-cross">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <polygon
+                            points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+                        </polygon>
+                    </svg>
+                </span>
+            </span>
+        </div>
+        <div class="mark-modal__body">
+                <form action="{% url 'music:create_update_song_mark' %}" method="post">
+                    {{ mark_form.media }}
+                    {% csrf_token %}
+                    {{ mark_form.id }}
+                    {{ mark_form.song }}
+                    {% if mark.rating %}
+                    {% endif %}
+
+                    <div class="mark-modal__rating-star rating-star-edit"></div>
+                    {{ mark_form.rating }}
+                    <div id="statusSelection" class="mark-modal__status-radio" {% if not mark %}hidden{% endif %}>
+                        {{ mark_form.status }}
+                    </div>
+
+                    <div class="mark-modal__clear"></div>
+
+                    {{ mark_form.text }}
+
+                    <div class="mark-modal__tag">
+                        <label>{{ mark_form.tags.label }}</label>
+                        {{ mark_form.tags }}
+                    </div>
+                    
+                    <div class="mark-modal__option">
+                        <div class="mark-modal__visibility-radio">
+                            <span>{{ mark_form.is_private.label }}:</span>
+                            {{ mark_form.is_private }}
+                        </div>
+                        <div class="mark-modal__share-checkbox">
+                            {{ mark_form.share_to_mastodon }}{{ mark_form.share_to_mastodon.label }}
+                        </div>
+                    </div>
+                    <div class="mark-modal__confirm-button">
+                        <input type="submit" class="button float-right" value="{% trans '提交' %}">
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div class="confirm-modal modal">
+            <div class="confirm-modal__head">
+                <span class="confirm-modal__title">{% trans '确定要删除你的标记吗？' %}</span>      
+                <span class="confirm-modal__close-button modal-close">
+                    <span class="icon-cross">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                            <polygon
+                                points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+                            </polygon>
+                        </svg>
+                    </span>
+                </span>
+            </div>
+            <div class="confirm-modal__body">
+                <div class="confirm-modal__confirm-button">
+                    <input type="submit" class="button float-right" value="{% trans '确认' %}">
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="bg-mask"></div>
+
+    <script>
+
+    </script>
+</body>
+
+
+</html>

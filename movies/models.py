@@ -54,6 +54,7 @@ class MovieGenreEnum(models.TextChoices):
     REALITY_TV = 'Reality-TV', _('真人秀')
     FAMILY = 'Family', _('家庭')
     TALK_SHOW = 'Talk-Show', _('脱口秀')
+    OTHER = 'Other', _('其他')
 
 
 MovieGenreTranslator = ChoicesDictGenerator(MovieGenreEnum)
@@ -76,7 +77,7 @@ class Movie(Entity):
         default=list,
     )
     imdb_code = models.CharField(
-        blank=True, max_length=10, null=True, db_index=True)
+        blank=True, max_length=10, null=False, db_index=True, default='')
     director = postgres.ArrayField(
         models.CharField(_("director"), blank=True,
                          default='', max_length=100),

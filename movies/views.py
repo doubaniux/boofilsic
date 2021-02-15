@@ -8,7 +8,6 @@ from django.db import IntegrityError, transaction
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.core.files.uploadedfile import SimpleUploadedFile
 from mastodon import mastodon_request_included
 from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from mastodon.utils import rating_to_emoji
@@ -17,7 +16,6 @@ from common.views import PAGE_LINK_NUMBER, jump_or_scrape
 from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
-from .forms import MovieMarkStatusTranslator
 from boofilsic.settings import MASTODON_TAGS
 
 
@@ -225,7 +223,7 @@ def retrieve(request, id):
             }
         )
     else:
-        logger.warning('non-GET method at /movie/<id>')
+        logger.warning('non-GET method at /movies/<id>')
         return HttpResponseBadRequest()
 
 
