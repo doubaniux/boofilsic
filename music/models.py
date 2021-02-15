@@ -51,7 +51,7 @@ class Album(Entity):
                              default='', max_length=100)
     company = postgres.ArrayField(
         models.CharField(blank=True,
-                         default='', max_length=100),
+                         default='', max_length=500),
         null=True,
         blank=True,
         default=list,
@@ -96,7 +96,7 @@ class Song(Entity):
     genre = models.CharField(_("流派"), blank=True, default='', max_length=100)
 
     album = models.ForeignKey(
-        Album, models.CASCADE, "album_songs", null=True, blank=True, verbose_name=_("所属专辑"))
+        Album, models.SET_NULL, "album_songs", null=True, blank=True, verbose_name=_("所属专辑"))
 
     def __str__(self):
         return self.title

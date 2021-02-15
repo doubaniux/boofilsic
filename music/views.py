@@ -7,7 +7,6 @@ from common.utils import PageLinksGenerator
 from mastodon.utils import rating_to_emoji
 from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from mastodon import mastodon_request_included
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.db.models import Count
@@ -158,13 +157,13 @@ def retrieve_song(request, id):
             seconds = x % 60
             x //= 60
             if x == 0:
-                return f"{seconds}"
+                return f"{seconds}秒"
             minutes = x % 60
             x //= 60
             if x == 0:
-                return f"{minutes}:{seconds}"
+                return f"{minutes}分{seconds}秒"
             hours = x % 24
-            return f"{hours}:{minutes}:{seconds}"
+            return f"{hours}时{minutes}分{seconds}秒"
 
         song.get_duration_display = ms_to_readable(song.duration)
             
@@ -730,13 +729,13 @@ def retrieve_album(request, id):
             seconds = x % 60
             x //= 60
             if x == 0:
-                return f"{seconds}"
+                return f"{seconds}秒"
             minutes = x % 60
             x //= 60
             if x == 0:
-                return f"{minutes}:{seconds}"
+                return f"{minutes}分{seconds}秒"
             hours = x % 24
-            return f"{hours}:{minutes}:{seconds}"
+            return f"{hours}时{minutes}分{seconds}秒"
 
         album.get_duration_display = ms_to_readable(album.duration)
 

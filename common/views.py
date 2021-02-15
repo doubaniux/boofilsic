@@ -8,12 +8,11 @@ from django.utils.translation import gettext_lazy as _
 from django.core.paginator import Paginator
 from django.core.validators import URLValidator
 from django.core.exceptions import ValidationError, ObjectDoesNotExist
-from django.core.files.uploadedfile import SimpleUploadedFile
 from django.db.models import Q, Count
 from django.http import HttpResponseBadRequest
 from books.models import Book
 from movies.models import Movie
-from music.models import Album, Song
+from music.models import Album, Song, AlbumMark, SongMark
 from users.models import Report, User
 from mastodon.decorators import mastodon_request_included
 from common.models import MarkStatusEnum
@@ -27,6 +26,8 @@ BOOKS_PER_SET = 5
 
 # how many movies have in each set at the home page
 MOVIES_PER_SET = 5
+
+MUSIC_PER_SET = 5
 
 # how many items are showed in one search result page
 ITEMS_PER_PAGE = 20
@@ -42,6 +43,8 @@ logger = logging.getLogger(__name__)
 @login_required
 def home(request):
     if request.method == 'GET':
+
+        # really shitty code here
 
         unread_announcements = Announcement.objects.filter(
             pk__gt=request.user.read_announcement_index).order_by('-pk')
@@ -77,6 +80,28 @@ def home(request):
             status=MarkStatusEnum.COLLECT).order_by("-edited_time")
         collect_movies_more = True if collect_movie_marks.count() > MOVIES_PER_SET else False
 
+        do_music_marks = list(request.user.user_songmarks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET]) \
+            + list(request.user.user_albummarks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET])
+        do_music_more = True if len(do_music_marks) > MUSIC_PER_SET else False
+        do_music_marks = sorted(do_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+
+        wish_music_marks = list(request.user.user_songmarks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET]) \
+            + list(request.user.user_albummarks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET])
+        wish_music_more = True if len(wish_music_marks) > MUSIC_PER_SET else False
+        wish_music_marks = sorted(wish_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+
+        collect_music_marks = list(request.user.user_songmarks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET]) \
+            + list(request.user.user_albummarks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET])
+        collect_music_more = True if len(collect_music_marks) > MUSIC_PER_SET else False
+        collect_music_marks = sorted(collect_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+
+        for mark in do_music_marks + wish_music_marks + collect_music_marks:
+            # for template convenience
+            if mark.__class__ == AlbumMark:
+                mark.type = "album"
+            else:
+                mark.type = "song"
+
         reports = Report.objects.order_by('-submitted_time').filter(is_read=False)
         # reports = Report.objects.latest('submitted_time').filter(is_read=False)
 
@@ -96,6 +121,12 @@ def home(request):
                 'do_movies_more': do_movies_more,
                 'wish_movies_more': wish_movies_more,
                 'collect_movies_more': collect_movies_more,
+                'do_music_marks': do_music_marks,
+                'wish_music_marks': wish_music_marks,
+                'collect_music_marks': collect_music_marks,
+                'do_music_more': do_music_more,
+                'wish_music_more': wish_music_more,
+                'collect_music_more': collect_music_more,
                 'reports': reports,
                 'unread_announcements': unread_announcements,
             }
@@ -125,20 +156,25 @@ def search(request):
 
         # category, book/movie/music etc
         category = request.GET.get("c", default='').strip().lower()
+        # keywords, seperated by blank space
+        keywords = request.GET.get("q", default='').strip().split()
+        # tag, when tag is provided there should be no keywords , for now
+        tag = request.GET.get("tag", default='')
 
-        def book_param_handler():
-            q = Q()
-            query_args = []
+        # white space string, empty query
+        if not (keywords or tag):
+            return []
 
+        def book_param_handler(**kwargs):
             # keywords
-            keywords = request.GET.get("q", default='').strip()
+            keywords = kwargs.get('keywords')
             # tag
-            tag = request.GET.get("tag", default='')
+            tag = kwargs.get('tag')
 
-            if not (keywords or tag):
-                return []
+            query_args = []
+            q = Q()
 
-            for keyword in [keywords]:
+            for keyword in keywords:
                 q = q | Q(title__icontains=keyword)
                 q = q | Q(subtitle__icontains=keyword)
                 q = q | Q(orig_title__icontains=keyword)
@@ -171,19 +207,16 @@ def search(request):
                 ordered_queryset = list(queryset)
             return ordered_queryset
             
-        def movie_param_handler():
-            q = Q()
-            query_args = []
-
+        def movie_param_handler(**kwargs):
             # keywords
-            keywords = request.GET.get("q", default='').strip()
+            keywords = kwargs.get('keywords')
             # tag
-            tag = request.GET.get("tag", default='')
+            tag = kwargs.get('tag')
 
-            if not (keywords or tag):
-                return []
+            query_args = []
+            q = Q()
 
-            for keyword in [keywords]:
+            for keyword in keywords:
                 q = q | Q(title__icontains=keyword)
                 q = q | Q(other_title__icontains=keyword)
                 q = q | Q(orig_title__icontains=keyword)
@@ -215,33 +248,51 @@ def search(request):
                 ordered_queryset = list(queryset)
             return ordered_queryset
 
-        def music_param_handler():
-            q = Q()
-            query_args = []
-
+        def music_param_handler(**kwargs):
             # keywords
-            keywords = request.GET.get("q", default='').strip()
+            keywords = kwargs.get('keywords')
             # tag
-            tag = request.GET.get("tag", default='')
+            tag = kwargs.get('tag')
 
-            if not (keywords or tag):
-                return []
+            query_args = []
+            q = Q()
 
             # search albums
-            for keyword in [keywords]:
+            for keyword in keywords:
                 q = q | Q(title__icontains=keyword)
+                q = q | Q(artist__icontains=keyword)
             if tag:
                 q = q & Q(album_tags__content__iexact=tag)
 
             query_args.append(q)
-            queryset = Album.objects.filter(*query_args).distinct()
+            album_queryset = Album.objects.filter(*query_args).distinct()
+
+            # extra query args for songs
+            q = Q()
+            for keyword in keywords:
+                q = q | Q(album__title__icontains=keyword)
+                q = q | Q(title__icontains=keyword)
+                q = q | Q(artist__icontains=keyword)
+            if tag:
+                q = q & Q(song_tags__content__iexact=tag)
+            query_args.clear()
+            query_args.append(q)
+            song_queryset = Song.objects.filter(*query_args).distinct()
+            queryset = list(album_queryset) + list(song_queryset)
 
             def calculate_similarity(music):
                 if keywords:
                     # search by name
                     similarity, n = 0, 0
+                    artist_dump = ' '.join(music.artist)
                     for keyword in keywords:
-                        similarity += SequenceMatcher(None, keyword, music.title).quick_ratio()
+                        if music.__class__ == Album:
+                            similarity += 1/2 * SequenceMatcher(None, keyword, music.title).quick_ratio() \
+                                + 1/2 * SequenceMatcher(None, keyword, artist_dump).quick_ratio()
+                        elif music.__class__ == Song:
+                            similarity += 1/2 * SequenceMatcher(None, keyword, music.title).quick_ratio() \
+                                + 1/6 * SequenceMatcher(None, keyword, artist_dump).quick_ratio() \
+                                + 1/6 * SequenceMatcher(None, keyword, music.album.title).quick_ratio()
                         n += 1
                     music.similarity = similarity / n
                 elif tag:
@@ -256,10 +307,10 @@ def search(request):
                 ordered_queryset = list(queryset)
             return ordered_queryset
 
-        def all_param_handler():
-            book_queryset = book_param_handler()
-            movie_queryset = movie_param_handler()
-            music_queryset = music_param_handler()
+        def all_param_handler(**kwargs):
+            book_queryset = book_param_handler(**kwargs)
+            movie_queryset = movie_param_handler(**kwargs)
+            music_queryset = music_param_handler(**kwargs)
             ordered_queryset = sorted(
                 book_queryset + movie_queryset + music_queryset, 
                 key=operator.attrgetter('similarity'), 
@@ -276,9 +327,15 @@ def search(request):
         }
 
         try:
-            queryset = param_handler[category]()
+            queryset = param_handler[category](
+                keywords=keywords,
+                tag=tag
+            )
         except KeyError as e:
-            queryset = param_handler['all']()
+            queryset = param_handler['all'](
+                keywords=keywords,
+                tag=tag
+            )
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         items = paginator.get_page(page_number)
@@ -333,17 +390,11 @@ def jump_or_scrape(request, url):
         except ObjectDoesNotExist:
             # scrape if not exists
             try:
-                scraped_entity, raw_cover = scraper.scrape(url)
-            except:
+                scraper.scrape(url)
+                form = scraper.save(request_user=request.user)
+            except Exception as e:
+                logger.error(f"Scrape Failed URL: {url}")
+                logger.error("Expections during saving scraped data:", exc_info=e)
                 return render(request, 'common/error.html', {'msg': _("爬取数据失败😫")})
-            scraped_cover = {
-                'cover': SimpleUploadedFile('temp.jpg', raw_cover)}
-            form = scraper.form_class(scraped_entity, scraped_cover)
-            if form.is_valid():
-                form.instance.last_editor = request.user
-                form.save()
-                return redirect(form.instance)
-            else:
-                msg = _("爬取数据失败😫")
-                logger.error(str(form.errors))
-                return render(request, 'common/error.html', {'msg': msg})
+            return redirect(form.instance)
+

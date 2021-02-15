@@ -8,7 +8,6 @@ from django.db import IntegrityError, transaction
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
-from django.core.files.uploadedfile import SimpleUploadedFile
 from mastodon import mastodon_request_included
 from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from mastodon.utils import rating_to_emoji

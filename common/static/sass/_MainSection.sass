@@ -66,9 +66,9 @@ $sub-section-title-margin: 8px
 		position: relative
 		top: 0.52em
 		&--full-length
-			display: block
+			// display: block
 			max-width: 100%
-			margin-bottom: 12px
+			// margin-bottom: 12px
 
 	& &__entity-brief
 		margin-top: 8px
@@ -102,10 +102,11 @@ $sub-section-title-margin: 8px
 .entity-detail
 	
 	& &__img
-		height: 210px;
-		object-fit: contain;
-		float: left;
-		max-width: 150px;
+		height: 210px
+		object-fit: contain
+		float: left
+		max-width: 150px
+		object-position: top
 
 	& &__info
 		float: left
@@ -160,7 +161,7 @@ $mark-review-padding-wider: 6px 0
 	& &__content
 		overflow: hidden
 		&--folded
-			max-height: 200px
+			max-height: 202px
 
 	& &__unfold-button
 		display: flex
@@ -375,6 +376,59 @@ $mark-review-padding-wider: 6px 0
 			&:hover
 				color: $color-primary
 
+
+.track-carousel
+	position: relative
+	overflow: auto
+	scroll-behavior: smooth
+	scrollbar-width: none
+	margin-top: 5px
+	// padding: 0
+
+	&::-webkit-scrollbar
+		height: 0px
+	&__content
+		display: grid
+		grid-gap: 16px
+		margin: auto
+		box-sizing: border-box
+		grid-auto-flow: column
+		// grid-template-columns:  max-content
+	&__track
+		width: 10vw
+		height: 13vw
+		// grid-column: 1
+		text-align: center
+		overflow: hidden
+		text-overflow: ellipsis
+		& img
+			object-fit: contain
+	&__track-title
+		// word-break: keep-all
+		// overflow-wrap: anywhere
+		white-space: nowrap
+
+	&__button
+		display: flex
+		justify-content: center
+		align-content: center
+		background: white
+		border: none
+		padding: 8px
+		border-radius: 50%
+		outline: 0
+		cursor: pointer
+		position: absolute
+		&--prev
+			top: 50%
+			left: 0
+			transform: translate(50%, -50%)
+		&--next
+			top: 50%
+			right: 0
+			transform: translate(-50%, -50%)
+
+
 // Small devices (landscape phones, 576px and up)
 @media (max-width: $small-devices)
 	.entity-list
@@ -439,6 +493,11 @@ $mark-review-padding-wider: 6px 0
 			float: unset
 		& &__actions
 			float: unset
+	
+	.track-carousel
+		&__track
+			width: 32vw
+			height: 40vw
 
 
 // Medium devices (tablets, 768px and up)

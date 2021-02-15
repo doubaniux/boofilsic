@@ -150,19 +150,16 @@
                                 </div>
                             </div>
                             <div class="dividing-line"></div>
+                            {% if album.brief %}
                             <div class="entity-desc" id="description">
                                 <h5 class="entity-desc__title">{% trans '简介' %}</h5>
-                                {% if album.brief %}
 
                                     <p class="entity-desc__content">{{ album.brief | linebreaksbr }}</p>
                                     <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
                                         <a href="javascript:void(0);">展开全部</a>
                                     </div>
-
-                                {% else %}
-                                <div>{% trans '暂无简介' %}</div>
-                                {% endif %}  
                             </div>
+                            {% endif %}  
 
                             {% if album.track_list %}
                             <div class="entity-desc" id="description">
@@ -178,11 +175,32 @@
                             <div class="entity-desc" id="description">
                                 <h5 class="entity-desc__title">{% trans '关联单曲' %}</h5>
                                 <!-- TODO: Limit the maximum -->
-                                {% for song in album.album_songs.all %}
-                                <div>
-                                    <a href="{% url 'music:retrieve_song' song.id %}">{{ song }}</a>
+                                <div class="track-carousel">
+                                    <div class="track-carousel__content">
+                                        {% for song in album.album_songs.all %}
+                                        <div class="track-carousel__track">
+                                            <a href="{% url 'music:retrieve_song' song.id %}">
+                                                <img src="{{ song.cover.url }}" alt="{{ song }}" class="track-carousel__track-image">
+                                                <span class="track-carousel__track-title">
+                                                    {{ song }}
+                                                </span>
+                                            </a>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                    <!-- <button class="track-carousel__button track-carousel__button--prev">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <path fill="none" d="M0 0h24v24H0V0z" />
+                                            <path d="M15.61 7.41L14.2 6l-6 6 6 6 1.41-1.41L11.03 12l4.58-4.59z" />
+                                        </svg>
+                                    </button>
+                                    <button class="track-carousel__button track-carousel__button--next">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
+                                            <path fill="none" d="M0 0h24v24H0V0z" />
+                                            <path d="M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z" />
+                                        </svg>
+                                    </button> -->
                                 </div>
-                                {% endfor %}
                                     
                             </div>
                             {% endif %}
@@ -204,7 +222,7 @@
                                     <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
                                     {% endif %}
                                     {% if others_mark.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-marks__mark-time">{{ others_mark.edited_time }}</span>
                                     {% if others_mark.text %}
@@ -229,7 +247,7 @@
                                 <li class="entity-reviews__review">
                                     <a href="{% url 'users:home' others_review.owner.id %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
                                     {% if others_review.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
                                     <span class="entity-reviews__review-title"> <a href="{% url 'music:retrieve_album_review' others_review.id %}">{{ others_review.title }}</a></span>
@@ -257,7 +275,7 @@
                                     {% endif %}
                                 {% endif %}
                                 {% if mark.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                 {% endif %}                                        
                                 <span class="mark-panel__actions">
                                     <a href="" class="edit">{% trans '修改' %}</a>
@@ -285,9 +303,9 @@
                             <div class="action-panel" id="addMarkPanel">
                                 <div class="action-panel__label">{% trans '标记这部作品' %}</div>
                                 <div class="action-panel__button-group">
-                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想看' %}</button>
-                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在看' %}</button>
-                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '看过' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想听' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在听' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '听过' %}</button>
                                 </div>
                             </div>                            
                             {% endif %}
@@ -300,7 +318,7 @@
    
                                 <span class="review-panel__label">{% trans '我的评论' %}</span>
                                 {% if review.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
+                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
                                 {% endif %}
 
                                 <span class="review-panel__actions">

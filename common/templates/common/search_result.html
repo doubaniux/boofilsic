@@ -187,7 +187,7 @@
                                                     {% if movie.genre %}{% trans '类型' %}
                                                     {% for genre in movie.get_genre_display %}
                                                     {{ genre }}{% if not forloop.last %} {% endif %}
-                                                    {% endfor %}
+                                                    {% endfor %}/
                                                     {% endif %}
                                         
                                                 </span>
@@ -196,13 +196,13 @@
                                                     {% for actor in movie.actor %}
                                                     <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ actor }}</span>
                                                     {% if forloop.counter <= 5 %}
-                                                        {% if not forloop.counter == 5 and not forloop.last %} / {% endif %}
+                                                        {% if not forloop.counter == 5 and not forloop.last %} {% endif %}
                                                     {% endif %}
                                                     {% endfor %}
                                                     {% endif %}
                                                 </span>
                                                 <p class="entity-list__entity-brief">
-                                                    {{ movie.brief | truncate:170 }}
+                                                    {{ movie.brief }}
                                                 </p>
                                                 <div class="tag-collection">
                                                     {% for tag_dict in movie.tag_list %}
@@ -226,30 +226,37 @@
                                         <li class="entity-list__entity">
                                             <div class="entity-list__entity-img-wrapper">
                                                 
-                                                {% comment %}
-                                                    
-                                                <a href="{% url 'music:retrieve' music.id %}">
-                                                    <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
-                                                </a>
-                                                {% endcomment %}
+                                                {% if item.category_name|lower == 'album' %}
+                                                    <a href="{% url 'music:retrieve_album' music.id %}">
+                                                        <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
+                                                    </a>
+                                                {% elif item.category_name|lower == 'song' %}
+                                                    <a href="{% url 'music:retrieve_song' music.id %}">
+                                                        <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
+                                                    </a>
+                                                {% endif %}
                                                     
                                             </div>
                                             <div class="entity-list__entity-text">
                                                 <div class="entity-list__entity-title">
                                                     
-                                                    {% comment %}
-                                                        
-                                                    {% if item.category_name == 'album' %}
+                                                    {% if item.category_name|lower == 'album' %}
                                                         <a href="{% url 'music:retrieve_album' music.id %}" class="entity-list__entity-link">                                                        
+                                                            {% if request.GET.q %}
                                                             {{ music.title | highlight:request.GET.q }}
+                                                            {% else %}
+                                                            {{ music.title }}
+                                                            {% endif %}
                                                         </a>
-                                                    {% elif item.category_name = 'song' %}
+                                                    {% elif item.category_name|lower == 'song' %}
                                                         <a href="{% url 'music:retrieve_song' music.id %}" class="entity-list__entity-link">                                                        
+                                                            {% if request.GET.q %}
                                                             {{ music.title | highlight:request.GET.q }}
+                                                            {% else %}
+                                                            {{ music.title }}
+                                                            {% endif %}
                                                         </a>
                                                     {% endif %}
-                                                    {% endcomment %}
-                                                        
                                                         
                                                     
                                                     {% if not request.GET.c or request.GET.c != 'music' and request.GET.c != 'book' and request.GET.c != 'music' %}
@@ -268,26 +275,40 @@
                                                 {% endif %}
 
                                                 <span class="entity-list__entity-info ">
-                                                    {% if music.genre %}{% trans '流派' %}
-                                                    {{ music.genre }} /
+                                                    {% if music.artist %}{% trans '艺术家' %}
+                                                    {% for artist in music.artist %}
+                                                    <span>{{ artist }}</span>
+                                                    {% if not forloop.last %} {% endif %}
+                                                    {% endfor %}
+                                                    {% endif %}
+                                                    
+                                                    {% if music.genre %}/ {% trans '流派' %}
+                                                    {{ music.genre }}
                                                     {% endif %}
 
-                                                    {% if music.release_date %} {% trans '发行日期' %}
+                                                    {% if music.release_date %}/ {% trans '发行日期' %}
                                                         {{ music.release_date }}
                                                     {% endif %}
                                                 </span>
                                                 <span class="entity-list__entity-info entity-list__entity-info--full-length">
-                                                    {% if music.artist %}{% trans '艺术家' %}
-                                                    {% for artist in music.artist %}
-                                                    <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ artist }}</span>
-                                                    {% if forloop.counter <= 5 %} {% if not forloop.counter == 5 and not forloop.last %} / {% endif %} {% endif %} 
-                                                    {% endfor %} 
-                                                    {% endif %}
-                                                </span>
 
+                                                </span>
+                                                
+                                                {% if music.brief %}
                                                 <p class="entity-list__entity-brief">
-                                                    {{ music.brief | truncate:170 }}
+                                                    {{ music.brief }}
                                                 </p>
+                                                {% elif music.category_name|lower == 'album' %}
+                                                <p class="entity-list__entity-brief">
+                                                    {% trans '曲目：' %}{{ music.track_list }}
+                                                </p>
+                                                {% else %}
+                                                <!-- song -->
+                                                <p class="entity-list__entity-brief">
+                                                    {% trans '所属专辑：' %}{{ music.album }}
+                                                </p>
+                                                {% endif %}
+                                                    
                                                 <div class="tag-collection">
                                                     {% for tag_dict in music.tag_list %}
                                                     {% for k, v in tag_dict.items %}
