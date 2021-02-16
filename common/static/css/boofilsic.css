@@ -1203,7 +1203,6 @@ select::placeholder {
   letter-spacing: 0.1rem;
   word-break: keep-all;
   opacity: 0.8;
-
   position: relative;
   top: -1px;
 }
@@ -1679,32 +1678,39 @@ select::placeholder {
 
 .track-carousel {
   position: relative;
-  overflow: auto;
-  scroll-behavior: smooth;
-  scrollbar-width: none;
   margin-top: 5px;
 }
 
-.track-carousel::-webkit-scrollbar {
-  height: 0px;
-}
-
 .track-carousel__content {
-  display: -ms-grid;
-  display: grid;
-  grid-gap: 16px;
+  overflow: auto;
+  scroll-behavior: smooth;
+  scrollbar-width: none;
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
   margin: auto;
   -webkit-box-sizing: border-box;
           box-sizing: border-box;
-  grid-auto-flow: column;
+  padding-bottom: 10px;
+}
+
+.track-carousel__content::-webkit-scrollbar {
+  height: 3px;
+  width: 1px;
+  background-color: #e5e5e5;
+}
+
+.track-carousel__content::-webkit-scrollbar-thumb {
+  background-color: #bbb;
 }
 
 .track-carousel__track {
-  width: 10vw;
-  height: 13vw;
   text-align: center;
   overflow: hidden;
   text-overflow: ellipsis;
+  min-width: 18%;
+  max-width: 18%;
+  margin-right: 2.5%;
 }
 
 .track-carousel__track img {
@@ -1732,17 +1738,16 @@ select::placeholder {
   outline: 0;
   cursor: pointer;
   position: absolute;
+  top: 50%;
 }
 
 .track-carousel__button--prev {
-  top: 50%;
   left: 0;
   -webkit-transform: translate(50%, -50%);
           transform: translate(50%, -50%);
 }
 
 .track-carousel__button--next {
-  top: 50%;
   right: 0;
   -webkit-transform: translate(-50%, -50%);
           transform: translate(-50%, -50%);
@@ -1821,9 +1826,13 @@ select::placeholder {
   .review-head .review-head__actions {
     float: unset;
   }
+  .track-carousel__content {
+    padding-bottom: 10px;
+  }
   .track-carousel__track {
-    width: 32vw;
-    height: 40vw;
+    min-width: 31%;
+    max-width: 31%;
+    margin-right: 4.5%;
   }
 }
 
