@@ -379,28 +379,34 @@ $mark-review-padding-wider: 6px 0
 
 .track-carousel
 	position: relative
-	overflow: auto
-	scroll-behavior: smooth
-	scrollbar-width: none
 	margin-top: 5px
 	// padding: 0
 
-	&::-webkit-scrollbar
-		height: 0px
 	&__content
-		display: grid
-		grid-gap: 16px
+		overflow: auto
+		scroll-behavior: smooth
+		scrollbar-width: none
+		display: flex
 		margin: auto
 		box-sizing: border-box
-		grid-auto-flow: column
-		// grid-template-columns:  max-content
+		padding-bottom: 10px
+		&::-webkit-scrollbar
+			// horizontal scrollbar width
+			height: 3px
+			// vertical scrollbar width
+			width: 1px
+			background-color: $color-quinary
+		&::-webkit-scrollbar-thumb
+			background-color: $color-tertiary
+
+
 	&__track
-		width: 10vw
-		height: 13vw
-		// grid-column: 1
 		text-align: center
 		overflow: hidden
 		text-overflow: ellipsis
+		min-width: 18%
+		max-width: 18%
+		margin-right: 2.5%
 		& img
 			object-fit: contain
 	&__track-title
@@ -419,12 +425,11 @@ $mark-review-padding-wider: 6px 0
 		outline: 0
 		cursor: pointer
 		position: absolute
+		top: 50%
 		&--prev
-			top: 50%
 			left: 0
 			transform: translate(50%, -50%)
 		&--next
-			top: 50%
 			right: 0
 			transform: translate(-50%, -50%)
 
@@ -495,9 +500,12 @@ $mark-review-padding-wider: 6px 0
 			float: unset
 	
 	.track-carousel
+		&__content
+			padding-bottom: 10px
 		&__track
-			width: 32vw
-			height: 40vw
+			min-width: 31%
+			max-width: 31%
+			margin-right: 4.5%
 
 
 // Medium devices (tablets, 768px and up)
