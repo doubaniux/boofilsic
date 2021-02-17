@@ -6,7 +6,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load highlight %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -88,7 +88,7 @@
                         <div class="aside-section-wrapper">
                             <div class="entity-card">
                                 <div class="entity-card__img-wrapper">
-                                    <a href="{% url 'music:retrieve_song' song.id %}"><img src="{{ song.cover.url }}" alt=""
+                                    <a href="{% url 'music:retrieve_song' song.id %}"><img src="{{ song.cover|thumb:'normal' }}" alt=""
                                             class="entity-card__img"></a>
                                 </div>
                                 <div class="entity-card__info-wrapper">

@@ -4,6 +4,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -78,7 +79,7 @@
                         <div class="aside-section-wrapper">
                             <div class="entity-card">
                                 <div class="entity-card__img-wrapper">
-                                    <a href="{% url 'books:retrieve' book.id %}"><img src="{{ book.cover.url }}" alt=""
+                                    <a href="{% url 'books:retrieve' book.id %}"><img src="{{ book.cover|thumb:'normal' }}" alt=""
                                             class="entity-card__img"></a>
                                 </div>
                                 <div class="entity-card__info-wrapper">

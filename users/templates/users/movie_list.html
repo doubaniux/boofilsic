@@ -6,7 +6,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load highlight %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -46,7 +46,7 @@
                                     <li class="entity-list__entity">
                                         <div class="entity-list__entity-img-wrapper">
                                             <a href="{% url 'movies:retrieve' mark.movie.id %}">
-                                                <img src="{{ mark.movie.cover.url }}" alt="" class="entity-list__entity-img">
+                                                <img src="{{ mark.movie.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                             </a>
                                         </div>
                                         <div class="entity-list__entity-text">
