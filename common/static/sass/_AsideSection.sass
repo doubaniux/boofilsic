@@ -266,14 +266,20 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
             display: flex
             justify-content: center
             align-items: center
+            cursor: pointer
+            &:focus
+                background-color: red
 
         & &__button > .icon-arrow
             transition: transform 0.3s
 
-        & &__button:hover > .icon-arrow
+        & &__button:hover > .icon-arrow > svg
+            fill: $color-primary
+
+        & &__button > .icon-arrow--expand
             transform: rotate(-180deg)
                 
-        & &__button:hover + &__body
+        & &__button + &__body--expand
             max-height: 500px
             transition: max-height 0.6s ease-in
 
