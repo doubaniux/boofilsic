@@ -7,6 +7,7 @@
 {% load oauth_token %}
 {% load truncate %}
 {% load highlight %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,7 +50,7 @@
                                         <li class="entity-list__entity">
                                             <div class="entity-list__entity-img-wrapper">
                                                 <a href="{% url 'books:retrieve' book.id %}">
-                                                    <img src="{{ book.cover.url }}" alt="" class="entity-list__entity-img">
+                                                    <img src="{{ book.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                                 </a>
                                             </div>
                                             <div class="entity-list__entity-text">
@@ -131,7 +132,7 @@
                                         <li class="entity-list__entity">
                                             <div class="entity-list__entity-img-wrapper">
                                                 <a href="{% url 'movies:retrieve' movie.id %}">
-                                                    <img src="{{ movie.cover.url }}" alt="" class="entity-list__entity-img">
+                                                    <img src="{{ movie.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                                 </a>
                                             </div>
                                             <div class="entity-list__entity-text">
@@ -228,11 +229,11 @@
                                                 
                                                 {% if item.category_name|lower == 'album' %}
                                                     <a href="{% url 'music:retrieve_album' music.id %}">
-                                                        <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
+                                                        <img src="{{ music.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                                     </a>
                                                 {% elif item.category_name|lower == 'song' %}
                                                     <a href="{% url 'music:retrieve_song' music.id %}">
-                                                        <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
+                                                        <img src="{{ music.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                                     </a>
                                                 {% endif %}
                                                     

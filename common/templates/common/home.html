@@ -4,6 +4,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -48,7 +49,7 @@
                                     <li class="entity-sort__entity">
 
                                         <a href="{% url 'books:retrieve' wish_book_mark.book.id %}">
-                                            <img src="{{ wish_book_mark.book.cover.url }}"
+                                            <img src="{{ wish_book_mark.book.cover|thumb:'normal' }}"
                                                 alt="{{wish_book_mark.book.title}}" class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{ wish_book_mark.book.title }}">
                                                 {{ wish_book_mark.book.title }}</div>
@@ -74,7 +75,7 @@
                                     <li class="entity-sort__entity">
 
                                         <a href="{% url 'books:retrieve' do_book_mark.book.id %}">
-                                            <img src="{{ do_book_mark.book.cover.url }}"
+                                            <img src="{{ do_book_mark.book.cover|thumb:'normal' }}"
                                                 alt="{{do_book_mark.book.title}}" class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{do_book_mark.book.title}}">
                                                 {{ do_book_mark.book.title }}</div>
@@ -100,7 +101,7 @@
                                     <li class="entity-sort__entity">
 
                                         <a href="{% url 'books:retrieve' collect_book_mark.book.id %}">
-                                            <img src="{{ collect_book_mark.book.cover.url }}"
+                                            <img src="{{ collect_book_mark.book.cover|thumb:'normal' }}"
                                                 alt="{{collect_book_mark.book.title}}" class="entity-sort__entity-img">
                                             <span class="entity-sort__entity-name"
                                                 title="{{collect_book_mark.book.title}}">{{ collect_book_mark.book.title }}</span>
@@ -126,7 +127,7 @@
                                     <li class="entity-sort__entity">
 
                                         <a href="{% url 'movies:retrieve' wish_movie_mark.movie.id %}">
-                                            <img src="{{ wish_movie_mark.movie.cover.url }}"
+                                            <img src="{{ wish_movie_mark.movie.cover|thumb:'normal' }}"
                                                 alt="{{wish_movie_mark.movie.title}}" class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{wish_movie_mark.movie.title}}">
                                                 {{ wish_movie_mark.movie.title }}</div>
@@ -152,7 +153,7 @@
                                     <li class="entity-sort__entity">
 
                                         <a href="{% url 'movies:retrieve' do_movie_mark.movie.id %}">
-                                            <img src="{{ do_movie_mark.movie.cover.url }}"
+                                            <img src="{{ do_movie_mark.movie.cover|thumb:'normal' }}"
                                                 alt="{{do_movie_mark.movie.title}}" class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{do_movie_mark.movie.title}}">
                                                 {{ do_movie_mark.movie.title }}</div>
@@ -178,7 +179,7 @@
                                     <li class="entity-sort__entity">
 
                                         <a href="{% url 'movies:retrieve' collect_movie_mark.movie.id %}">
-                                            <img src="{{ collect_movie_mark.movie.cover.url }}"
+                                            <img src="{{ collect_movie_mark.movie.cover|thumb:'normal' }}"
                                                 alt="{{collect_movie_mark.movie.title}}" class="entity-sort__entity-img">
                                             <span class="entity-sort__entity-name"
                                                 title="{{collect_movie_mark.movie.title}}">{{ collect_movie_mark.movie.title }}</span>
@@ -207,14 +208,14 @@
                                         
                                         {% if wish_music_mark.type == 'album' %}
                                         <a href="{% url 'music:retrieve_album' wish_music_mark.album.id %}">
-                                            <img src="{{ wish_music_mark.album.cover.url }}"
+                                            <img src="{{ wish_music_mark.album.cover|thumb:'normal' }}"
                                                 alt="{{wish_music_mark.album.title}}" class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{wish_music_mark.album.title}}">
                                                 {{ wish_music_mark.album.title }}</div>
                                         </a>
                                         {% else %}
                                         <a href="{% url 'music:retrieve_song' wish_music_mark.song.id %}">
-                                            <img src="{{ wish_music_mark.song.cover.url }}" alt="{{wish_music_mark.song.title}}"
+                                            <img src="{{ wish_music_mark.song.cover|thumb:'normal' }}" alt="{{wish_music_mark.song.title}}"
                                                 class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{wish_music_mark.song.title}}">
                                                 {{ wish_music_mark.song.title }}</div>
@@ -243,14 +244,14 @@
                                     <li class="entity-sort__entity">
                                         {% if do_music_mark.type == 'album' %}
                                         <a href="{% url 'music:retrieve_album' do_music_mark.album.id %}">
-                                            <img src="{{ do_music_mark.album.cover.url }}"
+                                            <img src="{{ do_music_mark.album.cover|thumb:'normal' }}"
                                                 alt="{{do_music_mark.album.title}}" class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{do_music_mark.album.title}}">
                                                 {{ do_music_mark.album.title }}</div>
                                         </a>
                                         {% else %}
                                         <a href="{% url 'music:retrieve_song' do_music_mark.song.id %}">
-                                            <img src="{{ do_music_mark.song.cover.url }}"
+                                            <img src="{{ do_music_mark.song.cover|thumb:'normal' }}"
                                                 alt="{{do_music_mark.song.title}}" class="entity-sort__entity-img">
                                             <div class="entity-sort__entity-name" title="{{do_music_mark.song.title}}">
                                                 {{ do_music_mark.song.title }}</div>
@@ -277,14 +278,14 @@
                                     <li class="entity-sort__entity">
                                         {% if collect_music_mark.type == 'album' %}
                                         <a href="{% url 'music:retrieve_album' collect_music_mark.album.id %}">
-                                            <img src="{{ collect_music_mark.album.cover.url }}"
+                                            <img src="{{ collect_music_mark.album.cover|thumb:'normal' }}"
                                                 alt="{{collect_music_mark.album.title}}" class="entity-sort__entity-img">
                                             <span class="entity-sort__entity-name"
                                                 title="{{collect_music_mark.album.title}}">{{ collect_music_mark.album.title }}</span>
                                         </a>
                                         {% else %}
                                         <a href="{% url 'music:retrieve_song' collect_music_mark.song.id %}">
-                                            <img src="{{ collect_music_mark.song.cover.url }}"
+                                            <img src="{{ collect_music_mark.song.cover|thumb:'normal' }}"
                                                 alt="{{collect_music_mark.song.title}}" class="entity-sort__entity-img">
                                             <span class="entity-sort__entity-name"
                                                 title="{{collect_music_mark.song.title}}">{{ collect_music_mark.song.title }}</span>

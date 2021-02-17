@@ -6,7 +6,8 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load highlight %}
+{% load thumb %}
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -49,11 +50,11 @@
                                         <div class="entity-list__entity-img-wrapper">
                                             {% if music.category_name|lower == 'album' %}
                                             <a href="{% url 'music:retrieve_album' music.id %}">
-                                                <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
+                                                <img src="{{ music.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                             </a>
                                             {% elif music.category_name|lower == 'song' %}
                                             <a href="{% url 'music:retrieve_song' music.id %}">
-                                                <img src="{{ music.cover.url }}" alt="" class="entity-list__entity-img">
+                                                <img src="{{ music.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                             </a>
                                             {% endif %}
                                         </div>
