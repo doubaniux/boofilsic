@@ -228,7 +228,7 @@ def home(request, id):
             try:
                 layout = user.preference.get_serialized_home_layout()
             except ObjectDoesNotExist:
-                Preference.objects.create(user=request.user)
+                Preference.objects.create(user=user)
                 layout = user.preference.get_serialized_home_layout()
 
             return render(
