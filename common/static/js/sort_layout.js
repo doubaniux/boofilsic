@@ -143,6 +143,10 @@ $(() => {
         sortable('.sortable', 'disable');
         $(".entity-sort").each((index, elem) => {
             $(elem).removeClass("entity-sort--sortable");
+            if (!$(elem).data("visibility")) {
+                $(elem).hide();
+            }
+            $(elem).children(".entity-sort-control__button").hide();
         });
         isActivated = $("#sortSaveIcon").is(":visible");
     });
