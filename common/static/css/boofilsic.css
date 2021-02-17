@@ -1345,12 +1345,17 @@ select::placeholder {
 
 .entity-detail .entity-detail__img {
   height: 210px;
+  float: left;
   -o-object-fit: contain;
      object-fit: contain;
-  float: left;
   max-width: 150px;
   -o-object-position: top;
      object-position: top;
+}
+
+.entity-detail .entity-detail__img-origin {
+  cursor: -webkit-zoom-in;
+  cursor: zoom-in;
 }
 
 .entity-detail .entity-detail__info {
