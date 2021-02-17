@@ -53,6 +53,9 @@ class Preference(models.Model):
     def get_serialized_home_layout(self):
         return str(self.home_layout).replace("\'","\"")
 
+    def __str__(self):
+        return str(self.user)
+
 
 class Report(models.Model):
     submit_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='sumbitted_reports', null=True)
