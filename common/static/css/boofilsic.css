@@ -808,6 +808,20 @@ select::placeholder {
   margin-left: 3px;
 }
 
+.icon-edit svg {
+  fill: #ccc;
+  height: 12px;
+  position: relative;
+  top: 2px;
+}
+
+.icon-save svg {
+  fill: #ccc;
+  height: 12px;
+  position: relative;
+  top: 2px;
+}
+
 .icon-cross svg {
   fill: #ccc;
   height: 10px;
@@ -1529,6 +1543,7 @@ select::placeholder {
 }
 
 .entity-sort {
+  position: relative;
   margin-bottom: 30px;
 }
 
@@ -1580,6 +1595,58 @@ select::placeholder {
   display: -webkit-box;
   -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+}
+
+.entity-sort--placeholder {
+  border: dashed #bbb 4px;
+}
+
+.entity-sort--hover {
+  padding: 10px;
+  border: dashed #00a1cc 2px !important;
+  border-radius: 3px;
+}
+
+.entity-sort--sortable {
+  padding: 10px;
+  margin: 10px 0;
+  border: dashed #bbb 2px;
+  cursor: all-scroll;
+}
+
+.entity-sort--hidden {
+  opacity: 0.4;
+}
+
+.entity-sort-control {
+  display: -webkit-box;
+  display: -ms-flexbox;
+  display: flex;
+  -webkit-box-pack: end;
+      -ms-flex-pack: end;
+          justify-content: flex-end;
+}
+
+.entity-sort-control__button {
+  margin-top: 5px;
+  margin-left: 12px;
+  padding: 0 2px;
+  cursor: pointer;
+  color: #bbb;
+}
+
+.entity-sort-control__button:hover {
+  color: #00a1cc;
+}
+
+.entity-sort-control__button:hover > .icon-save svg, .entity-sort-control__button:hover > .icon-edit svg {
+  fill: #00a1cc;
+}
+
+.entity-sort-control__button--float-right {
+  position: absolute;
+  top: 4px;
+  right: 10px;
 }
 
 .related-user-list .related-user-list__title {

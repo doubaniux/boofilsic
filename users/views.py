@@ -7,12 +7,12 @@ from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
-from .models import User, Report
+from .models import User, Report, Preference
 from .forms import ReportForm
 from mastodon.auth import *
 from mastodon.api import *
 from mastodon import mastodon_request_included
-from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER, TAG_NUMBER_ON_LIST, MOVIES_PER_SET
+from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER, TAG_NUMBER_ON_LIST, MOVIES_PER_SET, MUSIC_PER_SET
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from books.models import *
@@ -195,10 +195,41 @@ def home(request, id):
             wish_movies_more = True if wish_movie_marks.count() > BOOKS_PER_SET else False
             
             collect_movie_marks = movie_marks.filter(status=MarkStatusEnum.COLLECT)
-            collect_movies_more = True if collect_movie_marks.count() > BOOKS_PER_SET else False            
+            collect_movies_more = True if collect_movie_marks.count() > BOOKS_PER_SET else False   
+
+            song_marks = SongMark.get_available_by_user(user, relation['following'])
+            album_marks = AlbumMark.get_available_by_user(user, relation['following'])
+
+            do_music_marks = list(song_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET]) \
+                + list(album_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET])
+            do_music_more = True if len(do_music_marks) > MUSIC_PER_SET else False
+            do_music_marks = sorted(do_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+
+            wish_music_marks = list(song_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET]) \
+                + list(album_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET])
+            wish_music_more = True if len(wish_music_marks) > MUSIC_PER_SET else False
+            wish_music_marks = sorted(wish_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+
+            collect_music_marks = list(song_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET]) \
+                + list(album_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET])
+            collect_music_more = True if len(collect_music_marks) > MUSIC_PER_SET else False
+            collect_music_marks = sorted(collect_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]         
+
+            for mark in do_music_marks + wish_music_marks + collect_music_marks:
+                # for template convenience
+                if mark.__class__ == AlbumMark:
+                    mark.type = "album"
+                else:
+                    mark.type = "song"
 
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
+
+            try:
+                layout = user.preference.get_serialized_home_layout()
+            except ObjectDoesNotExist:
+                Preference.objects.create(user=request.user)
+                layout = user.preference.get_serialized_home_layout()
 
             return render(
                 request,
@@ -217,6 +248,13 @@ def home(request, id):
                     'do_movies_more': do_movies_more,
                     'wish_movies_more': wish_movies_more,
                     'collect_movies_more': collect_movies_more,
+                    'do_music_marks': do_music_marks,
+                    'wish_music_marks': wish_music_marks,
+                    'collect_music_marks': collect_music_marks,
+                    'do_music_more': do_music_more,
+                    'wish_music_more': wish_music_more,
+                    'collect_music_more': collect_music_more,
+                    'layout': layout,
                 }
             )
     else:
@@ -543,7 +581,20 @@ def music_list(request, id, status):
         )
     else:
         return HttpResponseBadRequest()
-            
+
+
+@login_required
+def set_layout(request):
+    if request.method == 'POST':
+        # json to python
+        raw_layout_data = request.POST.get('layout').replace('false', 'False').replace('true', 'True')
+        layout = eval(raw_layout_data)
+        request.user.preference.home_layout = eval(raw_layout_data)
+        request.user.preference.save()
+        return redirect(reverse("common:home"))
+    else:
+        return HttpResponseBadRequest()
+
 
 @login_required
 def report(request):

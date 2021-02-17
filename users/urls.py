@@ -7,6 +7,7 @@ urlpatterns = [
     path('register/', register, name='register'),
     path('logout/', logout, name='logout'),
     path('delete/', delete, name='delete'),
+    path('layout/', set_layout, name='set_layout'),
     path('OAuth2_login/', OAuth2_login, name='OAuth2_login'),
     path('<int:id>/', home, name='home'),
     path('<int:id>/followers/', followers, name='followers'),

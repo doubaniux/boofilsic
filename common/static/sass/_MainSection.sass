@@ -262,6 +262,7 @@ $mark-review-padding-wider: 6px 0
 
 // on home page
 .entity-sort
+	position: relative
 	margin-bottom: 30px
 	& &__label
 		font-size: large
@@ -299,6 +300,45 @@ $mark-review-padding-wider: 6px 0
 		-webkit-line-clamp: 2
 
 	& &__empty
+	
+	// for drag and sort purpose
+	&--placeholder
+		border: dashed $color-tertiary 4px
+	&--hover
+		padding: 10px
+		border: dashed $color-primary 2px !important
+		border-radius: 3px
+	&--sortable
+		padding: 10px
+		margin: 10px 0
+		border: dashed $color-tertiary 2px
+		cursor: all-scroll
+	&--hidden
+		opacity: 0.4
+
+
+.entity-sort-control
+	display: flex
+	justify-content: flex-end
+
+	&__button
+		margin-top: 5px
+		margin-left: 12px
+		padding: 0 2px
+		cursor: pointer
+		color: $color-tertiary
+		&:hover
+			color: $color-primary
+			& > .icon-save svg, & > .icon-edit svg
+				fill: $color-primary
+
+		&--float-right
+			position: absolute
+			top: 4px
+			right: 10px
+
+	&__text
+
 
 // follower/following list page
 .related-user-list

@@ -13,7 +13,7 @@ from django.http import HttpResponseBadRequest
 from books.models import Book
 from movies.models import Movie
 from music.models import Album, Song, AlbumMark, SongMark
-from users.models import Report, User
+from users.models import Report, User, Preference
 from mastodon.decorators import mastodon_request_included
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
@@ -105,6 +105,12 @@ def home(request):
         reports = Report.objects.order_by('-submitted_time').filter(is_read=False)
         # reports = Report.objects.latest('submitted_time').filter(is_read=False)
 
+        try:
+            layout = request.user.preference.get_serialized_home_layout()
+        except ObjectDoesNotExist:
+            Preference.objects.create(user=request.user)
+            layout = request.user.preference.get_serialized_home_layout()
+
         return render(
             request,
             'common/home.html',
@@ -129,6 +135,7 @@ def home(request):
                 'collect_music_more': collect_music_more,
                 'reports': reports,
                 'unread_announcements': unread_announcements,
+                'layout': layout,
             }
         )
     else:
