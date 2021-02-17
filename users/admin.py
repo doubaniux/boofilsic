@@ -4,3 +4,4 @@ from .models import *
 
 admin.site.register(Report)
 admin.site.register(User)
+admin.site.register(Preference)
