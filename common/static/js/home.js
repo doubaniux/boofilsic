@@ -109,5 +109,22 @@ $(document).ready( function() {
 
         }
     );
+
+    // mobile dropdown
+    $(".relation-dropdown__button").click(e => {
+        const button = $(e.currentTarget);
+        button.children('.icon-arrow').toggleClass("icon-arrow--expand");
+        button.siblings('.relation-dropdown__body').toggleClass("relation-dropdown__body--expand");
+    })
+    // close when click outside
+    window.onclick = evt => {
+        const button = $(".relation-dropdown__button");
+        const target = $(evt.target);
+
+        if (!target.parents('.relation-dropdown__button').length && !target.hasClass("relation-dropdown__button")) {
+            button.children('.icon-arrow').removeClass("icon-arrow--expand");
+            button.siblings('.relation-dropdown__body').removeClass("relation-dropdown__body--expand");
+        }
+    }
     
 });
