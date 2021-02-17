@@ -135,6 +135,15 @@ $(() => {
     
     // exit edit mode
     $("#sortExitButton").click(evt => {
+        initialLayoutData.forEach(elem => {
+            // set visiblity
+            $('#' + elem.id).data('visibility', elem.visibility);
+            if (!elem.visibility) {
+                $('#' + elem.id).hide();
+            }
+            // order
+            $('#' + elem.id).appendTo('.main-section-wrapper');
+        });
         $("#sortSaveIcon").hide();
         $("#sortEditIcon").show();
         $("#sortSaveText").hide();
@@ -145,6 +154,8 @@ $(() => {
             $(elem).removeClass("entity-sort--sortable");
             if (!$(elem).data("visibility")) {
                 $(elem).hide();
+            } else {
+                $(elem).removeClass("entity-sort--hidden");
             }
             $(elem).children(".entity-sort-control__button").hide();
         });
