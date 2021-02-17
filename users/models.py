@@ -1,8 +1,11 @@
 import uuid
+import django.contrib.postgres.fields as postgres
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.utils import timezone
 from boofilsic.settings import REPORT_MEDIA_PATH_ROOT, DEFAULT_PASSWORD
+from django.core.serializers.json import DjangoJSONEncoder
+from django.utils.translation import ugettext_lazy as _
 
 
 def report_image_path(instance, filename):
@@ -39,6 +42,18 @@ class User(AbstractUser):
         return self.username + '@' + self.mastodon_site
 
 
+class Preference(models.Model):
+    user = models.OneToOneField(User, models.CASCADE, primary_key=True)
+    home_layout = postgres.ArrayField(
+        postgres.HStoreField(),
+        blank=True,
+        default=list,
+    )
+
+    def get_serialized_home_layout(self):
+        return str(self.home_layout).replace("\'","\"")
+
+
 class Report(models.Model):
     submit_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='sumbitted_reports', null=True)
     reported_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='accused_reports', null=True)
@@ -46,6 +61,3 @@ class Report(models.Model):
     is_read = models.BooleanField(default=False)
     submitted_time = models.DateTimeField(auto_now_add=True)
     message = models.CharField(max_length=1000)
-
-
-
