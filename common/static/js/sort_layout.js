@@ -50,35 +50,40 @@ $(() => {
     let isActivated = false;
     // set class modifier, because the effect of the plugin is not very well
     let dragging = false;
-    $(".entity-sort").on('mouseenter', (e) => {
+    $(".entity-sort").on('mouseenter', (evt) => {
         if (isActivated && !dragging) {
-            $(e.currentTarget).addClass("entity-sort--hover");
+            $(evt.currentTarget).addClass("entity-sort--hover");
         }
     });
-    $(".entity-sort").on('mouseleave', (e) => {
+    $(".entity-sort").on('mouseleave', (evt) => {
         if (isActivated) {
-            $(e.currentTarget).removeClass("entity-sort--hover");
+            $(evt.currentTarget).removeClass("entity-sort--hover");
         }
     });
-    $(".entity-sort").on('dragstart', (e) => {
+    $(".entity-sort").on('dragstart', (evt) => {
         if (isActivated) {
             dragging = true;
         }
     });
-    $(".entity-sort").on('dragend', (e) => {
+    $(".entity-sort").on('dragend', (evt) => {
         if (isActivated) {
             dragging = false;
         }
     });
 
-
     // activate sorting
-    $("#sortEditButton").click(e => {
+    $("#sortEditButton").click(evt => {
         // test if edit mode is activated
         isActivated = $("#sortSaveIcon").is(":visible");
 
         if (isActivated) {
             // save edited layout
+
+            // disable buttons
+            $("#sortEditButton").unbind();
+            $("#sortExitButton").unbind();
+            $("#sortEditButton").prop('disabled', true);
+            $("#sortExitButton").prop('disabled', true);
 
             let rawData = sortable('.sortable', 'serialize')[0].items;
             let serializedData = []
@@ -97,6 +102,7 @@ $(() => {
             }
             $("#sortForm input[name='layout']").val(JSON.stringify(serializedData))
             $("#sortForm").submit();
+
             // console.log(serializedData)
 
 
@@ -128,7 +134,7 @@ $(() => {
     });
     
     // exit edit mode
-    $("#sortExitButton").click(e => {
+    $("#sortExitButton").click(evt => {
         $("#sortSaveIcon").hide();
         $("#sortEditIcon").show();
         $("#sortSaveText").hide();
@@ -140,4 +146,5 @@ $(() => {
         });
         isActivated = $("#sortSaveIcon").is(":visible");
     });
+
 });
