@@ -6,7 +6,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load strip_scheme %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,7 +41,10 @@
                         <div class="main-section-wrapper">
                             <div class="entity-detail">
 
-                                <img src="{{ album.cover.url }}" class="entity-detail__img" alt="{{ album.title }}">
+                                
+                                <a href="{{ album.cover.url }}" class="entity-detail__img-origin" target="_blank" title="{% trans '查看原图' %}">
+                                    <img src="{{ album.cover|thumb:'normal' }}" class="entity-detail__img" alt="{{ album.title }}">
+                                </a>
 
                                 <div class="entity-detail__info">
                                     <h5 class="entity-detail__title">
@@ -180,7 +183,7 @@
                                         {% for song in album.album_songs.all %}
                                         <div class="track-carousel__track">
                                             <a href="{% url 'music:retrieve_song' song.id %}">
-                                                <img src="{{ song.cover.url }}" alt="{{ song }}" class="track-carousel__track-image">
+                                                <img src="{{ song.cover|thumb:'normal' }}" alt="{{ song }}" class="track-carousel__track-image">
                                                 <span class="track-carousel__track-title">
                                                     {{ song }}
                                                 </span>

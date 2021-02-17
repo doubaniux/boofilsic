@@ -6,7 +6,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load strip_scheme %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -41,7 +41,9 @@
                         <div class="main-section-wrapper">
                             <div class="entity-detail">
 
-                                <img src="{{ song.cover.url }}" class="entity-detail__img" alt="{{ song.title }}">
+                                <a href="{{ song.cover.url }}" class="entity-detail__img-origin" target="_blank" title="{% trans '查看原图' %}">
+                                    <img src="{{ song.cover|thumb:'normal' }}" class="entity-detail__img" alt="{{ song.title }}">
+                                </a>
 
                                 <div class="entity-detail__info">
                                     <h5 class="entity-detail__title">

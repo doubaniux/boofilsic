@@ -4,6 +4,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -42,7 +43,9 @@
                         <div class="main-section-wrapper">
                             <div class="entity-detail">
 
-                                <img src="{{ book.cover.url }}" class="entity-detail__img" alt="{{ book.title }}">
+                                <a href="{{ book.cover.url }}" class="entity-detail__img-origin" target="_blank" title="{% trans '查看原图' %}">
+                                    <img src="{{ book.cover|thumb:'normal' }}" class="entity-detail__img" alt="{{ book.title }}">
+                                </a>
 
                                 <div class="entity-detail__info">
                                     <h5 class="entity-detail__title">

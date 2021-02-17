@@ -1,10 +1,11 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
-{% load highlight %}
+{% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
 
@@ -44,7 +45,7 @@
                                     <li class="entity-list__entity">
                                         <div class="entity-list__entity-img-wrapper">
                                             <a href="{% url 'books:retrieve' mark.book.id %}">
-                                                <img src="{{ mark.book.cover.url }}" alt="" class="entity-list__entity-img">
+                                                <img src="{{ mark.book.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                             </a>
                                         </div>
                                         <div class="entity-list__entity-text">
