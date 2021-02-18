@@ -164,13 +164,21 @@ def search(request):
         # category, book/movie/music etc
         category = request.GET.get("c", default='').strip().lower()
         # keywords, seperated by blank space
-        keywords = request.GET.get("q", default='').strip().split()
+        # it is better not to split the keywords
+        keywords = request.GET.get("q", default='').strip()
+        keywords = [keywords] if keywords else ''
         # tag, when tag is provided there should be no keywords , for now
         tag = request.GET.get("tag", default='')
 
         # white space string, empty query
         if not (keywords or tag):
-            return []
+            return render(
+                request,
+                "common/search_result.html",
+                {
+                    "items": None,
+                }
+            )
 
         def book_param_handler(**kwargs):
             # keywords
