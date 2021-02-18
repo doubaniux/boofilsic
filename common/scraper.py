@@ -969,10 +969,14 @@ class ImdbMovieScraper(AbstractScraper):
             showtime = None
 
         other_info = {}
-        other_info['分级'] = res_data['contentRating'] if res_data['contentRating'] else None
-        other_info['IMDb评分'] = res_data['imDbRating'] if res_data['imDbRating'] else None
-        other_info['Metacritic评分'] = res_data['metacriticRating'] if res_data['metacriticRating'] else None
-        other_info['奖项'] = res_data['awards'] if res_data['awards'] else None
+        if res_data['contentRating']:
+            other_info['分级'] = res_data['contentRating'] 
+        if res_data['imDbRating']:
+            other_info['IMDb评分'] = res_data['imDbRating'] 
+        if res_data['metacriticRating']:
+            other_info['Metacritic评分'] = res_data['metacriticRating'] 
+        if res_data['awards']:
+            other_info['奖项'] = res_data['awards'] 
 
         raw_img, ext = self.download_image(res_data['image'])
 
