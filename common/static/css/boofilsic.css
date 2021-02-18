@@ -1216,7 +1216,7 @@ select::placeholder {
   font-weight: lighter;
   letter-spacing: 0.1rem;
   word-break: keep-all;
-  opacity: 0.8;
+  opacity: 1;
   position: relative;
   top: -1px;
 }
@@ -1235,6 +1235,13 @@ select::placeholder {
 .source-label.source-label__spotify {
   background-color: #1ed760;
   color: black;
+  border: none;
+  font-weight: bold;
+}
+
+.source-label.source-label__imdb {
+  background-color: #F5C518;
+  color: #121212;
   border: none;
   font-weight: bold;
 }

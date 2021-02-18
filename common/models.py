@@ -21,6 +21,7 @@ class SourceSiteEnum(models.TextChoices):
     IN_SITE = "in-site", CLIENT_NAME
     DOUBAN = "douban",  _("豆瓣")
     SPOTIFY = "spotify", _("Spotify")
+    IMDB = "imdb", _("IMDb")
 
 
 class Entity(models.Model):

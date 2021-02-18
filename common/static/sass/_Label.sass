@@ -1,10 +1,12 @@
 // source label name should match the enum value in `common.models.SourceSiteEnum`
 
+$in-site-color: $color-primary
 $douban-color-primary: #319840
 $douban-color-secondary: white
-$in-site-color: $color-primary
 $spotify-color-primary: #1ed760
 $spotify-color-secondary: black
+$imdb-color-primary: #F5C518
+$imdb-color-secondary: #121212
 
 .source-label
     display: inline
@@ -20,7 +22,7 @@ $spotify-color-secondary: black
     font-weight: lighter
     letter-spacing: 0.1rem
     word-break: keep-all
-    opacity: 0.8
+    opacity: 1
 
 
     position: relative
@@ -37,5 +39,10 @@ $spotify-color-secondary: black
     &.source-label__spotify
         background-color: $spotify-color-primary
         color: $spotify-color-secondary
+        border: none
+        font-weight: bold
+    &.source-label__imdb
+        background-color: $imdb-color-primary
+        color: $imdb-color-secondary
         border: none
         font-weight: bold
