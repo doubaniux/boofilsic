@@ -117,7 +117,7 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '想看的电影/剧集' %}
                                 </h5>
-                                {% if wish_music_more %}
+                                {% if wish_movies_more %}
                                 <a href="{% url 'users:movie_list' user.id 'wish' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
