@@ -45,7 +45,12 @@ def OAuth2_login(request):
             user = authenticate(request, token=token, site=site)
             if user:
                 auth_login(request, user, token)
-                response = redirect(reverse('common:home'))
+                if request.session.get('next_url') is not None:
+                    response = redirect(request.session.get('next_url'))
+                    del request.session['next_url']
+                else:
+                    response = redirect(reverse('common:home'))
+                    
                 response.delete_cookie('mastodon_domain')
                 return response
             else:
@@ -70,6 +75,10 @@ def login(request):
         selected_site = request.GET.get('site', default='')
 
         sites = MastodonApplication.objects.all().order_by("domain_name")
+
+        # store redirect url in the cookie
+        if request.GET.get('next'):
+            request.session['next_url'] = request.GET.get('next')
 
         return render(
             request,
