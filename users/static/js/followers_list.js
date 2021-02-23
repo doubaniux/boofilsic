@@ -148,65 +148,78 @@ $(document).ready( function() {
         }
     );
 
-        
-    $(window).scroll(function() {
+    $(document.body).on('touchmove', () => {
         let scrollPosition = $(window).scrollTop();
         // test if scoll to bottom 
-        if (scrollPosition + 0.5> $(document).height()-$(window).height()) {
-            if (!requesting && nextUrl) {
-                // acquire lock
-                requesting = true;
-                mainSpinner.show();
-                $.ajax({
-                    url: nextUrl,
-                    method: 'GET',
-                    data: {
-                        'limit': NUMBER_PER_REQUEST,
-                    },
-                    headers: {
-                        'Authorization': 'Bearer ' + token,
-                    },
-                    success: function(userList, status, request){
-                        if(userList.length == 0 ) {
-                            mainSpinner.hide();
-                            return;
-                        }
-                        let template = $(".mast-user:first").clone().show();
-                        let newUrlFlag = false;
-                        request.getResponseHeader('link').split(',').forEach(link => {
-                            if (link.includes('next')) {
-                                let regex = /<(.*?)>/;
-                                nextUrl = link.match(regex)[1];
-                                newUrlFlag = true;
-                            }
-                        });
-                        if (!newUrlFlag) {
-                            nextUrl = null;
-                        }
-                        userList.forEach(data => {
-                            temp = $(template).clone()
-                            temp.find("img").attr("src", data.avatar);
-                            if (data.display_name) {
-                                temp.find(".mast-displayname").html(translateEmojis(data.display_name, data.emojis));
-                            } else {
-                                temp.find(".mast-displayname").text(data.username);
-                            }
-                            let url = $("#userPageURL").text().replace('0', data.id);
-                            temp.find("a").attr('href', url);
-                            temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig,""));
-                            // console.log($(temp).html())
-                            $(".mast-user:last").after(temp);               
-                        });                            
-                        mainSpinner.hide();
-                        // release lock   
-                        // console.log(userList[userList.length-1].username)
-                        // console.log(nextUrl)    
-                        requesting = false;
-                    },
-                });        
-            }
+        // mobile phone has extra offset
+        if (scrollPosition + $(window).height() > $(document).height() - 70) {
+            onScroll();
+        }
+    });
+
+
+    $(window).scroll(function () {
+        let scrollPosition = $(window).scrollTop();
+        // test if scoll to bottom 
+        if (scrollPosition + $(window).height() > $(document).height() - 0.5) {
+            onScroll();
         }
     });
 
     
+    function onScroll() {
+        if (!requesting && nextUrl) {
+            // acquire lock
+            requesting = true;
+            mainSpinner.show();
+            $.ajax({
+                url: nextUrl,
+                method: 'GET',
+                data: {
+                    'limit': NUMBER_PER_REQUEST,
+                },
+                headers: {
+                    'Authorization': 'Bearer ' + token,
+                },
+                success: function (userList, status, request) {
+                    if (userList.length == 0) {
+                        mainSpinner.hide();
+                        return;
+                    }
+                    let template = $(".mast-user:first").clone().show();
+                    let newUrlFlag = false;
+                    request.getResponseHeader('link').split(',').forEach(link => {
+                        if (link.includes('next')) {
+                            let regex = /<(.*?)>/;
+                            nextUrl = link.match(regex)[1];
+                            newUrlFlag = true;
+                        }
+                    });
+                    if (!newUrlFlag) {
+                        nextUrl = null;
+                    }
+                    userList.forEach(data => {
+                        temp = $(template).clone()
+                        temp.find("img").attr("src", data.avatar);
+                        if (data.display_name) {
+                            temp.find(".mast-displayname").html(translateEmojis(data.display_name, data.emojis));
+                        } else {
+                            temp.find(".mast-displayname").text(data.username);
+                        }
+                        let url = $("#userPageURL").text().replace('0', data.id);
+                        temp.find("a").attr('href', url);
+                        temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig, ""));
+                        // console.log($(temp).html())
+                        $(".mast-user:last").after(temp);
+                    });
+                    mainSpinner.hide();
+                    // release lock   
+                    // console.log(userList[userList.length-1].username)
+                    // console.log(nextUrl)    
+                    requesting = false;
+                },
+            });
+        }
+    }
+
 });

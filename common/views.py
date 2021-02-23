@@ -42,6 +42,9 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def home(request):
+    """
+    Should be merged to users:home in the future
+    """
     if request.method == 'GET':
 
         # really shitty code here
