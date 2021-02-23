@@ -14,7 +14,9 @@ class KeyValueInput(forms.Widget):
     
     def get_context(self, name, value, attrs):
         context = super().get_context(name, value, attrs)
-        data = json.loads(context['widget']['value'])
+        data = None
+        if context['widget']['value'] is not None:
+            data = json.loads(context['widget']['value'])
         context['widget']['value'] = [ {p[0]: p[1]} for p in data.items()] if data else []
         return context
 
