@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import psycopg2.extensions
 
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -29,6 +28,11 @@ DEBUG = True
 
 ALLOWED_HOSTS = ['*']
 
+# To allow debug in template context
+# https://docs.djangoproject.com/en/3.1/ref/settings/#internal-ips
+INTERNAL_IPS = [
+    "127.0.0.1"
+]
 
 # Application definition
 
@@ -39,10 +43,18 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
+    'django.contrib.postgres',
     'markdownx',
-    'users.apps.UsersConfig',
+    'management.apps.ManagementConfig',
+    'mastodon.apps.MastodonConfig',
     'common.apps.CommonConfig',
+    'users.apps.UsersConfig',
     'books.apps.BooksConfig',
+    'movies.apps.MoviesConfig',
+    'music.apps.MusicConfig',
+    'games.apps.GamesConfig',
+    'easy_thumbnails',
 ]
 
 MIDDLEWARE = [
@@ -86,7 +98,7 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '172.18.47.7',
+            'HOST': '172.18.116.29',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -112,7 +124,7 @@ else:
 # https://docs.djangoproject.com/en/3.0/topics/auth/customizing/#authentication-backends
 
 AUTHENTICATION_BACKENDS = [
-    'common.mastodon.auth.OAuth2Backend',
+    'mastodon.auth.OAuth2Backend',
 ]
 
 
@@ -137,31 +149,30 @@ if not DEBUG:
     SECURE_HSTS_PRELOAD = True
     SECURE_HSTS_INCLUDE_SUBDOMAINS = True
     SECURE_HSTS_SECONDS = 31536000
+
     LOGGING = {
-    'version': 1,
-    'disable_existing_loggers': False,
-    'formatters': {
-        'simple': {
-            'format': '{levelname} {asctime} {module} {message}',
-            'style': '{',
+        'version': 1,
+        'disable_existing_loggers': False,
+        'formatters': {
+            'simple': {
+                'format': '{levelname} {asctime} {name}:{lineno} {message}',
+                'style': '{',
+            },
+        },    
+        'handlers': {
+            'file': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': os.path.join(BASE_DIR, 'log'),
+                'formatter': 'simple'
+            },
         },
-    },    
-    'handlers': {
-        'file': {
-            'level': 'INFO',
-            'class': 'logging.FileHandler',
-            'filename': os.path.join(BASE_DIR, 'log'),
-            'formatter': 'simple'
-        },
-    },
-    'loggers': {
-        'django': {
+        'root': {
             'handlers': ['file'],
             'level': 'INFO',
             'propagate': True,
         },
-    },
-}
+    }
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/3.0/howto/static-files/
@@ -169,22 +180,31 @@ if not DEBUG:
 STATIC_URL = '/static/'
 STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 
+STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-CLIENT_ID = 'kEbwT9Je5HHg4FoLx4nb0tNaIrPNs5Mw6AYlQlsj2_4'
-CLIENT_SECRET = 'xwmEvlmudLCkBmvdzGf8m41Ug5o5di9xnDqeVLrcKSg'
+# Mastodon configs
+CLIENT_NAME = 'NiceDB'
+APP_WEBSITE = 'https://nicedb.org'
+REDIRECT_URIS = "https://nicedb.org/users/OAuth2_login/\nhttps://www.nicedb.org/users/OAuth2_login/"
 
-# Path to save report related images, ends without slash
+# Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = 'report/'
 MARKDOWNX_MEDIA_PATH = 'review/'
 BOOK_MEDIA_PATH_ROOT = 'book/'
 DEFAULT_BOOK_IMAGE = os.path.join(BOOK_MEDIA_PATH_ROOT, 'default.svg')
-
-# Mastodon domain name
-MASTODON_DOMAIN_NAME = 'donotban.com'
+MOVIE_MEDIA_PATH_ROOT = 'movie/'
+DEFAULT_MOVIE_IMAGE = os.path.join(MOVIE_MEDIA_PATH_ROOT, 'default.svg')
+SONG_MEDIA_PATH_ROOT = 'song/'
+DEFAULT_SONG_IMAGE = os.path.join(SONG_MEDIA_PATH_ROOT, 'default.svg')
+ALBUM_MEDIA_PATH_ROOT = 'album/'
+DEFAULT_ALBUM_IMAGE = os.path.join(ALBUM_MEDIA_PATH_ROOT, 'default.svg')
+GAME_MEDIA_PATH_ROOT = 'game/'
+DEFAULT_GAME_IMAGE = os.path.join(GAME_MEDIA_PATH_ROOT, 'default.svg')
 
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30
@@ -208,8 +228,31 @@ LOGIN_URL = '/users/login/'
 ADMIN_URL = 'lpLuTqX72Bt2hLfxxRYKeTZdE59Y2hLfpLuTqX72Btx9sXuljYK4tYEmjrHd'
 
 # Luminati proxy settings
-LUMINATI_USERNAME = 'lum-customer-hl_1f52c624-zone-static'
-LUMINATI_PASSWORD = 'tosu7rigasvt'
+LUMINATI_USERNAME = 'lum-customer-hl_7bed6f85-zone-static'
+LUMINATI_PASSWORD = 'dwy4lz5ck438'
+
+# Spotify credentials
+# SPOTIFY_CLIENT_ID = "73f98313f7af48ce87daea02cb5c3da1"
+# SPOTIFY_CLIENT_SECRET = "0d4864566ac748669cb87774220844ea"
+SPOTIFY_CREDENTIAL = "NzNmOTgzMTNmN2FmNDhjZTg3ZGFlYTAyY2I1YzNkYTE6MGQ0ODY0NTY2YWM3NDg2NjljYjg3Nzc0MjIwODQ0ZWE="
+
+# IMDb API service https://imdb-api.com/
+IMDB_API_KEY = "k_l96f06l9"
+
+# Thumbnail setting
+# It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/
+THUMBNAIL_ALIASES = {
+    '': {
+        'normal': {
+            'size': (200, 200),
+            'crop': 'scale',
+            'autocrop': True,
+        },
+    },
+}
+# THUMBNAIL_PRESERVE_EXTENSIONS = ('svg',)
+if DEBUG:
+    THUMBNAIL_DEBUG = True
 
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment

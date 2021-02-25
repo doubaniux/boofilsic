@@ -1246,6 +1246,14 @@ select::placeholder {
   font-weight: bold;
 }
 
+.source-label.source-label__steam {
+  background: linear-gradient(30deg, #1387b8, #111d2e);
+  color: white;
+  border: none;
+  font-weight: 600;
+  padding-top: 2px;
+}
+
 .main-section-wrapper {
   padding: 32px 48px 32px 36px;
   background-color: #f7f7f7;

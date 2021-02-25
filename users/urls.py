@@ -15,6 +15,7 @@ urlpatterns = [
     path('<int:id>/book/<str:status>/', book_list, name='book_list'),
     path('<int:id>/movie/<str:status>/', movie_list, name='movie_list'),
     path('<int:id>/music/<str:status>/', music_list, name='music_list'),
+    path('<int:id>/game/<str:status>/', game_list, name='game_list'),
     path('<str:id>/', home, name='home'),
     path('<str:id>/followers/', followers, name='followers'),
     path('<str:id>/following/', following, name='following'),

@@ -7,6 +7,8 @@ $spotify-color-primary: #1ed760
 $spotify-color-secondary: black
 $imdb-color-primary: #F5C518
 $imdb-color-secondary: #121212
+$steam-color-primary: #1387b8
+$steam-color-secondary: #111d2e
 
 .source-label
     display: inline
@@ -46,3 +48,9 @@ $imdb-color-secondary: #121212
         color: $imdb-color-secondary
         border: none
         font-weight: bold
+    &.source-label__steam
+        background: linear-gradient(30deg, $steam-color-primary, $steam-color-secondary)
+        color: white
+        border: none
+        font-weight: 600
+        padding-top: 2px

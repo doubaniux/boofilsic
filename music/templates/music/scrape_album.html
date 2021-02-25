@@ -44,7 +44,7 @@
                                 <h5>        
                                     {% trans '根据豆瓣内容填写下方表单' %}
                                 </h5>
-                                <iframe id='test' sandbox="allow-same-origin allow-scripts allow-popups allow-forms" src="https://search.douban.com/music/subject_search{% if q %}?search_text={{ q }}{% endif %}" frameborder="0"></iframe>
+                                <iframe id='test' sandbox="allow-same-origin allow-scripts" src="https://search.douban.com/music/subject_search{% if q %}?search_text={{ q }}{% endif %}" frameborder="0"></iframe>
                                 <div class="dividing-line"></div>
                                 <div id="scrapeForm">
                                     <form action="{% url 'music:create_album' %}" method="POST" enctype="multipart/form-data">
@@ -54,14 +54,17 @@
                                         
                                         {% for field in form %}
                                         
-                                            {% if field.id_for_label == 'id_is_series' %}
-                                            <label for="{{ field.id_for_label }}" style="display: inline-block; position: relative; left: -4px;">{{ field.label }}</label>
-                                            {{ field }}
+                                            {% if field.name == 'release_date' %}
+                                            {{ field.label_tag }}
+                                            
+                                            <input type="date" name="{{ field.name }}" id="{{ field.id_for_label }}" value="{{ form.instance.release_date | date:"
+                                                Y-m-d" }}">
+                                            
                                             {% else %}
-                                                {% if field.id_for_label != 'id_id' %}
-                                                <label for="{{ field.id_for_label }}">{{ field.label }}</label>
-                                                {% endif %}
-                                                {{ field }}
+                                            {% if field.name != 'id' %}
+                                            {{ field.label_tag }}
+                                            {% endif %}
+                                            {{ field }}
                                             {% endif %}
 
                                         {% endfor %}
