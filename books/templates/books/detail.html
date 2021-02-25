@@ -89,7 +89,7 @@
                                         {% if book.other_info %}                                  
                                         {% for k, v in book.other_info.items %}
                                         <div>
-                                            {{k}}：{{v}}
+                                            {{ k }}：{{ v  | urlize }}
                                         </div>
                                         {% endfor %}
                                         {% endif %}
