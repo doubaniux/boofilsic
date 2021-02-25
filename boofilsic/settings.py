@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'NBV%C$&589v607b8V^C%$*%(^)&B_*%$*()^SDF4dfghjkwsdfGHJ'
+SECRET_KEY = 'nbv58c^&b8-095(^)&_BV98596v)&CX#^$&%*^V5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -103,7 +103,7 @@ if DEBUG:
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
             }
-        }
+        }    
     }
 else:
     DATABASES = {
@@ -117,7 +117,7 @@ else:
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
             }
-        }
+        }    
     }
 
 # Customized auth backend, glue OAuth2 and Django User model together
@@ -158,17 +158,6 @@ if not DEBUG:
                 'format': '{levelname} {asctime} {name}:{lineno} {message}',
                 'style': '{',
             },
-<<<<<<< HEAD
-        },
-        'handlers': {
-            'file': {
-                'level': 'INFO',
-                'class': 'logging.FileHandler',
-                'filename': os.path.join(BASE_DIR, 'log'),
-                'formatter': 'simple'
-            },
-        },
-=======
         },    
         'handlers': {
             'file': {
@@ -178,7 +167,6 @@ if not DEBUG:
                 'formatter': 'simple'
             },
         },
->>>>>>> 5000175c587bb9ad7dd309f6cd2b895c3fea1ba1
         'root': {
             'handlers': ['file'],
             'level': 'INFO',
@@ -231,30 +219,20 @@ STAR_EMPTY = ':star_empty:'
 
 # Default password for each user. since assword is not used any way,
 # any string that is not empty is ok
-DEFAULT_PASSWORD = '***REMOVED***'
+DEFAULT_PASSWORD = 'ab7nsm8didusbaqPgq'
 
 # Default redirect loaction when access login required view
 LOGIN_URL = '/users/login/'
 
 # Admin site root url
-ADMIN_URL = 'lpLub76xn0crtyet9byernHd'
+ADMIN_URL = 'tertqX7256n7ej8nbv5cwvsegdse6w7ne5rHd'
 
 # Luminati proxy settings
-<<<<<<< HEAD
-LUMINATI_USERNAME = 'lum-customer-hl_ov7b8j5-zone-static'
-LUMINATI_PASSWORD = 'd65r7vtb8yn98'
+LUMINATI_USERNAME = 'lum-customer-hl_nw4tbv78-zone-static'
+LUMINATI_PASSWORD = 'nsb7te9bw0ney'
 
 # Spotify credentials
-SPOTIFY_CREDENTIAL = "Nz67nbCVBNh095hPbv9y8tfh0987fvh098f3NDg2NjljYjg3Nzc0MjIwODQ0ZWE="
-=======
-LUMINATI_USERNAME = 'lum-customer-hl_7bed6f85-zone-static'
-LUMINATI_PASSWORD = 'dwy4lz5ck438'
-
-# Spotify credentials
-# SPOTIFY_CLIENT_ID = "***REMOVED***"
-# SPOTIFY_CLIENT_SECRET = "***REMOVED***"
-SPOTIFY_CREDENTIAL = "***REMOVED***"
->>>>>>> 5000175c587bb9ad7dd309f6cd2b895c3fea1ba1
+SPOTIFY_CREDENTIAL = "NzYzNkYTE6MGQ0ODY0NTY2Y2b3n645sdfgAyY2I1ljYjg3Nzc0MjIwODQ0ZWE="
 
 # IMDb API service https://imdb-api.com/
 IMDB_API_KEY = "***REMOVED***"
