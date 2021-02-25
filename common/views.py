@@ -12,137 +12,22 @@ from django.db.models import Q, Count
 from django.http import HttpResponseBadRequest
 from books.models import Book
 from movies.models import Movie
+from games.models import Game
 from music.models import Album, Song, AlbumMark, SongMark
 from users.models import Report, User, Preference
 from mastodon.decorators import mastodon_request_included
+from users.views import home as user_home
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from common.scraper import scraper_registry
+from common.config import *
 from management.models import Announcement
-
-
-# how many books have in each set at the home page
-BOOKS_PER_SET = 5
-
-# how many movies have in each set at the home page
-MOVIES_PER_SET = 5
-
-MUSIC_PER_SET = 5
-
-# how many items are showed in one search result page
-ITEMS_PER_PAGE = 20
-
-# how many pages links in the pagination
-PAGE_LINK_NUMBER = 7
-
-# max tags on list page
-TAG_NUMBER_ON_LIST = 5
 
 logger = logging.getLogger(__name__)
 
 @login_required
 def home(request):
-    """
-    Should be merged to users:home in the future
-    """
-    if request.method == 'GET':
-
-        # really shitty code here
-
-        unread_announcements = Announcement.objects.filter(
-            pk__gt=request.user.read_announcement_index).order_by('-pk')
-        try:
-            request.user.read_announcement_index = Announcement.objects.latest('pk').pk
-            request.user.save(update_fields=['read_announcement_index'])
-        except ObjectDoesNotExist as e:
-            # when there is no annoucenment
-            pass
-
-        do_book_marks = request.user.user_bookmarks.filter(
-            status=MarkStatusEnum.DO).order_by("-edited_time")
-        do_books_more = True if do_book_marks.count() > BOOKS_PER_SET else False
-
-        wish_book_marks = request.user.user_bookmarks.filter(
-            status=MarkStatusEnum.WISH).order_by("-edited_time")
-        wish_books_more = True if wish_book_marks.count() > BOOKS_PER_SET else False
-        
-        collect_book_marks = request.user.user_bookmarks.filter(
-            status=MarkStatusEnum.COLLECT).order_by("-edited_time")
-        collect_books_more = True if collect_book_marks.count() > BOOKS_PER_SET else False
-
-
-        do_movie_marks = request.user.user_moviemarks.filter(
-            status=MarkStatusEnum.DO).order_by("-edited_time")
-        do_movies_more = True if do_movie_marks.count() > MOVIES_PER_SET else False
-
-        wish_movie_marks = request.user.user_moviemarks.filter(
-            status=MarkStatusEnum.WISH).order_by("-edited_time")
-        wish_movies_more = True if wish_movie_marks.count() > MOVIES_PER_SET else False
-        
-        collect_movie_marks = request.user.user_moviemarks.filter(
-            status=MarkStatusEnum.COLLECT).order_by("-edited_time")
-        collect_movies_more = True if collect_movie_marks.count() > MOVIES_PER_SET else False
-
-        do_music_marks = list(request.user.user_songmarks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET]) \
-            + list(request.user.user_albummarks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET])
-        do_music_more = True if len(do_music_marks) > MUSIC_PER_SET else False
-        do_music_marks = sorted(do_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
-
-        wish_music_marks = list(request.user.user_songmarks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET]) \
-            + list(request.user.user_albummarks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET])
-        wish_music_more = True if len(wish_music_marks) > MUSIC_PER_SET else False
-        wish_music_marks = sorted(wish_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
-
-        collect_music_marks = list(request.user.user_songmarks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET]) \
-            + list(request.user.user_albummarks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET])
-        collect_music_more = True if len(collect_music_marks) > MUSIC_PER_SET else False
-        collect_music_marks = sorted(collect_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
-
-        for mark in do_music_marks + wish_music_marks + collect_music_marks:
-            # for template convenience
-            if mark.__class__ == AlbumMark:
-                mark.type = "album"
-            else:
-                mark.type = "song"
-
-        reports = Report.objects.order_by('-submitted_time').filter(is_read=False)
-        # reports = Report.objects.latest('submitted_time').filter(is_read=False)
-
-        try:
-            layout = request.user.preference.get_serialized_home_layout()
-        except ObjectDoesNotExist:
-            Preference.objects.create(user=request.user)
-            layout = request.user.preference.get_serialized_home_layout()
-
-        return render(
-            request,
-            'common/home.html',
-            {
-                'do_book_marks': do_book_marks[:BOOKS_PER_SET],
-                'wish_book_marks': wish_book_marks[:BOOKS_PER_SET],
-                'collect_book_marks': collect_book_marks[:BOOKS_PER_SET],
-                'do_books_more': do_books_more,
-                'wish_books_more': wish_books_more,
-                'collect_books_more': collect_books_more,
-                'do_movie_marks': do_movie_marks[:MOVIES_PER_SET],
-                'wish_movie_marks': wish_movie_marks[:MOVIES_PER_SET],
-                'collect_movie_marks': collect_movie_marks[:MOVIES_PER_SET],
-                'do_movies_more': do_movies_more,
-                'wish_movies_more': wish_movies_more,
-                'collect_movies_more': collect_movies_more,
-                'do_music_marks': do_music_marks,
-                'wish_music_marks': wish_music_marks,
-                'collect_music_marks': collect_music_marks,
-                'do_music_more': do_music_more,
-                'wish_music_more': wish_music_more,
-                'collect_music_more': collect_music_more,
-                'reports': reports,
-                'unread_announcements': unread_announcements,
-                'layout': layout,
-            }
-        )
-    else:
-        return HttpResponseBadRequest()
+    return user_home(request, request.user.id)
 
 
 @login_required
@@ -266,6 +151,51 @@ def search(request):
                 ordered_queryset = list(queryset)
             return ordered_queryset
 
+        def game_param_handler(**kwargs):
+            # keywords
+            keywords = kwargs.get('keywords')
+            # tag
+            tag = kwargs.get('tag')
+
+            query_args = []
+            q = Q()
+
+            for keyword in keywords:
+                q = q | Q(title__icontains=keyword)
+                q = q | Q(other_title__icontains=keyword)
+                q = q | Q(developer__icontains=keyword)
+                q = q | Q(publisher__icontains=keyword)
+            if tag:
+                q = q & Q(game_tags__content__iexact=tag)
+
+            query_args.append(q)
+            queryset = Game.objects.filter(*query_args).distinct()
+
+            def calculate_similarity(game):
+                if keywords:
+                    # search by name
+                    developer_dump = ' '.join(game.developer)
+                    publisher_dump = ' '.join(game.publisher)
+                    similarity, n = 0, 0
+                    for keyword in keywords:
+                        similarity += 1/2 * SequenceMatcher(None, keyword, game.title).quick_ratio()
+                        + 1/4 * SequenceMatcher(None, keyword, game.other_title).quick_ratio()
+                        + 1/16 * SequenceMatcher(None, keyword, developer_dump).quick_ratio()
+                        + 1/16 * SequenceMatcher(None, keyword, publisher_dump).quick_ratio()
+                        n += 1
+                    game.similarity = similarity / n
+                elif tag:
+                    # search by single tag
+                    game.similarity = 0 if game.rating_number is None else game.rating_number
+                else:
+                    game.similarity = 0
+                return game.similarity
+            if len(queryset) > 0:
+                ordered_queryset = sorted(queryset, key=calculate_similarity, reverse=True)
+            else:
+                ordered_queryset = list(queryset)
+            return ordered_queryset
+
         def music_param_handler(**kwargs):
             # keywords
             keywords = kwargs.get('keywords')
@@ -329,8 +259,9 @@ def search(request):
             book_queryset = book_param_handler(**kwargs)
             movie_queryset = movie_param_handler(**kwargs)
             music_queryset = music_param_handler(**kwargs)
+            game_queryset = game_param_handler(**kwargs)
             ordered_queryset = sorted(
-                book_queryset + movie_queryset + music_queryset, 
+                book_queryset + movie_queryset + music_queryset + game_queryset, 
                 key=operator.attrgetter('similarity'), 
                 reverse=True
             )
@@ -340,9 +271,12 @@ def search(request):
             'book': book_param_handler,
             'movie': movie_param_handler,
             'music': music_param_handler,
+            'game': game_param_handler,
             'all': all_param_handler,
             '': all_param_handler
         }
+
+        categories = [k for k in param_handler.keys() if not k in ['all', '']]
 
         try:
             queryset = param_handler[category](
@@ -367,6 +301,7 @@ def search(request):
             "common/search_result.html",
             {
                 "items": items,
+                "categories": categories,
             }
         )
 

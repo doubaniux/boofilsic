@@ -12,15 +12,18 @@ from .forms import ReportForm
 from mastodon.auth import *
 from mastodon.api import *
 from mastodon import mastodon_request_included
-from common.views import BOOKS_PER_SET, ITEMS_PER_PAGE, PAGE_LINK_NUMBER, TAG_NUMBER_ON_LIST, MOVIES_PER_SET, MUSIC_PER_SET
+from common.config import *
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
+from management.models import Announcement
 from books.models import *
 from movies.models import *
 from music.models import *
+from games.models import *
 from books.forms import BookMarkStatusTranslator
 from movies.forms import MovieMarkStatusTranslator
 from music.forms import MusicMarkStatusTranslator
+from games.forms import GameMarkStatusTranslator
 from mastodon.models import MastodonApplication
 
 
@@ -172,10 +175,37 @@ def home(request, id):
                     'secondary_msg': sec_msg,
                 }
             )
+
+        # access one's own home page
         if user == request.user:
-            return redirect("common:home")
+            reports = Report.objects.order_by(
+                '-submitted_time').filter(is_read=False)
+            unread_announcements = Announcement.objects.filter(
+                    pk__gt=request.user.read_announcement_index).order_by('-pk')
+            try:
+                request.user.read_announcement_index = Announcement.objects.latest(
+                    'pk').pk
+                request.user.save(update_fields=['read_announcement_index'])
+            except ObjectDoesNotExist as e:
+                # when there is no annoucenment
+                pass
+            book_marks = request.user.user_bookmarks.all()
+            movie_marks = request.user.user_moviemarks.all()
+            album_marks = request.user.user_albummarks.all()
+            song_marks = request.user.user_songmarks.all()
+            game_marks = request.user.user_gamemarks.all()
+
+        # visit other's home page
         else:
-            # mastodon request
+            # no these value on other's home page
+            reports = None
+            unread_announcements = None
+
+            # cross site info for visiting other's home page
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
+            
+            # make queries
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
@@ -187,87 +217,84 @@ def home(request, id):
                     }
                 )
             book_marks = BookMark.get_available_by_user(user, relation['following'])
-            do_book_marks = book_marks.filter(status=MarkStatusEnum.DO)
-            do_books_more = True if do_book_marks.count() > BOOKS_PER_SET else False
-
-            wish_book_marks = book_marks.filter(status=MarkStatusEnum.WISH)
-            wish_books_more = True if wish_book_marks.count() > BOOKS_PER_SET else False
-            
-            collect_book_marks = book_marks.filter(status=MarkStatusEnum.COLLECT)
-            collect_books_more = True if collect_book_marks.count() > BOOKS_PER_SET else False            
-
             movie_marks = MovieMark.get_available_by_user(user, relation['following'])
-            do_movie_marks = movie_marks.filter(status=MarkStatusEnum.DO)
-            do_movies_more = True if do_movie_marks.count() > BOOKS_PER_SET else False
-
-            wish_movie_marks = movie_marks.filter(status=MarkStatusEnum.WISH)
-            wish_movies_more = True if wish_movie_marks.count() > BOOKS_PER_SET else False
-            
-            collect_movie_marks = movie_marks.filter(status=MarkStatusEnum.COLLECT)
-            collect_movies_more = True if collect_movie_marks.count() > BOOKS_PER_SET else False   
-
             song_marks = SongMark.get_available_by_user(user, relation['following'])
             album_marks = AlbumMark.get_available_by_user(user, relation['following'])
+            game_marks = GameMark.get_available_by_user(user, relation['following'])
 
-            do_music_marks = list(song_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET]) \
-                + list(album_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET])
-            do_music_more = True if len(do_music_marks) > MUSIC_PER_SET else False
-            do_music_marks = sorted(do_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+        # book marks
+        filtered_book_marks = filter_marks(book_marks, BOOKS_PER_SET, 'book')          
 
-            wish_music_marks = list(song_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET]) \
-                + list(album_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET])
-            wish_music_more = True if len(wish_music_marks) > MUSIC_PER_SET else False
-            wish_music_marks = sorted(wish_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+        # movie marks
+        filtered_movie_marks = filter_marks(movie_marks, MOVIES_PER_SET, 'movie')
 
-            collect_music_marks = list(song_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET]) \
-                + list(album_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET])
-            collect_music_more = True if len(collect_music_marks) > MUSIC_PER_SET else False
-            collect_music_marks = sorted(collect_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]         
+        # game marks
+        filtered_game_marks = filter_marks(game_marks, GAMES_PER_SET, 'game')
 
-            for mark in do_music_marks + wish_music_marks + collect_music_marks:
-                # for template convenience
-                if mark.__class__ == AlbumMark:
-                    mark.type = "album"
-                else:
-                    mark.type = "song"
+        # music marks
+        do_music_marks = list(song_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET]) \
+            + list(album_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET])
+        do_music_more = True if len(do_music_marks) > MUSIC_PER_SET else False
+        do_music_marks = sorted(do_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
 
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+        wish_music_marks = list(song_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET]) \
+            + list(album_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET])
+        wish_music_more = True if len(wish_music_marks) > MUSIC_PER_SET else False
+        wish_music_marks = sorted(wish_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
 
-            try:
-                layout = user.preference.get_serialized_home_layout()
-            except ObjectDoesNotExist:
-                Preference.objects.create(user=user)
-                layout = user.preference.get_serialized_home_layout()
+        collect_music_marks = list(song_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET]) \
+            + list(album_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET])
+        collect_music_more = True if len(collect_music_marks) > MUSIC_PER_SET else False
+        collect_music_marks = sorted(collect_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]         
 
-            return render(
-                request,
-                'common/home.html',
-                {
-                    'user': user,
-                    'do_book_marks': do_book_marks[:BOOKS_PER_SET],
-                    'wish_book_marks': wish_book_marks[:BOOKS_PER_SET],
-                    'collect_book_marks': collect_book_marks[:BOOKS_PER_SET],
-                    'do_books_more': do_books_more,
-                    'wish_books_more': wish_books_more,
-                    'collect_books_more': collect_books_more,                    
-                    'do_movie_marks': do_movie_marks[:MOVIES_PER_SET],
-                    'wish_movie_marks': wish_movie_marks[:MOVIES_PER_SET],
-                    'collect_movie_marks': collect_movie_marks[:MOVIES_PER_SET],
-                    'do_movies_more': do_movies_more,
-                    'wish_movies_more': wish_movies_more,
-                    'collect_movies_more': collect_movies_more,
-                    'do_music_marks': do_music_marks,
-                    'wish_music_marks': wish_music_marks,
-                    'collect_music_marks': collect_music_marks,
-                    'do_music_more': do_music_more,
-                    'wish_music_more': wish_music_more,
-                    'collect_music_more': collect_music_more,
-                    'layout': layout,
-                }
-            )
+        for mark in do_music_marks + wish_music_marks + collect_music_marks:
+            # for template convenience
+            if mark.__class__ == AlbumMark:
+                mark.type = "album"
+            else:
+                mark.type = "song"
+        
+        try:
+            layout = user.preference.get_serialized_home_layout()
+        except ObjectDoesNotExist:
+            Preference.objects.create(user=user)
+            layout = user.preference.get_serialized_home_layout()
+
+        return render(
+            request,
+            'users/home.html',
+            {
+                'user': user,
+                **filtered_book_marks,
+                **filtered_movie_marks,
+                **filtered_game_marks,
+                'do_music_marks': do_music_marks,
+                'wish_music_marks': wish_music_marks,
+                'collect_music_marks': collect_music_marks,
+                'do_music_more': do_music_more,
+                'wish_music_more': wish_music_more,
+                'collect_music_more': collect_music_more,
+                'layout': layout,
+                'reports': reports,
+                'unread_announcements': unread_announcements,
+            }
+        )
     else:
         return HttpResponseBadRequest()
+
+
+def filter_marks(queryset, maximum, type_name):
+    result = {}
+    for k in MarkStatusEnum.names:
+        result[f"{k}_{type_name}_marks"] = queryset.filter(
+            status=MarkStatusEnum[k.upper()]
+        ).order_by("-edited_time")
+        if result[f"{k}_{type_name}_marks"].count() > maximum:
+            result[f"{k}_{type_name}_more"] = True
+            result[f"{k}_{type_name}_marks"] = result[f"{k}_{type_name}_marks"][:maximum]
+        else:
+            result[f"{k}_{type_name}_more"] = False
+    return result
 
 
 @mastodon_request_included
@@ -429,7 +456,7 @@ def book_list(request, id, status):
             mark.book.tag_list = mark.book.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("标记的书"))
+        list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
         return render(
             request,
             'users/book_list.html',
@@ -471,7 +498,7 @@ def movie_list(request, id, status):
                     'msg': msg,
                     'secondary_msg': sec_msg,
                 }
-            )        
+            )
         if not user == request.user:
             # mastodon request
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
@@ -484,10 +511,11 @@ def movie_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
-                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
+        
+            queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
+                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         else:
             queryset = MovieMark.objects.filter(
                 owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -498,10 +526,80 @@ def movie_list(request, id, status):
             mark.movie.tag_list = mark.movie.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("标记的电影和剧集"))
+        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的电影和剧集"))
         return render(
             request,
             'users/movie_list.html',
+            {
+                'marks': marks,
+                'user': user,
+                'list_title' : list_title,
+            }
+        )
+    else:
+        return HttpResponseBadRequest()
+            
+
+@mastodon_request_included
+@login_required
+def game_list(request, id, status):
+    if request.method == 'GET':
+        if not status.upper() in MarkStatusEnum.names:
+            return HttpResponseBadRequest()
+
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
+        try:
+            user = User.objects.get(**query_kwargs)
+        except ObjectDoesNotExist:
+            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            sec_msg = _("目前只开放本站用户注册")
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': msg,
+                    'secondary_msg': sec_msg,
+                }
+            )
+        if not user == request.user:
+            # mastodon request
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            if relation['blocked_by']:
+                msg = _("你没有访问TA主页的权限😥")
+                return render(
+                    request,
+                    'common/error.html',
+                    {
+                        'msg': msg,
+                    }
+                )
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
+        
+            queryset = GameMark.get_available_by_user(user, relation['following']).filter(
+                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+        else:
+            queryset = GameMark.objects.filter(
+                owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+        paginator = Paginator(queryset, ITEMS_PER_PAGE)
+        page_number = request.GET.get('page', default=1)
+        marks = paginator.get_page(page_number)
+        for mark in marks:
+            mark.game.tag_list = mark.game.get_tags_manager().values('content').annotate(
+                tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
+        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        list_title = str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的游戏"))
+        return render(
+            request,
+            'users/game_list.html',
             {
                 'marks': marks,
                 'user': user,
@@ -578,7 +676,7 @@ def music_list(request, id, status):
                     tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
 
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("标记的音乐"))
+        list_title = str(MusicMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的音乐"))
         return render(
             request,
             'users/music_list.html',

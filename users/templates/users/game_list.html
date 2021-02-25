@@ -45,63 +45,50 @@
                                         
                                     <li class="entity-list__entity">
                                         <div class="entity-list__entity-img-wrapper">
-                                            <a href="{% url 'movies:retrieve' mark.movie.id %}">
-                                                <img src="{{ mark.movie.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
+                                            <a href="{% url 'games:retrieve' mark.game.id %}">
+                                                <img src="{{ mark.game.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
                                             </a>
                                         </div>
                                         <div class="entity-list__entity-text">
                                             <div class="entity-list__entity-title">
-                                                <a href="{% url 'movies:retrieve' mark.movie.id %}" class="entity-list__entity-link">
-                                                    {% if mark.movie.season %}
-                                                    {{ mark.movie.title }} {% trans '第' %}{{ mark.movie.season|apnumber }}{% trans '季' %} {{ mark.movie.orig_title }} Season
-                                                    {{ mark.movie.season }}
-                                                    {% if mark.movie.year %}({{ mark.movie.year }}){% endif %}
-                                                        
-                                                    {% else %}
-                                                    {{ mark.movie.title }} {{ mark.movie.orig_title }}
-                                                    {% if mark.movie.year %}({{ mark.movie.year }}){% endif %}
-                                                    {% endif %}
+                                                <a href="{% url 'games:retrieve' mark.game.id %}" class="entity-list__entity-link">
+                                                    {{ mark.game.title }}
                                                 </a>
-                                                <a href="{{ mark.movie.source_url }}">
-                                                    <span class="source-label source-label__{{ mark.movie.source_site }}">{{ mark.movie.get_source_site_display }}</span>
+                                                <a href="{{ mark.game.source_url }}">
+                                                    <span class="source-label source-label__{{ mark.game.source_site }}">{{ mark.game.get_source_site_display }}</span>
                                                 </a>
                                             </div>
                                             <span class="entity-list__entity-info entity-list__entity-info--full-length">
-
-                                            
-                                        {% if mark.movie.director %}{% trans '导演' %}
-                                        {% for director in mark.movie.director %}
-                                        {{ director }}{% if not forloop.last %} {% endif %}
-                                        {% endfor %}/
-                                        {% endif %}
-        
-                                        {% if mark.movie.genre %}{% trans '类型' %}
-                                        {% for genre in mark.movie.get_genre_display %}
-                                        {{ genre }}{% if not forloop.last %} {% endif %}
-                                        {% endfor %}/
-                                        {% endif %}
-
-                                        {% if mark.movie.other_title %}{% trans '又名' %}
-                                        {% for other_title in mark.movie.other_title %}
-                                        {{ other_title }}{% if not forloop.last %} {% endif %}
-                                        {% endfor %}
-                                        {% endif %}
+                                                {% if mark.game.other_title %}{% trans '别名' %}
+                                                {% for other_title in mark.game.other_title %}
+                                                {{ other_title }}{% if not forloop.last %} {% endif %}
+                                                {% endfor %}/
+                                                {% endif %}
+                                                
+                                                {% if mark.game.developer %}{% trans '开发商' %}
+                                                {% for developer in mark.game.developer %}
+                                                {{ developer }}{% if not forloop.last %} {% endif %}
+                                                {% endfor %}/
+                                                {% endif %}
+                                                
+                                                {% if mark.game.genre %}{% trans '类型' %}
+                                                {% for genre in mark.game.genre %}
+                                                {{ genre }}{% if not forloop.last %} {% endif %}
+                                                {% endfor %}/
+                                                {% endif %}
+                                                
+                                                {% if mark.game.platform %}{% trans '平台' %}
+                                                {% for platform in mark.game.platform %}
+                                                {{ platform }}{% if not forloop.last %} {% endif %}
+                                                {% endfor %}/
+                                                {% endif %}
                                             </span>       
-                                            <span class="entity-list__entity-info entity-list__entity-info--full-length">
-                                            {% if mark.movie.actor %}{% trans '主演' %}
-                                            {% for actor in mark.movie.actor %}
-                                            <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ actor }}</span>
-                                            {% if forloop.counter <= 5 %}
-                                                {% if not forloop.counter == 5 %} / {% endif %}
-                                            {% endif %}
-                                            {% endfor %}
-                                            {% endif %}
-                                            </span>                                                
+                                          
                                             <p class="entity-list__entity-brief">
-                                                {{ mark.movie.brief }}
+                                                {{ mark.game.brief }}
                                             </p>
                                             <div class="tag-collection">
-                                                {% for tag_dict in mark.movie.tag_list %}
+                                                {% for tag_dict in mark.game.tag_list %}
                                                 {% for k, v in tag_dict.items %}
                                                 {% if k == 'content' %}
                                                 <span class="tag-collection__tag">

@@ -158,6 +158,7 @@ if not DEBUG:
                 'format': '{levelname} {asctime} {name}:{lineno} {message}',
                 'style': '{',
             },
+<<<<<<< HEAD
         },
         'handlers': {
             'file': {
@@ -167,6 +168,17 @@ if not DEBUG:
                 'formatter': 'simple'
             },
         },
+=======
+        },    
+        'handlers': {
+            'file': {
+                'level': 'INFO',
+                'class': 'logging.FileHandler',
+                'filename': os.path.join(BASE_DIR, 'log'),
+                'formatter': 'simple'
+            },
+        },
+>>>>>>> 5000175c587bb9ad7dd309f6cd2b895c3fea1ba1
         'root': {
             'handlers': ['file'],
             'level': 'INFO',
@@ -228,11 +240,21 @@ LOGIN_URL = '/users/login/'
 ADMIN_URL = 'lpLub76xn0crtyet9byernHd'
 
 # Luminati proxy settings
+<<<<<<< HEAD
 LUMINATI_USERNAME = 'lum-customer-hl_ov7b8j5-zone-static'
 LUMINATI_PASSWORD = 'd65r7vtb8yn98'
 
 # Spotify credentials
 SPOTIFY_CREDENTIAL = "Nz67nbCVBNh095hPbv9y8tfh0987fvh098f3NDg2NjljYjg3Nzc0MjIwODQ0ZWE="
+=======
+LUMINATI_USERNAME = 'lum-customer-hl_7bed6f85-zone-static'
+LUMINATI_PASSWORD = 'dwy4lz5ck438'
+
+# Spotify credentials
+# SPOTIFY_CLIENT_ID = "***REMOVED***"
+# SPOTIFY_CLIENT_SECRET = "***REMOVED***"
+SPOTIFY_CREDENTIAL = "***REMOVED***"
+>>>>>>> 5000175c587bb9ad7dd309f6cd2b895c3fea1ba1
 
 # IMDb API service https://imdb-api.com/
 IMDB_API_KEY = "***REMOVED***"
