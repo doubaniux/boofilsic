@@ -193,6 +193,8 @@ class AbstractScraper:
                 raw_img = img_response.content
                 content_type = img_response.headers.get('Content-Type')
                 ext = guess_extension(content_type.partition(';')[0].strip())
+            else:
+                ext = None
         return raw_img, ext
 
 
@@ -1132,9 +1134,15 @@ class SteamGameScraper(AbstractScraper):
         brief = content.xpath(
             "//div[@class='game_description_snippet']/text()")[0].strip()
 
-        img_url = content.xpath("//img[@class='game_header_image_full']/@src")[
-            0].replace("header.jpg", "library_600x900.jpg")
+        img_url = content.xpath(
+            "//img[@class='game_header_image_full']/@src"
+        )[0].replace("header.jpg", "library_600x900.jpg")
         raw_img, ext = self.download_image(img_url)
+
+        # no 600x900 picture
+        if raw_img is None:
+            img_url = content.xpath("//img[@class='game_header_image_full']/@src")[0]
+            raw_img, ext = self.download_image(img_url)
 
         data = {
             'title': title,
