@@ -6,6 +6,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
+{% load strip_scheme %}
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
@@ -13,14 +14,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="NiceDB音乐 - {{ album.title }}">
-    <meta property="og:type" content="music.album">
+    <meta property="og:title" content="NiceDB游戏 - {{ game.title }}">
+    <meta property="og:type" content="game">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ album.cover.url }}">
+    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ game.cover.url }}">
     <meta property="og:site_name" content="NiceDB">
-    <meta property="og:description"content="{{ album.brief }}">
-
-    <title>{% trans 'NiceDB - 音乐详情' %} | {{ album.title }}</title>
+    <meta property="og:description"content="{{ game.brief }}">
+    
+    <title>{% trans 'NiceDB - 游戏详情' %} | {{ game.title }}</title>
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
@@ -41,83 +42,87 @@
                         <div class="main-section-wrapper">
                             <div class="entity-detail">
 
-                                
-                                <a href="{{ album.cover.url }}" class="entity-detail__img-origin" target="_blank" title="{% trans '查看原图' %}">
-                                    <img src="{{ album.cover|thumb:'normal' }}" class="entity-detail__img" alt="{{ album.title }}">
+                                <a href="{{ game.cover.url }}" class="entity-detail__img-origin" target="_blank" title="{% trans '查看原图' %}">
+                                    <img src="{{ game.cover|thumb:'normal' }}" class="entity-detail__img" alt="{{ game.title }}">
                                 </a>
 
                                 <div class="entity-detail__info">
                                     <h5 class="entity-detail__title">
-
-                                        {{ album.title }}
-                                        <a href="{{ album.source_url }}"><span class="source-label source-label__{{ album.source_site }}">{{ album.get_source_site_display }}</span></a>
+                                        {{ game.title }}
+                                        <a href="{{ game.source_url }}"><span class="source-label source-label__{{ game.source_site }}">{{ game.get_source_site_display }}</span></a>
                                     </h5>
                                     
                                     <div class="entity-detail__fields">
                                         <div class="entity-detail__rating">
-                                            {% if album.rating %}
-                                            <span class="entity-detail__rating-star rating-star" data-rating-score="{{ album.rating | floatformat:"0" }}"></span>
-                                            <span class="entity-detail__rating-score"> {{ album.rating }} </span>
+                                            {% if game.rating %}
+                                            <span class="entity-detail__rating-star rating-star" data-rating-score="{{ game.rating | floatformat:"0" }}"></span>
+                                            <span class="entity-detail__rating-score"> {{ game.rating }} </span>
                                             {% else %}
                                             <span> {% trans '评分：暂无评分' %}</span>
                                             {% endif %}
                                         </div>
-                                        <div>{% if album.artist %}{% trans '艺术家：' %}
-                                        {% for artist in album.artist %}
+
+                                        <div>{% if game.other_title %}{% trans '别名：' %}
+                                            {% for other_title in game.other_title %}
                                             <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
-                                                <span class="artist">{{ artist }}</span>
+                                                <span class="other_title">{{ other_title }}</span>
                                                 {% if not forloop.last %} / {% endif %}
                                             </span>
-                                        {% endfor %}
-                                            {% if album.artist|length > 5 %}
-                                            <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
+                                            {% endfor %}
+                                            {% if game.other_title|length > 5 %}
+                                            <a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
                                             <script>
-                                                $("#artistMore").click(function (e) {
-                                                    $("span.artist:not(:visible)").each(function (e) {
+                                                $("#otherTitleMore").click(function (e) {
+                                                    $("span.other_title:not(:visible)").each(function (e) {
                                                         $(this).parent().removeAttr('style');
                                                     });
                                                     $(this).remove();
                                                 })
                                             </script>
-                                            {% endif %}                                        
-                                        {% endif %}</div>
-                                        <div>{% if album.company %}{% trans '发行方：' %}
-                                        {% for company in album.company %}
-                                            <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
-                                                <span class="company">{{ company }}</span>
-                                                {% if not forloop.last %} / {% endif %}
-                                            </span>
-                                        {% endfor %}
-                                            {% if album.company|length > 5 %}
-                                            <a href="javascript:void(0);" id="companyMore">{% trans '更多' %}</a>
-                                            <script>
-                                                $("#companyMore").click(function (e) {
-                                                    $("span.company:not(:visible)").each(function (e) {
-                                                        $(this).parent().removeAttr('style');
-                                                    });
-                                                    $(this).remove();
-                                                })
-                                            </script>
-                                            {% endif %}                                        
-                                        {% endif %}</div>
-                                        <div>{% if album.release_date %}
-                                            {% trans '发行日期：' %}{{ album.release_date }}
                                             {% endif %}
-                                        </div>  
-                                        <div>{% if album.duration %}
-                                            {% trans '时长：' %}{{ album.get_duration_display }}
-                                            {% endif %}
-                                        </div>
-                                        <div>{% if album.genre %}
-                                            {% trans '流派：' %}{{ album.genre }}
                                             {% endif %}
                                         </div>
 
+                                        <div>
+                                            {% if game.genre %}{% trans '类型：' %}
+                                            {% for genre in game.genre %}
+                                            <span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div>
+                                            {% if game.developer %}{% trans '开发商：' %}
+                                            {% for developer in game.developer %}
+                                            <span>{{ developer }}</span>{% if not forloop.last %} / {% endif %}
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+                                        
+                                        <div>
+                                            {% if game.publisher %}{% trans '发行商：' %}
+                                            {% for publisher in game.publisher %}
+                                            <span>{{ publisher }}</span>{% if not forloop.last %} / {% endif %}
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
                              
                                     </div>
                                     <div class="entity-detail__fields">
-                                        {% if album.other_info %}                                  
-                                        {% for k, v in album.other_info.items %}
+                                        <div>{% if game.release_date %}
+                                            {% trans '发行日期：' %}{{ game.release_date }}
+                                            {% endif %}
+                                        </div>
+                                        <div>
+                                            {% if game.platform %}{% trans '平台：' %}
+                                            {% for platform in game.platform %}
+                                            <span>{{ platform }}</span>{% if not forloop.last %} / {% endif %}
+                                            {% endfor %}
+                                            {% endif %}
+                                        </div>
+
+                                        {% if game.other_info %}                                  
+                                        {% for k, v in game.other_info.items %}
                                         <div>
                                             {{ k }}：{{ v  | urlize }}
                                         </div>
@@ -125,21 +130,22 @@
                                         {% endif %}
                                         
                                     
-                                        {% if album.last_editor %}
-                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' album.last_editor.id %}">{{ album.last_editor | default:"" }}</a></div>
+                                        {% if game.last_editor %}
+                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' game.last_editor.id %}">{{ game.last_editor | default:"" }}</a></div>
                                         {% endif %}
 
                                         <div>
-                                        <a href="{% url 'music:update_album' album.id %}">{% trans '编辑这个作品' %}</a>
+                                        <a href="{% url 'games:update' game.id %}">{% trans '编辑这个游戏' %}</a>
+
                                         {% if user.is_staff %}
-                                        /<a href="{% url 'music:delete_album' album.id %}"> {% trans '删除' %}</a>
+                                        /<a href="{% url 'games:delete' game.id %}"> {% trans '删除' %}</a>
                                         {% endif %}
                                         </div>
                                     </div>
                                         
                                     <div class="tag-collection">
                                         
-                                        {% for tag_dict in album_tag_list %}
+                                        {% for tag_dict in game_tag_list %}
                                         {% for k, v in tag_dict.items %}
                                             {% if k == 'content' %}
                                             <span class="tag-collection__tag">
@@ -153,67 +159,24 @@
                                 </div>
                             </div>
                             <div class="dividing-line"></div>
-                            {% if album.brief %}
+                            {% if game.brief %}
                             <div class="entity-desc" id="description">
                                 <h5 class="entity-desc__title">{% trans '简介' %}</h5>
 
-                                    <p class="entity-desc__content">{{ album.brief | linebreaksbr }}</p>
+                                    <p class="entity-desc__content">{{ game.brief | linebreaksbr }}</p>
                                     <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
                                         <a href="javascript:void(0);">展开全部</a>
                                     </div>
-                            </div>
-                            {% endif %}  
 
-                            {% if album.track_list %}
-                            <div class="entity-desc" id="description">
-                                <h5 class="entity-desc__title">{% trans '曲目' %}</h5>
-                                    <p class="entity-desc__content">{{ album.track_list | linebreaksbr }}</p>
-                                    <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
-                                        <a href="javascript:void(0);">展开全部</a>
-                                    </div>
-                                </div>
-                            {% endif %}
-
-                            {% if album.album_songs.count %}
-                            <div class="entity-desc" id="description">
-                                <h5 class="entity-desc__title">{% trans '关联单曲' %}</h5>
-                                <!-- TODO: Limit the maximum -->
-                                <div class="track-carousel">
-                                    <div class="track-carousel__content">
-                                        {% for song in album.album_songs.all %}
-                                        <div class="track-carousel__track">
-                                            <a href="{% url 'music:retrieve_song' song.id %}">
-                                                <img src="{{ song.cover|thumb:'normal' }}" alt="{{ song }}" class="track-carousel__track-image">
-                                                <span class="track-carousel__track-title">
-                                                    {{ song }}
-                                                </span>
-                                            </a>
-                                        </div>
-                                        {% endfor %}
-                                    </div>
-                                    <!-- <div class="track-carousel__button track-carousel__button--prev">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                            <path fill="none" d="M0 0h24v24H0V0z" />
-                                            <path d="M15.61 7.41L14.2 6l-6 6 6 6 1.41-1.41L11.03 12l4.58-4.59z" />
-                                        </svg>
-                                    </div>
-                                    <div class="track-carousel__button track-carousel__button--next">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24">
-                                            <path fill="none" d="M0 0h24v24H0V0z" />
-                                            <path d="M10.02 6L8.61 7.41 13.19 12l-4.58 4.59L10.02 18l6-6-6-6z" />
-                                        </svg>
-                                    </div> -->
-                                </div>
-                                    
                             </div>
                             {% endif %}
                             
                                 
                             <div class="entity-marks">
                                 
-                                <h5 class="entity-marks__title">{% trans '这部作品的标记' %}</h5>
+                                <h5 class="entity-marks__title">{% trans '这个游戏的标记' %}</h5>
                                 {% if mark_list_more %}
-                                <a href="{% url 'music:retrieve_album_mark_list' album.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'games:retrieve_mark_list' game.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
                                 {% endif %}
                                 {% if mark_list %}
                                 <ul class="entity-marks__mark-list">                                    
@@ -239,10 +202,10 @@
                                 {% endif %}
                             </div>
                             <div class="entity-reviews">
-                                <h5 class="entity-reviews__title">{% trans '这部作品的评论' %}</h5>
+                                <h5 class="entity-reviews__title">{% trans '这个游戏的评论' %}</h5>
 
                                 {% if review_list_more %}
-                                <a href="{% url 'music:retrieve_album_review_list' album.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'games:retrieve_review_list' game.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
                                 {% endif %}
                                 {% if review_list %}
                                 <ul class="entity-reviews__review-list">
@@ -253,7 +216,7 @@
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
-                                    <span class="entity-reviews__review-title"> <a href="{% url 'music:retrieve_album_review' others_review.id %}">{{ others_review.title }}</a></span>
+                                    <span class="entity-reviews__review-title"> <a href="{% url 'games:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
                                     <span>{{ others_review.get_plain_content | truncate:100 }}</span>
                                 </li>
                                 {% endfor %}
@@ -282,7 +245,7 @@
                                 {% endif %}                                        
                                 <span class="mark-panel__actions">
                                     <a href="" class="edit">{% trans '修改' %}</a>
-                                    <form action="{% url 'music:delete_album_mark' mark.id %}" method="post">
+                                    <form action="{% url 'games:delete_mark' mark.id %}" method="post">
                                         {% csrf_token %}
                                         <a href="" class="delete">{% trans '删除' %}</a>
                                     </form>
@@ -304,11 +267,12 @@
                             </div>
                             {% else %}
                             <div class="action-panel" id="addMarkPanel">
-                                <div class="action-panel__label">{% trans '标记这部作品' %}</div>
+                                
+                                <div class="action-panel__label">{% trans '标记这个游戏' %}</div>
                                 <div class="action-panel__button-group">
-                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想听' %}</button>
-                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在听' %}</button>
-                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '听过' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想玩' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在玩' %}</button>
+                                    <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '玩过' %}</button>
                                 </div>
                             </div>                            
                             {% endif %}
@@ -325,13 +289,13 @@
                                 {% endif %}
 
                                 <span class="review-panel__actions">
-                                    <a href="{% url 'music:update_album_review' review.id %}">{% trans '编辑' %}</a>
-                                    <a href="{% url 'music:delete_album_review' review.id %}">{% trans '删除' %}</a>
+                                    <a href="{% url 'games:update_review' review.id %}">{% trans '编辑' %}</a>
+                                    <a href="{% url 'games:delete_review' review.id %}">{% trans '删除' %}</a>
                                 </span>
 
                                 <div class="review-panel__time">{{ review.edited_time }}</div>
 
-                                <a href="{% url 'music:retrieve_album_review' review.id %}" class="review-panel__review-title">
+                                <a href="{% url 'games:retrieve_review' review.id %}" class="review-panel__review-title">
                                     {{ review.title }}
                                 </a>                                                           
                             </div>
@@ -341,7 +305,7 @@
                                 <div class="action-panel__label">{% trans '我的评论' %}</div>
                                 <div class="action-panel__button-group action-panel__button-group--center">
 
-                                    <a href="{% url 'music:create_album_review' album.id %}">
+                                    <a href="{% url 'games:create_review' game.id %}">
                                         <button class="action-panel__button">{% trans '去写评论' %}</button>
                                     </a>
                                 </div>
@@ -363,10 +327,10 @@
             <div class="mark-modal__head">
                 
                 {% if not mark %}
-                
+
                 <style>
                     .mark-modal__title::after {
-                        content: "{% trans '这部作品' %}";
+                        content: "{% trans '这个游戏' %}";
                     }
                 </style>
                     
@@ -386,11 +350,11 @@
             </span>
         </div>
         <div class="mark-modal__body">
-                <form action="{% url 'music:create_update_album_mark' %}" method="post">
+                <form action="{% url 'games:create_update_mark' %}" method="post">
                     {{ mark_form.media }}
                     {% csrf_token %}
                     {{ mark_form.id }}
-                    {{ mark_form.album }}
+                    {{ mark_form.game }}
                     {% if mark.rating %}
                     {% endif %}
 

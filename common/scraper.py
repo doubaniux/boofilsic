@@ -22,6 +22,8 @@ from books.models import Book
 from books.forms import BookForm
 from music.models import Album, Song
 from music.forms import AlbumForm, SongForm
+from games.models import Game
+from games.forms import GameForm
 
 
 RE_NUMBERS = re.compile(r"\d+\d*")
@@ -1018,3 +1020,131 @@ class ImdbMovieScraper(AbstractScraper):
     @classmethod
     def get_api_url(cls, url):
         return f"https://imdb-api.com/zh/API/Title/{IMDB_API_KEY}/{cls.regex.findall(url)[0]}/FullActor,"
+
+
+class DoubanGameScraper(AbstractScraper):
+    site_name = SourceSiteEnum.DOUBAN.value
+    host = 'www.douban.com/game/'
+    data_class = Game
+    form_class = GameForm
+
+    regex = re.compile(r"https://www\.douban\.com/game/\d+/{0,1}")
+
+    def scrape(self, url):
+        headers = DEFAULT_REQUEST_HEADERS.copy()
+        headers['Host'] = 'www.douban.com'
+        content = self.download_page(url, headers)
+
+        try:
+            raw_title = content.xpath(
+                "//div[@id='content']/h1/text()")[0].strip()
+        except IndexError:
+            raise ValueError("given url contains no movie info")
+
+        title = raw_title
+
+        other_title_elem = content.xpath(
+            "//dl[@class='game-attr']//dt[text()='别名:']/following-sibling::dd[1]/text()")
+        other_title = other_title_elem[0].strip().split(' / ') if other_title_elem else None
+        
+        developer_elem = content.xpath(
+            "//dl[@class='game-attr']//dt[text()='开发商:']/following-sibling::dd[1]/text()")
+        developer = developer_elem[0].strip().split(' / ') if developer_elem else None
+
+        publisher_elem = content.xpath(
+            "//dl[@class='game-attr']//dt[text()='发行商:']/following-sibling::dd[1]/text()")
+        publisher = publisher_elem[0].strip().split(' / ') if publisher_elem else None
+
+        platform_elem = content.xpath(
+            "//dl[@class='game-attr']//dt[text()='平台:']/following-sibling::dd[1]/a/text()")
+        platform = platform_elem if platform_elem else None
+
+        genre_elem = content.xpath(
+            "//dl[@class='game-attr']//dt[text()='类型:']/following-sibling::dd[1]/a/text()")
+        genre = None
+        if genre_elem:
+            genre = [g for g in genre_elem if g != '游戏']
+
+        date_elem = content.xpath(
+            "//dl[@class='game-attr']//dt[text()='发行日期:']/following-sibling::dd[1]/text()")
+        release_date = dateparser.parse(date_elem[0].strip(), settings={
+                                        "RELATIVE_BASE": datetime.datetime(1900, 1, 1)}) if date_elem else None
+
+        brief_elem = content.xpath("//div[@class='mod item-desc']/p/text()")
+        brief = '\n'.join(brief_elem) if brief_elem else None
+
+        img_url_elem = content.xpath(
+            "//div[@class='item-subject-info']/div[@class='pic']//img/@src")
+        img_url = img_url_elem[0].strip() if img_url_elem else None
+        raw_img, ext = self.download_image(img_url)
+
+        data = {
+            'title': title,
+            'other_title': other_title,
+            'developer': developer,
+            'publisher': publisher,
+            'release_date': release_date,
+            'genre': genre,
+            'platform': platform,
+            'brief': brief,
+            'other_info': None,
+            'source_site': self.site_name,
+            'source_url': self.get_effective_url(url),
+        }
+
+        self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
+        return data, raw_img
+
+
+class SteamGameScraper(AbstractScraper):
+    site_name = SourceSiteEnum.STEAM.value
+    host = 'store.steampowered.com'
+    data_class = Game
+    form_class = GameForm
+
+    regex = re.compile(r"https://store\.steampowered\.com/app/\d+/{0,1}")
+
+    def scrape(self, url):
+        headers = DEFAULT_REQUEST_HEADERS.copy()
+        headers['Host'] = self.host
+        content = self.download_page(url, headers)
+
+        title = content.xpath("//div[@class='apphub_AppName']/text()")[0]
+        developer = content.xpath("//div[@id='developers_list']/a/text()")
+        publisher = content.xpath("//div[@class='glance_ctn']//div[@class='dev_row'][2]//a/text()")
+        release_date = dateparser.parse(
+            content.xpath(
+                "//div[@class='release_date']/div[@class='date']/text()")[0],
+            settings={
+                "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
+            }
+        )
+
+        genre = content.xpath(
+            "//div[@class='details_block']/b[2]/following-sibling::a/text()")
+
+        platform = ['PC']
+
+        brief = content.xpath(
+            "//div[@class='game_description_snippet']/text()")[0].strip()
+
+        img_url = content.xpath("//img[@class='game_header_image_full']/@src")[
+            0].replace("header.jpg", "library_600x900.jpg")
+        raw_img, ext = self.download_image(img_url)
+
+        data = {
+            'title': title,
+            'other_title': None,
+            'developer': developer,
+            'publisher': publisher,
+            'release_date': release_date,
+            'genre': genre,
+            'platform': platform,
+            'brief': brief,
+            'other_info': None,
+            'source_site': self.site_name,
+            'source_url': self.get_effective_url(url),
+        }
+
+        self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
+        return data, raw_img
