@@ -154,8 +154,11 @@ class AbstractScraper:
         #     proxies = None
         r = requests.get(url, proxies=proxies,
                          headers=headers, timeout=TIMEOUT)
-        # r = requests.get(url, headers=DEFAULT_REQUEST_HEADERS, timeout=TIMEOUT)
 
+        if r.status_code != 200:
+            raise RuntimeError(f"download page failed, status code {r.status_code}")
+        # with open('temp.html', 'w', encoding='utf-8') as fp:
+        #     fp.write(r.content.decode('utf-8'))
         return html.fromstring(r.content.decode('utf-8'))
 
     @classmethod
@@ -1107,8 +1110,9 @@ class SteamGameScraper(AbstractScraper):
     def scrape(self, url):
         headers = DEFAULT_REQUEST_HEADERS.copy()
         headers['Host'] = self.host
+        headers['Cookie'] = "wants_mature_content=1; birthtime=754700401;"
         content = self.download_page(url, headers)
-
+        
         title = content.xpath("//div[@class='apphub_AppName']/text()")[0]
         developer = content.xpath("//div[@id='developers_list']/a/text()")
         publisher = content.xpath("//div[@class='glance_ctn']//div[@class='dev_row'][2]//a/text()")
