@@ -285,7 +285,7 @@ def home(request, id):
 
 def filter_marks(queryset, maximum, type_name):
     result = {}
-    for k in MarkStatusEnum.names:
+    for k in MarkStatusEnum.values:
         result[f"{k}_{type_name}_marks"] = queryset.filter(
             status=MarkStatusEnum[k.upper()]
         ).order_by("-edited_time")
