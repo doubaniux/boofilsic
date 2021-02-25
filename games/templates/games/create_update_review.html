@@ -31,48 +31,42 @@
                     <div class="single-section-wrapper">
                         <div class="entity-card entity-card--horizontal">
                             <div class="entity-card__img-wrapper">
-                                <a href="{% url 'music:retrieve_song' song.id %}">
-                                    <img src="{{ song.cover|thumb:'normal' }}" alt="" class="item-image float-left">
+                                <a href="{% url 'games:retrieve' game.id %}">
+                                    <img src="{{ game.cover|thumb:'normal' }}" alt="" class="item-image float-left">
                                 </a>
                             </div>
                             <div class="entity-card__info-wrapper entity-card__info-wrapper--horizontal">
                                 
-                                <h5 class="entity-card__title"><a href="{% url 'music:retrieve_song' song.id %}">
-                                        {{ song.title }}
+                                <h5 class="entity-card__title"><a href="{% url 'games:retrieve' game.id %}">
+                                        {{ game.title }}
                                     </a>
-                                    <a href="{{ song.source_url }}"><span class="source-label source-label__{{ song.source_site }}">{{ song.get_source_site_display }}</span></a>
+                                    <a href="{{ game.source_url }}"><span class="source-label source-label__{{ game.source_site }}">{{ game.get_source_site_display }}</span></a>
                                 </h5>
-                                    <div>{% if song.artist %}{% trans '艺术家：' %}
-                                        {% for artist in song.artist %}
-                                        <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
-                                            <span class="artist">{{ artist }}</span>
-                                            {% if not forloop.last %} / {% endif %}
-                                        </span>
-                                        {% endfor %}
-                                        {% if song.artist|length > 5 %}
-                                        <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
-                                        <script>
-                                            $("#artistMore").click(function (e) {
-                                                $("span.artist:not(:visible)").each(function (e) {
-                                                    $(this).parent().removeAttr('style');
-                                                });
-                                                $(this).remove();
-                                            })
-                                        </script>
-                                        {% endif %}
-                                        {% endif %}
-                                    </div>
-                                    <div>{% if song.genre %}{% trans '流派：' %}{{ song.genre }}{% endif %}</div>
-                                    <div>{% if song.album %}{% trans '所属专辑：' %}
-                                        <a href="{% url 'music:retrieve_album' song.album.id %}">{{ song.album }}</a>
-                                        {% endif %}
-                                    </div>
-                                    
-                                    <div>{% if song.release_date %}{% trans '发行日期：' %}{{ song.release_date }}{% endif %}</div>
+
+                                <div>
+                                    {% if game.genre %}{% trans '类型：' %}
+                                    {% for genre in game.genre %}
+                                    <span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div>
+                                    {% if game.developer %}{% trans '开发商：' %}
+                                    {% for developer in game.developer %}
+                                    <span>{{ developer }}</span>{% if not forloop.last %} / {% endif %}
+                                    {% endfor %}
+                                    {% endif %}
+                                </div>
+
+                                <div>{% if game.release_date %}
+                                    {% trans '发行日期：' %}{{ game.release_date }}
+                                    {% endif %}
+                                </div>
   
-                                {% if song.rating %}
-                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ song.rating | floatformat:"0" }}"> </span>
-                                <span class="entity-card__rating-score rating-score"> {{ song.rating }} </span>
+                                {% if game.rating %}
+                                {% trans '评分：' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ game.rating | floatformat:"0" }}"> </span>
+                                <span class="entity-card__rating-score rating-score"> {{ game.rating }} </span>
                                 {% endif %}              
                             </div>
                         </div>
@@ -80,7 +74,7 @@
 
                             <form action="{{ submit_url }}" method="post" class="review-form">
                                 {% csrf_token %}
-                                {{ form.song }}
+                                {{ form.game }}
                                 <div>
                                 {{ form.title.label }}
                                 </div>

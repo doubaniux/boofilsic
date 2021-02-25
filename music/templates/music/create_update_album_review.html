@@ -40,7 +40,7 @@
                                 <h5 class="entity-card__title"><a href="{% url 'music:retrieve_album' album.id %}">
                                         {{ album.title }}
                                     </a>
-                                    <a href="{{ album.source_url }}"><a href="{{ album.source_url }}"><span class="source-label source-label__{{ album.source_site }}">{{ album.get_source_site_display }}</span></a></a>
+                                    <a href="{{ album.source_url }}"><span class="source-label source-label__{{ album.source_site }}">{{ album.get_source_site_display }}</span></a>
                                 </h5>
                                     <div>{% if album.artist %}{% trans '艺术家：' %}
                                         {% for artist in album.artist %}
