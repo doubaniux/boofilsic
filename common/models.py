@@ -23,6 +23,7 @@ class SourceSiteEnum(models.TextChoices):
     SPOTIFY = "spotify", _("Spotify")
     IMDB = "imdb", _("IMDb")
     STEAM = "steam", _("STEAM")
+    BANGUMI = 'bangumi', _("bangumi")
 
 
 class Entity(models.Model):
