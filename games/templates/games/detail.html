@@ -106,13 +106,15 @@
                                             {% endfor %}
                                             {% endif %}
                                         </div>
-                             
-                                    </div>
-                                    <div class="entity-detail__fields">
+
                                         <div>{% if game.release_date %}
                                             {% trans '发行日期：' %}{{ game.release_date }}
                                             {% endif %}
                                         </div>
+                             
+                                    </div>
+                                    <div class="entity-detail__fields">
+                                        
                                         <div>
                                             {% if game.platform %}{% trans '平台：' %}
                                             {% for platform in game.platform %}

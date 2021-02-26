@@ -73,6 +73,13 @@ def log_url(func):
 
     return wrapper
 
+def parse_date(raw_str):
+    return dateparser.parse(
+        raw_str, 
+        settings={
+        "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
+        }
+    )
 
 class AbstractScraper:
     """
@@ -579,8 +586,7 @@ class DoubanAlbumScraper(AbstractScraper):
 
         date_elem = content.xpath(
             "//div[@id='info']//span[text()='发行时间:']/following::text()[1]")
-        release_date = dateparser.parse(date_elem[0].strip(), settings={
-                                        "RELATIVE_BASE": datetime.datetime(1900, 1, 1)}) if date_elem else None
+        release_date = parse_date(date_elem[0].strip()) if date_elem else None
 
         company_elem = content.xpath(
             "//div[@id='info']//span[text()='出版者:']/following::text()[1]")
@@ -685,12 +691,7 @@ class SpotifyTrackScraper(AbstractScraper):
 
         title = res_data['name']
 
-        release_date = dateparser.parse(
-            res_data['album']['release_date'],
-            settings={
-                "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
-            }
-        )
+        release_date = parse_date(res_data['album']['release_date'])
 
         duration = res_data['duration_ms']
 
@@ -784,13 +785,7 @@ class SpotifyAlbumScraper(AbstractScraper):
                 track_list.append(str(track['track_number']) + '. ' + track['name'])
         track_list = '\n'.join(track_list)
 
-
-        release_date = dateparser.parse(
-            res_data['release_date'],
-            settings={
-                "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
-            }
-        )
+        release_date = parse_date(res_data['release_date'])
 
         other_info = {}
         if res_data['external_ids'].get('upc'):
@@ -1072,8 +1067,7 @@ class DoubanGameScraper(AbstractScraper):
 
         date_elem = content.xpath(
             "//dl[@class='game-attr']//dt[text()='发行日期:']/following-sibling::dd[1]/text()")
-        release_date = dateparser.parse(date_elem[0].strip(), settings={
-                                        "RELATIVE_BASE": datetime.datetime(1900, 1, 1)}) if date_elem else None
+        release_date = parse_date(date_elem[0].strip()) if date_elem else None
 
         brief_elem = content.xpath("//div[@class='mod item-desc']/p/text()")
         brief = '\n'.join(brief_elem) if brief_elem else None
@@ -1118,12 +1112,9 @@ class SteamGameScraper(AbstractScraper):
         title = content.xpath("//div[@class='apphub_AppName']/text()")[0]
         developer = content.xpath("//div[@id='developers_list']/a/text()")
         publisher = content.xpath("//div[@class='glance_ctn']//div[@class='dev_row'][2]//a/text()")
-        release_date = dateparser.parse(
+        release_date = parse_date(
             content.xpath(
-                "//div[@class='release_date']/div[@class='date']/text()")[0],
-            settings={
-                "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
-            }
+                "//div[@class='release_date']/div[@class='date']/text()")[0]
         )
 
         genre = content.xpath(
@@ -1160,3 +1151,193 @@ class SteamGameScraper(AbstractScraper):
 
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
+
+
+def find_entity(source_url):
+    # to be added when new scrape method is implemented
+    result = Game.objects.filter(source_url=source_url)
+    if result:
+        return result[0]
+    else:
+        raise ObjectDoesNotExist
+
+class BangumiScraper(AbstractScraper):
+    site_name = SourceSiteEnum.BANGUMI.value
+    host = 'bgm.tv'
+
+    # for interface coherence
+    data_class = type("FakeDataClass", (object,), {})()
+    data_class.objects = type("FakeObjectsClass", (object,), {})()
+    data_class.objects.get = find_entity
+    # should be set at scrape_* method
+    form_class = ''
+
+
+    regex = re.compile(r"https{0,1}://bgm\.tv/subject/\d+")
+
+    def scrape(self, url):
+        """
+        This is the scraping portal
+        """
+        headers = DEFAULT_REQUEST_HEADERS.copy()
+        headers['Host'] = self.host
+        content = self.download_page(url, headers)
+
+        # download image
+        img_url = 'http:' + content.xpath("//div[@class='infobox']//img[1]/@src")[0]
+        raw_img, ext = self.download_image(img_url)
+
+        # Test category
+        category_code = content.xpath("//div[@id='headerSearch']//option[@selected]/@value")[0]
+        handler_map = {
+            '1': self.scrape_book,
+            '2': self.scrape_movie,
+            '3': self.scrape_album,
+            '4': self.scrape_game
+        }
+        data = handler_map[category_code](self, content)
+        data['source_url'] = self.get_effective_url(url)
+
+        self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
+        return data, raw_img
+
+
+    def scrape_game(self, content):
+        self.data_class = Game
+        self.form_class = GameForm
+
+        title_elem = content.xpath("//a[@property='v:itemreviewed']/text()")
+        if not title_elem:
+            raise ValueError("no game info found on this page")
+            title = None
+        else:
+            title = title_elem[0].strip()
+
+        other_title_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'别名')]]/text()")
+        if not other_title_elem:
+            other_title_elem = content.xpath(
+                "//ul[@id='infobox']/li[child::span[contains(text(),'别名')]]/a/text()")
+        other_title = other_title_elem if other_title_elem else []
+
+        chinese_name_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'中文')]]/text()")
+        if not chinese_name_elem:
+            chinese_name_elem = content.xpath(
+                "//ul[@id='infobox']/li[child::span[contains(text(),'中文')]]/a/text()")
+        if chinese_name_elem:
+            chinese_name = chinese_name_elem[0]
+            # switch chinese name with original name
+            title, chinese_name = chinese_name, title
+            # actually the name appended is original
+            other_title.append(chinese_name)
+            
+        developer_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'开发')]]/text()")
+        if not developer_elem:
+            developer_elem = content.xpath(
+                "//ul[@id='infobox']/li[child::span[contains(text(),'开发')]]/a/text()")
+        developer = developer_elem if developer_elem else None
+
+        publisher_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'发行:')]]/text()")
+        if not publisher_elem:
+            publisher_elem = content.xpath(
+                "//ul[@id='infobox']/li[child::span[contains(text(),'发行:')]]/a/text()")
+        publisher = publisher_elem if publisher_elem else None
+
+        platform_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'平台')]]/text()")
+        if not platform_elem:
+            platform_elem = content.xpath(
+                "//ul[@id='infobox']/li[child::span[contains(text(),'平台')]]/a/text()")
+        platform = platform_elem if platform_elem else None
+
+        genre_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'类型')]]/text()")
+        if not genre_elem:
+            genre_elem = content.xpath(
+                "//ul[@id='infobox']/li[child::span[contains(text(),'类型')]]/a/text()")
+        genre = genre_elem if genre_elem else None
+
+        date_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'发行日期')]]/text()")
+        if not date_elem:
+            date_elem = content.xpath(
+                "//ul[@id='infobox']/li[child::span[contains(text(),'发行日期')]]/a/text()")
+        release_date = parse_date(date_elem[0]) if date_elem else None
+
+        brief = ''.join(content.xpath("//div[@property='v:summary']/text()"))
+        
+        other_info = {}
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'人数')]]/text()")
+        if other_elem:
+            other_info['游玩人数'] = other_elem[0]
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'引擎')]]/text()")
+        if other_elem:
+            other_info['引擎'] = ' '.join(other_elem)
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'售价')]]/text()")
+        if other_elem:
+            other_info['售价'] = ' '.join(other_elem)
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'官方网站')]]/text()")
+        if other_elem:
+            other_info['网站'] = other_elem[0]
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'剧本')]]/a/text()") or content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'剧本')]]/text()")
+        if other_elem:
+            other_info['剧本'] = ' '.join(other_elem)
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'编剧')]]/a/text()") or content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'编剧')]]/text()")
+        if other_elem:
+            other_info['编剧'] = ' '.join(other_elem)
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'音乐')]]/a/text()") or content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'音乐')]]/text()")
+        if other_elem:
+            other_info['音乐'] = ' '.join(other_elem)
+        other_elem = content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'美术')]]/a/text()") or content.xpath(
+            "//ul[@id='infobox']/li[child::span[contains(text(),'美术')]]/text()")
+        if other_elem:
+            other_info['美术'] = ' '.join(other_elem)
+
+        data = {
+            'title': title,
+            'other_title': None,
+            'developer': developer,
+            'publisher': publisher,
+            'release_date': release_date,
+            'genre': genre,
+            'platform': platform,
+            'brief': brief,
+            'other_info': other_info,
+            'source_site': self.site_name,
+        }
+
+        return data
+
+    def scrape_movie(self, content):
+        self.data_class = Movie
+        self.form_class = MovieForm
+        raise NotImplementedError
+
+    def scrape_book(self, content):
+        self.data_class = Book
+        self.form_class = BookForm
+        raise NotImplementedError
+
+    def scrape_album(self, content):
+        self.data_class = Album
+        self.form_class = AlbumForm
+        raise NotImplementedError
+
+
+# https://developers.google.com/youtube/v3/docs/?apix=true
+# https://developers.google.com/books/docs/v1/using
+
