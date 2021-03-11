@@ -33,7 +33,7 @@
                         {% endif %}
 
                     {% else %}
-                        <a class="navbar__link" href="{% url 'users:login' %}">{% trans '登录' %}</a>
+                        <a class="navbar__link" href="{% url 'users:login' %}?next={{ request.path }}">{% trans '登录' %}</a>
                     {% endif %}
                 </ul>
 
