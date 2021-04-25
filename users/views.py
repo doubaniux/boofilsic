@@ -291,8 +291,9 @@ def filter_marks(querysets, maximum, type_name):
         marks = []
         count = 0
         for queryset in querysets:
-            marks += list(queryset.filter(status=MarkStatusEnum[status.upper()])[:maximum])
+            marks += list(queryset.filter(status=MarkStatusEnum[status.upper()]).order_by("-edited_time")[:maximum])
             count += queryset.filter(status=MarkStatusEnum[status.upper()]).count()
+            
         # marks
         marks = sorted(marks, key=lambda e: e.edited_time, reverse=True)[:maximum]
         result[f"{status}_{type_name}_marks"] = marks
