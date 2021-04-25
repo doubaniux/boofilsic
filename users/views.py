@@ -234,17 +234,30 @@ def home(request, id):
         # music marks
         do_music_marks = list(song_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET]) \
             + list(album_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET])
-        do_music_more = True if len(do_music_marks) > MUSIC_PER_SET else False
+        if song_marks.filter(status=MarkStatusEnum.DO).count() +\
+            album_marks.filter(status=MarkStatusEnum.DO).count() > MUSIC_PER_SET:
+            do_music_more = True
+        else:
+            do_music_more = False
         do_music_marks = sorted(do_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
 
         wish_music_marks = list(song_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET]) \
             + list(album_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET])
+        if song_marks.filter(status=MarkStatusEnum.WISH).count() +\
+            album_marks.filter(status=MarkStatusEnum.WISH).count() > MUSIC_PER_SET:
+            wish_music_more = True
+        else:
+            wish_music_more = False
         wish_music_more = True if len(wish_music_marks) > MUSIC_PER_SET else False
         wish_music_marks = sorted(wish_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
 
         collect_music_marks = list(song_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET]) \
             + list(album_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET])
-        collect_music_more = True if len(collect_music_marks) > MUSIC_PER_SET else False
+        if song_marks.filter(status=MarkStatusEnum.COLLECT).count() +\
+            album_marks.filter(status=MarkStatusEnum.COLLECT).count() > MUSIC_PER_SET:
+            collect_music_more = True
+        else:
+            collect_music_more = False
         collect_music_marks = sorted(collect_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]         
 
         for mark in do_music_marks + wish_music_marks + collect_music_marks:
