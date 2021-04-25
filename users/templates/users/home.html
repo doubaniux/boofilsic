@@ -40,6 +40,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '想读的书' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ wish_book_count }}
+                                </span>
                                 {% if wish_book_more %}
                                 <a href="{% url 'users:book_list' user.id 'wish' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -65,6 +68,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '在读的书' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ do_book_count }}
+                                </span>
                                 {% if do_book_more %}
                                 <a href="{% url 'users:book_list' user.id 'do' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -91,6 +97,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '读过的书' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ collect_book_count }}
+                                </span>
                                 {% if collect_book_more %}
                                 <a href="{% url 'users:book_list' user.id 'collect' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -117,6 +126,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '想看的电影/剧集' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ wish_movie_count }}
+                                </span>
                                 {% if wish_movie_more %}
                                 <a href="{% url 'users:movie_list' user.id 'wish' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -143,6 +155,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '在看的电影/剧集' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ do_movie_count }}
+                                </span>
                                 {% if do_movie_more %}
                                 <a href="{% url 'users:movie_list' user.id 'do' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -169,6 +184,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '看过的电影/剧集' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ collect_movie_count }}
+                                </span>
                                 {% if collect_movie_more %}
                                 <a href="{% url 'users:movie_list' user.id 'collect' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -191,11 +209,13 @@
                                 </ul>
                             </div>
 
-    
                             <div class="entity-sort" id="musicWish">
                                 <h5 class="entity-sort__label">
                                     {% trans '想听的音乐' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ wish_music_count }}
+                                </span>
                                 {% if wish_music_more %}
                                 <a href="{% url 'users:music_list' user.id 'wish' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -234,6 +254,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '在听的音乐' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ do_music_count }}
+                                </span>
                                 {% if do_music_more %}
                                 <a href="{% url 'users:music_list' user.id 'do' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -268,6 +291,9 @@
                                 <h5 class="entity-sort__label">
                                     {% trans '听过的音乐' %}
                                 </h5>
+                                <span class="entity-sort__count">
+                                    {{ collect_music_count }}
+                                </span>
                                 {% if collect_music_more %}
                                 <a href="{% url 'users:music_list' user.id 'collect' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
@@ -298,81 +324,88 @@
                                 </ul>
                             </div>
 
-
-                        <div class="entity-sort" id="gameWish">
-                            <h5 class="entity-sort__label">
-                                {% trans '想玩的游戏' %}
-                            </h5>
-                            {% if wish_game_more %}
-                            <a href="{% url 'users:game_list' user.id 'wish' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                        
-                            <ul class="entity-sort__entity-list">
-                                {% for wish_game_mark in wish_game_marks %}
-                                <li class="entity-sort__entity">
-                        
-                                    <a href="{% url 'games:retrieve' wish_game_mark.game.id %}">
-                                        <img src="{{ wish_game_mark.game.cover|thumb:'normal' }}" alt="{{wish_game_mark.game.title}}"
-                                            class="entity-sort__entity-img">
-                                        <div class="entity-sort__entity-name" title="{{wish_game_mark.game.title}}">
-                                            {{ wish_game_mark.game.title }}</div>
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <div>暂无记录</div>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        
-                        <div class="entity-sort" id="gameDo">
-                            <h5 class="entity-sort__label">
-                                {% trans '在玩的游戏' %}
-                            </h5>
-                            {% if do_game_more %}
-                            <a href="{% url 'users:game_list' user.id 'do' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                        
-                            <ul class="entity-sort__entity-list">
-                                {% for do_game_mark in do_game_marks %}
-                                <li class="entity-sort__entity">
-                        
-                                    <a href="{% url 'games:retrieve' do_game_mark.game.id %}">
-                                        <img src="{{ do_game_mark.game.cover|thumb:'normal' }}" alt="{{do_game_mark.game.title}}"
-                                            class="entity-sort__entity-img">
-                                        <div class="entity-sort__entity-name" title="{{do_game_mark.game.title}}">
-                                            {{ do_game_mark.game.title }}</div>
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <div>暂无记录</div>
-                                {% endfor %}
-                            </ul>
-                        </div>
-                        
-                        <div class="entity-sort" id="gameCollect">
-                            <h5 class="entity-sort__label">
-                                {% trans '玩过的游戏' %}
-                            </h5>
-                            {% if collect_game_more %}
-                            <a href="{% url 'users:game_list' user.id 'collect' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
-                            {% endif %}
-                        
-                            <ul class="entity-sort__entity-list">
-                                {% for collect_game_mark in collect_game_marks %}
-                                <li class="entity-sort__entity">
-                        
-                                    <a href="{% url 'games:retrieve' collect_game_mark.game.id %}">
-                                        <img src="{{ collect_game_mark.game.cover|thumb:'normal' }}" alt="{{collect_game_mark.game.title}}"
-                                            class="entity-sort__entity-img">
-                                        <span class="entity-sort__entity-name" title="{{collect_game_mark.game.title}}">{{collect_game_mark.game.title }}</span>
-                                    </a>
-                                </li>
-                                {% empty %}
-                                <div>暂无记录</div>
-                                {% endfor %}
-                            </ul>
-                        </div>
-
+                            <div class="entity-sort" id="gameWish">
+                                <h5 class="entity-sort__label">
+                                    {% trans '想玩的游戏' %}
+                                </h5>
+                                <span class="entity-sort__count">
+                                    {{ wish_game_count }}
+                                </span>
+                                {% if wish_game_more %}
+                                <a href="{% url 'users:game_list' user.id 'wish' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+                            
+                                <ul class="entity-sort__entity-list">
+                                    {% for wish_game_mark in wish_game_marks %}
+                                    <li class="entity-sort__entity">
+                            
+                                        <a href="{% url 'games:retrieve' wish_game_mark.game.id %}">
+                                            <img src="{{ wish_game_mark.game.cover|thumb:'normal' }}" alt="{{wish_game_mark.game.title}}"
+                                                class="entity-sort__entity-img">
+                                            <div class="entity-sort__entity-name" title="{{wish_game_mark.game.title}}">
+                                                {{ wish_game_mark.game.title }}</div>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div class="entity-sort" id="gameDo">
+                                <h5 class="entity-sort__label">
+                                    {% trans '在玩的游戏' %}
+                                </h5>
+                                <span class="entity-sort__count">
+                                    {{ do_game_count }}
+                                </span>
+                                {% if do_game_more %}
+                                <a href="{% url 'users:game_list' user.id 'do' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+                            
+                                <ul class="entity-sort__entity-list">
+                                    {% for do_game_mark in do_game_marks %}
+                                    <li class="entity-sort__entity">
+                            
+                                        <a href="{% url 'games:retrieve' do_game_mark.game.id %}">
+                                            <img src="{{ do_game_mark.game.cover|thumb:'normal' }}" alt="{{do_game_mark.game.title}}"
+                                                class="entity-sort__entity-img">
+                                            <div class="entity-sort__entity-name" title="{{do_game_mark.game.title}}">
+                                                {{ do_game_mark.game.title }}</div>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
+                            
+                            <div class="entity-sort" id="gameCollect">
+                                <h5 class="entity-sort__label">
+                                    {% trans '玩过的游戏' %}
+                                </h5>
+                                <span class="entity-sort__count">
+                                    {{ collect_game_count }}
+                                </span>
+                                {% if collect_game_more %}
+                                <a href="{% url 'users:game_list' user.id 'collect' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
+                                {% endif %}
+                            
+                                <ul class="entity-sort__entity-list">
+                                    {% for collect_game_mark in collect_game_marks %}
+                                    <li class="entity-sort__entity">
+                            
+                                        <a href="{% url 'games:retrieve' collect_game_mark.game.id %}">
+                                            <img src="{{ collect_game_mark.game.cover|thumb:'normal' }}" alt="{{collect_game_mark.game.title}}"
+                                                class="entity-sort__entity-img">
+                                            <span class="entity-sort__entity-name" title="{{collect_game_mark.game.title}}">{{collect_game_mark.game.title }}</span>
+                                        </a>
+                                    </li>
+                                    {% empty %}
+                                    <div>暂无记录</div>
+                                    {% endfor %}
+                                </ul>
+                            </div>
 
                         </div>
                             
