@@ -222,45 +222,27 @@ def home(request, id):
             album_marks = AlbumMark.get_available_by_user(user, relation['following'])
             game_marks = GameMark.get_available_by_user(user, relation['following'])
 
+
         # book marks
         filtered_book_marks = filter_marks(book_marks, BOOKS_PER_SET, 'book')          
+        book_marks_count = count_marks(book_marks, "book")
 
         # movie marks
         filtered_movie_marks = filter_marks(movie_marks, MOVIES_PER_SET, 'movie')
+        movie_marks_count= count_marks(movie_marks, "movie")
 
         # game marks
         filtered_game_marks = filter_marks(game_marks, GAMES_PER_SET, 'game')
+        game_marks_count = count_marks(game_marks, "game")
 
         # music marks
-        do_music_marks = list(song_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET]) \
-            + list(album_marks.filter(status=MarkStatusEnum.DO)[:MUSIC_PER_SET])
-        if song_marks.filter(status=MarkStatusEnum.DO).count() +\
-            album_marks.filter(status=MarkStatusEnum.DO).count() > MUSIC_PER_SET:
-            do_music_more = True
-        else:
-            do_music_more = False
-        do_music_marks = sorted(do_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
+        filtered_music_marks = filter_marks([song_marks, album_marks], MUSIC_PER_SET, 'music')
+        music_marks_count = count_marks([song_marks, album_marks], "music")
+     
 
-        wish_music_marks = list(song_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET]) \
-            + list(album_marks.filter(status=MarkStatusEnum.WISH)[:MUSIC_PER_SET])
-        if song_marks.filter(status=MarkStatusEnum.WISH).count() +\
-            album_marks.filter(status=MarkStatusEnum.WISH).count() > MUSIC_PER_SET:
-            wish_music_more = True
-        else:
-            wish_music_more = False
-        wish_music_more = True if len(wish_music_marks) > MUSIC_PER_SET else False
-        wish_music_marks = sorted(wish_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]
-
-        collect_music_marks = list(song_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET]) \
-            + list(album_marks.filter(status=MarkStatusEnum.COLLECT)[:MUSIC_PER_SET])
-        if song_marks.filter(status=MarkStatusEnum.COLLECT).count() +\
-            album_marks.filter(status=MarkStatusEnum.COLLECT).count() > MUSIC_PER_SET:
-            collect_music_more = True
-        else:
-            collect_music_more = False
-        collect_music_marks = sorted(collect_music_marks, key=lambda e: e.edited_time, reverse=True)[:MUSIC_PER_SET]         
-
-        for mark in do_music_marks + wish_music_marks + collect_music_marks:
+        for mark in filtered_music_marks["do_music_marks"] +\
+            filtered_music_marks["wish_music_marks"] +\
+                filtered_music_marks["collect_music_marks"]:
             # for template convenience
             if mark.__class__ == AlbumMark:
                 mark.type = "album"
@@ -281,12 +263,11 @@ def home(request, id):
                 **filtered_book_marks,
                 **filtered_movie_marks,
                 **filtered_game_marks,
-                'do_music_marks': do_music_marks,
-                'wish_music_marks': wish_music_marks,
-                'collect_music_marks': collect_music_marks,
-                'do_music_more': do_music_more,
-                'wish_music_more': wish_music_more,
-                'collect_music_more': collect_music_more,
+                **filtered_music_marks,
+                **book_marks_count,
+                **movie_marks_count,
+                **music_marks_count,
+                **game_marks_count,
                 'layout': layout,
                 'reports': reports,
                 'unread_announcements': unread_announcements,
@@ -296,17 +277,46 @@ def home(request, id):
         return HttpResponseBadRequest()
 
 
-def filter_marks(queryset, maximum, type_name):
+def filter_marks(querysets, maximum, type_name):
+    """
+    Filter marks by amount limits and order them edited time, store results in a dict, 
+    which could be directly used in template.
+    @param querysets: one queryset or multiple querysets as a list
+    """
     result = {}
-    for k in MarkStatusEnum.values:
-        result[f"{k}_{type_name}_marks"] = queryset.filter(
-            status=MarkStatusEnum[k.upper()]
-        ).order_by("-edited_time")
-        if result[f"{k}_{type_name}_marks"].count() > maximum:
-            result[f"{k}_{type_name}_more"] = True
-            result[f"{k}_{type_name}_marks"] = result[f"{k}_{type_name}_marks"][:maximum]
+    if not isinstance(querysets, list):
+        querysets = [querysets]
+
+    for status in MarkStatusEnum.values:
+        marks = []
+        count = 0
+        for queryset in querysets:
+            marks += list(queryset.filter(status=MarkStatusEnum[status.upper()])[:maximum])
+            count += queryset.filter(status=MarkStatusEnum[status.upper()]).count()
+        # marks
+        marks = sorted(marks, key=lambda e: e.edited_time, reverse=True)[:maximum]
+        result[f"{status}_{type_name}_marks"] = marks
+        # flag indicates if marks are more than `maximun`
+        if count > maximum:
+            result[f"{status}_{type_name}_more"] = True
         else:
-            result[f"{k}_{type_name}_more"] = False
+            result[f"{status}_{type_name}_more"] = False
+
+    return result
+
+def count_marks(querysets, type_name):
+    """
+    Count all available marks, then assembly a dict to be used in template
+    @param querysets: one queryset or multiple querysets as a list
+    """
+    result = {}
+    if not isinstance(querysets, list):
+        querysets = [querysets]
+    for status in MarkStatusEnum.values:
+        count = 0
+        for queryset in querysets:
+            count += queryset.filter(status=MarkStatusEnum[status.upper()]).count()
+        result[f"{status}_{type_name}_count"] = count
     return result
 
 
