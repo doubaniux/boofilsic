@@ -824,13 +824,13 @@ class SpotifyAlbumScraper(AbstractScraper):
 
     @classmethod
     def save(cls, request_user):
-        form = super().save(request_user)
         task = Thread(
             target=cls.add_tracks,
             args=(form.instance, request_user),
             daemon=True
         )
         task.start()
+        form = super().save(request_user)
         return form
 
     @classmethod
@@ -1154,6 +1154,9 @@ class SteamGameScraper(AbstractScraper):
 
 
 def find_entity(source_url):
+    """
+    for bangumi
+    """
     # to be added when new scrape method is implemented
     result = Game.objects.filter(source_url=source_url)
     if result:
