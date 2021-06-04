@@ -27,3 +27,7 @@
 .box p {
     text-align: justify;
 }
+
+body {
+    filter: grayscale(1);
+}
