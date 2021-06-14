@@ -198,7 +198,7 @@ $(document).ready( function() {
         $.ajax({
             url: $("#querySyncInfoURL").data("url"),
             success: function (data) {
-                console.log(data);
+                // console.log(data);
                 const progress = $("#importProgress");
                 const percent = $("#progressPercent");
                 if (!data.is_finished) {
