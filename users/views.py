@@ -199,6 +199,7 @@ def home(request, id):
 
         # visit other's home page
         else:
+            latest_task = None
             # no these value on other's home page
             reports = None
             unread_announcements = None
