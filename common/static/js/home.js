@@ -111,20 +111,133 @@ $(document).ready( function() {
     );
 
     // mobile dropdown
-    $(".relation-dropdown__button").click(e => {
-        const button = $(e.currentTarget);
+    $(".relation-dropdown__button").data("collapse", true);
+    function onClickDropdownButton(e) {
+        const button = $(".relation-dropdown__button");
+        button.data("collapse", !button.data("collapse"));
         button.children('.icon-arrow').toggleClass("icon-arrow--expand");
         button.siblings('.relation-dropdown__body').toggleClass("relation-dropdown__body--expand");
-    })
+    }
+    $(".relation-dropdown__button").click(onClickDropdownButton)
+
     // close when click outside
     window.onclick = evt => {
-        const button = $(".relation-dropdown__button");
         const target = $(evt.target);
-
-        if (!target.parents('.relation-dropdown__button').length && !target.hasClass("relation-dropdown__button")) {
-            button.children('.icon-arrow').removeClass("icon-arrow--expand");
-            button.siblings('.relation-dropdown__body').removeClass("relation-dropdown__body--expand");
+        if (!target.parents('.relation-dropdown').length && !$(".relation-dropdown__button").data("collapse")) {
+            onClickDropdownButton();
         }
+    };
+
+    // import panel
+    $("#uploadBtn").click(e => {
+        const btn = $("#uploadBtn")
+        const form = $(".import-panel__body form")
+
+        // validate form
+        let isValidForm = form[0].checkValidity();
+        if (!isValidForm) {
+            if (form[0].reportValidity) {
+                form[0].reportValidity();
+            } else {
+                alert("Invalid File");
+            }
+            return
+        }
+        e.preventDefault();
+
+        let formData = new FormData(form[0]);
+
+        // disable submit button for a while
+        btn.prop('disabled', true);
+        setTimeout(() => {
+            btn.prop('disabled', false);
+        }, 2000);
+        // show progress bar & hide last status
+        $(".import-panel__progress").show();
+        $(".import-panel__last-task").hide();
+        // flush failed urls
+        $("#failedUrls").html("");
+        // reset progress bar
+        $("#importProgress").attr("max", 1);
+        $("#importProgress").attr("value", 0);
+        percent.text('0%');
+
+        $.ajax({
+            url: form.attr("action"),
+            type: 'POST',
+            data: formData,
+            contentType: false,
+            dataType: "json",
+            processData: false,
+            enctype: form.attr("enctype"),
+            success: function (response) {
+                // console.log("here");
+                // console.log(response);
+                // long polling
+                poll();
+            },
+            error: function (response) {
+                // console.log("there")
+                // console.log(response)
+            },
+            complete: function (response) {
+                // console.log("somewhere")
+                // console.log(response)
+            },
+        });
+    });
+
+    // if progress is visible start to poll
+    if ($(".import-panel__progress").is(":visible")) {
+        poll();
     }
-    
+
+    // long polling function
+    const pollingInterval = 1500;
+    function poll() {
+        $.ajax({
+            url: $("#querySyncInfoURL").data("url"),
+            success: function (data) {
+                console.log(data);
+                const progress = $("#importProgress");
+                const percent = $("#progressPercent");
+                if (!data.is_finished) {
+                    // update progress bar
+                    if (!data.total_items == 0) {
+                        progress.attr("max", data.total_items);
+                        progress.attr("value", data.finished_items);
+                        percent.text(Math.floor(100 * data.finished_items / data.total_items) + '%');
+                    }
+                    setTimeout(() => {
+                        poll();
+                    }, pollingInterval);
+                } else {
+                    // task finishes
+                    // update progress bar
+                    percent.text('100%');
+                    progress.attr("max", 1);
+                    progress.attr("value", 1);
+                    // update last task summary
+                    $("#lastTaskTotalItems").text(data.total_items);
+                    $("#lastTaskSuccessItems").text(data.success_items);
+                    $("#lastTaskStatus").text(data.status);
+                    // display failed urls
+                    data.failed_urls.forEach((v, i) => {
+                        console.log(v)
+                        $("#failedUrls").append($("<li>" + v + "</li>"));
+                    });
+                    // hide progress & show last task
+                    $(".import-panel__progress").hide();
+                    $(".import-panel__last-task").show();
+                }
+            },
+            dataType: "json",
+            complete: () => {
+                // setTimeout(() => {
+                //     poll();
+                // }, pollingInterval);
+            },
+        });
+    }
+
 });

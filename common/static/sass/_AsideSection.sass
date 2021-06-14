@@ -125,6 +125,8 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
     & &__related-user-list
         display: flex
         justify-content: flex-start
+        &:last-of-type
+            margin-bottom: 0
 
     & &__related-user
         flex-basis: 25%
@@ -137,7 +139,14 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
                 color: $color-secondary
     
     & &__related-user-avatar
+        background-image: url("data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7")
         width: 48px
+        height: 48px
+        @media (min-width: $small-devices) and (max-width: $large-devices)
+            height: unset
+            width: 60%
+            max-width: 96px
+            
 
     & &__related-user-name
         color: inherit
@@ -147,10 +156,15 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
         -webkit-box-orient: vertical;
         -webkit-line-clamp: 2;        
 
+$panel-padding : 0
+
 .report-panel
     & &__label
         display: inline-block
         margin-bottom: 10px
+
+    & &__body
+        padding-left: $panel-padding
 
     & &__report-list
     
@@ -162,6 +176,93 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
 
     & &__all-link
         margin-left: 5px
+
+.import-panel
+    overflow-x: hidden
+
+    & &__label
+        display: inline-block
+        margin-bottom: 10px
+
+    & &__body
+        padding-left: $panel-padding
+        border: 2px dashed #00a1cc
+        padding: 6px 9px
+        form
+            margin: 0  
+
+        @media (max-width: $large-devices)
+            border: unset
+            padding-left: 0
+
+    & &__help
+        background-color: $color-quinary
+        border-radius: 100000px
+        display: inline-block
+        width: 16px
+        height: 16px
+        text-align: center
+        font-size: 12px
+        cursor: help
+    
+    & &__checkbox
+        display: inline-block
+        margin-right: 10px
+        label
+            display: inline
+        input[type="checkbox"]
+            margin: 0
+            position: relative
+            top: 2px
+        &--last
+            margin-right: 0
+
+    & &__file-input
+        margin-top: 10px
+
+    & &__button
+        line-height: unset
+        height: unset
+        padding: 4px 15px
+
+    & &__progress
+        padding-top: 10px
+        // padding-top: 4px
+        &:not(:first-child)
+            border-top: $color-tertiary 1px dashed
+        label
+            display: inline
+        progress
+            background-color: $color-quaternary
+            border-radius: 0
+            height: 10px
+            width: 65%
+
+        progress::-webkit-progress-bar
+            background-color: $color-quaternary
+
+        progress::-webkit-progress-value
+            background-color: $color-primary
+
+        progress::-moz-progress-bar
+            background-color: $color-quaternary
+
+    & &__last-task
+        &:not(:first-child)
+            padding-top: 4px
+            border-top: $color-tertiary 1px dashed
+        .index:not(:last-of-type)
+            margin-right: 8px
+    
+    & &__fail-urls
+        margin-top: 10px
+        li
+            word-break: break-all
+        ul
+            // padding: 4px
+            max-height: 100px
+            overflow-y: auto
+    
 
 .relation-dropdown
     & &__button
@@ -267,6 +368,7 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
             justify-content: center
             align-items: center
             cursor: pointer
+            transition: transform 0.3s
             &:focus
                 background-color: red
 
@@ -280,13 +382,13 @@ $aside-section-padding-mobile: 24px 25px 10px 25px
             transform: rotate(-180deg)
                 
         & &__button + &__body--expand
-            max-height: 500px
-            transition: max-height 0.6s ease-in
+            max-height: 2000px
+            transition: max-height 1s ease-in
 
         & &__body
             background-color: $color-bright
             max-height: 0
-            transition: max-height 0.6s ease-out
+            transition: max-height 1s ease-out
             overflow: hidden               
 
     .entity-card
