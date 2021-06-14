@@ -1039,7 +1039,7 @@ class DoubanGameScraper(AbstractScraper):
             raw_title = content.xpath(
                 "//div[@id='content']/h1/text()")[0].strip()
         except IndexError:
-            raise ValueError("given url contains no movie info")
+            raise ValueError("given url contains no game info")
 
         title = raw_title
 

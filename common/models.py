@@ -10,6 +10,7 @@ from markdownx.models import MarkdownxField
 from users.models import User
 from mastodon.api import get_relationships, get_cross_site_id
 from boofilsic.settings import CLIENT_NAME
+from django.utils import timezone
 
 
 RE_HTML_TAG = re.compile(r"<[^>]*>")
@@ -33,7 +34,7 @@ class Entity(models.Model):
     rating = models.DecimalField(
         null=True, blank=True, max_digits=3, decimal_places=1)
     created_time = models.DateTimeField(auto_now_add=True)
-    edited_time = models.DateTimeField(auto_now_add=True)
+    edited_time = models.DateTimeField(auto_now=True)
     last_editor = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='%(class)s_last_editor', null=True, blank=False)
     brief = models.TextField(_("简介"), blank=True, default="")
@@ -101,6 +102,10 @@ class Entity(models.Model):
                 pass
 
     def update_rating(self, old_rating, new_rating):
+        """
+        @param old_rating: the old mark rating
+        @param new_rating: the new mark rating
+        """
         self.calculate_rating(old_rating, new_rating)
         self.save()
 
@@ -145,8 +150,8 @@ class UserOwnedEntity(models.Model):
     is_private = models.BooleanField()
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='user_%(class)ss')
-    created_time = models.DateTimeField(auto_now_add=True)
-    edited_time = models.DateTimeField(auto_now_add=True)
+    created_time = models.DateTimeField(default=timezone.now)
+    edited_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
         abstract = True
@@ -245,6 +250,9 @@ class Mark(UserOwnedEntity):
             models.CheckConstraint(check=models.Q(
                 rating__lte=10), name='mark_rating_upperbound'),
         ]
+    
+    # TODO update entity rating when save
+    # TODO update tags
 
 
 class Review(UserOwnedEntity):

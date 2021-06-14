@@ -195,6 +195,8 @@ def home(request, id):
             song_marks = request.user.user_songmarks.all()
             game_marks = request.user.user_gamemarks.all()
 
+            latest_task = user.user_synctasks.order_by("-id").first()
+
         # visit other's home page
         else:
             # no these value on other's home page
@@ -271,6 +273,7 @@ def home(request, id):
                 'layout': layout,
                 'reports': reports,
                 'unread_announcements': unread_announcements,
+                'latest_task': latest_task,
             }
         )
     else:
