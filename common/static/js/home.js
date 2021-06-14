@@ -160,7 +160,7 @@ $(document).ready( function() {
         // reset progress bar
         $("#importProgress").attr("max", 1);
         $("#importProgress").attr("value", 0);
-        percent.text('0%');
+        $("#progressPercent").text('0%');
 
         $.ajax({
             url: form.attr("action"),
