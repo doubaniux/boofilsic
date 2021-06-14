@@ -50,7 +50,7 @@ class SyncTask(models.Model):
     default_public = models.BooleanField()
 
     # thread pid
-    pid = models.PositiveIntegerField(blank=True, null=True)
+    # pid = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         """Meta definition for SyncTask."""
