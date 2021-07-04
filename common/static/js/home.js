@@ -222,10 +222,13 @@ $(document).ready( function() {
                     $("#lastTaskSuccessItems").text(data.success_items);
                     $("#lastTaskStatus").text(data.status);
                     // display failed urls
-                    data.failed_urls.forEach((v, i) => {
-                        console.log(v)
-                        $("#failedUrls").append($("<li>" + v + "</li>"));
-                    });
+                    if (failed_urls.length > 0) {
+                        $(".import-panel__fail-urls").show();
+                        data.failed_urls.forEach((v, i) => {
+                            console.log(v)
+                            $("#failedUrls").append($("<li>" + v + "</li>"));
+                        });
+                    }
                     // hide progress & show last task
                     $(".import-panel__progress").hide();
                     $(".import-panel__last-task").show();
