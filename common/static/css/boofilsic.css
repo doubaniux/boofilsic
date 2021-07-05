@@ -2662,3 +2662,9 @@ select::placeholder {
   background-color: #f7f7f7;
   padding: 3px 5px;
 }
+
+.tag-input input {
+  -webkit-box-flex: 1;
+      -ms-flex-positive: 1;
+          flex-grow: 1;
+}
