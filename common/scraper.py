@@ -9,7 +9,7 @@ import time
 from lxml import html
 from mimetypes import guess_extension
 from threading import Thread
-from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG, IMDB_API_KEY
+from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG, IMDB_API_KEY, SCRAPERAPI_KEY
 from boofilsic.settings import SPOTIFY_CREDENTIAL
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -44,7 +44,7 @@ DEFAULT_REQUEST_HEADERS = {
 }
 
 # in seconds
-TIMEOUT = 10
+TIMEOUT = 60
 
 # luminati account credentials
 PORT = 22225
@@ -204,7 +204,6 @@ class AbstractScraper:
                 ext = None
         return raw_img, ext
 
-
     @classmethod
     def save(cls, request_user):
         entity_cover = {
@@ -221,7 +220,38 @@ class AbstractScraper:
         return form
 
 
-class DoubanBookScraper(AbstractScraper):
+class DoubanScrapperMixin:
+    @classmethod
+    def download_page(cls, url, headers):
+        url = cls.get_effective_url(url)
+
+        scraper_api_endpoint = f'http://api.scraperapi.com?api_key={SCRAPERAPI_KEY}&url={url}'
+
+        r = requests.get(scraper_api_endpoint, timeout=TIMEOUT)
+
+        if r.status_code != 200:
+            raise RuntimeError(f"download page failed, status code {r.status_code}")
+        # with open('temp.html', 'w', encoding='utf-8') as fp:
+        #     fp.write(r.content.decode('utf-8'))
+        return html.fromstring(r.content.decode('utf-8'))
+
+    @classmethod
+    def download_image(cls, url):
+        if url is None:
+            return
+        raw_img = None
+
+        if url:
+            img_response = requests.get(url, timeout=TIMEOUT)
+            if img_response.status_code == 200:
+                raw_img = img_response.content
+                content_type = img_response.headers.get('Content-Type')
+                ext = guess_extension(content_type.partition(';')[0].strip())
+            else:
+                ext = None
+        return raw_img, ext
+
+class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
     site_name = SourceSiteEnum.DOUBAN.value
     host = "book.douban.com"
     data_class = Book
@@ -382,7 +412,7 @@ class DoubanBookScraper(AbstractScraper):
         return data, raw_img
 
 
-class DoubanMovieScraper(AbstractScraper):
+class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
     site_name = SourceSiteEnum.DOUBAN.value
     host = 'movie.douban.com'
     data_class = Movie
@@ -555,7 +585,7 @@ class DoubanMovieScraper(AbstractScraper):
         return data, raw_img
 
 
-class DoubanAlbumScraper(AbstractScraper):
+class DoubanAlbumScraper(DoubanScrapperMixin, AbstractScraper):
     site_name = SourceSiteEnum.DOUBAN.value
     host = 'music.douban.com'
     data_class = Album
@@ -1022,7 +1052,7 @@ class ImdbMovieScraper(AbstractScraper):
         return f"https://imdb-api.com/zh/API/Title/{IMDB_API_KEY}/{cls.regex.findall(url)[0]}/FullActor,"
 
 
-class DoubanGameScraper(AbstractScraper):
+class DoubanGameScraper(DoubanScrapperMixin, AbstractScraper):
     site_name = SourceSiteEnum.DOUBAN.value
     host = 'www.douban.com/game/'
     data_class = Game
