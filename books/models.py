@@ -5,19 +5,13 @@ from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from common.models import Entity, Mark, Review, Tag
+from common.utils import GenerateDateUUIDMediaFilePath
 from boofilsic.settings import BOOK_MEDIA_PATH_ROOT, DEFAULT_BOOK_IMAGE
 from django.utils import timezone
 
 
 def book_cover_path(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    root = ''
-    if BOOK_MEDIA_PATH_ROOT.endswith('/'):
-        root = BOOK_MEDIA_PATH_ROOT
-    else:
-        root = BOOK_MEDIA_PATH_ROOT + '/'
-    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
+    return GenerateDateUUIDMediaFilePath(instance, filename, BOOK_MEDIA_PATH_ROOT)
 
 
 class Book(Entity):

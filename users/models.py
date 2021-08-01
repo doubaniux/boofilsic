@@ -6,17 +6,11 @@ from django.utils import timezone
 from boofilsic.settings import REPORT_MEDIA_PATH_ROOT, DEFAULT_PASSWORD
 from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.translation import ugettext_lazy as _
+from common.utils import GenerateDateUUIDMediaFilePath
 
 
 def report_image_path(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    root = ''
-    if REPORT_MEDIA_PATH_ROOT.endswith('/'):
-        root = REPORT_MEDIA_PATH_ROOT
-    else:
-        root = REPORT_MEDIA_PATH_ROOT + '/'
-    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
+    return GenerateDateUUIDMediaFilePath(instance, filename, REPORT_MEDIA_PATH_ROOT)
 
 
 class User(AbstractUser):

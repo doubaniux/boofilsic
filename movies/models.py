@@ -5,20 +5,13 @@ from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from common.models import Entity, Mark, Review, Tag
-from common.utils import ChoicesDictGenerator
+from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from boofilsic.settings import MOVIE_MEDIA_PATH_ROOT, DEFAULT_MOVIE_IMAGE
 from django.utils import timezone
 
 
 def movie_cover_path(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    root = ''
-    if MOVIE_MEDIA_PATH_ROOT.endswith('/'):
-        root = MOVIE_MEDIA_PATH_ROOT
-    else:
-        root = MOVIE_MEDIA_PATH_ROOT + '/'
-    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
+    return GenerateDateUUIDMediaFilePath(instance, filename, MOVIE_MEDIA_PATH_ROOT)
 
 
 class MovieGenreEnum(models.TextChoices):

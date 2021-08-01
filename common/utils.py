@@ -1,3 +1,6 @@
+import uuid
+from django.utils import timezone
+
 class PageLinksGenerator:
     # TODO inherit django paginator
     """
@@ -63,3 +66,13 @@ def ChoicesDictGenerator(choices_enum):
         if not '__' in attr:
             choices_dict[getattr(choices_enum, attr).value] = getattr(choices_enum, attr).label
     return choices_dict
+
+def GenerateDateUUIDMediaFilePath(instance, filename, path_root):
+    ext = filename.split('.')[-1]
+    filename = "%s.%s" % (uuid.uuid4(), ext)
+    root = ''
+    if path_root.endswith('/'):
+        root = path_root
+    else:
+        root = path_root + '/'
+    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'

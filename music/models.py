@@ -5,31 +5,17 @@ from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from common.models import Entity, Mark, Review, Tag
-from common.utils import ChoicesDictGenerator
+from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from boofilsic.settings import SONG_MEDIA_PATH_ROOT, DEFAULT_SONG_IMAGE, ALBUM_MEDIA_PATH_ROOT, DEFAULT_ALBUM_IMAGE
 from django.utils import timezone
 
 
 def song_cover_path(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    root = ''
-    if SONG_MEDIA_PATH_ROOT.endswith('/'):
-        root = SONG_MEDIA_PATH_ROOT
-    else:
-        root = SONG_MEDIA_PATH_ROOT + '/'
-    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
+    return GenerateDateUUIDMediaFilePath(instance, filename, SONG_MEDIA_PATH_ROOT)
 
 
 def album_cover_path(instance, filename):
-    ext = filename.split('.')[-1]
-    filename = "%s.%s" % (uuid.uuid4(), ext)
-    root = ''
-    if ALBUM_MEDIA_PATH_ROOT.endswith('/'):
-        root = ALBUM_MEDIA_PATH_ROOT
-    else:
-        root = ALBUM_MEDIA_PATH_ROOT + '/'
-    return root + timezone.now().strftime('%Y/%m/%d') + f'{filename}'
+    return GenerateDateUUIDMediaFilePath(instance, filename, ALBUM_MEDIA_PATH_ROOT)
 
 
 class Album(Entity):
