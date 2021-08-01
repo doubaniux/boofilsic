@@ -1,4 +1,3 @@
-import django.contrib.postgres.fields as postgres
 import re
 from decimal import *
 from markdown import markdown
@@ -38,7 +37,7 @@ class Entity(models.Model):
     last_editor = models.ForeignKey(
         User, on_delete=models.SET_NULL, related_name='%(class)s_last_editor', null=True, blank=False)
     brief = models.TextField(_("简介"), blank=True, default="")
-    other_info = postgres.JSONField(_("其他信息"),
+    other_info = models.JSONField(_("其他信息"),
         blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
     # source_url should include shceme, which is normally https://
     source_url = models.URLField(_("URL"), max_length=500, unique=True)
