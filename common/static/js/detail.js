@@ -120,5 +120,11 @@ $(document).ready( function() {
         $(this).parent().siblings(".entity-desc__content").removeClass('entity-desc__content--folded');
         $(this).parent(".entity-desc__unfold-button").remove();
     });
+    
+    // disable delete mark button after click
+    const confirmDeleteMarkButton = $('.confirm-modal__confirm-button > input');
+    confirmDeleteMarkButton.click(function() {
+        confirmDeleteMarkButton.prop("disabled", true);
+    });
 
 });
