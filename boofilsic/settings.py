@@ -21,7 +21,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '***REMOVED***'
+SECRET_KEY = 'nbv58c^&b8-095(^)&_BV98596v)&CX#^$&%*^V5'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -54,7 +54,6 @@ INSTALLED_APPS = [
     'movies.apps.MoviesConfig',
     'music.apps.MusicConfig',
     'games.apps.GamesConfig',
-    'sync.apps.SyncConfig',
     'easy_thumbnails',
 ]
 
@@ -99,12 +98,12 @@ if DEBUG:
             'NAME': 'test',
             'USER': 'donotban',
             'PASSWORD': 'donotbansilvousplait',
-            'HOST': '172.20.21.108',
+            'HOST': '172.18.116.29',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
             }
-        }
+        }    
     }
 else:
     DATABASES = {
@@ -113,12 +112,12 @@ else:
             'NAME': 'boofilsic',
             'USER': 'doubaniux',
             'PASSWORD': 'password',
-        'HOST': 'localhost',
+            'HOST': 'localhost',
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
             }
-        }
+        }    
     }
 
 # Customized auth backend, glue OAuth2 and Django User model together
@@ -159,7 +158,7 @@ if not DEBUG:
                 'format': '{levelname} {asctime} {name}:{lineno} {message}',
                 'style': '{',
             },
-        },
+        },    
         'handlers': {
             'file': {
                 'level': 'INFO',
@@ -195,7 +194,6 @@ REDIRECT_URIS = "https://nicedb.org/users/OAuth2_login/\nhttps://www.nicedb.org/
 
 # Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = 'report/'
-SYNC_FILE_PATH_ROOT = 'sync/'
 MARKDOWNX_MEDIA_PATH = 'review/'
 BOOK_MEDIA_PATH_ROOT = 'book/'
 DEFAULT_BOOK_IMAGE = os.path.join(BOOK_MEDIA_PATH_ROOT, 'default.svg')
@@ -221,25 +219,20 @@ STAR_EMPTY = ':star_empty:'
 
 # Default password for each user. since assword is not used any way,
 # any string that is not empty is ok
-DEFAULT_PASSWORD = '***REMOVED***'
+DEFAULT_PASSWORD = 'ab7nsm8didusbaqPgq'
 
 # Default redirect loaction when access login required view
 LOGIN_URL = '/users/login/'
 
 # Admin site root url
-ADMIN_URL = 'lpLuTqX72Bt2hLfxxRYKeTZdE59Y2hLfpLuTqX72Btx9sXuljYK4tYEmjrHd'
+ADMIN_URL = 'tertqX7256n7ej8nbv5cwvsegdse6w7ne5rHd'
 
 # Luminati proxy settings
-LUMINATI_USERNAME = '***REMOVED***'
-LUMINATI_PASSWORD = '***REMOVED***'
-
-# ScraperAPI api key
-SCRAPERAPI_KEY = '***REMOVED***'
+LUMINATI_USERNAME = 'lum-customer-hl_nw4tbv78-zone-static'
+LUMINATI_PASSWORD = 'nsb7te9bw0ney'
 
 # Spotify credentials
-# SPOTIFY_CLIENT_ID = "***REMOVED***"
-# SPOTIFY_CLIENT_SECRET = "***REMOVED***"
-SPOTIFY_CREDENTIAL = "***REMOVED***"
+SPOTIFY_CREDENTIAL = "NzYzNkYTE6MGQ0ODY0NTY2Y2b3n645sdfgAyY2I1ljYjg3Nzc0MjIwODQ0ZWE="
 
 # IMDb API service https://imdb-api.com/
 IMDB_API_KEY = "***REMOVED***"
