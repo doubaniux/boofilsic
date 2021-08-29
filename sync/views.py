@@ -3,8 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
 from .models import SyncTask
 from .forms import SyncTaskForm
-from .jobs import sync_douban_job
-
+from .jobs import sync_task_manager
 import tempfile
 import os
 from threading import Thread
@@ -30,22 +29,12 @@ def sync_douban(request):
             # raise e
             return HttpResponseBadRequest(content="invalid excel file")
 
-        form = SyncTaskForm(request.POST)
+        form = SyncTaskForm(request.POST, request.FILES)
         if form.is_valid():
             # stop all preivous task
             SyncTask.objects.filter(user=request.user, is_finished=False).update(is_finished=True)
             form.save()
-            temp_dir = tempfile.TemporaryDirectory()
-            filename = os.path.join(temp_dir.name, uploaded_file.name)
-            with open(filename, 'wb+') as destination:
-                for chunk in uploaded_file.chunks():
-                    destination.write(chunk)
-            task = Thread(
-                target=sync_douban_job,
-                args=(form.instance, request.user, filename, temp_dir),
-                daemon=True
-            )
-            task.start()
+            sync_task_manager.add_task(form.instance)
 
             return HttpResponse(status=204)
         else:
