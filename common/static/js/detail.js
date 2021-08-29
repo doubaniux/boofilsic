@@ -127,4 +127,11 @@ $(document).ready( function() {
         confirmDeleteMarkButton.prop("disabled", true);
     });
 
+    // disable sumbit button after click
+    const confirmSumbitMarkButton = $('.mark-modal__confirm-button > input');
+    confirmSumbitMarkButton.click(function() {
+        confirmSumbitMarkButton.prop("disabled", true);
+        confirmSumbitMarkButton.closest('form')[0].submit();
+    });
+
 });
