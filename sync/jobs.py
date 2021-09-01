@@ -21,6 +21,8 @@ from .models import SyncTask
 __all__ = ['sync_task_manager']
 
 logger = logging.getLogger(__name__)
+
+
 class SyncTaskManger:
 
     # in seconds
@@ -41,7 +43,8 @@ class SyncTaskManger:
 
     def __start_new_worker(self, task):
         new_worker = threading.Thread(
-            target=sync_doufen_job, args=[task, self.is_stopped])
+            target=sync_doufen_job, args=[task, self.is_stopped], daemon=True
+        )
         self.__worker_threads.append(new_worker)
         new_worker.start()
 
@@ -71,10 +74,9 @@ class SyncTaskManger:
 
     def start(self):
         self.__enqueue_existing_tasks()  # enqueue
-        self.__listen_for_new_task()  # enqueue
 
         listen_new_task_thread = threading.Thread(
-            target=self.__listen_for_new_task)
+            target=self.__listen_for_new_task, daemon=True)
 
         self.__worker_threads.append(listen_new_task_thread)
 
@@ -169,12 +171,12 @@ class DoufenParser:
             # parse data
             for i in range(start_row_index, ws.max_row + 1):
                 # url definitely exists
-                url = ws.cell(row=i, column=URL_INDEX).value
+                url = ws.cell(row=i, column=self.URL_INDEX).value
 
-                tags = ws.cell(row=i, column=TAG_INDEX).value
+                tags = ws.cell(row=i, column=self.TAG_INDEX).value
                 tags = tags.split(',') if tags else None
 
-                time = ws.cell(row=i, column=TIME_INDEX).value
+                time = ws.cell(row=i, column=self.TIME_INDEX).value
                 if time:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
                     tz = pytz.timezone('Asia/Shanghai')
@@ -182,11 +184,11 @@ class DoufenParser:
                 else:
                     time = None
 
-                content = ws.cell(row=i, column=CONTENT_INDEX).value
+                content = ws.cell(row=i, column=self.CONTENT_INDEX).value
                 if not content:
                     content = ""
 
-                rating = ws.cell(row=i, column=RATING_INDEX).value
+                rating = ws.cell(row=i, column=self.RATING_INDEX).value
                 rating = int(rating) * 2 if rating else None
 
                 # store result
@@ -293,6 +295,9 @@ def overwrite_mark(entity, entity_class, mark, mark_class, tag_class, data, shee
 
 
 def sync_doufen_job(task, stop_check_func):
+    """
+    TODO: Update task status every certain amount of items to reduce IO consumption
+    """
     parser = DoufenParser(task)
     items = parser.parse()
 
@@ -351,15 +356,14 @@ def sync_doufen_job(task, stop_check_func):
             task.failed_urls.append(data.url)
             task.save(update_fields=['failed_urls'])
             continue
-        
+
         task.success_items += 1
         task.save(update_fields=["success_items"])
 
-        
     # if task finish
     if len(items) == 0:
         task.is_finished = True
-        task.clear_progress()
+        task.clear_breakpoint()
         task.save(update_fields=['is_finished', 'break_point'])
 
 
@@ -375,6 +379,8 @@ def translate_status(sheet_name):
 
 
 sync_task_manager = SyncTaskManger()
+
+# sync_task_manager.start()
 
 signal.signal(signal.SIGTERM, sync_task_manager.stop)
 if sys.platform.startswith('linux'):

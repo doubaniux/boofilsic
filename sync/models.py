@@ -18,7 +18,7 @@ class SyncTask(models.Model):
     #-----------------------------------#
     user = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='user_%(class)ss')
-    file = models.FileField(upload_to=sync_file_path)
+    file = models.FileField(upload_to=sync_file_path, default='')
 
     #-----------------------------------#
     # options
@@ -60,15 +60,6 @@ class SyncTask(models.Model):
 
     started_time = models.DateTimeField(auto_now_add=True)
     ended_time = models.DateTimeField(auto_now=True)
-    
-    # how many items are overwritten
-    # overwrite_books = models.PositiveIntegerField(default=0)
-    # overwrite_movies = models.PositiveIntegerField(default=0)
-    # overwrite_music = models.PositiveIntegerField(default=0)
-    # overwrite_games = models.PositiveIntegerField(default=0)
-
-    # thread pid
-    # pid = models.PositiveIntegerField(blank=True, null=True)
 
     class Meta:
         """Meta definition for SyncTask."""
@@ -107,7 +98,8 @@ class SyncTask(models.Model):
     def get_breakpoint(self):
         if not self.break_point:
             return None, None
-        return self.break_point.split('-')
+        progress = self.break_point.split('-')
+        return progress[0], int(progress[1])
 
     def set_breakpoint(self, sheet_name, row_index, save=False):
         self.break_point = f"{sheet_name}-{row_index}"

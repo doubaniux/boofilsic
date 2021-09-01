@@ -10,6 +10,7 @@ class SyncTaskForm(forms.ModelForm):
         model = SyncTask
         fields = [
             "user",
+            "file",
             "overwrite",
             "sync_book",
             "sync_movie",

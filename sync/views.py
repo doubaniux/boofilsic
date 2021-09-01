@@ -21,7 +21,7 @@ def sync_douban(request):
     if request.method == 'POST':
         # validate sunmitted data
         try:
-            uploaded_file = request.FILES['xlsx']
+            uploaded_file = request.FILES['file']
             wb = openpyxl.open(uploaded_file, read_only=True,
                                data_only=True, keep_links=False)
             wb.close()
@@ -29,6 +29,7 @@ def sync_douban(request):
             # raise e
             return HttpResponseBadRequest(content="invalid excel file")
 
+        # file_data = {'file': request.FILES['xlsx']}
         form = SyncTaskForm(request.POST, request.FILES)
         if form.is_valid():
             # stop all preivous task

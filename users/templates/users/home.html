@@ -547,9 +547,8 @@
                                     </div>
 
                                 </div>
-                                <!-- import douban data -->
                                 
-                                {% comment %}
+                                <!-- import douban data -->                                
                                 {% if user == request.user %}                                    
                                 <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
                                     <div class="import-panel">
@@ -593,7 +592,7 @@
                                                 <span id="visibilityHelp" class="import-panel__help">?</span>
                                                 <div></div>
                                                 <div class="import-panel__file-input">
-                                                    <input type="file" name="xlsx" id="excelFile" required accept=".xlsx">
+                                                    <input type="file" name="file" id="excelFile" required accept=".xlsx">
                                                 </div>
                                                 <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn">
                                             </form>
@@ -654,8 +653,6 @@
                                     </div>
                                 </div>
                                 {% endif %}
-                                {% endcomment %}
-                                    
                                     
                                 <div
                                     class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
