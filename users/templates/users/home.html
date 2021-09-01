@@ -594,7 +594,11 @@
                                                 <div class="import-panel__file-input">
                                                     <input type="file" name="file" id="excelFile" required accept=".xlsx">
                                                 </div>
-                                                <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn">
+                                                <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn"
+                                                    {% if not latest_task is None and not latest_task.is_finished %}
+                                                    disabled
+                                                    {% endif %}
+                                                >
                                             </form>
                                             <div class="import-panel__progress"
                                                 {% if latest_task.is_finished or latest_task is None %}

@@ -147,11 +147,9 @@ $(document).ready( function() {
 
         let formData = new FormData(form[0]);
 
-        // disable submit button for a while
+        // disable submit button
         btn.prop('disabled', true);
-        setTimeout(() => {
-            btn.prop('disabled', false);
-        }, 2000);
+        
         // show progress bar & hide last status
         $(".import-panel__progress").show();
         $(".import-panel__last-task").hide();
@@ -171,17 +169,14 @@ $(document).ready( function() {
             processData: false,
             enctype: form.attr("enctype"),
             success: function (response) {
-                // console.log("here");
                 // console.log(response);
                 // long polling
                 poll();
             },
             error: function (response) {
-                // console.log("there")
                 // console.log(response)
             },
             complete: function (response) {
-                // console.log("somewhere")
                 // console.log(response)
             },
         });
@@ -217,12 +212,13 @@ $(document).ready( function() {
                     percent.text('100%');
                     progress.attr("max", 1);
                     progress.attr("value", 1);
+                    $("#uploadBtn").prop('disabled', false);
                     // update last task summary
                     $("#lastTaskTotalItems").text(data.total_items);
                     $("#lastTaskSuccessItems").text(data.success_items);
                     $("#lastTaskStatus").text(data.status);
                     // display failed urls
-                    if (failed_urls.length > 0) {
+                    if (data.failed_urls.length > 0) {
                         $(".import-panel__fail-urls").show();
                         data.failed_urls.forEach((v, i) => {
                             console.log(v)
