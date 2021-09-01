@@ -235,7 +235,7 @@ LUMINATI_PASSWORD = 'nsb7te9bw0ney'
 SPOTIFY_CREDENTIAL = "NzYzNkYTE6MGQ0ODY0NTY2Y2b3n645sdfgAyY2I1ljYjg3Nzc0MjIwODQ0ZWE="
 
 # IMDb API service https://imdb-api.com/
-IMDB_API_KEY = "***REMOVED***"
+IMDB_API_KEY = "k23fwewff23"
 
 # Thumbnail setting
 # It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/
