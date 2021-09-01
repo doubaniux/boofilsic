@@ -231,6 +231,9 @@ ADMIN_URL = 'tertqX7256n7ej8nbv5cwvsegdse6w7ne5rHd'
 LUMINATI_USERNAME = 'lum-customer-hl_nw4tbv78-zone-static'
 LUMINATI_PASSWORD = 'nsb7te9bw0ney'
 
+# ScraperAPI api key
+SCRAPERAPI_KEY = 'wnb3794v675b8w475h0e8hr7tyge'
+
 # Spotify credentials
 SPOTIFY_CREDENTIAL = "NzYzNkYTE6MGQ0ODY0NTY2Y2b3n645sdfgAyY2I1ljYjg3Nzc0MjIwODQ0ZWE="
 
