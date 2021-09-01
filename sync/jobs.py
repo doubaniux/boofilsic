@@ -328,7 +328,8 @@ def sync_doufen_job(task, stop_check_func):
                 logger.error(
                     "Expections during scraping data:", exc_info=e)
                 task.failed_urls.append(data.url)
-                task.save(update_fields=['failed_urls'])
+                task.finished_items += 1
+                task.save(update_fields=['failed_urls', 'finished_items'])
                 continue
 
         # sync mark
@@ -344,6 +345,9 @@ def sync_doufen_job(task, stop_check_func):
                 overwrite_mark(entity, entity_class, mark,
                                mark_class, tag_class, data, sheet)
             else:
+                task.success_items += 1
+                task.finished_items += 1
+                task.save(update_fields=['success_items', 'finished_items'])
                 continue
 
         except ObjectDoesNotExist:
@@ -354,11 +358,13 @@ def sync_doufen_job(task, stop_check_func):
             logger.error(
                 "Unknown exception when syncing marks", exc_info=e)
             task.failed_urls.append(data.url)
-            task.save(update_fields=['failed_urls'])
+            task.finished_items += 1
+            task.save(update_fields=['failed_urls', 'finished_items'])
             continue
 
         task.success_items += 1
-        task.save(update_fields=["success_items"])
+        task.finished_items += 1
+        task.save(update_fields=['success_items', 'finished_items'])
 
     # if task finish
     if len(items) == 0:
