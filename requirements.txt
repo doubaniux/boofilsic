@@ -1,0 +1,9 @@
+dateparser
+django
+django-hstore
+django-markdownx
+easy-thumbnails
+lxml
+openpyxl
+psycopg2
+requests
