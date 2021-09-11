@@ -9,8 +9,6 @@ import time
 from lxml import html
 from mimetypes import guess_extension
 from threading import Thread
-from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG, IMDB_API_KEY, SCRAPERAPI_KEY
-from boofilsic.settings import SPOTIFY_CREDENTIAL
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
 from django.core.exceptions import ObjectDoesNotExist, ValidationError
@@ -24,6 +22,7 @@ from music.models import Album, Song
 from music.forms import AlbumForm, SongForm
 from games.models import Game
 from games.forms import GameForm
+from django.conf import settings
 
 
 RE_NUMBERS = re.compile(r"\d+\d*")
@@ -152,12 +151,12 @@ class AbstractScraper:
 
         session_id = random.random()
         proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
-                     (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
+                     (settings.LUMINATI_USERNAME, session_id, settings.LUMINATI_PASSWORD, PORT))
         proxies = {
             'http': proxy_url,
             'https': proxy_url,
         }
-        # if DEBUG:
+        # if settings.DEBUG:
         #     proxies = None
         r = requests.get(url, proxies=proxies,
                          headers=headers, timeout=TIMEOUT)
@@ -175,12 +174,12 @@ class AbstractScraper:
         raw_img = None
         session_id = random.random()
         proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
-                     (LUMINATI_USERNAME, session_id, LUMINATI_PASSWORD, PORT))
+                     (settings.LUMINATI_USERNAME, session_id, settings.LUMINATI_PASSWORD, PORT))
         proxies = {
             'http': proxy_url,
             'https': proxy_url,
         }
-        # if DEBUG:
+        # if settings.DEBUG:
         #     proxies = None
         if url:
             img_response = requests.get(
@@ -225,7 +224,7 @@ class DoubanScrapperMixin:
     def download_page(cls, url, headers):
         url = cls.get_effective_url(url)
 
-        scraper_api_endpoint = f'http://api.scraperapi.com?api_key={SCRAPERAPI_KEY}&url={url}'
+        scraper_api_endpoint = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
 
         r = requests.get(scraper_api_endpoint, timeout=TIMEOUT)
 
@@ -926,7 +925,7 @@ def invoke_spotify_token():
             "grant_type": "client_credentials"
         },
         headers={
-            "Authorization": f"Basic {SPOTIFY_CREDENTIAL}"
+            "Authorization": f"Basic {settings.SPOTIFY_CREDENTIAL}"
         }
     )
     data = r.json()
@@ -940,7 +939,7 @@ def invoke_spotify_token():
                 "grant_type": "client_credentials"
             },
             headers={
-                "Authorization": f"Basic {SPOTIFY_CREDENTIAL}"
+                "Authorization": f"Basic {settings.SPOTIFY_CREDENTIAL}"
             }
         )
         data = r.json()
@@ -1049,7 +1048,7 @@ class ImdbMovieScraper(AbstractScraper):
 
     @classmethod
     def get_api_url(cls, url):
-        return f"https://imdb-api.com/zh/API/Title/{IMDB_API_KEY}/{cls.regex.findall(url)[0]}/FullActor,"
+        return f"https://imdb-api.com/zh/API/Title/{settings.IMDB_API_KEY}/{cls.regex.findall(url)[0]}/FullActor,"
 
 
 class DoubanGameScraper(DoubanScrapperMixin, AbstractScraper):

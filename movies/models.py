@@ -6,12 +6,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from common.models import Entity, Mark, Review, Tag
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
-from boofilsic.settings import MOVIE_MEDIA_PATH_ROOT, DEFAULT_MOVIE_IMAGE
 from django.utils import timezone
+from django.conf import settings
 
 
 def movie_cover_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(instance, filename, MOVIE_MEDIA_PATH_ROOT)
+    return GenerateDateUUIDMediaFilePath(instance, filename, settings.MOVIE_MEDIA_PATH_ROOT)
 
 
 class MovieGenreEnum(models.TextChoices):
@@ -140,7 +140,7 @@ class Movie(Entity):
     year = models.PositiveIntegerField(null=True, blank=True)
     duration = models.CharField(blank=True, default='', max_length=200)
 
-    cover = models.ImageField(_("poster"), upload_to=movie_cover_path, default=DEFAULT_MOVIE_IMAGE, blank=True)
+    cover = models.ImageField(_("poster"), upload_to=movie_cover_path, default=settings.DEFAULT_MOVIE_IMAGE, blank=True)
 
     ############################################
     # exclusive fields to series

@@ -6,16 +6,16 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from common.models import Entity, Mark, Review, Tag
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
-from boofilsic.settings import SONG_MEDIA_PATH_ROOT, DEFAULT_SONG_IMAGE, ALBUM_MEDIA_PATH_ROOT, DEFAULT_ALBUM_IMAGE
 from django.utils import timezone
+from django.conf import settings
 
 
 def song_cover_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(instance, filename, SONG_MEDIA_PATH_ROOT)
+    return GenerateDateUUIDMediaFilePath(instance, filename, settings.SONG_MEDIA_PATH_ROOT)
 
 
 def album_cover_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(instance, filename, ALBUM_MEDIA_PATH_ROOT)
+    return GenerateDateUUIDMediaFilePath(instance, filename, settings.ALBUM_MEDIA_PATH_ROOT)
 
 
 class Album(Entity):
@@ -23,7 +23,7 @@ class Album(Entity):
     release_date = models.DateField(
         _('发行日期'), auto_now=False, auto_now_add=False, null=True, blank=True)
     cover = models.ImageField(
-        _("封面"), upload_to=album_cover_path, default=DEFAULT_ALBUM_IMAGE, blank=True)
+        _("封面"), upload_to=album_cover_path, default=settings.DEFAULT_ALBUM_IMAGE, blank=True)
     duration = models.PositiveIntegerField(_("时长"), null=True, blank=True)
     artist = postgres.ArrayField(
         models.CharField(_("artist"), blank=True,
@@ -70,7 +70,7 @@ class Song(Entity):
     # duration in ms
     duration = models.PositiveIntegerField(_("时长"), null=True, blank=True)
     cover = models.ImageField(
-        _("封面"), upload_to=song_cover_path, default=DEFAULT_SONG_IMAGE, blank=True)
+        _("封面"), upload_to=song_cover_path, default=settings.DEFAULT_SONG_IMAGE, blank=True)
     artist = postgres.ArrayField(
         models.CharField(blank=True,
                          default='', max_length=100),

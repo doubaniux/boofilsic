@@ -1,4 +1,3 @@
-# from boofilsic.settings import MASTODON_TAGS
 from .forms import *
 from .models import *
 from common.models import SourceSiteEnum
@@ -18,7 +17,6 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 import logging
 from django.shortcuts import render
-
 
 
 logger = logging.getLogger(__name__)

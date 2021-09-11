@@ -210,6 +210,9 @@ GAME_MEDIA_PATH_ROOT = 'game/'
 DEFAULT_GAME_IMAGE = os.path.join(GAME_MEDIA_PATH_ROOT, 'default.svg')
 SYNC_FILE_PATH_ROOT = 'sync/'
 
+# Allow user to login via any Mastodon/Pleroma sites
+MASTODON_ALLOW_ANY_SITE = False
+
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30
 

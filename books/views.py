@@ -17,7 +17,7 @@ from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
 from .forms import BookMarkStatusTranslator
-from boofilsic.settings import MASTODON_TAGS
+from django.conf import settings
 
 
 logger = logging.getLogger(__name__)
@@ -314,7 +314,7 @@ def create_update_mark(request):
                     f"《{book.title}》" + \
                     rating_to_emoji(form.cleaned_data['rating'])
 
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
+                # tags = settings.MASTODON_TAGS % {'category': '书', 'type': '标记'}
                 tags = ''
                 content = words + '\n' + url + '\n' + \
                     form.cleaned_data['text'] + '\n' + tags
@@ -405,7 +405,7 @@ def create_review(request, book_id):
                 url = "https://" + request.get_host() + reverse("books:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
+                # tags = settings.MASTODON_TAGS % {'category': '书', 'type': '评论'}
                 tags = ''
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
@@ -457,7 +457,7 @@ def update_review(request, id):
                 url = "https://" + request.get_host() + reverse("books:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
+                # tags = settings.MASTODON_TAGS % {'category': '书', 'type': '评论'}
                 tags = ''
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags

@@ -2,12 +2,12 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 import django.contrib.postgres.fields as postgres
 from users.models import User
-from boofilsic.settings import SYNC_FILE_PATH_ROOT
 from common.utils import GenerateDateUUIDMediaFilePath
+from django.conf import settings
 
 
 def sync_file_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(instance, filename, SYNC_FILE_PATH_ROOT)
+    return GenerateDateUUIDMediaFilePath(instance, filename, settings.SYNC_FILE_PATH_ROOT)
 
 
 class SyncTask(models.Model):

@@ -2,6 +2,7 @@ from django.contrib.auth.backends import ModelBackend, UserModel
 from django.shortcuts import reverse
 from .api import *
 from .models import MastodonApplication
+from django.conf import settings
 
 
 def obtain_token(site, request, code):
@@ -15,8 +16,7 @@ def obtain_token(site, request, code):
         'code': code,
         'scope': 'read write'
     }
-    from boofilsic.settings import DEBUG
-    if DEBUG:
+    if settings.DEBUG:
         payload['redirect_uri']= f"http://{request.get_host()}{reverse('users:OAuth2_login')}",
     if mast_app.is_proxy:
         url = 'https://' + mast_app.proxy_to + API_OBTAIN_TOKEN

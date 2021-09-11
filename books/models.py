@@ -6,12 +6,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from common.models import Entity, Mark, Review, Tag
 from common.utils import GenerateDateUUIDMediaFilePath
-from boofilsic.settings import BOOK_MEDIA_PATH_ROOT, DEFAULT_BOOK_IMAGE
 from django.utils import timezone
+from django.conf import settings
 
 
 def book_cover_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(instance, filename, BOOK_MEDIA_PATH_ROOT)
+    return GenerateDateUUIDMediaFilePath(instance, filename, settings.BOOK_MEDIA_PATH_ROOT)
 
 
 class Book(Entity):
@@ -43,7 +43,7 @@ class Book(Entity):
     pages = models.PositiveIntegerField(_("pages"), null=True, blank=True)
     isbn = models.CharField(_("ISBN"), blank=True, null=False, max_length=20, db_index=True, default='')
     # to store previously scrapped data 
-    cover = models.ImageField(_("cover picture"), upload_to=book_cover_path, default=DEFAULT_BOOK_IMAGE, blank=True)
+    cover = models.ImageField(_("cover picture"), upload_to=book_cover_path, default=settings.DEFAULT_BOOK_IMAGE, blank=True)
     contents = models.TextField(blank=True, default="")
 
     class Meta:

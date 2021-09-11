@@ -25,7 +25,7 @@ from movies.forms import MovieMarkStatusTranslator
 from music.forms import MusicMarkStatusTranslator
 from games.forms import GameMarkStatusTranslator
 from mastodon.models import MastodonApplication
-
+from django.conf import settings
 
 # Views
 ########################################
@@ -89,11 +89,41 @@ def login(request):
             {
                 'sites': sites,
                 'selected_site': selected_site,
+                'allow_any_site': settings.MASTODON_ALLOW_ANY_SITE,
             }
         )
     else:
         return HttpResponseBadRequest()
 
+def connect(request):
+    domain = request.GET.get('domain').strip().lower()
+    app = MastodonApplication.objects.filter(domain_name=domain).first()
+    if app is None:
+        try:
+            response = create_app(domain)
+        except (requests.exceptions.Timeout, ConnectionError):
+            error_msg = _("长毛象请求超时。")
+        except Exception as e:
+            error_msg = str(e)
+        else:
+            # fill the form with returned data
+            data = response.json()
+            if response.status_code != 200:
+                error_msg = str(data)
+            else:
+                app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
+                    client_secret=data['client_secret'], vapid_key=data['vapid_key'])
+    if app is None:
+        return render(request,
+                'common/error.html',
+                {
+                    'msg': error_msg,
+                    'secondary_msg': "",
+                }
+            )
+    else:
+        login_url = "https://" + domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=read+write&redirect_uri=http://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
+        return redirect(login_url)
 
 @mastodon_request_included
 @login_required

@@ -8,8 +8,8 @@ from django.db.models import Q
 from markdownx.models import MarkdownxField
 from users.models import User
 from mastodon.api import get_relationships, get_cross_site_id
-from boofilsic.settings import CLIENT_NAME
 from django.utils import timezone
+from django.conf import settings
 
 
 RE_HTML_TAG = re.compile(r"<[^>]*>")
@@ -18,7 +18,7 @@ RE_HTML_TAG = re.compile(r"<[^>]*>")
 # abstract base classes
 ###################################
 class SourceSiteEnum(models.TextChoices):
-    IN_SITE = "in-site", CLIENT_NAME
+    IN_SITE = "in-site", settings.CLIENT_NAME
     DOUBAN = "douban",  _("豆瓣")
     SPOTIFY = "spotify", _("Spotify")
     IMDB = "imdb", _("IMDb")

@@ -6,12 +6,12 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
 from common.models import Entity, Mark, Review, Tag
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
-from boofilsic.settings import GAME_MEDIA_PATH_ROOT, DEFAULT_GAME_IMAGE
 from django.utils import timezone
+from django.conf import settings
 
 
 def game_cover_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(instance, filename, GAME_MEDIA_PATH_ROOT)
+    return GenerateDateUUIDMediaFilePath(instance, filename, settings.GAME_MEDIA_PATH_ROOT)
 
 
 class Game(Entity):
@@ -68,7 +68,7 @@ class Game(Entity):
         verbose_name=_("平台")
     )
 
-    cover = models.ImageField(_("封面"), upload_to=game_cover_path, default=DEFAULT_GAME_IMAGE, blank=True)
+    cover = models.ImageField(_("封面"), upload_to=game_cover_path, default=settings.DEFAULT_GAME_IMAGE, blank=True)
 
 
 
