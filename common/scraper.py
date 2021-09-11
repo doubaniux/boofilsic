@@ -156,8 +156,8 @@ class AbstractScraper:
             'http': proxy_url,
             'https': proxy_url,
         }
-        # if settings.DEBUG:
-        #     proxies = None
+        if settings.LUMINATI_USERNAME is None:
+            proxies = None
         r = requests.get(url, proxies=proxies,
                          headers=headers, timeout=TIMEOUT)
 
@@ -179,8 +179,8 @@ class AbstractScraper:
             'http': proxy_url,
             'https': proxy_url,
         }
-        # if settings.DEBUG:
-        #     proxies = None
+        if settings.LUMINATI_USERNAME is None:
+            proxies = None
         if url:
             img_response = requests.get(
                 url,
@@ -224,7 +224,10 @@ class DoubanScrapperMixin:
     def download_page(cls, url, headers):
         url = cls.get_effective_url(url)
 
-        scraper_api_endpoint = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+        if settings.SCRAPERAPI_KEY is None:
+            scraper_api_endpoint = url
+        else:
+            scraper_api_endpoint = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
 
         r = requests.get(scraper_api_endpoint, timeout=TIMEOUT)
 
