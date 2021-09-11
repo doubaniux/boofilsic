@@ -83,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'boofilsic.context_processors.site_info',
             ],
         },
     },
@@ -189,6 +190,8 @@ AUTH_USER_MODEL = 'users.User'
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
+
+SITE_INFO = {'site_name': 'NeoDB'}
 
 # Mastodon configs
 CLIENT_NAME = 'NiceDB'

@@ -13,12 +13,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="NiceDB乐评 - {{ review.title }}">
+    <meta property="og:title" content="{{ site_name }}乐评 - {{ review.title }}">
     <meta property="og:type" content="article">
     <meta property="og:article:author" content="{{ review.owner.username }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.svg' %}">
-    <title>{% trans 'NiceDB - 评论详情' %}</title>
+    <title>{{ site_name }} - {% trans '评论详情' %}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>

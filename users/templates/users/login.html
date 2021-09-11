@@ -6,7 +6,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="{% trans 'NiceDB - 登录' %}">
+    <meta property="og:title" content="{{ site_name }} - {% trans '登录' %}">
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
@@ -16,7 +16,7 @@
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/js.cookie.min.js' %}"></script>
-    <title>{% trans 'NiceDB - 登录' %}</title>
+    <title>{{ site_name }} - {% trans '登录' %}</title>
 </head>
 <body>
     <style>

@@ -10,7 +10,7 @@
     <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
-    <title>{% trans 'NiceDB - 注册' %}</title>
+    <title>{{ site_name }} - {% trans '注册' %}</title>
 </head>
 
 <body>
@@ -19,15 +19,15 @@
         <img src="{% static 'img/logo.svg' %}" class="logo" alt="boofilsic logo">
 
         <div id="loginButton">
-            <p>欢迎来到NiceDB书影音！</p>
+            <p>欢迎来到{{ site_name }}书影音！</p>
             <p>
-                NiceDB书影音继承了长毛象的用户关系，比如您在里瓣屏蔽了某人，那您将不会在书影音的公共区域看到TA的痕迹。
+                {{ site_name }}书影音继承了长毛象的用户关系，比如您在里瓣屏蔽了某人，那您将不会在书影音的公共区域看到TA的痕迹。
                 这里仍是一片处女地，丰富的内容需要大家共同创造。
                 请注意虽然您可以随意发表任何言论，但试图添加垃圾数据到公共数据领域（如添加不存在的乱码的书籍）将会受到制裁！
                 BTW欧盟惯例本站使用了Cookie，请理解！
             </p>
             <p>
-                此外NiceDB书影音现处于“公开阿尔法测试”阶段，您的数据存在丢失的可能。使用过程中遇到的问题或者Bug欢迎向<a href="https://donotban.com/@whitiewhite">作者</a>提出。
+                此外{{ site_name }}书影音现处于“公开阿尔法测试”阶段，您的数据存在丢失的可能。使用过程中遇到的问题或者Bug欢迎向<a href="https://donotban.com/@whitiewhite">作者</a>提出。
             </p>
             <form action="{% url 'users:register' %}" method="post">
                 {% csrf_token %}

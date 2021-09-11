@@ -13,14 +13,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="NiceDB音乐 - {{ album.title }}">
+    <meta property="og:title" content="{{ site_name }}音乐 - {{ album.title }}">
     <meta property="og:type" content="music.album">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ album.cover.url }}">
-    <meta property="og:site_name" content="NiceDB">
+    <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:description"content="{{ album.brief }}">
 
-    <title>{% trans 'NiceDB - 音乐详情' %} | {{ album.title }}</title>
+    <title>{{ site_name }} - {% trans '音乐详情' %} | {{ album.title }}</title>
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>

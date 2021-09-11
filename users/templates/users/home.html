@@ -13,9 +13,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     
     {% if user == request.user %}
-        <title>{% trans 'NiceDB - 我的主页' %}</title>
+        <title>{{ site_name }} - {% trans '我的主页' %}</title>
     {% else %}
-        <title>{% trans 'NiceDB - ' %}{{user.username}}{% trans '的主页' %}</title>
+        <title>{{ site_name }} - {{user.username}}{% trans '的主页' %}</title>
     {% endif %}
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>

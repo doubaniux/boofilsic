@@ -11,9 +11,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     {% if is_followers_page %}
-    <title>{% trans 'NiceDB - 被他们关注' %}</title>
+    <title>{{ site_name }} - {% trans '被他们关注' %}</title>
     {% else %}
-    <title>{% trans 'NiceDB - 关注的人' %}</title>
+    <title>{{ site_name }} - {% trans '关注的人' %}</title>
     {% endif %}
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/mastodon.js' %}"></script>

@@ -14,11 +14,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="NiceDB电影 - {{ movie.title }}">
+    <meta property="og:title" content="{{ site_name }}电影 - {{ movie.title }}">
     <meta property="og:type" content="video.movie">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ movie.cover.url }}">
-    <meta property="og:site_name" content="NiceDB">
+    <meta property="og:site_name" content="{{ site_name }}">
     <meta property="og:description"content="{{ movie.brief }}">
     <!-- 
     video:actor - profile array - Actors in the movie.
@@ -31,9 +31,9 @@
     -->
     
     {% if movie.is_series %}
-    <title>{% trans 'NiceDB - 剧集详情' %} | {{ movie.title }}</title>
+    <title>{{ site_name }} - {% trans '剧集详情' %} | {{ movie.title }}</title>
     {% else %}
-    <title>{% trans 'NiceDB - 电影详情' %} | {{ movie.title }}</title>
+    <title>{{ site_name }} - {% trans '电影详情' %} | {{ movie.title }}</title>
     {% endif %}
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
