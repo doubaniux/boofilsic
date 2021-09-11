@@ -29,7 +29,8 @@ $(document).ready( function() {
             }
             $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
             $("#userInfoCard .mast-displayname").html(userName);
-            $("#userInfoCard .mast-brief").text($(userData.note).text());
+            $("#userInfoCard .mast-brief").text($("<div>"+userData.note.replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
+            $("#userInfoCard .mast-brief").html($("#userInfoCard .mast-brief").html().replace(/\n/g,'<br/>'));
             $(userInfoSpinner).remove();
         }
     );

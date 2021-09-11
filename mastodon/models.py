@@ -27,7 +27,7 @@ class CrossSiteUserInfo(models.Model):
     # target site domain name
     target_site = models.CharField(_("target site domain name"), max_length=100)
     # target site id
-    site_id = models.PositiveIntegerField()
+    site_id = models.CharField(max_length=100, blank=False)
 
     class Meta:
         constraints = [

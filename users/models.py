@@ -14,7 +14,7 @@ def report_image_path(instance, filename):
 
 
 class User(AbstractUser):
-    mastodon_id = models.IntegerField(blank=False)
+    mastodon_id = models.CharField(max_length=100, blank=False)
     # mastodon domain name, eg donotban.com
     mastodon_site = models.CharField(max_length=100, blank=False)
     # store the latest read announcement id, 

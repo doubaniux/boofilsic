@@ -57,7 +57,7 @@ def get_relationships(site, id_list, token):
     headers = {
         'Authorization': f'Bearer {token}'
     }
-    response = get(url, headers=headers, data=payload)
+    response = get(url, headers=headers, params=payload)
     return response.json()
 
 
@@ -119,7 +119,7 @@ def get_site_id(username, user_site, target_site, token):
     headers = {
         'Authorization': f'Bearer {token}'
     }
-    response = get(url, data=payload, headers=headers)
+    response = get(url, params=payload, headers=headers)
     data = response.json()
     if not data['accounts']:
         return None
