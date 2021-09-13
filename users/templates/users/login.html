@@ -37,7 +37,7 @@
             <a href="{% url 'common:home' %}" class="button">{% trans '前往我的主页' %}</a>
             {% elif allow_any_site %}
             <form action="/users/connect" onsubmit="Cookies.set('mastodon_domain', $('#domain').val());">
-            <input type="url" name="domain" id="domain" placeholder="mastodon.social" />
+            <input type="search" name="domain" id="domain" placeholder="输入实例地址，例如mastodon.social" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <input type='submit' value="{% trans '授权登录' %}" />
             </form>
             {% else %}            

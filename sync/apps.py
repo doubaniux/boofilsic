@@ -1,4 +1,5 @@
 from django.apps import AppConfig
+from django.conf import settings
 
 
 class SyncConfig(AppConfig):
@@ -6,4 +7,5 @@ class SyncConfig(AppConfig):
 
     def ready(self):
         from sync.jobs import sync_task_manager
-        sync_task_manager.start()
+        if settings.START_SYNC:
+            sync_task_manager.start()

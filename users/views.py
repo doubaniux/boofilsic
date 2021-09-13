@@ -122,7 +122,7 @@ def connect(request):
                 }
             )
     else:
-        login_url = "https://" + domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=read+write&redirect_uri=http://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
+        login_url = "https://" + domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=read+write&redirect_uri=" + request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
         return redirect(login_url)
 
 @mastodon_request_included

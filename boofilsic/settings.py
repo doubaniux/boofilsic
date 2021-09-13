@@ -267,3 +267,5 @@ if DEBUG:
 
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment
+
+START_SYNC = True
