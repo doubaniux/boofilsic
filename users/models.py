@@ -14,6 +14,13 @@ def report_image_path(instance, filename):
 
 
 class User(AbstractUser):
+    if settings.MASTODON_ALLOW_ANY_SITE:
+        username = models.CharField(
+            _('username'),
+            max_length=150,
+            unique=False,
+            help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
+        )
     mastodon_id = models.CharField(max_length=100, blank=False)
     # mastodon domain name, eg donotban.com
     mastodon_site = models.CharField(max_length=100, blank=False)
