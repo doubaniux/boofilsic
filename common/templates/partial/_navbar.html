@@ -12,7 +12,7 @@
                 <div class="navbar__search-box">
                     <!-- <input type="search" class="" name="q" id="searchInput" required="true" value="{% for v in request.GET.values %}{{ v }}{% endfor %}" -->
                     <input type="search" class="" name="q" id="searchInput" required="true" value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                        placeholder="搜索书影音">
+                        placeholder="搜索书影音游戏，或输入豆瓣、Steam、Spotify、IMDB、Bangumi条目链接">
                     <select class="navbar__search-dropdown" id="searchCategory">
                         <option value="all" {% if request.GET.c and request.GET.c != 'movie' and request.GET.c != 'book' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
                         <option value="book" {% if request.GET.c and request.GET.c == 'book' %}selected{% endif %}>{% trans '书籍' %}</option>

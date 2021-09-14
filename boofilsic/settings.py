@@ -191,7 +191,7 @@ AUTH_USER_MODEL = 'users.User'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-SITE_INFO = {'site_name': 'NeoDB'}
+SITE_INFO = {'site_name': 'NeoDB', 'support_link': 'https://github.com/doubaniux/boofilsic/issues'}
 
 # Mastodon configs
 CLIENT_NAME = 'NiceDB'
