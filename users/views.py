@@ -123,7 +123,9 @@ def connect(request):
             )
     else:
         login_url = "https://" + domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=read+write&redirect_uri=" + request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
-        return redirect(login_url)
+        resp = redirect(login_url)
+        resp.set_cookie("mastodon_domain", domain)
+        return resp
 
 @mastodon_request_included
 @login_required
