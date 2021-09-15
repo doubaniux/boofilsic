@@ -7,6 +7,7 @@ import threading
 import time
 from dataclasses import dataclass
 from datetime import datetime
+from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from openpyxl import load_workbook
@@ -73,7 +74,8 @@ class SyncTaskManger:
         return self.__stop_event.is_set()
 
     def start(self):
-        self.__enqueue_existing_tasks()  # enqueue
+        if settings.START_SYNC:
+            self.__enqueue_existing_tasks()  # enqueue
 
         listen_new_task_thread = threading.Thread(
             target=self.__listen_for_new_task, daemon=True)

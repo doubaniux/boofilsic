@@ -91,7 +91,7 @@ class OAuth2Backend(ModelBackend):
 
         # when username is provided, assume that token is newly obtained and valid
         try:
-            user = UserModel._default_manager.filter(username=username, mastodon_site=site)
+            user = UserModel._default_manager.get(username=username, mastodon_site=site)
         except UserModel.DoesNotExist:
             return None
         else:

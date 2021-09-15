@@ -7,5 +7,4 @@ class SyncConfig(AppConfig):
 
     def ready(self):
         from sync.jobs import sync_task_manager
-        if settings.START_SYNC:
-            sync_task_manager.start()
+        sync_task_manager.start()
