@@ -121,7 +121,11 @@ def get_site_id(username, user_site, target_site, token):
     }
     response = get(url, params=payload, headers=headers)
     data = response.json()
-    if not data['accounts']:
+    if not data['accounts']: 
+        return None
+    elif len(data['accounts']) == 0:  # target site may return empty if no cache of this user
+        return None
+    elif data['accounts'][0]['acct'] != f"{username}@{user_site}":  # or return another user with a similar id which needs to be skipped  
         return None
     else:
         return data['accounts'][0]['id']
@@ -133,7 +137,11 @@ def get_relationship(request_user, target_user, token):
         return get_relationships(request_user.mastodon_site, target_user.mastodon_id, token)
     else:
         cross_site_id = get_cross_site_id(target_user, request_user.mastodon_site, token)
-        return get_relationships(request_user.mastodon_site, [cross_site_id,], token)
+        if cross_site_id is None:
+            return [{'blocked_by': True}]  # boldly assume blocked(?!) if no relationship found
+            # FIXME should check the reverse direction? but need either cache the target user's oauth token or her blocked list
+        else:
+            return get_relationships(request_user.mastodon_site, cross_site_id, token)
 
 
 def get_cross_site_id(target_user, target_site, token):
