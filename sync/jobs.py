@@ -298,6 +298,10 @@ def sync_doufen_job(task, stop_check_func):
     """
     TODO: Update task status every certain amount of items to reduce IO consumption
     """
+    task = SyncTask.objects.get(pk=task.pk)
+    if task.is_finished:
+        return
+
     parser = DoufenParser(task)
     items = parser.parse()
 
