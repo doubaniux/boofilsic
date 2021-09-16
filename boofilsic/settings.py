@@ -56,7 +56,7 @@ INSTALLED_APPS = [
     'movies.apps.MoviesConfig',
     'music.apps.MusicConfig',
     'games.apps.GamesConfig',
-    # 'sync.apps.SyncConfig',
+    'sync.apps.SyncConfig',
     'easy_thumbnails',
 ]
 
