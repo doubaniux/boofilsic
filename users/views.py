@@ -26,6 +26,7 @@ from music.forms import MusicMarkStatusTranslator
 from games.forms import GameMarkStatusTranslator
 from mastodon.models import MastodonApplication
 from django.conf import settings
+from urllib.parse import quote
 
 # Views
 ########################################
@@ -88,6 +89,7 @@ def login(request):
             'users/login.html',
             {
                 'sites': sites,
+                'scope': quote(settings.MASTODON_CLIENT_SCOPE),
                 'selected_site': selected_site,
                 'allow_any_site': settings.MASTODON_ALLOW_ANY_SITE,
             }
@@ -122,7 +124,7 @@ def connect(request):
                 }
             )
     else:
-        login_url = "https://" + domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=read+write&redirect_uri=" + request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
+        login_url = "https://" + domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=" + quote(settings.MASTODON_CLIENT_SCOPE) + "&redirect_uri=" + request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
         resp = redirect(login_url)
         resp.set_cookie("mastodon_domain", domain)
         return resp

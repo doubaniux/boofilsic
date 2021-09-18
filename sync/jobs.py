@@ -233,6 +233,7 @@ class DoufenParser:
             return self.items
 
         except Exception as e:
+            print('ERROR ' + self.__file_path)
             logger.error(e)
             raise e
 

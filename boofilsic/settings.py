@@ -219,6 +219,10 @@ MASTODON_ALLOW_ANY_SITE = False
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30
 
+MASTODON_CLIENT_SCOPE = 'read write follow'
+#use the following if it's a new site
+#MASTODON_CLIENT_SCOPE = 'read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media'
+
 # Tags for toots posted from this site
 MASTODON_TAGS = '#NiceDB #NiceDB%(category)s #NiceDB%(category)s%(type)s'
 

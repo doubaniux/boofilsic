@@ -96,7 +96,7 @@ def create_app(domain_name):
 
     payload = {
         'client_name': settings.CLIENT_NAME,
-        'scopes': 'read write follow',
+        'scopes': settings.MASTODON_CLIENT_SCOPE,
         'redirect_uris': settings.REDIRECT_URIS,
         'website': settings.APP_WEBSITE
     }
