@@ -98,6 +98,8 @@ def login(request):
         return HttpResponseBadRequest()
 
 def connect(request):
+    if not settings.MASTODON_ALLOW_ANY_SITE:
+        return redirect(reverse("users:login"))
     domain = request.GET.get('domain').strip().lower()
     app = MastodonApplication.objects.filter(domain_name=domain).first()
     if app is None:
