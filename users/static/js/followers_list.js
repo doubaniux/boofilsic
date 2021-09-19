@@ -207,7 +207,12 @@ $(document).ready( function() {
                         } else {
                             temp.find(".mast-displayname").text(data.username);
                         }
-                        let url = $("#userPageURL").text().replace('0', data.id);
+                        let url;
+                        if (data.acct.includes('@')) {
+                            url = $("#userPageURL").text().replace('0', data.acct);
+                        } else {
+                            url = $("#userPageURL").text().replace('0', data.acct + '@' + mast_domain);
+                        }
                         temp.find("a").attr('href', url);
                         temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig, ""));
                         // console.log($(temp).html())
