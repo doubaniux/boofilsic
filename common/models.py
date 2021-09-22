@@ -19,11 +19,12 @@ RE_HTML_TAG = re.compile(r"<[^>]*>")
 ###################################
 class SourceSiteEnum(models.TextChoices):
     IN_SITE = "in-site", settings.CLIENT_NAME
-    DOUBAN = "douban",  _("豆瓣")
+    DOUBAN = "douban", _("豆瓣")
     SPOTIFY = "spotify", _("Spotify")
     IMDB = "imdb", _("IMDb")
     STEAM = "steam", _("STEAM")
     BANGUMI = 'bangumi', _("bangumi")
+    GOODREADS = "goodreads", _("goodreads")
 
 
 class Entity(models.Model):

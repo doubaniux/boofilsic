@@ -2,6 +2,7 @@ dateparser
 django
 django-hstore
 django-markdownx
+django-sass
 easy-thumbnails
 lxml
 openpyxl
