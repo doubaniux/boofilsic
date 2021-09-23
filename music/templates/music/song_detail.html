@@ -295,7 +295,10 @@
 
                             {% endif %}
                         </div>
-                                
+
+                        {% if song.source_site == "spotify" %}
+                        <iframe src="{{ song.get_embed_link }}"  height="80" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        {% endif %}
                     </div>
                 </div>
             </section>

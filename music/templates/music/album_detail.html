@@ -350,6 +350,9 @@
                             {% endif %}
                         </div>
                                 
+                        {% if album.source_site == "spotify" %}
+                        <iframe src="{{ album.get_embed_link }}"  height="320" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+                        {% endif %}
                     </div>
                 </div>
             </section>

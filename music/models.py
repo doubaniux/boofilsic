@@ -4,7 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
-from common.models import Entity, Mark, Review, Tag
+from common.models import Entity, Mark, Review, Tag, SourceSiteEnum
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
@@ -48,6 +48,9 @@ class Album(Entity):
     def __str__(self):
         return self.title
 
+    def get_embed_link(self):
+        return self.source_url.replace("open.spotify.com/", "open.spotify.com/embed/") if self.source_site == SourceSiteEnum.SPOTIFY.value else None
+
     def get_absolute_url(self):
         return reverse("music:retrieve_album", args=[self.id])
 
@@ -86,6 +89,9 @@ class Song(Entity):
 
     def __str__(self):
         return self.title
+
+    def get_embed_link(self):
+        return self.source_url.replace("open.spotify.com/", "open.spotify.com/embed/") if self.source_site == SourceSiteEnum.SPOTIFY.value else None
 
     def get_absolute_url(self):
         return reverse("music:retrieve_song", args=[self.id])
