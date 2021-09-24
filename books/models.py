@@ -8,6 +8,7 @@ from common.models import Entity, Mark, Review, Tag
 from common.utils import GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import Q
 
 
 def book_cover_path(instance, filename):
@@ -67,6 +68,16 @@ class Book(Entity):
 
     def get_tags_manager(self):
         return self.book_tags
+
+    def get_related_books(self):
+        qs = Q(orig_title = self.title)
+        if self.isbn:
+            qs = qs | Q(isbn = self.isbn)
+        if self.orig_title:
+            qs = qs | Q(title = self.orig_title)
+            qs = qs | Q(orig_title = self.orig_title)
+        qs = qs & ~Q(id = self.id)
+        return Book.objects.filter(qs)
 
     @property
     def verbose_category_name(self):

@@ -201,20 +201,6 @@
                     </div>
 
                     <div class="grid__aside" id="aside">
-                        {% if book.isbn %}
-                        <meta property="og:book:isbn" content="">
-
-                        <div class="aside-section-wrapper">
-                            <div class="action-panel" id="addMarkPanel">
-                                <div class="action-panel__label">{% trans '借阅或购买' %}</div>
-                                <div class="action-panel__button-group">
-                                    <a class="action-panel__button" target="_blank" href="https://www.worldcat.org/isbn/{{ book.isbn }}">{% trans 'WorldCat' %}</a>
-                                    <a class="action-panel__button" target="_blank" href="https://openlibrary.org/search?isbn={{ book.isbn }}">{% trans 'Open Library' %}</a>
-                                </div>
-                            </div>                            
-                        </div>
-                        {% endif %}
-                        
                         <div class="aside-section-wrapper">
                             {% if mark %}
                             <div class="mark-panel">
@@ -258,9 +244,8 @@
                                     <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在读' %}</button>
                                     <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '读过' %}</button>
                                 </div>
-                            </div>                            
+                            </div>
                             {% endif %}
-                                
                         </div>
                         
                         <div class="aside-section-wrapper">
@@ -297,7 +282,35 @@
 
                             {% endif %}
                         </div>
-                                
+
+                        {% if book.get_related_books.count > 0 %}
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '相关书目' %}</div>
+                                <div >
+                                    {% for b in book.get_related_books %}
+                                    <p>
+                                        <a href="{% url 'books:retrieve' b.id %}">{{ b.title }}</a>
+                                        <small>({{ b.pub_house }} {{ b.pub_year }})</small>
+                                        <span class="source-label source-label__{{ b.source_site }}">{{ b.get_source_site_display }}</span>
+                                    </p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% if book.isbn %}
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '借阅或购买' %}</div>
+                                <div class="action-panel__button-group">
+                                    <a class="action-panel__button" target="_blank" href="https://www.worldcat.org/isbn/{{ book.isbn }}">{% trans 'WorldCat' %}</a>
+                                    <a class="action-panel__button" target="_blank" href="https://openlibrary.org/search?isbn={{ book.isbn }}">{% trans 'Open Library' %}</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                     </div>
                 </div>
             </section>
