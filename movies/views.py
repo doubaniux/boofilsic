@@ -9,6 +9,7 @@ from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
+from mastodon.models import MastodonApplication
 from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from mastodon.utils import rating_to_emoji
 from common.utils import PageLinksGenerator
@@ -313,7 +314,7 @@ def create_update_mark(request):
                                                                 args=[movie.id])
                 words = MovieMarkStatusTranslator(form.cleaned_data['status']) +\
                     f"《{movie.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'])
+                    rating_to_emoji(form.cleaned_data['rating'], MastodonApplication.objects.get(domain_name=request.user.mastodon_site).star_mode)
 
                 # tags = settings.MASTODON_TAGS % {'category': '书', 'type': '标记'}
                 tags = ''

@@ -3,6 +3,7 @@ from .models import *
 from common.models import SourceSiteEnum
 from common.views import PAGE_LINK_NUMBER, jump_or_scrape
 from common.utils import PageLinksGenerator
+from mastodon.models import MastodonApplication
 from mastodon.utils import rating_to_emoji
 from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
 from mastodon import mastodon_request_included
@@ -332,7 +333,7 @@ def create_update_song_mark(request):
                                                                 args=[song.id])
                 words = MusicMarkStatusTranslator(form.cleaned_data['status']) +\
                     f"《{song.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'])
+                    rating_to_emoji(form.cleaned_data['rating'], MastodonApplication.objects.get(domain_name=request.user.mastodon_site).star_mode)
 
                 # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
                 tags = ''
@@ -903,7 +904,7 @@ def create_update_album_mark(request):
                                                                 args=[album.id])
                 words = MusicMarkStatusTranslator(form.cleaned_data['status']) +\
                     f"《{album.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'])
+                    rating_to_emoji(form.cleaned_data['rating'], MastodonApplication.objects.get(domain_name=request.user.mastodon_site).star_mode)
 
                 # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
                 tags = ''

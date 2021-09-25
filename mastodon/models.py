@@ -9,6 +9,8 @@ class MastodonApplication(models.Model):
     client_id = models.CharField(_('client id'), max_length=100)
     client_secret = models.CharField(_('client secret'), max_length=100)
     vapid_key = models.CharField(_('vapid key'), max_length=200)
+    star_mode = models.PositiveIntegerField(_('0: custom emoji; 1: unicode moon; 2: text'), blank=False, default=0)
+    max_status_len = models.PositiveIntegerField(_('max toot len'), blank=False, default=500)
 
     is_proxy = models.BooleanField(default=False, blank=True)
     proxy_to = models.CharField(max_length=100, blank=True, default='')
