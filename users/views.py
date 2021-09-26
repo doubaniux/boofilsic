@@ -184,10 +184,23 @@ def register(request):
 def delete(request):
     raise NotImplementedError
 
+def home_anonymous(request, id):
+    login_url = settings.LOGIN_URL + "?next=" + request.get_full_path()
+    try:
+        username = id.split('@')[0]
+        site = id.split('@')[1]
+        return render(request, 'users/home_anonymous.html', {
+                    'login_url': login_url,
+                    'username': username,
+                    'site': site,
+                })
+    except:
+        return redirect(login_url)
 
 @mastodon_request_included
-@login_required
 def home(request, id):
+    if not request.user.is_authenticated:
+        return home_anonymous(request, id)
     if request.method == 'GET':
         if isinstance(id, str):
             try:
