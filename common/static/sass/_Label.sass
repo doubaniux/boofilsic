@@ -13,6 +13,8 @@ $bangumi-color-primary: #F09199
 $bangumi-color-secondary: #FCFCFC
 $goodreads-color-primary: #372213
 $goodreads-color-secondary: #F4F1EA
+$tmdb-color-primary: #91CCA3
+$tmdb-color-secondary: #1FB4E2
 
 .source-label
     display: inline
@@ -67,3 +69,9 @@ $goodreads-color-secondary: #F4F1EA
         background: $goodreads-color-secondary
         color: $goodreads-color-primary
         font-weight: lighter
+    &.source-label__tmdb
+        background: linear-gradient(90deg, $tmdb-color-primary, $tmdb-color-secondary)
+        color: white
+        border: none
+        font-weight: lighter
+        padding-top: 2px

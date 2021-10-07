@@ -74,7 +74,7 @@ def log_url(func):
 
 def parse_date(raw_str):
     return dateparser.parse(
-        raw_str, 
+        raw_str,
         settings={
         "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
         }
@@ -118,7 +118,7 @@ class AbstractScraper:
 
         # decorate the scrape method
         cls.scrape = classmethod(log_url(cls.scrape))
-        
+
         # register scraper
         if isinstance(cls.host, list):
             for host in cls.host:
@@ -607,7 +607,7 @@ class DoubanAlbumScraper(DoubanScrapperMixin, AbstractScraper):
             raise ValueError("given url contains no album info")
         if not title:
             raise ValueError("given url contains no album info")
-            
+
 
         artists_elem = content.xpath("""//div[@id='info']/span/span[@class='pl']/a/text()""")
         artist = None if not artists_elem else artists_elem
@@ -733,7 +733,7 @@ class SpotifyTrackScraper(AbstractScraper):
             isrc = None
 
         raw_img, ext = self.download_image(res_data['album']['images'][0]['url'])
-        
+
         data = {
             'title': title,
             'artist': artist,
@@ -874,7 +874,7 @@ class SpotifyAlbumScraper(AbstractScraper):
         to_be_updated_tracks = []
         for track_url in cls.track_urls:
             track = cls.get_track_or_none(track_url)
-            # seems lik if fire too many requests at the same time 
+            # seems lik if fire too many requests at the same time
             # spotify would limit access
             if track is None:
                 task = Thread(
@@ -887,7 +887,7 @@ class SpotifyAlbumScraper(AbstractScraper):
             else:
                 to_be_updated_tracks.append(track)
         cls.bulk_update_track_album(to_be_updated_tracks, album, request_user)
-        
+
     @classmethod
     def get_track_or_none(cls, track_url: str):
         try:
@@ -895,13 +895,13 @@ class SpotifyAlbumScraper(AbstractScraper):
             return instance
         except ObjectDoesNotExist:
             return None
-        
+
     @classmethod
     def scrape_and_save_track(cls, url: str, album: Album, request_user):
         data, img = SpotifyTrackScraper.scrape(url)
         SpotifyTrackScraper.raw_data['album'] = album
         SpotifyTrackScraper.save(request_user)
-        
+
     @classmethod
     def bulk_update_track_album(cls, tracks, album, request_user):
         for track in tracks:
@@ -1004,13 +1004,13 @@ class ImdbMovieScraper(AbstractScraper):
 
         other_info = {}
         if res_data['contentRating']:
-            other_info['分级'] = res_data['contentRating'] 
+            other_info['分级'] = res_data['contentRating']
         if res_data['imDbRating']:
-            other_info['IMDb评分'] = res_data['imDbRating'] 
+            other_info['IMDb评分'] = res_data['imDbRating']
         if res_data['metacriticRating']:
-            other_info['Metacritic评分'] = res_data['metacriticRating'] 
+            other_info['Metacritic评分'] = res_data['metacriticRating']
         if res_data['awards']:
-            other_info['奖项'] = res_data['awards'] 
+            other_info['奖项'] = res_data['awards']
 
         raw_img, ext = self.download_image(res_data['image'])
 
@@ -1078,7 +1078,7 @@ class DoubanGameScraper(DoubanScrapperMixin, AbstractScraper):
         other_title_elem = content.xpath(
             "//dl[@class='game-attr']//dt[text()='别名:']/following-sibling::dd[1]/text()")
         other_title = other_title_elem[0].strip().split(' / ') if other_title_elem else None
-        
+
         developer_elem = content.xpath(
             "//dl[@class='game-attr']//dt[text()='开发商:']/following-sibling::dd[1]/text()")
         developer = developer_elem[0].strip().split(' / ') if developer_elem else None
@@ -1140,7 +1140,7 @@ class SteamGameScraper(AbstractScraper):
         headers['Host'] = self.host
         headers['Cookie'] = "wants_mature_content=1; birthtime=754700401;"
         content = self.download_page(url, headers)
-        
+
         title = content.xpath("//div[@class='apphub_AppName']/text()")[0]
         developer = content.xpath("//div[@id='developers_list']/a/text()")
         publisher = content.xpath("//div[@class='glance_ctn']//div[@class='dev_row'][2]//a/text()")
@@ -1266,7 +1266,7 @@ class BangumiScraper(AbstractScraper):
             title, chinese_name = chinese_name, title
             # actually the name appended is original
             other_title.append(chinese_name)
-            
+
         developer_elem = content.xpath(
             "//ul[@id='infobox']/li[child::span[contains(text(),'开发')]]/text()")
         if not developer_elem:
@@ -1303,7 +1303,7 @@ class BangumiScraper(AbstractScraper):
         release_date = parse_date(date_elem[0]) if date_elem else None
 
         brief = ''.join(content.xpath("//div[@property='v:summary']/text()"))
-        
+
         other_info = {}
         other_elem = content.xpath(
             "//ul[@id='infobox']/li[child::span[contains(text(),'人数')]]/text()")
@@ -1503,7 +1503,135 @@ class GoodreadsScraper(AbstractScraper):
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
 
+class TmdbMovieScraper(AbstractScraper):
+    site_name = SourceSiteEnum.TMDB.value
+    host = 'https://www.themoviedb.org/'
+    data_class = Movie
+    form_class = MovieForm
+    regex = re.compile(r"https://www\.themoviedb\.org/(movie|tv)/([a-zA-Z0-9]+)")
+    # http://api.themoviedb.org/3/genre/movie/list?api_key=&language=zh
+    # http://api.themoviedb.org/3/genre/tv/list?api_key=&language=zh
+    genre_map = {
+        'Sci-Fi & Fantasy': 'Sci-Fi',
+        'War & Politics':   'War',
+        '儿童':             'Kids',
+        '冒险':             'Adventure',
+        '剧情':             'Drama',
+        '动作':             'Action',
+        '动作冒险':         'Action',
+        '动画':             'Animation',
+        '历史':             'History',
+        '喜剧':             'Comedy',
+        '奇幻':             'Fantasy',
+        '家庭':             'Family',
+        '恐怖':             'Horror',
+        '悬疑':             'Mystery',
+        '惊悚':             'Thriller',
+        '战争':             'War',
+        '新闻':             'News',
+        '爱情':             'Romance',
+        '犯罪':             'Crime',
+        '电视电影':         'TV Movie',
+        '真人秀':           'Reality-TV',
+        '科幻':             'Sci-Fi',
+        '纪录':             'Documentary',
+        '肥皂剧':           'Soap',
+        '脱口秀':           'Talk-Show',
+        '西部':             'Western',
+        '音乐':             'Music',
+    }
+
+    def scrape(self, url):
+        m = self.regex.match(url)
+        if m:
+            effective_url = m[0]
+        else:
+            raise ValueError("not valid url")
+        effective_url = m[0]
+        is_series = m[1] == 'tv'
+        id = m[2]
+        if is_series:
+            api_url = f"https://api.themoviedb.org/3/tv/{id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+        else:
+            api_url = f"https://api.themoviedb.org/3/movie/{id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+        r = requests.get(api_url)
+        res_data = r.json()
+
+        if is_series:
+            title = res_data['name']
+            orig_title = res_data['original_name']
+            year = int(res_data['first_air_date'].split('-')[0])
+            imdb_code = res_data['external_ids']['imdb_id']
+            showtime = [{res_data['first_air_date']: "首播日期"}]
+            duration = None
+        else:
+            title = res_data['title']
+            orig_title = res_data['original_title']
+            year = int(res_data['release_date'].split('-')[0])
+            showtime = [{res_data['release_date']: "发布日期"}]
+            imdb_code = res_data['imdb_id']
+            duration = res_data['runtime']  # in minutes
+
+        genre = list(map(lambda x: self.genre_map[x['name']] if x['name'] in self.genre_map else 'Other', res_data['genres']))
+        language = list(map(lambda x: x['name'], res_data['spoken_languages']))
+        brief = res_data['overview']
+
+        if is_series:
+            director = list(map(lambda x: x['name'], res_data['created_by']))
+        else:
+            director = list(map(lambda x: x['name'], filter(lambda c: c['job'] == 'Director', res_data['credits']['crew'])))
+        playwright = list(map(lambda x: x['name'], filter(lambda c: c['job'] == 'Screenplay', res_data['credits']['crew'])))
+        actor = list(map(lambda x: x['name'], res_data['credits']['cast']))
+        area = []
+
+        other_info = {}
+        other_info['TMDB评分'] = res_data['vote_average']
+        # other_info['分级'] = res_data['contentRating']
+        # other_info['Metacritic评分'] = res_data['metacriticRating']
+        # other_info['奖项'] = res_data['awards']
+        other_info['TMDB_ID'] = id
+        if is_series:
+            other_info['Seasons'] = res_data['number_of_seasons']
+            other_info['Episodes'] = res_data['number_of_episodes']
+
+        img_url = 'https://image.tmdb.org/t/p/original/' + res_data['poster_path']  # TODO: use GET /configuration to get base url
+        raw_img, ext = self.download_image(img_url)
+
+        data = {
+            'title': title,
+            'orig_title': orig_title,
+            'other_title': None,
+            'imdb_code': imdb_code,
+            'director': director,
+            'playwright': playwright,
+            'actor': actor,
+            'genre': genre,
+            'showtime': showtime,
+            'site': None,
+            'area': area,
+            'language': language,
+            'year': year,
+            'duration': duration,
+            'season': None,
+            'episodes': None,
+            'single_episode_length': None,
+            'brief': brief,
+            'is_series': is_series,
+            'other_info': other_info,
+            'source_site': self.site_name,
+            'source_url': effective_url,
+        }
+        self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
+        print(data)
+        return data, raw_img
+
+    @classmethod
+    def get_effective_url(cls, raw_url):
+        m = cls.regex.match(raw_url)
+        if raw_url:
+            return m[0]
+        else:
+            return None
 
 # https://developers.google.com/youtube/v3/docs/?apix=true
 # https://developers.google.com/books/docs/v1/using
-
