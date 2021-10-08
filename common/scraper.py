@@ -452,6 +452,9 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         imdb_elem = content.xpath(
             "//div[@id='info']//span[text()='IMDb链接:']/following-sibling::a[1]/text()")
+        if not imdb_elem:
+            imdb_elem = content.xpath(
+                "//div[@id='info']//span[text()='IMDb:']/following-sibling::text()[1]")
         imdb_code = imdb_elem[0].strip() if imdb_elem else None
 
         director_elem = content.xpath(
