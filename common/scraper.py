@@ -208,7 +208,7 @@ class AbstractScraper:
     def save(cls, request_user):
         entity_cover = {
             'cover': SimpleUploadedFile('temp' + cls.img_ext, cls.raw_img)
-        }
+        } if cls.img_ext is not None else None
         form = cls.form_class(cls.raw_data, entity_cover)
         if form.is_valid():
             form.instance.last_editor = request_user
