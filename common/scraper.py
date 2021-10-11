@@ -66,8 +66,9 @@ def log_url(func):
             return func(*args, **kwargs)
         except Exception as e:
             # log the url and trace stack
-            logger.error(f"Scrape Failed URL: {args[1]}")
-            logger.error("Expections during scraping:", exc_info=e)
+            logger.error(f"Scrape Failed URL: {args[1]}\n{e}")
+            if settings.DEBUG:
+                logger.error("Expections during scraping:", exc_info=e)
             raise e
 
     return wrapper
@@ -140,7 +141,7 @@ class AbstractScraper:
         """
         The return value should be identical with that saved in DB as `source_url`
         """
-        url = cls.regex.findall(raw_url)
+        url = cls.regex.findall(raw_url.replace('http:', 'https:'))  # force all http to be https
         if not url:
             raise ValueError("not valid url")
         return url[0]
@@ -223,34 +224,120 @@ class DoubanScrapperMixin:
     @classmethod
     def download_page(cls, url, headers):
         url = cls.get_effective_url(url)
+        r = None
+        error = 'DoubanScrapper: error occured when downloading ' + url
+        content = None
 
-        if settings.SCRAPERAPI_KEY is None:
-            scraper_api_endpoint = url
-        else:
-            scraper_api_endpoint = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+        def get(url, timeout):
+            nonlocal r
+            # print('Douban GET ' + url)
+            try:
+                r = requests.get(url, timeout=timeout)
+            except Exception as e:
+                r = requests.Response()
+                r.status_code = f"Exception when GET {url} {e}" + url
+            # print('Douban CODE ' + str(r.status_code))
+            return r
 
-        r = requests.get(scraper_api_endpoint, timeout=TIMEOUT)
+        def check_content():
+            nonlocal r, error, content
+            content = None
+            if r.status_code == 200:
+                content = r.content.decode('utf-8')
+            else:
+                error = error + str(r.status_code)
+            if content.find('关于豆瓣') == -1:
+                content = None
+                error = error + 'Content not authentic'  # response is garbage
+            elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
+                content = None
+                error = error + 'Not found or hidden by Douban'
 
-        if r.status_code != 200:
-            raise RuntimeError(f"download page failed, status code {r.status_code}")
-        # with open('temp.html', 'w', encoding='utf-8') as fp:
-        #     fp.write(r.content.decode('utf-8'))
-        return html.fromstring(r.content.decode('utf-8'))
+        def fix_wayback_links():
+            nonlocal content
+            # fix links
+            content = re.sub(r'href="http[^"]+http', r'href="http', content)
+            # https://img9.doubanio.com/view/subject/{l|m|s}/public/s1234.jpg
+            content = re.sub(r'src="[^"]+/(s\d+\.\w+)"',
+                             r'src="https://img9.doubanio.com/view/subject/m/public/\1"', content)
+            # https://img9.doubanio.com/view/photo/s_ratio_poster/public/p2681329386.jpg
+            # https://img9.doubanio.com/view/photo/{l|m|s}/public/p1234.webp
+            content = re.sub(r'src="[^"]+/(p\d+\.\w+)"',
+                             r'src="https://img9.doubanio.com/view/photo/m/public/\1"', content)
+
+        # Wayback Machine: get latest available
+        def wayback():
+            nonlocal r, error, content
+            error = error + '\nWayback: '
+            get('http://archive.org/wayback/available?url=' + url, 10)
+            if r.status_code == 200:
+                w = r.json()
+                if w['archived_snapshots'] and w['archived_snapshots']['closest']:
+                    get(w['archived_snapshots']['closest']['url'], 10)
+                    check_content()
+                    if content is not None:
+                        fix_wayback_links()
+                else:
+                    error = error + 'No snapshot available'
+            else:
+                error = error + str(r.status_code)
+
+        # Wayback Machine: guess via CDX API
+        def wayback_cdx():
+            nonlocal r, error, content
+            error = error + '\nWayback: '
+            get('http://web.archive.org/cdx/search/cdx?url=' + url, 10)
+            if r.status_code == 200:
+                dates = re.findall(r'[^\s]+\s+(\d+)\s+[^\s]+\s+[^\s]+\s+\d+\s+[^\s]+\s+\d{5,}',
+                                   r.content.decode('utf-8'))
+                # assume snapshots whose size >9999 contain real content, use the latest one of them
+                if len(dates) > 0:
+                    get('http://web.archive.org/web/' + dates[-1] + '/' + url, 10)
+                    check_content()
+                    if content is not None:
+                        fix_wayback_links()
+                else:
+                    error = error + 'No snapshot available'
+            else:
+                error = error + str(r.status_code)
+
+        def latest():
+            nonlocal r, error, content
+            if settings.SCRAPERAPI_KEY is None:
+                error = error + '\nDirect: '
+                get(url, 30)
+            else:
+                error = error + '\nScraperAPI: '
+                get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 30)
+            check_content()
+
+        wayback_cdx()
+        if content is None:
+            latest()
+
+        if content is None:
+            raise RuntimeError(error)
+        # with open('/tmp/temp.html', 'w', encoding='utf-8') as fp:
+        #     fp.write(content)
+        return html.fromstring(content)
 
     @classmethod
     def download_image(cls, url):
-        if url is None:
-            return
         raw_img = None
+        ext = None
 
-        if url:
-            img_response = requests.get(url, timeout=TIMEOUT)
-            if img_response.status_code == 200:
-                raw_img = img_response.content
-                content_type = img_response.headers.get('Content-Type')
-                ext = guess_extension(content_type.partition(';')[0].strip())
-            else:
-                ext = None
+        dl_url = url
+        if settings.SCRAPERAPI_KEY is not None:
+            dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+
+        img_response = requests.get(dl_url, timeout=30)
+        if img_response.status_code == 200:
+            raw_img = img_response.content
+            content_type = img_response.headers.get('Content-Type')
+            ext = guess_extension(content_type.partition(';')[0].strip())
+        else:
+            raise RuntimeError(f"Douban: download image failed {img_response.status_code} {dl_url}")
+
         return raw_img, ext
 
 class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
@@ -344,7 +431,7 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
             else:
                 contents = '\n'.join(p.strip() for p in contents_elem.xpath(
                     "text()")) if contents_elem else None
-        except:
+        except Exception:
             pass
 
         img_url_elem = content.xpath("//*[@id='mainpic']/a/img/@src")
@@ -1417,7 +1504,7 @@ class GoodreadsScraper(AbstractScraper):
             pub_year = pub[2]
             pub_month = months.index(pub[1]) + 1
             pub_house = pub[3].strip()
-        except:
+        except Exception:
             pub_year = None
             pub_month = None
             pub_house = None
@@ -1426,7 +1513,7 @@ class GoodreadsScraper(AbstractScraper):
         try:
             pub = re.match(r'.*first published\s+(.+\d\d\d\d).*', pub_house_elem[0], re.DOTALL)
             first_pub = pub[1]
-        except:
+        except Exception:
             first_pub = None
 
         binding_elem = content.xpath('//span[@itemprop="bookFormat"]/text()')
@@ -1625,7 +1712,6 @@ class TmdbMovieScraper(AbstractScraper):
             'source_url': effective_url,
         }
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
-        print(data)
         return data, raw_img
 
     @classmethod
