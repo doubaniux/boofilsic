@@ -23,6 +23,8 @@ from music.forms import AlbumForm, SongForm
 from games.models import Game
 from games.forms import GameForm
 from django.conf import settings
+from PIL import Image
+from io import BytesIO
 
 
 RE_NUMBERS = re.compile(r"\d+\d*")
@@ -169,7 +171,7 @@ class AbstractScraper:
         return html.fromstring(r.content.decode('utf-8'))
 
     @classmethod
-    def download_image(cls, url):
+    def download_image(cls, url, item_url=None):
         if url is None:
             return
         raw_img = None
@@ -244,14 +246,14 @@ class DoubanScrapperMixin:
             content = None
             if r.status_code == 200:
                 content = r.content.decode('utf-8')
+                if content.find('关于豆瓣') == -1:
+                    content = None
+                    error = error + 'Content not authentic'  # response is garbage
+                elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
+                    content = None
+                    error = error + 'Not found or hidden by Douban'
             else:
                 error = error + str(r.status_code)
-            if content.find('关于豆瓣') == -1:
-                content = None
-                error = error + 'Content not authentic'  # response is garbage
-            elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
-                content = None
-                error = error + 'Not found or hidden by Douban'
 
         def fix_wayback_links():
             nonlocal content
@@ -311,9 +313,9 @@ class DoubanScrapperMixin:
                 get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 30)
             check_content()
 
-        wayback_cdx()
+        latest()
         if content is None:
-            latest()
+            wayback_cdx()
 
         if content is None:
             raise RuntimeError(error)
@@ -322,7 +324,7 @@ class DoubanScrapperMixin:
         return html.fromstring(content)
 
     @classmethod
-    def download_image(cls, url):
+    def download_image(cls, url, item_url=None):
         raw_img = None
         ext = None
 
@@ -330,15 +332,24 @@ class DoubanScrapperMixin:
         if settings.SCRAPERAPI_KEY is not None:
             dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
 
-        img_response = requests.get(dl_url, timeout=30)
-        if img_response.status_code == 200:
-            raw_img = img_response.content
-            content_type = img_response.headers.get('Content-Type')
-            ext = guess_extension(content_type.partition(';')[0].strip())
-        else:
-            raise RuntimeError(f"Douban: download image failed {img_response.status_code} {dl_url}")
+        try:
+            img_response = requests.get(dl_url, timeout=30)
+            if img_response.status_code == 200:
+                raw_img = img_response.content
+                content_type = img_response.headers.get('Content-Type')
+                ext = guess_extension(content_type.partition(';')[0].strip())
+                img = Image.open(BytesIO(raw_img))
+                img.load()  # corrupted image will trigger exception
+            else:
+                logger.error(f"Douban: download image failed {img_response.status_code} {dl_url} {item_url}")
+                # raise RuntimeError(f"Douban: download image failed {img_response.status_code} {dl_url}")
+        except Exception as e:
+            raw_img = None
+            ext = None
+            logger.error(f"Douban: download image failed {e} {dl_url} {item_url}")
 
         return raw_img, ext
+
 
 class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
     site_name = SourceSiteEnum.DOUBAN.value
@@ -436,7 +447,7 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
 
         img_url_elem = content.xpath("//*[@id='mainpic']/a/img/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         # there are two html formats for authors and translators
         authors_elem = content.xpath("""//div[@id='info']//span[text()='作者:']/following-sibling::br[1]/
@@ -648,7 +659,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         img_url_elem = content.xpath("//img[@rel='v:image']/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         data = {
             'title': title,
@@ -756,7 +767,7 @@ class DoubanAlbumScraper(DoubanScrapperMixin, AbstractScraper):
 
         img_url_elem = content.xpath("//div[@id='mainpic']//img/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         data = {
             'title': title,
@@ -822,7 +833,7 @@ class SpotifyTrackScraper(AbstractScraper):
         else:
             isrc = None
 
-        raw_img, ext = self.download_image(res_data['album']['images'][0]['url'])
+        raw_img, ext = self.download_image(res_data['album']['images'][0]['url'], url)
 
         data = {
             'title': title,
@@ -914,7 +925,7 @@ class SpotifyAlbumScraper(AbstractScraper):
             # bar code
             other_info['UPC'] = res_data['external_ids']['upc']
 
-        raw_img, ext = self.download_image(res_data['images'][0]['url'])
+        raw_img, ext = self.download_image(res_data['images'][0]['url'], url)
 
         data = {
             'title': title,
@@ -1102,7 +1113,7 @@ class ImdbMovieScraper(AbstractScraper):
         if res_data['awards']:
             other_info['奖项'] = res_data['awards']
 
-        raw_img, ext = self.download_image(res_data['image'])
+        raw_img, ext = self.download_image(res_data['image'], url)
 
         data = {
             'title': title,
@@ -1197,7 +1208,7 @@ class DoubanGameScraper(DoubanScrapperMixin, AbstractScraper):
         img_url_elem = content.xpath(
             "//div[@class='item-subject-info']/div[@class='pic']//img/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         data = {
             'title': title,
@@ -1250,12 +1261,12 @@ class SteamGameScraper(AbstractScraper):
         img_url = content.xpath(
             "//img[@class='game_header_image_full']/@src"
         )[0].replace("header.jpg", "library_600x900.jpg")
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         # no 600x900 picture
         if raw_img is None:
             img_url = content.xpath("//img[@class='game_header_image_full']/@src")[0]
-            raw_img, ext = self.download_image(img_url)
+            raw_img, ext = self.download_image(img_url, url)
 
         data = {
             'title': title,
@@ -1310,7 +1321,7 @@ class BangumiScraper(AbstractScraper):
 
         # download image
         img_url = 'http:' + content.xpath("//div[@class='infobox']//img[1]/@src")[0]
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         # Test category
         category_code = content.xpath("//div[@id='headerSearch']//option[@selected]/@value")[0]
@@ -1535,13 +1546,13 @@ class GoodreadsScraper(AbstractScraper):
 
         genre = content.xpath('//div[@class="bigBoxBody"]/div/div/div/a/text()')
         genre = genre[0] if genre else None
-        book_title = re.sub('\n','',content.xpath('//h1[@id="bookTitle"]/text()')[0]).strip()
+        book_title = re.sub('\n', '', content.xpath('//h1[@id="bookTitle"]/text()')[0]).strip()
         author = content.xpath('//a[@class="authorName"]/span/text()')[0]
         contents = None
 
         img_url_elem = content.xpath("//img[@id='coverImage']/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         authors_elem = content.xpath("//a[@class='authorName'][not(../span[@class='authorName greyText smallText role'])]/span/text()")
         if authors_elem:
@@ -1685,7 +1696,7 @@ class TmdbMovieScraper(AbstractScraper):
             other_info['Episodes'] = res_data['number_of_episodes']
 
         img_url = 'https://image.tmdb.org/t/p/original/' + res_data['poster_path']  # TODO: use GET /configuration to get base url
-        raw_img, ext = self.download_image(img_url)
+        raw_img, ext = self.download_image(img_url, url)
 
         data = {
             'title': title,
