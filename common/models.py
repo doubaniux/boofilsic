@@ -238,7 +238,7 @@ class MarkStatusEnum(models.TextChoices):
 class Mark(UserOwnedEntity):
     status = models.CharField(choices=MarkStatusEnum.choices, max_length=20)
     rating = models.PositiveSmallIntegerField(blank=True, null=True)
-    text = models.CharField(max_length=500, blank=True, default='')
+    text = models.CharField(max_length=5000, blank=True, default='')
 
     def __str__(self):
         return f"({self.id}) {self.owner} {self.status.upper()}"
