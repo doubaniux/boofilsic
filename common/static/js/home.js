@@ -202,7 +202,8 @@ $(document).ready( function() {
                     if (!data.total_items == 0) {
                         progress.attr("max", data.total_items);
                         progress.attr("value", data.finished_items);
-                        percent.text(Math.floor(100 * data.finished_items / data.total_items) + '%');
+                        progress.attr("value", data.finished_items);
+                        percent.text("" + data.finished_items + "/" + data.total_items);
                     }
                     setTimeout(() => {
                         poll();
