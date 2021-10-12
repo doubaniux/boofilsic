@@ -161,8 +161,9 @@ class DoufenParser:
         for mapping in item_classes_mappings:
             ws = self.__wb[mapping['sheet']]
 
+            max_row = ws.max_row
             # empty sheet
-            if ws.max_row <= 1:
+            if max_row <= 1:
                 continue
 
             # decide starting position
@@ -171,29 +172,24 @@ class DoufenParser:
                 start_row_index = self.__progress_row
 
             # parse data
-            for i in range(start_row_index, ws.max_row + 1):
-                # url definitely exists
-                url = ws.cell(row=i, column=self.URL_INDEX).value
-
-                tags = ws.cell(row=i, column=self.TAG_INDEX).value
+            i = start_row_index
+            for row in ws.iter_rows(min_row=start_row_index, max_row=max_row, values_only=True):
+                cells = [cell for cell in row]
+                url = cells[self.URL_INDEX - 1]
+                tags = cells[self.TAG_INDEX - 1]
                 tags = tags.split(',') if tags else None
-
-                time = ws.cell(row=i, column=self.TIME_INDEX).value
+                time = cells[self.TIME_INDEX - 1]
                 if time:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
                     tz = pytz.timezone('Asia/Shanghai')
                     time = time.replace(tzinfo=tz)
                 else:
                     time = None
-
-                content = ws.cell(row=i, column=self.CONTENT_INDEX).value
+                content = cells[self.CONTENT_INDEX - 1]
                 if not content:
                     content = ""
-
-                rating = ws.cell(row=i, column=self.RATING_INDEX).value
+                rating = cells[self.RATING_INDEX - 1]
                 rating = int(rating) * 2 if rating else None
-
-                # store result
                 self.items.append({
                     'data': DoufenRowData(url, tags, time, content, rating),
                     'entity_class': mapping['entity_class'],
@@ -203,6 +199,7 @@ class DoufenParser:
                     'sheet': mapping['sheet'],
                     'row_index': i,
                 })
+                i = i + 1
 
             # set first sheet flag
             is_first_sheet = False
@@ -231,14 +228,12 @@ class DoufenParser:
                 self.__update_total_items()
             self.__close_file()
             return self.items
-
         except Exception as e:
-            print('ERROR ' + self.__file_path)
-            logger.error(e)
-            raise e
-
+            logger.error(f'Error parsing {self.__file_path} {e}')
+            self.task.is_failed = True
         finally:
             self.__close_file()
+        return []
 
 
 @dataclass
@@ -305,6 +300,7 @@ def sync_doufen_job(task, stop_check_func):
     if task.is_finished:
         return
 
+    print(f'Task {task.pk}: loading')
     parser = DoufenParser(task)
     items = parser.parse()
 
@@ -325,15 +321,17 @@ def sync_doufen_job(task, stop_check_func):
         # scrape the entity if not exists
         try:
             entity = entity_class.objects.get(source_url=data.url)
+            print(f'Task {task.pk}: {len(items)+1} remaining; matched {data.url}')
         except ObjectDoesNotExist:
             try:
+                print(f'Task {task.pk}: {len(items)+1} remaining; scraping {data.url}')
                 scraper.scrape(data.url)
                 form = scraper.save(request_user=task.user)
                 entity = form.instance
             except Exception as e:
-                logger.error(f"Scrape Failed URL: {data.url}")
-                logger.error(
-                    "Expections during scraping data:", exc_info=e)
+                logger.error(f"Task {task.pk}: scrape failed: {data.url} {e}")
+                if settings.DEBUG:
+                    logger.error("Expections during scraping data:", exc_info=e)
                 task.failed_urls.append(data.url)
                 task.finished_items += 1
                 task.save(update_fields=['failed_urls', 'finished_items'])
@@ -363,7 +361,7 @@ def sync_doufen_job(task, stop_check_func):
 
         except Exception as e:
             logger.error(
-                "Unknown exception when syncing marks", exc_info=e)
+                f"Task {task.pk}: error when syncing marks", exc_info=e)
             task.failed_urls.append(data.url)
             task.finished_items += 1
             task.save(update_fields=['failed_urls', 'finished_items'])
@@ -374,6 +372,7 @@ def sync_doufen_job(task, stop_check_func):
         task.save(update_fields=['success_items', 'finished_items'])
 
     # if task finish
+    print(f'Task {task.pk}: stopping')
     if len(items) == 0:
         task.is_finished = True
         task.clear_breakpoint()

@@ -194,7 +194,7 @@ def home_anonymous(request, id):
                     'username': username,
                     'site': site,
                 })
-    except:
+    except Exception:
         return redirect(login_url)
 
 @mastodon_request_included

@@ -22,6 +22,7 @@ from common.utils import PageLinksGenerator
 from common.scraper import scraper_registry
 from common.config import *
 from management.models import Announcement
+from django.conf import settings
 
 logger = logging.getLogger(__name__)
 
@@ -346,8 +347,9 @@ def jump_or_scrape(request, url):
                 scraper.scrape(url)
                 form = scraper.save(request_user=request.user)
             except Exception as e:
-                logger.error(f"Scrape Failed URL: {url}")
-                logger.error("Expections during saving scraped data:", exc_info=e)
+                logger.error(f"Scrape Failed URL: {url}\n{e}")
+                if settings.DEBUG:
+                    logger.error("Expections during saving scraped data:", exc_info=e)
                 return render(request, 'common/error.html', {'msg': _("爬取数据失败😫")})
             return redirect(form.instance)
 
