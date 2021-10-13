@@ -27,6 +27,8 @@ $(document).ready( function() {
             } else {
                 userName = userData.username;
             }
+            //$("#userInfoCard .mast-acct").text(userData.acct);
+            $("#userInfoCard .mast-acct").attr("href", userData.url);
             $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
             $("#userInfoCard .mast-displayname").html(userName);
             $("#userInfoCard .mast-brief").text($("<div>"+userData.note.replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
