@@ -395,6 +395,24 @@
                             {% endif %}
                         </div>
                                 
+                        {% if movie.get_related_movies.count > 0 %}
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '相关条目' %}</div>
+                                <div >
+                                    {% for m in movie.get_related_movies %}
+                                    <p>
+                                        <a href="{% url 'movies:retrieve' m.id %}">{{ m.title }}</a>
+                                        {% if movie.source_site != m.source_site %}
+                                        <span class="source-label source-label__{{ m.source_site }}">{{ m.get_source_site_display }}</span>
+                                        {% endif %}
+                                    </p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
                     </div>
                 </div>
             </section>

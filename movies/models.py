@@ -8,6 +8,8 @@ from common.models import Entity, Mark, Review, Tag
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
+from django.db.models import Q
+import re
 
 
 def movie_cover_path(instance, filename):
@@ -180,6 +182,15 @@ class Movie(Entity):
         for g in self.genre:
             translated_genre.append(MovieGenreTranslator[g])
         return translated_genre
+
+    def get_related_movies(self):
+        imdb = 'no match' if self.imdb_code is None or self.imdb_code == '' else self.imdb_code
+        qs = Q(imdb_code=imdb)
+        if self.is_series:
+            prefix = re.sub(r'\d+', '', re.sub(r'\s+第.+季', '', self.title))
+            qs = qs | Q(title__startswith=prefix)
+        qs = qs & ~Q(id=self.id)
+        return Movie.objects.filter(qs).order_by('season')
 
     @property
     def verbose_category_name(self):
