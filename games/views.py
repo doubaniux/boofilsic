@@ -279,7 +279,7 @@ def create_update_mark(request):
             form = GameMarkForm(request.POST)
 
         if form.is_valid():
-            if form.instance.status == MarkStatusEnum.WISH.value:
+            if form.instance.status == MarkStatusEnum.WISH.value or form.instance.rating == 0:
                 form.instance.rating = None
                 form.cleaned_data['rating'] = None
             form.instance.owner = request.user
@@ -328,7 +328,7 @@ def create_update_mark(request):
                         f"CODE:{response.status_code} {response.text}")
                     return HttpResponseServerError("publishing mastodon status failed")
         else:
-            return HttpResponseBadRequest("invalid form data")
+            return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("games:retrieve", args=[form.instance.game.id]))
     else:

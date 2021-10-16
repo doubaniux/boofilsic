@@ -88,7 +88,7 @@ class RatingValidator:
                 _('%(value)s is not an integer'),
                 params={'value': value},
             )
-        if not str(value) in [str(i) for i in range(1, 11)]:
+        if not str(value) in [str(i) for i in range(0, 11)]:
             raise ValidationError(
                 _('%(value)s is not an integer in range 1-10'),
                 params={'value': value},
