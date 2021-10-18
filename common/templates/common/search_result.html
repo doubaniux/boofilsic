@@ -411,7 +411,9 @@
                                         
 
                                     {% empty %}
+                                    <li class="entity-list__entity">
                                     {% trans '无站内条目匹配' %}
+                                    </li>
                                     {% endfor %}
 
                                     {% for item in external_items %}
@@ -422,7 +424,7 @@
                                                 </a>
                                             </div>
                                             <div class="entity-list__entity-text">
-                                                <div class="entity-list__entity-title">
+                                                <div class="entity-list__entity-title" style="font-style:italic;">
                                                     <a href="{{ item.link }}" class="entity-list__entity-link">
                                                         {% if request.GET.q %}
                                                             {{ item.title | highlight:request.GET.q }}
