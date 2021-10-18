@@ -1016,6 +1016,13 @@ class SpotifyAlbumScraper(AbstractScraper):
         ])
 
 
+def get_spotify_token():
+    global spotify_token, spotify_token_expire_time
+    if spotify_token is None or is_spotify_token_expired():
+        invoke_spotify_token()
+    return spotify_token
+
+    
 def is_spotify_token_expired():
     global spotify_token_expire_time
     return True if spotify_token_expire_time <= time.time() else False
@@ -1486,13 +1493,16 @@ class GoodreadsScraper(AbstractScraper):
         u = re.match(r"https://www\.goodreads\.com/book/show/\d+", raw_url)
         return u[0] if u else None
 
-    def scrape(self, url):
+    def scrape(self, url, response=None):
         """
         This is the scraping portal
         """
-        headers = DEFAULT_REQUEST_HEADERS.copy()
-        headers['Host'] = self.host
-        content = self.download_page(url, headers)
+        if response is not None:
+            content = html.fromstring(response.content.decode('utf-8'))
+        else:
+            headers = DEFAULT_REQUEST_HEADERS.copy()
+            headers['Host'] = self.host
+            content = self.download_page(url, headers)
 
         try:
             title = content.xpath("//h1[@id='bookTitle']/text()")[0].strip()
@@ -1542,7 +1552,11 @@ class GoodreadsScraper(AbstractScraper):
         isbn = isbn_elem[0].strip() if isbn_elem else None
 
         brief_elem = content.xpath('//div[@id="description"]/span[@style="display:none"]/text()')
-        brief = '\n'.join(p.strip() for p in brief_elem) if brief_elem else None
+        if brief_elem:
+            brief = '\n'.join(p.strip() for p in brief_elem)
+        else:
+            brief_elem = content.xpath('//div[@id="description"]/span/text()')
+            brief = '\n'.join(p.strip() for p in brief_elem) if brief_elem else None
 
         genre = content.xpath('//div[@class="bigBoxBody"]/div/div/div/a/text()')
         genre = genre[0] if genre else None
@@ -1596,6 +1610,7 @@ class GoodreadsScraper(AbstractScraper):
             'brief': brief,
             'contents': contents,
             'other_info': other,
+            'cover_url': img_url,
             'source_site': self.site_name,
             'source_url': self.get_effective_url(url),
         }

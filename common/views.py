@@ -21,10 +21,12 @@ from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from common.scraper import scraper_registry
 from common.config import *
+from common.searcher import ExternalSources
 from management.models import Announcement
 from django.conf import settings
 
 logger = logging.getLogger(__name__)
+
 
 @login_required
 def home(request):
@@ -302,6 +304,7 @@ def search(request):
             "common/search_result.html",
             {
                 "items": items,
+                "external_items": ExternalSources.search(category, input_string, page_number),
                 "categories": categories,
             }
         )
