@@ -1130,11 +1130,17 @@ select::placeholder {
 }
 
 .source-label.source-label__tmdb {
-  background: linear-gradient(30deg, #91CCA3, #1FB4E2);
+  background: linear-gradient(90deg, #91CCA3, #1FB4E2);
   color: white;
   border: none;
-  font-weight: 600;
+  font-weight: lighter;
   padding-top: 2px;
+}
+
+.source-label.source-label__googlebooks {
+  color: white;
+  background-color: #4285F4;
+  border-color: #4285F4;
 }
 
 .main-section-wrapper {
