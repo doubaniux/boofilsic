@@ -6,8 +6,8 @@ import re
 import dateparser
 import datetime
 import time
+import filetype
 from lxml import html
-from mimetypes import guess_extension
 from threading import Thread
 from django.utils import timezone
 from django.utils.translation import ugettext_lazy as _
@@ -201,7 +201,7 @@ class AbstractScraper:
             if img_response.status_code == 200:
                 raw_img = img_response.content
                 content_type = img_response.headers.get('Content-Type')
-                ext = guess_extension(content_type.partition(';')[0].strip())
+                ext = filetype.get_type(mime=content_type.partition(';')[0].strip()).extension
             else:
                 ext = None
         return raw_img, ext
@@ -209,7 +209,7 @@ class AbstractScraper:
     @classmethod
     def save(cls, request_user):
         entity_cover = {
-            'cover': SimpleUploadedFile('temp' + cls.img_ext, cls.raw_img)
+            'cover': SimpleUploadedFile('temp.' + cls.img_ext, cls.raw_img)
         } if cls.img_ext is not None else None
         form = cls.form_class(cls.raw_data, entity_cover)
         if form.is_valid():
@@ -336,10 +336,11 @@ class DoubanScrapperMixin:
             img_response = requests.get(dl_url, timeout=30)
             if img_response.status_code == 200:
                 raw_img = img_response.content
-                content_type = img_response.headers.get('Content-Type')
-                ext = guess_extension(content_type.partition(';')[0].strip())
                 img = Image.open(BytesIO(raw_img))
                 img.load()  # corrupted image will trigger exception
+                content_type = img_response.headers.get('Content-Type')
+                ext = filetype.get_type(
+                    mime=content_type.partition(';')[0].strip()).extension
             else:
                 logger.error(f"Douban: download image failed {img_response.status_code} {dl_url} {item_url}")
                 # raise RuntimeError(f"Douban: download image failed {img_response.status_code} {dl_url}")
