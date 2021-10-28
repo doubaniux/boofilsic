@@ -6,8 +6,8 @@ import re
 import dateparser
 import datetime
 import time
+import filetype
 from lxml import html
-from mimetypes import guess_extension
 from threading import Thread
 from boofilsic.settings import LUMINATI_USERNAME, LUMINATI_PASSWORD, DEBUG, IMDB_API_KEY, SCRAPERAPI_KEY
 from boofilsic.settings import SPOTIFY_CREDENTIAL
@@ -199,7 +199,7 @@ class AbstractScraper:
             if img_response.status_code == 200:
                 raw_img = img_response.content
                 content_type = img_response.headers.get('Content-Type')
-                ext = guess_extension(content_type.partition(';')[0].strip())
+                ext = filetype.get_type(mime=content_type.partition(';')[0].strip()).extension
             else:
                 ext = None
         return raw_img, ext
@@ -207,7 +207,7 @@ class AbstractScraper:
     @classmethod
     def save(cls, request_user):
         entity_cover = {
-            'cover': SimpleUploadedFile('temp' + cls.img_ext, cls.raw_img)
+            'cover': SimpleUploadedFile('temp.' + cls.img_ext, cls.raw_img)
         }
         form = cls.form_class(cls.raw_data, entity_cover)
         if form.is_valid():
@@ -246,7 +246,8 @@ class DoubanScrapperMixin:
             if img_response.status_code == 200:
                 raw_img = img_response.content
                 content_type = img_response.headers.get('Content-Type')
-                ext = guess_extension(content_type.partition(';')[0].strip())
+                ext = filetype.get_type(
+                    mime=content_type.partition(';')[0].strip()).extension
             else:
                 ext = None
         return raw_img, ext
