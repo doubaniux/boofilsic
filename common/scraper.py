@@ -235,22 +235,6 @@ class DoubanScrapperMixin:
         #     fp.write(r.content.decode('utf-8'))
         return html.fromstring(r.content.decode('utf-8'))
 
-    @classmethod
-    def download_image(cls, url):
-        if url is None:
-            return
-        raw_img = None
-
-        if url:
-            img_response = requests.get(url, timeout=TIMEOUT)
-            if img_response.status_code == 200:
-                raw_img = img_response.content
-                content_type = img_response.headers.get('Content-Type')
-                ext = filetype.get_type(
-                    mime=content_type.partition(';')[0].strip()).extension
-            else:
-                ext = None
-        return raw_img, ext
 
 class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
     site_name = SourceSiteEnum.DOUBAN.value
