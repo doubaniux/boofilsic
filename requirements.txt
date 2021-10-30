@@ -8,3 +8,4 @@ lxml
 openpyxl
 psycopg2
 requests
+filetype
