@@ -42,6 +42,13 @@ class SearchResultItem:
         return False
 
 
+class ProxiedRequest:
+    @classmethod
+    def get(cls, url):
+        u = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={quote_plus(url)}'
+        return requests.get(u, timeout=10)
+
+
 class Goodreads:
     @classmethod
     def search(self, q, page=1):
@@ -78,12 +85,16 @@ class GoogleBooks:
     def search(self, q, page=1):
         results = []
         try:
-            api_url = f'https://www.googleapis.com/books/v1/volumes?q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE*(page-1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE'
+            api_url = f'https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE*(page-1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE'
             j = requests.get(api_url).json()
             if 'items' in j:
                 for b in j['items']:
                     title = b['volumeInfo']['title']
-                    subtitle = f"{b['volumeInfo']['publishedDate']} {', '.join(b['volumeInfo']['authors'])}"
+                    subtitle = ''
+                    if 'publishedDate' in b['volumeInfo']:
+                        subtitle += b['volumeInfo']['publishedDate'] + ' '
+                    if 'authors' in b['volumeInfo']:
+                        subtitle += ', '.join(b['volumeInfo']['authors'])
                     if 'description' in b['volumeInfo']:
                         brief = b['volumeInfo']['description']
                     elif 'textSnippet' in b['volumeInfo']:
@@ -91,7 +102,7 @@ class GoogleBooks:
                     else:
                         brief = ''
                     category = Category.Book
-                    url = b['volumeInfo']['infoLink']
+                    url = 'https://books.google.com/books?id=' + b['id']  # b['volumeInfo']['infoLink'].replace('http:', 'https:')
                     cover = b['volumeInfo']['imageLinks']['thumbnail'] if 'imageLinks' in b['volumeInfo'] else None
                     results.append(SearchResultItem(category, SourceSiteEnum.GOOGLEBOOKS, url, title, subtitle, brief, cover))
         except Exception as e:
@@ -156,8 +167,8 @@ class ExternalSources:
         if c == 'all' or c == 'movie':
             results.extend(TheMovieDatabase.search(q, page))
         if c == 'all' or c == 'book':
+            results.extend(GoogleBooks.search(q, page))
             results.extend(Goodreads.search(q, page))
-            # results.extend(GoogleBooks.search(q, page))
         if c == 'all' or c == 'music':
             results.extend(Spotify.search(q, page))
         return results

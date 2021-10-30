@@ -173,7 +173,7 @@ class AbstractScraper:
     @classmethod
     def download_image(cls, url, item_url=None):
         if url is None:
-            return
+            return None, None
         raw_img = None
         session_id = random.random()
         proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
@@ -1755,11 +1755,11 @@ class GoogleBooksScraper(AbstractScraper):
     host = "books.google.com"
     data_class = Book
     form_class = BookForm
-    regex = re.compile(r"https://books\.google\.com/books\?id=(\w+)")
+    regex = re.compile(r"https://books\.google\.com/books\?id=([^&#]+)")
 
     @classmethod
     def get_effective_url(cls, raw_url):
-        u = re.match(r"https://books\.google\.com/books\?id=\w+", raw_url)
+        u = re.match(r"https://books\.google\.com/books\?id=[^&#]+", raw_url)
         return u[0] if u else None
 
     def scrape(self, url, response=None):
@@ -1783,7 +1783,7 @@ class GoogleBooksScraper(AbstractScraper):
         pages = b['volumeInfo']['pageCount'] if 'pageCount' in b['volumeInfo'] else None
         if 'mainCategory' in b['volumeInfo']:
             other['分类'] = b['volumeInfo']['mainCategory']
-        authors = b['volumeInfo']['authors']
+        authors = b['volumeInfo']['authors'] if 'authors' in b['volumeInfo'] else None
         if 'description' in b['volumeInfo']:
             brief = b['volumeInfo']['description']
         elif 'textSnippet' in b['volumeInfo']:
