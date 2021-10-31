@@ -229,6 +229,7 @@ class DoubanScrapperMixin:
         r = None
         error = 'DoubanScrapper: error occured when downloading ' + url
         content = None
+        last_error = None
 
         def get(url, timeout):
             nonlocal r
@@ -242,17 +243,21 @@ class DoubanScrapperMixin:
             return r
 
         def check_content():
-            nonlocal r, error, content
+            nonlocal r, error, content, last_error
             content = None
+            last_error = None
             if r.status_code == 200:
                 content = r.content.decode('utf-8')
                 if content.find('关于豆瓣') == -1:
                     content = None
+                    last_error = 'network'
                     error = error + 'Content not authentic'  # response is garbage
                 elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
                     content = None
+                    last_error = 'censorship'
                     error = error + 'Not found or hidden by Douban'
             else:
+                last_error = 'network'
                 error = error + str(r.status_code)
 
         def fix_wayback_links():
@@ -312,6 +317,10 @@ class DoubanScrapperMixin:
                 error = error + '\nScraperAPI: '
                 get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 30)
             check_content()
+            if last_error == 'network' and settings.PROXYCRAWL_KEY is not None:
+                error = error + '\nProxyCrawl: '
+                get(f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}', 30)
+                check_content()
 
         latest()
         if content is None:
@@ -339,8 +348,7 @@ class DoubanScrapperMixin:
                 img = Image.open(BytesIO(raw_img))
                 img.load()  # corrupted image will trigger exception
                 content_type = img_response.headers.get('Content-Type')
-                ext = filetype.get_type(
-                    mime=content_type.partition(';')[0].strip()).extension
+                ext = filetype.get_type(mime=content_type.partition(';')[0].strip()).extension
             else:
                 logger.error(f"Douban: download image failed {img_response.status_code} {dl_url} {item_url}")
                 # raise RuntimeError(f"Douban: download image failed {img_response.status_code} {dl_url}")
@@ -348,7 +356,22 @@ class DoubanScrapperMixin:
             raw_img = None
             ext = None
             logger.error(f"Douban: download image failed {e} {dl_url} {item_url}")
-
+        if raw_img is None and settings.PROXYCRAWL_KEY is not None:
+            try:
+                dl_url = f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}'
+                img_response = requests.get(dl_url, timeout=30)
+                if img_response.status_code == 200:
+                    raw_img = img_response.content
+                    img = Image.open(BytesIO(raw_img))
+                    img.load()  # corrupted image will trigger exception
+                    content_type = img_response.headers.get('Content-Type')
+                    ext = filetype.get_type(mime=content_type.partition(';')[0].strip()).extension
+                else:
+                    logger.error(f"Douban: download image failed {img_response.status_code} {dl_url} {item_url}")
+            except Exception as e:
+                raw_img = None
+                ext = None
+                logger.error(f"Douban: download image failed {e} {dl_url} {item_url}")
         return raw_img, ext
 
 
