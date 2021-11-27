@@ -15,6 +15,8 @@ $goodreads-color-primary: #372213
 $goodreads-color-secondary: #F4F1EA
 $tmdb-color-primary: #91CCA3
 $tmdb-color-secondary: #1FB4E2
+$bandcamp-color-primary: #28A0C1
+$bandcamp-color-secondary: white
 
 .source-label
     display: inline
@@ -79,3 +81,12 @@ $tmdb-color-secondary: #1FB4E2
         color: white
         background-color: #4285F4
         border-color: #4285F4
+    &.source-label__bandcamp
+        color: $bandcamp-color-secondary
+        background-color: $bandcamp-color-primary
+        // transform: skewX(-30deg)
+        display: inline-block
+    &.source-label__bandcamp span
+        // transform: skewX(30deg)
+        display: inline-block
+        margin: 0 4px
