@@ -310,7 +310,10 @@ class DoubanScrapperMixin:
 
         def latest():
             nonlocal r, error, content
-            if settings.SCRAPERAPI_KEY is None:
+            if settings.SCRAPESTACK_KEY is not None:
+                error = error + '\nScrapeStack: '
+                get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}', 30)
+            elif settings.SCRAPERAPI_KEY is None:
                 error = error + '\nDirect: '
                 get(url, 30)
             else:
@@ -338,7 +341,9 @@ class DoubanScrapperMixin:
         ext = None
 
         dl_url = url
-        if settings.SCRAPERAPI_KEY is not None:
+        if settings.SCRAPESTACK_KEY is not None:
+            dl_url = f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}'
+        elif settings.SCRAPERAPI_KEY is not None:
             dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
 
         try:
