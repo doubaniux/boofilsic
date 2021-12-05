@@ -394,7 +394,9 @@ sync_task_manager = SyncTaskManger()
 
 # sync_task_manager.start()
 
-signal.signal(signal.SIGTERM, sync_task_manager.stop)
-if sys.platform.startswith('linux'):
-    signal.signal(signal.SIGHUP, sync_task_manager.stop)
-signal.signal(signal.SIGINT, sync_task_manager.stop)
+if not settings.DEBUG:
+    # TODO: it seems this prevent ^C from working properly
+    signal.signal(signal.SIGTERM, sync_task_manager.stop)
+    if sys.platform.startswith('linux'):
+        signal.signal(signal.SIGHUP, sync_task_manager.stop)
+    signal.signal(signal.SIGINT, sync_task_manager.stop)

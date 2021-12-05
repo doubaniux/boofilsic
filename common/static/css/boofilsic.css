@@ -1143,6 +1143,17 @@ select::placeholder {
   border-color: #4285F4;
 }
 
+.source-label.source-label__bandcamp {
+  color: white;
+  background-color: #28A0C1;
+  display: inline-block;
+}
+
+.source-label.source-label__bandcamp span {
+  display: inline-block;
+  margin: 0 4px;
+}
+
 .main-section-wrapper {
   padding: 32px 48px 32px 36px;
   background-color: #f7f7f7;

@@ -154,9 +154,9 @@ class MultiSelect(forms.SelectMultiple):
 
     class Media:
         css = {
-            'all': ('lib/css/multiple-select.min.css',)
+            'all': ('https://cdn.jsdelivr.net/npm/multiple-select@1.5.2/dist/multiple-select.min.css',)
         }
-        js = ('lib/js/multiple-select.min.js',)
+        js = ('https://cdn.jsdelivr.net/npm/multiple-select@1.5.2/dist/multiple-select.min.js',)
 
 
 class HstoreField(forms.CharField):

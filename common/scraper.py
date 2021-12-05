@@ -1854,3 +1854,5 @@ class GoogleBooksScraper(AbstractScraper):
 
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
+
+from common.scrapers.bandcamp import BandcampAlbumScraper
