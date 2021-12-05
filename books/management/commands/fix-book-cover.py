@@ -28,6 +28,8 @@ class DoubanPatcherMixin:
             if r.status_code == 200:
                 content = r.content.decode('utf-8')
                 if content.find('关于豆瓣') == -1:
+                    # with open('/tmp/temp.html', 'w', encoding='utf-8') as fp:
+                    #    fp.write(content)
                     content = None
                     error = error + 'Content not authentic'  # response is garbage
                 elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
@@ -86,12 +88,12 @@ class DoubanPatcherMixin:
 
         def latest():
             nonlocal r, error, content
-            if settings.SCRAPERAPI_KEY is None:
+            if settings.SCRAPESTACK_KEY is None:
                 error = error + '\nDirect: '
                 get(url, 60)
             else:
-                error = error + '\nScraperAPI: '
-                get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 60)
+                error = error + '\nScrapeStack: '
+                get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}', 60)
             check_content()
 
         wayback_cdx()
@@ -105,12 +107,15 @@ class DoubanPatcherMixin:
 
     @classmethod
     def download_image(cls, url, item_url=None):
+        if url is None:
+            logger.error(f"Douban: no image url for {item_url}")
+            return None, None
         raw_img = None
         ext = None
 
         dl_url = url
-        if settings.SCRAPERAPI_KEY is not None:
-            dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+        if settings.SCRAPESTACK_KEY is not None:
+            dl_url = f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}'
 
         try:
             img_response = requests.get(dl_url, timeout=90)
@@ -127,7 +132,7 @@ class DoubanPatcherMixin:
             raw_img = None
             ext = None
             logger.error(f"Douban: download image failed {e} {dl_url} {item_url}")
-        if raw_img is None and settings.SCRAPERAPI_KEY is not None:
+        if raw_img is None and settings.SCRAPESTACK_KEY is not None:
             try:
                 img_response = requests.get(dl_url, timeout=90)
                 if img_response.status_code == 200:

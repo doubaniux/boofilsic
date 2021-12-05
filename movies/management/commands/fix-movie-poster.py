@@ -28,8 +28,11 @@ class DoubanPatcherMixin:
             if r.status_code == 200:
                 content = r.content.decode('utf-8')
                 if content.find('关于豆瓣') == -1:
+                    if content.find('你的 IP 发出') == -1:
+                        error = error + 'Content not authentic'  # response is garbage
+                    else:
+                        error = error + 'IP banned'
                     content = None
-                    error = error + 'Content not authentic'  # response is garbage
                 elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
                     content = None
                     error = error + 'Not found or hidden by Douban'
@@ -86,31 +89,35 @@ class DoubanPatcherMixin:
 
         def latest():
             nonlocal r, error, content
-            if settings.SCRAPERAPI_KEY is None:
+            if settings.SCRAPESTACK_KEY is None:
                 error = error + '\nDirect: '
                 get(url, 60)
             else:
                 error = error + '\nScraperAPI: '
-                get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 60)
+                get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}', 60)
             check_content()
 
-        wayback_cdx()
-        if content is None:
-            latest()
+        # wayback_cdx()
+        # if content is None:
+        latest()
 
         if content is None:
             logger.error(error)
             content = '<html />'
+        # with open('/tmp/temp.html', 'w', encoding='utf-8') as fp:
+        #     fp.write(content)
         return html.fromstring(content)
 
     @classmethod
     def download_image(cls, url, item_url=None):
+        if url is None:
+            return None, None
         raw_img = None
         ext = None
 
         dl_url = url
-        if settings.SCRAPERAPI_KEY is not None:
-            dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+        if settings.SCRAPESTACK_KEY is not None:
+            dl_url = f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}'
 
         try:
             img_response = requests.get(dl_url, timeout=90)
@@ -127,7 +134,7 @@ class DoubanPatcherMixin:
             raw_img = None
             ext = None
             logger.error(f"Douban: download image failed {e} {dl_url} {item_url}")
-        if raw_img is None and settings.SCRAPERAPI_KEY is not None:
+        if raw_img is None and settings.SCRAPESTACK_KEY is not None:
             try:
                 img_response = requests.get(dl_url, timeout=90)
                 if img_response.status_code == 200:
@@ -184,3 +191,4 @@ class Command(BaseCommand):
                         print(f'Skipped {m.source_url}')
                 except Exception as e:
                     print(e)
+            # return
