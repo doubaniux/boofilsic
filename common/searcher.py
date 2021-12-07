@@ -60,9 +60,9 @@ class Goodreads:
                 # Goodreads will 302 if only one result matches ISBN
                 data, img = GoodreadsScraper.scrape(r.url, r)
                 subtitle = f"{data['pub_year']} {', '.join(data['author'])} {', '.join(data['translator'])}"
-                results.append(SearchResultItem(Category.Book, SourceSiteEnum.GOODREADS, 
-                               data['source_url'], data['title'], subtitle,
-                               data['brief'], data['cover_url']))
+                results.append(SearchResultItem(Category.Book, SourceSiteEnum.GOODREADS,
+                                                data['source_url'], data['title'], subtitle,
+                                                data['brief'], data['cover_url']))
             else:
                 h = html.fromstring(r.content.decode('utf-8'))
                 for c in h.xpath('//tr[@itemtype="http://schema.org/Book"]'):
@@ -71,10 +71,12 @@ class Goodreads:
                     el_title = c.xpath('.//a[@class="bookTitle"]//text()')
                     title = ''.join(el_title).strip() if el_title else None
                     el_url = c.xpath('.//a[@class="bookTitle"]/@href')
-                    url = 'https://www.goodreads.com' + el_url[0] if el_url else None
+                    url = 'https://www.goodreads.com' + \
+                        el_url[0] if el_url else None
                     el_authors = c.xpath('.//a[@class="authorName"]//text()')
                     subtitle = ', '.join(el_authors) if el_authors else None
-                    results.append(SearchResultItem(Category.Book, SourceSiteEnum.GOODREADS, url, title, subtitle, '', cover))
+                    results.append(SearchResultItem(
+                        Category.Book, SourceSiteEnum.GOODREADS, url, title, subtitle, '', cover))
         except Exception as e:
             logger.error(f"Goodreads search '{q}' error: {e}")
         return results
@@ -102,9 +104,11 @@ class GoogleBooks:
                     else:
                         brief = ''
                     category = Category.Book
-                    url = 'https://books.google.com/books?id=' + b['id']  # b['volumeInfo']['infoLink'].replace('http:', 'https:')
+                    # b['volumeInfo']['infoLink'].replace('http:', 'https:')
+                    url = 'https://books.google.com/books?id=' + b['id']
                     cover = b['volumeInfo']['imageLinks']['thumbnail'] if 'imageLinks' in b['volumeInfo'] else None
-                    results.append(SearchResultItem(category, SourceSiteEnum.GOOGLEBOOKS, url, title, subtitle, brief, cover))
+                    results.append(SearchResultItem(
+                        category, SourceSiteEnum.GOOGLEBOOKS, url, title, subtitle, brief, cover))
         except Exception as e:
             logger.error(f"GoogleBooks search '{q}' error: {e}")
         return results
@@ -129,7 +133,8 @@ class TheMovieDatabase:
                         title = m['title']
                         subtitle = f"{m['release_date']} {m['original_title']}"
                     cover = f"https://image.tmdb.org/t/p/w500/{m['poster_path']}"
-                    results.append(SearchResultItem(cat, SourceSiteEnum.TMDB, url, title, subtitle, m['overview'], cover))
+                    results.append(SearchResultItem(
+                        cat, SourceSiteEnum.TMDB, url, title, subtitle, m['overview'], cover))
         except Exception as e:
             logger.error(f"TMDb search '{q}' error: {e}")
         return results
@@ -152,9 +157,33 @@ class Spotify:
                     subtitle += ' ' + artist['name']
                 url = a['external_urls']['spotify']
                 cover = a['images'][0]['url']
-                results.append(SearchResultItem(Category.Music, SourceSiteEnum.SPOTIFY, url, title, subtitle, '', cover))
+                results.append(SearchResultItem(
+                    Category.Music, SourceSiteEnum.SPOTIFY, url, title, subtitle, '', cover))
         except Exception as e:
             logger.error(f"Spotify search '{q}' error: {e}")
+        return results
+
+
+class Bandcamp:
+    @classmethod
+    def search(self, q, page=1):
+        results = []
+        try:
+            search_url = f'https://bandcamp.com/search?from=results&item_type=a&page={page}&q={quote_plus(q)}'
+            r = requests.get(search_url)
+            h = html.fromstring(r.content.decode('utf-8'))
+            for c in h.xpath('//li[@class="searchresult data-search"]'):
+                el_cover = c.xpath('.//div[@class="art"]/img/@src')
+                cover = el_cover[0] if el_cover else None
+                el_title = c.xpath('.//div[@class="heading"]//text()')
+                title = ''.join(el_title).strip() if el_title else None
+                el_url = c.xpath('..//div[@class="itemurl"]/a/@href')
+                url = el_url[0] if el_url else None
+                el_authors = c.xpath('.//div[@class="subhead"]//text()')
+                subtitle = ', '.join(el_authors) if el_authors else None
+                results.append(SearchResultItem(Category.Music, SourceSiteEnum.BANDCAMP, url, title, subtitle, '', cover))
+        except Exception as e:
+            logger.error(f"Goodreads search '{q}' error: {e}")
         return results
 
 
@@ -171,4 +200,5 @@ class ExternalSources:
             results.extend(Goodreads.search(q, page))
         if c == 'all' or c == 'music':
             results.extend(Spotify.search(q, page))
+            results.extend(Bandcamp.search(q, page))
         return results
