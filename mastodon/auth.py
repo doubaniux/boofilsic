@@ -17,12 +17,12 @@ def obtain_token(site, request, code):
         'scope': 'read write'
     }
     if settings.DEBUG:
-        payload['redirect_uri']= f"http://{request.get_host()}{reverse('users:OAuth2_login')}",
+        payload['redirect_uri'] = f"http://{request.get_host()}{reverse('users:OAuth2_login')}",
     if mast_app.is_proxy:
         url = 'https://' + mast_app.proxy_to + API_OBTAIN_TOKEN
     else:
         url = 'https://' + mast_app.domain_name + API_OBTAIN_TOKEN
-    response = post(url, data=payload)
+    response = post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
     if response.status_code != 200:
         return
     data = response.json()
@@ -32,6 +32,7 @@ def obtain_token(site, request, code):
 def get_user_data(site, token):
     url = 'https://' + site + API_VERIFY_ACCOUNT
     headers = {
+        'User-Agent': 'NeoDB/1.0',
         'Authorization': f'Bearer {token}'
     }
     response = get(url, headers=headers)
@@ -53,13 +54,14 @@ def revoke_token(site, token):
         url = 'https://' + mast_app.proxy_to + API_REVOKE_TOKEN
     else:
         url = 'https://' + site + API_REVOKE_TOKEN
-    response = post(url, data=payload)
+    response = post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
 
 
 def verify_token(site, token):
     """ Check if the token is valid and is of local instance. """
     url = 'https://' + site + API_VERIFY_ACCOUNT
     headers = {
+        'User-Agent': 'NeoDB/1.0',
         'Authorization': f'Bearer {token}'
     }
     response = get(url, headers=headers)

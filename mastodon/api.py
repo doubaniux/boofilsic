@@ -55,6 +55,7 @@ def get_relationships(site, id_list, token):
     url = 'https://' + site + API_GET_RELATIONSHIPS
     payload = {'id[]': id_list}
     headers = {
+        'User-Agent': 'NeoDB/1.0',
         'Authorization': f'Bearer {token}'
     }
     response = get(url, headers=headers, params=payload)
@@ -64,6 +65,7 @@ def get_relationships(site, id_list, token):
 def post_toot(site, content, visibility, token, local_only=False):
     url = 'https://' + site + API_PUBLISH_TOOT
     headers = {
+        'User-Agent': 'NeoDB/1.0',
         'Authorization': f'Bearer {token}',
         'Idempotency-Key': random_string_generator(16)
     }
@@ -105,7 +107,7 @@ def create_app(domain_name):
         payload['redirect_uris'] = 'http://localhost/users/OAuth2_login/\nurn:ietf:wg:oauth:2.0:oob'
         payload['client_name'] = 'test_do_not_authorise'
 
-    response = post(url, data=payload)
+    response = post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
     return response
 
 
@@ -117,6 +119,7 @@ def get_site_id(username, user_site, target_site, token):
         'q': f"{username}@{user_site}"
     }
     headers = {
+        'User-Agent': 'NeoDB/1.0',
         'Authorization': f'Bearer {token}'
     }
     response = get(url, params=payload, headers=headers)
