@@ -52,6 +52,7 @@ class MovieGenreEnum(models.TextChoices):
     NEWS = 'News', _('新闻')
     SOAP = 'Soap', _('肥皂剧')
     TV_MOVIE = 'TV Movie', _('电视电影')
+    THEATRE = 'Theatre', _('舞台艺术')
     OTHER = 'Other', _('其他')
 
 

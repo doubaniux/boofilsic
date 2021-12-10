@@ -79,9 +79,10 @@ def parse_date(raw_str):
     return dateparser.parse(
         raw_str,
         settings={
-        "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
+            "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
         }
     )
+
 
 class AbstractScraper:
     """
@@ -249,9 +250,12 @@ class DoubanScrapperMixin:
             if r.status_code == 200:
                 content = r.content.decode('utf-8')
                 if content.find('关于豆瓣') == -1:
+                    if content.find('你的 IP 发出') == -1:
+                        error = error + 'Content not authentic'  # response is garbage
+                    else:
+                        error = error + 'IP banned'
                     content = None
                     last_error = 'network'
-                    error = error + 'Content not authentic'  # response is garbage
                 elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
                     content = None
                     last_error = 'censorship'
@@ -313,12 +317,12 @@ class DoubanScrapperMixin:
             if settings.SCRAPESTACK_KEY is not None:
                 error = error + '\nScrapeStack: '
                 get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}', 30)
-            elif settings.SCRAPERAPI_KEY is None:
-                error = error + '\nDirect: '
-                get(url, 30)
-            else:
+            elif settings.SCRAPERAPI_KEY is not None:
                 error = error + '\nScraperAPI: '
                 get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 30)
+            else:
+                error = error + '\nDirect: '
+                get(url, 30)
             check_content()
             if last_error == 'network' and settings.PROXYCRAWL_KEY is not None:
                 error = error + '\nProxyCrawl: '
@@ -340,11 +344,12 @@ class DoubanScrapperMixin:
         raw_img = None
         ext = None
 
-        dl_url = url
         if settings.SCRAPESTACK_KEY is not None:
             dl_url = f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}'
         elif settings.SCRAPERAPI_KEY is not None:
             dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+        else:
+            dl_url = url
 
         try:
             img_response = requests.get(dl_url, timeout=30)
@@ -361,6 +366,7 @@ class DoubanScrapperMixin:
             raw_img = None
             ext = None
             logger.error(f"Douban: download image failed {e} {dl_url} {item_url}")
+
         if raw_img is None and settings.PROXYCRAWL_KEY is not None:
             try:
                 dl_url = f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}'
@@ -430,9 +436,9 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
             pub_month = None
         if pub_year and pub_month and pub_year < pub_month:
             pub_year, pub_month = pub_month, pub_year
-        pub_year = None if pub_year is not None and not pub_year in range(
+        pub_year = None if pub_year is not None and pub_year not in range(
             0, 3000) else pub_year
-        pub_month = None if pub_month is not None and not pub_month in range(
+        pub_month = None if pub_month is not None and pub_month not in range(
             1, 12) else pub_month
 
         binding_elem = content.xpath(
@@ -598,7 +604,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         # construct genre translator
         genre_translator = {}
-        attrs = [attr for attr in dir(MovieGenreEnum) if not '__' in attr]
+        attrs = [attr for attr in dir(MovieGenreEnum) if '__' not in attr]
         for attr in attrs:
             genre_translator[getattr(MovieGenreEnum, attr).label] = getattr(
                 MovieGenreEnum, attr).value
@@ -738,8 +744,7 @@ class DoubanAlbumScraper(DoubanScrapperMixin, AbstractScraper):
         if not title:
             raise ValueError("given url contains no album info")
 
-
-        artists_elem = content.xpath("""//div[@id='info']/span/span[@class='pl']/a/text()""")
+        artists_elem = content.xpath("//div[@id='info']/span/span[@class='pl']/a/text()")
         artist = None if not artists_elem else artists_elem
 
         genre_elem = content.xpath(
@@ -1648,6 +1653,7 @@ class GoodreadsScraper(AbstractScraper):
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
 
+
 class TmdbMovieScraper(AbstractScraper):
     site_name = SourceSiteEnum.TMDB.value
     host = 'https://www.themoviedb.org/'
@@ -1777,6 +1783,7 @@ class TmdbMovieScraper(AbstractScraper):
         else:
             return None
 
+
 # https://developers.google.com/youtube/v3/docs/?apix=true
 # https://developers.google.com/books/docs/v1/using
 class GoogleBooksScraper(AbstractScraper):
@@ -1854,5 +1861,6 @@ class GoogleBooksScraper(AbstractScraper):
 
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
+
 
 from common.scrapers.bandcamp import BandcampAlbumScraper
