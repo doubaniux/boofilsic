@@ -243,7 +243,7 @@ def search(request):
                         elif music.__class__ == Song:
                             similarity += 1/2 * SequenceMatcher(None, keyword, music.title).quick_ratio() \
                                 + 1/6 * SequenceMatcher(None, keyword, artist_dump).quick_ratio() \
-                                + 1/6 * SequenceMatcher(None, keyword, music.album.title).quick_ratio()
+                                + 1/6 * (SequenceMatcher(None, keyword, music.album.title).quick_ratio() if music.album is not None else 0)
                         n += 1
                     music.similarity = similarity / n
                 elif tag:
