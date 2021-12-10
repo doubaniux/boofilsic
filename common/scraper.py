@@ -75,6 +75,7 @@ def log_url(func):
 
     return wrapper
 
+
 def parse_date(raw_str):
     return dateparser.parse(
         raw_str,
@@ -163,7 +164,7 @@ class AbstractScraper:
         if settings.LUMINATI_USERNAME is None:
             proxies = None
         r = requests.get(url, proxies=proxies,
-                         headers=headers, timeout=TIMEOUT)
+                         headers=headers, timeout=settings.SCRAPING_TIMEOUT)
 
         if r.status_code != 200:
             raise RuntimeError(f"download page failed, status code {r.status_code}")
@@ -197,7 +198,7 @@ class AbstractScraper:
                     'dnt': '1',
                 },
                 proxies=proxies,
-                timeout=TIMEOUT,
+                timeout=settings.SCRAPING_TIMEOUT,
             )
             if img_response.status_code == 200:
                 raw_img = img_response.content
@@ -232,11 +233,11 @@ class DoubanScrapperMixin:
         content = None
         last_error = None
 
-        def get(url, timeout):
+        def get(url):
             nonlocal r
             # print('Douban GET ' + url)
             try:
-                r = requests.get(url, timeout=timeout)
+                r = requests.get(url, timeout=settings.SCRAPING_TIMEOUT)
             except Exception as e:
                 r = requests.Response()
                 r.status_code = f"Exception when GET {url} {e}" + url
@@ -280,11 +281,11 @@ class DoubanScrapperMixin:
         def wayback():
             nonlocal r, error, content
             error = error + '\nWayback: '
-            get('http://archive.org/wayback/available?url=' + url, 10)
+            get('http://archive.org/wayback/available?url=' + url)
             if r.status_code == 200:
                 w = r.json()
                 if w['archived_snapshots'] and w['archived_snapshots']['closest']:
-                    get(w['archived_snapshots']['closest']['url'], 10)
+                    get(w['archived_snapshots']['closest']['url'])
                     check_content()
                     if content is not None:
                         fix_wayback_links()
@@ -297,13 +298,13 @@ class DoubanScrapperMixin:
         def wayback_cdx():
             nonlocal r, error, content
             error = error + '\nWayback: '
-            get('http://web.archive.org/cdx/search/cdx?url=' + url, 10)
+            get('http://web.archive.org/cdx/search/cdx?url=' + url)
             if r.status_code == 200:
                 dates = re.findall(r'[^\s]+\s+(\d+)\s+[^\s]+\s+[^\s]+\s+\d+\s+[^\s]+\s+\d{5,}',
                                    r.content.decode('utf-8'))
                 # assume snapshots whose size >9999 contain real content, use the latest one of them
                 if len(dates) > 0:
-                    get('http://web.archive.org/web/' + dates[-1] + '/' + url, 10)
+                    get('http://web.archive.org/web/' + dates[-1] + '/' + url)
                     check_content()
                     if content is not None:
                         fix_wayback_links()
@@ -316,17 +317,17 @@ class DoubanScrapperMixin:
             nonlocal r, error, content
             if settings.SCRAPESTACK_KEY is not None:
                 error = error + '\nScrapeStack: '
-                get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}', 30)
+                get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}')
             elif settings.SCRAPERAPI_KEY is not None:
                 error = error + '\nScraperAPI: '
-                get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 30)
+                get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}')
             else:
                 error = error + '\nDirect: '
-                get(url, 30)
+                get(url)
             check_content()
             if last_error == 'network' and settings.PROXYCRAWL_KEY is not None:
                 error = error + '\nProxyCrawl: '
-                get(f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}', 30)
+                get(f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}')
                 check_content()
 
         latest()
@@ -352,7 +353,7 @@ class DoubanScrapperMixin:
             dl_url = url
 
         try:
-            img_response = requests.get(dl_url, timeout=30)
+            img_response = requests.get(dl_url, timeout=settings.SCRAPING_TIMEOUT)
             if img_response.status_code == 200:
                 raw_img = img_response.content
                 img = Image.open(BytesIO(raw_img))
@@ -370,7 +371,7 @@ class DoubanScrapperMixin:
         if raw_img is None and settings.PROXYCRAWL_KEY is not None:
             try:
                 dl_url = f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}'
-                img_response = requests.get(dl_url, timeout=30)
+                img_response = requests.get(dl_url, timeout=settings.SCRAPING_TIMEOUT)
                 if img_response.status_code == 200:
                     raw_img = img_response.content
                     img = Image.open(BytesIO(raw_img))
@@ -822,6 +823,7 @@ class DoubanAlbumScraper(DoubanScrapperMixin, AbstractScraper):
 
 spotify_token = None
 spotify_token_expire_time = time.time()
+
 
 class SpotifyTrackScraper(AbstractScraper):
     site_name = SourceSiteEnum.SPOTIFY.value
@@ -1377,7 +1379,6 @@ class BangumiScraper(AbstractScraper):
 
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
-
 
     def scrape_game(self, content):
         self.data_class = Game
