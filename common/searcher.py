@@ -2,7 +2,8 @@ from urllib.parse import quote_plus
 from enum import Enum
 from common.models import SourceSiteEnum
 from django.conf import settings
-from common.scraper import GoodreadsScraper, get_spotify_token
+from common.scrapers.goodreads import GoodreadsScraper
+from common.scrapers.spotify import get_spotify_token
 import requests
 from lxml import html
 import logging
