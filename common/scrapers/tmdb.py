@@ -71,10 +71,10 @@ class TmdbMovieScraper(AbstractScraper):
         else:
             title = res_data['title']
             orig_title = res_data['original_title']
-            year = int(res_data['release_date'].split('-')[0])
-            showtime = [{res_data['release_date']: "发布日期"}]
+            year = int(res_data['release_date'].split('-')[0]) if res_data['release_date'] else None
+            showtime = [{res_data['release_date']: "发布日期"}] if res_data['release_date'] else None
             imdb_code = res_data['imdb_id']
-            duration = res_data['runtime']  # in minutes
+            duration = res_data['runtime'] if res_data['runtime'] else None # in minutes
 
         genre = list(map(lambda x: self.genre_map[x['name']] if x['name'] in self.genre_map else 'Other', res_data['genres']))
         language = list(map(lambda x: x['name'], res_data['spoken_languages']))
@@ -98,7 +98,8 @@ class TmdbMovieScraper(AbstractScraper):
             other_info['Seasons'] = res_data['number_of_seasons']
             other_info['Episodes'] = res_data['number_of_episodes']
 
-        img_url = 'https://image.tmdb.org/t/p/original/' + res_data['poster_path']  # TODO: use GET /configuration to get base url
+        img_url = ('https://image.tmdb.org/t/p/original/' + res_data['poster_path']) if res_data['poster_path'] is not None else None
+        # TODO: use GET /configuration to get base url
         raw_img, ext = self.download_image(img_url, url)
 
         data = {
