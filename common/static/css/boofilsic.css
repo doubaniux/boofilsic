@@ -1164,6 +1164,10 @@ select::placeholder {
   width: 100%;
 }
 
+.tools-section-wrapper input, .tools-section-wrapperl select {
+  width: unset;
+}
+
 .entity-list .entity-list__title {
   margin-bottom: 20px;
 }

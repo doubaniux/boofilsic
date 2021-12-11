@@ -328,7 +328,7 @@ def create_update_song_mark(request):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("music:retrieve_song",
                                                                 args=[song.id])
                 words = MusicMarkStatusTranslator(form.cleaned_data['status']) +\
@@ -423,7 +423,7 @@ def create_song_review(request, song_id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("music:retrieve_song_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.song.title}》" + "的评论"
@@ -475,7 +475,7 @@ def update_song_review(request, id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("music:retrieve_song_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.song.title}》" + "的评论"
@@ -899,7 +899,7 @@ def create_update_album_mark(request):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("music:retrieve_album",
                                                                 args=[album.id])
                 words = MusicMarkStatusTranslator(form.cleaned_data['status']) +\
@@ -994,7 +994,7 @@ def create_album_review(request, album_id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("music:retrieve_album_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.album.title}》" + "的评论"
@@ -1046,7 +1046,7 @@ def update_album_review(request, id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("music:retrieve_album_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.album.title}》" + "的评论"

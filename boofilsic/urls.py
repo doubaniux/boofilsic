@@ -33,6 +33,10 @@ urlpatterns = [
 
 ]
 
+urlpatterns += [
+    path('django-rq/', include('django_rq.urls'))
+]
+
 if settings.DEBUG:
     from django.conf.urls.static import static
     urlpatterns += static(settings.MEDIA_URL,

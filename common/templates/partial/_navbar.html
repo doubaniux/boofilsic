@@ -26,8 +26,10 @@
                     
                     {% if request.user.is_authenticated %}
          
-                        <a class="navbar__link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         <a class="navbar__link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
+                        <a class="navbar__link" id="logoutLink" href="{% url 'users:data' %}">{% trans '数据' %}</a>
+                        <a class="navbar__link" id="logoutLink" href="{% url 'users:preferences' %}">{% trans '设置' %}</a>
+                        <a class="navbar__link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
                         {% if request.user.is_staff %}
                         <a class="navbar__link" href="{% admin_url %}">{% trans '后台' %}</a>
                         {% endif %}

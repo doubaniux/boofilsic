@@ -1,0 +1,164 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - 设置</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'js/mastodon.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+
+            <section id="content">
+                <div class="grid grid--reverse-order">
+                    <div class="grid__main grid__main--reverse-order">
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '联邦网络（长毛象）相关设置' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:preferences' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <span>{% trans '以公开方式分享的嘟文是否发布到公共时间轴上：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if mastodon_publish_public%}checked{% endif %}>
+                                                <label for="visibility">{% trans '选中时为public，未选中时为unlisted' %}</label>
+                                            </div>
+                                            <div> 
+                                                <input type="submit" class="import-panel__button" value="{% trans '保存' %}" id="uploadBtn"
+                                                    {% if not latest_task is None and not latest_task.is_finished %}
+                                                    disabled
+                                                    {% endif %}
+                                                >
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
+                        <div class="aside-section-wrapper aside-section-wrapper--no-margin">
+                            <div class="user-profile" id="userInfoCard">
+                                <div class="user-profile__header">
+                                    <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
+                                    <img src="" class="user-profile__avatar mast-avatar">
+                                    <a href="{% url 'users:home' user.id %}">
+                                        <h5 class="user-profile__username mast-displayname"></h5>
+                                    </a>
+                                </div>
+                                <p><a class="user-profile__link mast-acct" target="_blank" href="https://{{ user.mastodon_site }}/@{{ user.username }}">@{{ user.username }}@{{ user.mastodon_site }}</a></p>
+                                <p class="user-profile__bio mast-brief"></p>
+                                <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
+
+                                {% if request.user != user %}
+                                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
+                                    class="user-profile__report-link">{% trans '举报用户' %}</a>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                        <!-- contains relations, reports, and upload excel entry -->
+                        <div class="relation-dropdown">
+                            <div class="relation-dropdown__body">
+                                <!-- import douban data -->                                
+                                {% if user == request.user %}                                    
+                                {% endif %}
+                                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+            
+        {% include "partial/_footer.html" %}
+    </div>
+
+    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
+    <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
+    <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
+    <!--current user mastodon id-->
+    
+    {% if user == request.user %}
+    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    {% else %}
+    <div id="userMastodonID" hidden="true">{{ user.target_site_id }}</div>
+    {% endif %}
+        
+    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
+
+    <div id="spinner" hidden>
+        <div class="spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <script>
+        // because the modal and mask elements only exist when there are new announcements
+        $(".bg-mask").show();
+        $(".modal-close").on('click', function () {
+            $(this).parents(".modal").hide();
+            $(".bg-mask").hide();
+        });
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
+        integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/tippy.umd.min.js"
+        integrity="sha512-Ns7w8bjVjVcBVa+k3XLt0ObfsG2LQfr573HoIYtC4wh8gUKLvCx+rlggxfvsHqup6jvMAEmBtYXmhcKHL+6R5A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        tippy('#importHelp', {
+            content: "{% trans '上传导入由<a href=\"https://github.com/doufen-org/tofu\" target=\"_blank\">豆伴</a>（豆坟）导出的Excel文件，<strong>请勿手动修改该文件</strong>。部分条目由于需要登陆无法自动同步。' %}",
+            interactive: true,
+            allowHTML: true,
+            duration: 0,
+        });
+        tippy('#overwriteHelp', {
+            content: "{% trans '在导入之前如果已经在本站标记了某一个条目，是否使用来自豆瓣的标记覆盖原有的。' %}",
+            interactive: true,
+            allowHTML: true,
+            duration: 0,
+        });
+        tippy('#visibilityHelp', {
+            content: "{% trans '所同步的标记可见性是否为公开；对于已有的标记即便覆盖也不会改变可见性。' %}",
+            interactive: true,
+            allowHTML: true,
+            duration: 0,
+        });
+    </script>
+</body>
+
+
+</html>

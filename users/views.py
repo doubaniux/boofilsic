@@ -27,6 +27,9 @@ from games.forms import GameMarkStatusTranslator
 from mastodon.models import MastodonApplication
 from django.conf import settings
 from urllib.parse import quote
+import django_rq
+from .export import *
+
 
 # Views
 ########################################
@@ -782,8 +785,10 @@ def set_layout(request):
 
 @login_required
 def report(request):
+    print(request.a.a)
     if request.method == 'GET':
         user_id = request.GET.get('user_id')
+        print(user_id)
         if user_id:
             user = get_object_or_404(User, pk=user_id)
             form = ReportForm(initial={'reported_user': user})
@@ -845,3 +850,45 @@ def auth_logout(request):
     """ Decorates django ``logout()``. Release token in session."""
     del request.session['oauth_token']
     auth.logout(request)    
+
+
+@mastodon_request_included
+@login_required
+def preferences(request):
+    if request.method == 'POST':
+        request.user.preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
+        request.user.preference.save()
+    return render(request, 'users/preferences.html', {'mastodon_publish_public': request.user.preference.mastodon_publish_public})
+
+
+@mastodon_request_included
+@login_required
+def data(request):
+    return render(request, 'users/data.html', {
+        'latest_task': request.user.user_synctasks.order_by("-id").first(),
+        'export_status': request.user.preference.export_status
+    })
+
+
+@mastodon_request_included
+@login_required
+def export_reviews(request):
+    if request.method != 'POST':
+        return redirect(reverse("users:data"))
+    return render(request, 'users/data.html')
+
+
+@mastodon_request_included
+@login_required
+def export_marks(request):
+    if request.method == 'POST':
+        if not request.user.preference.export_status.get('marks_pending'):
+            django_rq.enqueue(export_marks_task, request.user)
+            request.user.preference.export_status['marks_pending'] = True
+            request.user.preference.save()
+        return redirect(reverse("users:data"))
+    else:
+        with open(request.user.preference.export_status['marks_file'], 'rb') as fh:
+            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+            response['Content-Disposition'] = 'attachment;filename="marks.xlsx"'
+            return response

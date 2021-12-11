@@ -50,9 +50,11 @@ class Preference(models.Model):
         blank=True,
         default=list,
     )
+    export_status = models.JSONField(blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
+    mastodon_publish_public = models.BooleanField(null=False, default=False)
 
     def get_serialized_home_layout(self):
-        return str(self.home_layout).replace("\'","\"")
+        return str(self.home_layout).replace("\'", "\"")
 
     def __str__(self):
         return str(self.user)

@@ -1,0 +1,274 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - 数据管理</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'js/mastodon.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+
+            <section id="content">
+                <div class="grid grid--reverse-order">
+                    <div class="grid__main grid__main--reverse-order">
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导入豆瓣标记数据' %}</h5>
+                                    <span id="importHelp" class="import-panel__help">?</span>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'sync:douban' %}" method="POST" enctype="multipart/form-data" >
+
+                                            {% csrf_token %}
+                                            <input type="hidden" name="user" value="{{ request.user.id }}">
+                                            <span>{% trans '导入：' %}</span>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_book" id="syncBook">
+                                                <label for="syncBook">{% trans '书' %}</label>
+                                            </div>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_movie" id="syncMovie">
+                                                <label for="syncMovie">{% trans '电影' %}</label>
+                                            </div>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_music" id="syncMusic">
+                                                <label for="syncMusic">{% trans '音乐' %}</label>
+                                            </div>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_game" id="syncGame">
+                                                <label for="syncGame">{% trans '游戏' %}</label>
+                                            </div>
+                                            <div></div>
+                                            <span>{% trans '覆盖：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="overwrite" id="overwrite">
+                                                <label for="overwrite">{% trans '覆盖原有标记' %}</label>
+                                            </div>
+                                            <span id="overwriteHelp" class="import-panel__help">?</span>
+                                            <div></div>
+                                            <span>{% trans '可见性：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="default_public" id="visibility">
+                                                <label for="visibility">{% trans '公开' %}</label>
+                                            </div>
+                                            <span id="visibilityHelp" class="import-panel__help">?</span>
+                                            <div></div>
+                                            <div class="import-panel__file-input">
+                                                <input type="file" name="file" id="excelFile" required accept=".xlsx">
+                                            </div>
+                                            <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn"
+                                                {% if not latest_task is None and not latest_task.is_finished %}
+                                                disabled
+                                                {% endif %}
+                                            >
+                                        </form>
+                                        <div class="import-panel__progress"
+                                            {% if latest_task.is_finished or latest_task is None %}
+                                            style="display: none;"
+                                            {% endif %}
+                                        >
+                                            <label for="importProgress">{% trans '进度' %}</label>
+                                            <progress id="importProgress" value="{{ latest_task.finished_items }}" max="{{ latest_task.total_items }}"></progress>
+                                            <span class="float-right" id="progressPercent">{{ latest_task.get_progress | floatformat:"0" }}%</span>
+                                            <span class="clearfix"></span>
+                                        </div>
+                                        <div class="import-panel__last-task"
+                                            {% if not latest_task.is_finished %}`
+                                            style="display: none;"
+                                            {% endif %}
+                                        >
+                                            {% trans '上次导入：' %}
+                                            <span class="index">{% trans '总数' %} <span id="lastTaskTotalItems">{{ latest_task.total_items }}</span></span>
+                                            <span class="index">{% trans '同步' %} <span id="lastTaskSuccessItems">{{ latest_task.success_items }}</span></span>
+                                            <span class="index">{% trans '状态' %} <span id="lastTaskStatus">{{ latest_task.get_status_emoji }}</span></span>
+                                            <div class="import-panel__fail-urls"
+                                            {% if not latest_task.failed_urls %}
+                                                style="display: none;"
+                                            {% endif %}
+                                            >
+                                                <span>
+                                                    {% trans '失败条目链接' %}
+                                                </span>
+                                                <a class="float-right" style="cursor: pointer;" id="failedUrlsBtn">
+                                                    ▶
+                                                </a>
+                                                <script>
+                                                    $("#failedUrlsBtn").data("collapse", true);
+                                                    $("#failedUrlsBtn").click(()=>{
+                                                        const btn = $("#failedUrlsBtn");
+                                                        if(btn.data("collapse") == true) {
+                                                            btn.data("collapse", false);
+                                                            btn.text("▼");
+                                                            $("#failedUrls").show();
+                                                        } else {
+                                                            btn.data("collapse", true);
+                                                            btn.text("▶");
+                                                            $("#failedUrls").hide();
+                                                        }
+                                                    });
+                                                </script>
+                                                <span class="clearfix"></span>
+                                                <ul id="failedUrls" style="display: none;">
+                                                    {% for url in latest_task.failed_urls %}
+                                                    <li>{{ url }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导出个人数据' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            {% if export_status.marks_pending %} 
+                                            <input type="submit" class="import-panel__button" value="{% trans '正在导出兼容豆伴(doufen)和NiceDB的标记和短评' %}" id="uploadBtn" disabled />
+                                            {% else %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '导出兼容豆伴(doufen)和NiceDB的标记和短评' %}" id="uploadBtn" />
+                                            {% endif %}
+                                            {% if export_status.marks_file %} 
+                                            <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a> 
+                                            {% endif %}
+                                        </form>
+                                        <!-- <form action="{% url 'users:export_reviews' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '导出评论' %}" id="uploadBtn"
+                                            >
+                                        </form> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
+                        <div class="aside-section-wrapper aside-section-wrapper--no-margin">
+                            <div class="user-profile" id="userInfoCard">
+                                <div class="user-profile__header">
+                                    <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
+                                    <img src="" class="user-profile__avatar mast-avatar">
+                                    <a href="{% url 'users:home' user.id %}">
+                                        <h5 class="user-profile__username mast-displayname"></h5>
+                                    </a>
+                                </div>
+                                <p><a class="user-profile__link mast-acct" target="_blank" href="https://{{ user.mastodon_site }}/@{{ user.username }}">@{{ user.username }}@{{ user.mastodon_site }}</a></p>
+                                <p class="user-profile__bio mast-brief"></p>
+                                <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
+
+                                {% if request.user != user %}
+                                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
+                                    class="user-profile__report-link">{% trans '举报用户' %}</a>
+                                {% endif %}
+
+                            </div>
+                        </div>
+
+                        <!-- contains relations, reports, and upload excel entry -->
+                        <div class="relation-dropdown">
+                            <div class="relation-dropdown__body">
+                                <!-- import douban data -->                                
+                                {% if user == request.user %}                                    
+                                {% endif %}
+                                    
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+            
+        {% include "partial/_footer.html" %}
+    </div>
+
+    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
+    <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
+    <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
+    <!--current user mastodon id-->
+    
+    {% if user == request.user %}
+    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    {% else %}
+    <div id="userMastodonID" hidden="true">{{ user.target_site_id }}</div>
+    {% endif %}
+        
+    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
+
+    <div id="spinner" hidden>
+        <div class="spinner">
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+            <div></div>
+        </div>
+    </div>
+
+    <script>
+        // because the modal and mask elements only exist when there are new announcements
+        $(".bg-mask").show();
+        $(".modal-close").on('click', function () {
+            $(this).parents(".modal").hide();
+            $(".bg-mask").hide();
+        });
+
+    </script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
+        integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/tippy.umd.min.js"
+        integrity="sha512-Ns7w8bjVjVcBVa+k3XLt0ObfsG2LQfr573HoIYtC4wh8gUKLvCx+rlggxfvsHqup6jvMAEmBtYXmhcKHL+6R5A=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script>
+        tippy('#importHelp', {
+            content: "{% trans '上传导入由<a href=\"https://github.com/doufen-org/tofu\" target=\"_blank\">豆伴</a>（豆坟）导出的Excel文件，<strong>请勿手动修改该文件</strong>。部分条目由于需要登陆无法自动同步。' %}",
+            interactive: true,
+            allowHTML: true,
+            duration: 0,
+        });
+        tippy('#overwriteHelp', {
+            content: "{% trans '在导入之前如果已经在本站标记了某一个条目，是否使用来自豆瓣的标记覆盖原有的。' %}",
+            interactive: true,
+            allowHTML: true,
+            duration: 0,
+        });
+        tippy('#visibilityHelp', {
+            content: "{% trans '所同步的标记可见性是否为公开；对于已有的标记即便覆盖也不会改变可见性。' %}",
+            interactive: true,
+            allowHTML: true,
+            duration: 0,
+        });
+    </script>
+</body>
+
+
+</html>

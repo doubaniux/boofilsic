@@ -3,6 +3,7 @@ django
 django-hstore
 django-markdownx
 django-sass
+django-rq
 easy-thumbnails
 lxml
 openpyxl

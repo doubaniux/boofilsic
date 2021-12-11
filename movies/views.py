@@ -309,7 +309,7 @@ def create_update_mark(request):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("movies:retrieve",
                                                                 args=[movie.id])
                 words = MovieMarkStatusTranslator(form.cleaned_data['status']) +\
@@ -404,7 +404,7 @@ def create_review(request, movie_id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("movies:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.movie.title}》" + "的评论"
@@ -456,7 +456,7 @@ def update_review(request, id):
                 if form.cleaned_data['is_private']:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
-                    visibility = TootVisibilityEnum.UNLISTED
+                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
                 url = "https://" + request.get_host() + reverse("movies:retrieve_review",
                                                                 args=[form.instance.id])
                 words = "发布了关于" + f"《{form.instance.movie.title}》" + "的评论"
