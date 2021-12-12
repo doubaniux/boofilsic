@@ -785,10 +785,8 @@ def set_layout(request):
 
 @login_required
 def report(request):
-    print(request.a.a)
     if request.method == 'GET':
         user_id = request.GET.get('user_id')
-        print(user_id)
         if user_id:
             user = get_object_or_404(User, pk=user_id)
             form = ReportForm(initial={'reported_user': user})
