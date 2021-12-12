@@ -49,7 +49,7 @@ def export_marks_task(user):
             movie = mark.movie
             title = movie.title
             summary = str(movie.year) + ' / ' + ','.join(movie.area) + ' / ' + ','.join(map(lambda x: str(MovieGenreTranslator[x]), movie.genre)) + ' / ' + ','.join(movie.director) + ' / ' + ','.join(movie.actor)
-            tags = ','.join(map(lambda t: t['content'], movie.get_tags_manager().values()))
+            tags = ','.join(list(set(map(lambda t: t['content'], movie.get_tags_manager().values()))))
             world_rating = (movie.rating / 2) if movie.rating else None
             timestamp = mark.edited_time.strftime('%Y-%m-%d %H:%M:%S')
             my_rating = (mark.rating / 2) if mark.rating else None
@@ -67,7 +67,7 @@ def export_marks_task(user):
             album = mark.album
             title = album.title
             summary = ','.join(album.artist) + ' / ' + (album.release_date.strftime('%Y') if album.release_date else '')
-            tags = ','.join(map(lambda t: t['content'], album.get_tags_manager().values()))
+            tags = ','.join(list(set(map(lambda t: t['content'], album.get_tags_manager().values()))))
             world_rating = (album.rating / 2) if album.rating else None
             timestamp = mark.edited_time.strftime('%Y-%m-%d %H:%M:%S')
             my_rating = (mark.rating / 2) if mark.rating else None
@@ -85,7 +85,7 @@ def export_marks_task(user):
             book = mark.book
             title = book.title
             summary = ','.join(book.author) + ' / ' + str(book.pub_year) + ' / ' + book.pub_house
-            tags = ','.join(map(lambda t: t['content'], book.get_tags_manager().values()))
+            tags = ','.join(list(set(map(lambda t: t['content'], book.get_tags_manager().values()))))
             world_rating = (book.rating / 2) if book.rating else None
             timestamp = mark.edited_time.strftime('%Y-%m-%d %H:%M:%S')
             my_rating = (mark.rating / 2) if mark.rating else None
@@ -103,7 +103,7 @@ def export_marks_task(user):
             game = mark.game
             title = game.title
             summary = ','.join(game.genre) + ' / ' + ','.join(game.platform) + ' / ' + game.release_date.strftime('%Y-%m-%d')
-            tags = ','.join(map(lambda t: t['content'], game.get_tags_manager().values()))
+            tags = ','.join(list(set(map(lambda t: t['content'], game.get_tags_manager().values()))))
             world_rating = (game.rating / 2) if game.rating else None
             timestamp = mark.edited_time.strftime('%Y-%m-%d %H:%M:%S')
             my_rating = (mark.rating / 2) if mark.rating else None
