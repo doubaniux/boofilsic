@@ -102,7 +102,7 @@ def export_marks_task(user):
         for mark in marks:
             game = mark.game
             title = game.title
-            summary = ','.join(game.genre) + ' / ' + ','.join(game.platform) + ' / ' + game.release_date.strftime('%Y-%m-%d')
+            summary = ','.join(game.genre) + ' / ' + ','.join(game.platform) + ' / ' + (game.release_date.strftime('%Y-%m-%d') if game.release_date else '')
             tags = ','.join(list(set(map(lambda t: t['content'], game.get_tags_manager().values()))))
             world_rating = (game.rating / 2) if game.rating else None
             timestamp = mark.edited_time.strftime('%Y-%m-%d %H:%M:%S')
