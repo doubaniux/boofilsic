@@ -407,6 +407,8 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
         if genre_elem:
             genre = []
             for g in genre_elem:
+                if g == '紀錄片 Documentary':  # likely some original data on douban was corrupted
+                    g = '纪录片'
                 genre.append(genre_translator[g])
         else:
             genre = None

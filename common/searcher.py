@@ -128,14 +128,14 @@ class TheMovieDatabase:
                     if m['media_type'] == 'tv':
                         cat = Category.TV
                         title = m['name']
-                        subtitle = f"{m['first_air_date']} {m['original_name']}"
+                        subtitle = f"{m.get('first_air_date')} {m.get('original_name')}"
                     else:
                         cat = Category.Movie
                         title = m['title']
-                        subtitle = f"{m['release_date']} {m['original_title']}"
-                    cover = f"https://image.tmdb.org/t/p/w500/{m['poster_path']}"
+                        subtitle = f"{m.get('release_date')} {m.get('original_name')}"
+                    cover = f"https://image.tmdb.org/t/p/w500/{m.get('poster_path')}"
                     results.append(SearchResultItem(
-                        cat, SourceSiteEnum.TMDB, url, title, subtitle, m['overview'], cover))
+                        cat, SourceSiteEnum.TMDB, url, title, subtitle, m.get('overview'), cover))
         except Exception as e:
             logger.error(f"TMDb search '{q}' error: {e}")
         return results
@@ -191,6 +191,8 @@ class Bandcamp:
 class ExternalSources:
     @classmethod
     def search(self, c, q, page=1):
+        if not q:
+            return []
         results = []
         if c == '' or c is None:
             c = 'all'
