@@ -243,7 +243,7 @@ class Mark(UserOwnedEntity):
     text = models.CharField(max_length=5000, blank=True, default='')
 
     def __str__(self):
-        return f"({self.id}) {self.owner} {self.status.upper()}"
+        return f"Mark({self.id} {self.owner} {self.status.upper()})"
 
     class Meta:
         abstract = True

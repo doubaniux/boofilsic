@@ -881,7 +881,7 @@ def export_reviews(request):
 def export_marks(request):
     if request.method == 'POST':
         if not request.user.preference.export_status.get('marks_pending'):
-            django_rq.enqueue(export_marks_task, request.user)
+            django_rq.get_queue('export').enqueue(export_marks_task, request.user)
             request.user.preference.export_status['marks_pending'] = True
             request.user.preference.save()
         return redirect(reverse("users:data"))

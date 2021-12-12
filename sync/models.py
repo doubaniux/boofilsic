@@ -69,7 +69,7 @@ class SyncTask(models.Model):
 
     def __str__(self):
         """Unicode representation of SyncTask."""
-        return str(self.user.username) + '@' + str(self.started_time) + self.get_status_emoji()
+        return f'{self.id} {self.user} {self.file} {self.get_status_emoji()} {self.success_items}/{self.finished_items}/{self.total_items}'
 
     def get_status_emoji(self):
         return ("❌" if self.is_failed else "✔") if self.is_finished else "⚡"
