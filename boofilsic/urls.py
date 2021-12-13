@@ -34,7 +34,7 @@ urlpatterns = [
 ]
 
 urlpatterns += [
-    path('django-rq/', include('django_rq.urls'))
+    path(settings.ADMIN_URL + '-rq/', include('django_rq.urls'))
 ]
 
 if settings.DEBUG:
