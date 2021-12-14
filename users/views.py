@@ -838,10 +838,21 @@ def manage_report(request):
 
 # Utils
 ########################################
+def refresh_mastodon_data_task(user, token):
+    user.mastodon_token = token
+    if user.refresh_mastodon_data():
+        user.save()
+        print(f"{user} mastodon data refreshed")
+    else:
+        print(f"{user} mastodon data refresh failed")
+
+
 def auth_login(request, user, token):
     """ Decorates django ``login()``. Attach token to session."""
     request.session['oauth_token'] = token
     auth.login(request, user)
+    # refresh_mastodon_data_task(user, token)
+    django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user, token)
 
 
 def auth_logout(request):

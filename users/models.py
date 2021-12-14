@@ -7,6 +7,7 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.utils.translation import ugettext_lazy as _
 from common.utils import GenerateDateUUIDMediaFilePath
 from django.conf import settings
+from mastodon.api import *
 
 
 def report_image_path(instance, filename):
@@ -24,6 +25,14 @@ class User(AbstractUser):
     mastodon_id = models.CharField(max_length=100, blank=False)
     # mastodon domain name, eg donotban.com
     mastodon_site = models.CharField(max_length=100, blank=False)
+    mastodon_token = models.CharField(max_length=100, default='')
+    mastodon_locked = models.BooleanField(default=False)
+    mastodon_followers = models.JSONField(default=list)
+    mastodon_following = models.JSONField(default=list)
+    mastodon_mutes = models.JSONField(default=list)
+    mastodon_blocks = models.JSONField(default=list)
+    mastodon_account = models.JSONField(default=dict)
+    mastodon_last_refresh = models.DateTimeField(default=timezone.now)
     # store the latest read announcement id, 
     # every time user read the announcement update this field
     read_announcement_index = models.PositiveIntegerField(default=0)
@@ -41,6 +50,25 @@ class User(AbstractUser):
 
     def __str__(self):
         return self.username + '@' + self.mastodon_site
+
+    def refresh_mastodon_data(self):
+        """ Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db """
+        self.mastodon_last_refresh = timezone.now()
+        code, mastodon_account = verify_account(self.mastodon_site, self.mastodon_token)
+        updated = False
+        if mastodon_account:
+            self.mastodon_account = mastodon_account
+            self.mastodon_locked = mastodon_account['locked']
+            # self.mastodon_token = token
+            # user.mastodon_id  = mastodon_account['id']
+            self.mastodon_followers = get_related_acct_list(self.mastodon_site, self.mastodon_token, f'/api/v1/accounts/{self.mastodon_id}/followers')
+            self.mastodon_following = get_related_acct_list(self.mastodon_site, self.mastodon_token, f'/api/v1/accounts/{self.mastodon_id}/following')
+            self.mastodon_mutes = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/mutes')
+            self.mastodon_blocks = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/blocks')
+            updated = True
+        elif code == 401:
+            self.mastodon_token = ''
+        return updated
 
 
 class Preference(models.Model):

@@ -198,6 +198,28 @@ def random_string_generator(n):
     return ''.join(random.choice(s) for i in range(n))
 
 
+def verify_account(site, token):
+    url = 'https://' + site + API_VERIFY_ACCOUNT
+    response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
+    return response.status_code, response.json() if response.status_code == 200 else None
+
+
+def get_related_acct_list(site, token, api):
+    url = 'https://' + site + api
+    results = []
+    while url:
+        response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
+        url = None
+        if response.status_code == 200:
+            results.extend(map(lambda u: u['acct'] if u['acct'].find('@') != -1 else u['acct'] + site, response.json()))
+            if 'Link' in response.headers:
+                for ls in response.headers['Link'].split(','):
+                    li = ls.strip().split(';')
+                    if li[1].strip() == 'rel="next"':
+                        url = li[0].strip().replace('>', '').replace('<', '')
+    return results
+
+
 class TootVisibilityEnum:
     PUBLIC = 'public'
     PRIVATE = 'private'
