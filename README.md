@@ -12,7 +12,7 @@ Currently looking for someone to help with:
 - Refactoring (this is something big)
 
 ## Deployment
-This project is still in the early stage, so you are not encouraged to deploy it on your own. If you do want to give it a try, please check the [fork of *alphatownsman*](https://github.com/alphatownsman/boofilsic), which is more friendly.
+This project is still in its early stage, so you are not encouraged to deploy it on your own. If you do want to give it a try, please check the [fork of *alphatownsman*](https://github.com/alphatownsman/boofilsic), which is more friendly.
 
 ## Sponsor
-If you like this project, please consider sponsor us on [Patreon](https://patreon.com/tertius).
+If you like this project, please consider sponsoring us on [Patreon](https://patreon.com/tertius).
