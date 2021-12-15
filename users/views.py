@@ -838,8 +838,9 @@ def manage_report(request):
 
 # Utils
 ########################################
-def refresh_mastodon_data_task(user, token):
-    user.mastodon_token = token
+def refresh_mastodon_data_task(user, token=None):
+    if token:
+        user.mastodon_token = token
     if user.refresh_mastodon_data():
         user.save()
         print(f"{user} mastodon data refreshed")
@@ -901,3 +902,10 @@ def export_marks(request):
             response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
             response['Content-Disposition'] = 'attachment;filename="marks.xlsx"'
             return response
+
+
+@login_required
+def sync_mastodon(request):
+    if request.method == 'POST':
+        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user)
+    return redirect(reverse("users:data"))

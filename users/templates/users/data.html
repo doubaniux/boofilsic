@@ -160,6 +160,28 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans 'Mastodon/Pleroma社交关系数据' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:sync_mastodon' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '同步' %}" id="uploadBtn" /> 上次更新时间 {{ user.mastodon_last_refresh }}
+                                            <div>
+                                                为了正确展示短评和评论，NeoDB会缓存你的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
+                                            </div>
+                                        </form>
+                                        <!-- <form action="{% url 'users:export_reviews' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '导出评论' %}" id="uploadBtn"
+                                            >
+                                        </form> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
