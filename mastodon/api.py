@@ -136,15 +136,10 @@ def get_site_id(username, user_site, target_site, token):
 
 # high level api below
 def get_relationship(request_user, target_user, token):
-    if request_user.mastodon_site == target_user.mastodon_site:
-        return get_relationships(request_user.mastodon_site, target_user.mastodon_id, token)
-    else:
-        cross_site_id = get_cross_site_id(target_user, request_user.mastodon_site, token)
-        if cross_site_id is None:
-            return [{'blocked_by': True}]  # boldly assume blocked(?!) if no relationship found
-            # FIXME should check the reverse direction? but need either cache the target user's oauth token or her blocked list
-        else:
-            return get_relationships(request_user.mastodon_site, cross_site_id, token)
+    return [{
+        'blocked_by': target_user.is_blocking(request_user),
+        'following': request_user.is_following(target_user),
+    }]
 
 
 def get_cross_site_id(target_user, target_site, token):

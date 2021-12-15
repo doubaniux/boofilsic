@@ -31,6 +31,7 @@ class User(AbstractUser):
     mastodon_following = models.JSONField(default=list)
     mastodon_mutes = models.JSONField(default=list)
     mastodon_blocks = models.JSONField(default=list)
+    mastodon_domain_blocks = models.JSONField(default=list)
     mastodon_account = models.JSONField(default=dict)
     mastodon_last_refresh = models.DateTimeField(default=timezone.now)
     # store the latest read announcement id, 
@@ -43,13 +44,17 @@ class User(AbstractUser):
                 fields=['username', 'mastodon_site'], name="unique_user_identity")
         ]
 
-    def save(self, *args, **kwargs):
-        """ Automatically populate password field with settings.DEFAULT_PASSWORD before saving."""
-        self.set_password(settings.DEFAULT_PASSWORD)
-        return super().save(*args, **kwargs)
+    # def save(self, *args, **kwargs):
+    #     """ Automatically populate password field with settings.DEFAULT_PASSWORD before saving."""
+    #     self.set_password(settings.DEFAULT_PASSWORD)
+    #     return super().save(*args, **kwargs)
+
+    @property
+    def mastodon_username(self):
+        return self.username + '@' + self.mastodon_site
 
     def __str__(self):
-        return self.username + '@' + self.mastodon_site
+        return self.mastodon_username
 
     def refresh_mastodon_data(self):
         """ Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db """
@@ -65,10 +70,26 @@ class User(AbstractUser):
             self.mastodon_following = get_related_acct_list(self.mastodon_site, self.mastodon_token, f'/api/v1/accounts/{self.mastodon_id}/following')
             self.mastodon_mutes = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/mutes')
             self.mastodon_blocks = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/blocks')
+            self.mastodon_domain_blocks = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/domain_blocks')
             updated = True
         elif code == 401:
             self.mastodon_token = ''
         return updated
+
+    def is_blocking(self, target):
+        return target.mastodon_username in self.mastodon_blocks or target.mastodon_site in self.mastodon_domain_blocks
+
+    def is_blocked_by(self, target):
+        return target.is_blocking(self)
+
+    def is_muting(self, target):
+        return target.mastodon_username in self.mastodon_mutes
+
+    def is_following(self, target):
+        return self.mastodon_username in target.mastodon_followers if target.mastodon_locked else self.mastodon_username in target.mastodon_followers or target.mastodon_username in self.mastodon_following
+
+    def is_followed_by(self, target):
+        return target.is_following(self)
 
 
 class Preference(models.Model):

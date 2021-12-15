@@ -159,63 +159,27 @@ class UserOwnedEntity(models.Model):
     class Meta:
         abstract = True
 
+    def is_visible_to(self, viewer):
+        owner = self.owner
+        if owner == viewer:
+            return True
+        if viewer.is_blocking(owner) or owner.is_blocking(viewer) or viewer.is_muting(owner):
+            return False
+        if self.is_private:
+            return viewer.is_following(owner)
+        else:
+            return True
+
     @classmethod
     def get_available(cls, entity, request_user, token):
-        # TODO add amount limit for once query
-        """ 
-        Returns all avaliable user-owned entities related to given entity. 
-        This method handles mute/block relationships and private/public visibilities.
-        """
-        # the foreign key field that points to entity
-        # has to be named as the lower case name of that entity
+        # e.g. SongMark.get_available(song, request.user, request.session['oauth_token'])
         query_kwargs = {entity.__class__.__name__.lower(): entity}
-        user_owned_entities = cls.objects.filter(
-            **query_kwargs).order_by("-edited_time")
-
-        # every user should only be abled to have one user owned entity for each entity
-        # this is guaranteed by models
-        id_list = []
-
-        # none_index tracks those failed cross site id query
-        none_index = []
-
-        for (i, entity) in enumerate(user_owned_entities):
-            if entity.owner.mastodon_site == request_user.mastodon_site:
-                id_list.append(entity.owner.mastodon_id)
-            else:
-                # TODO there could be many requests therefore make the pulling asynchronized
-                cross_site_id = get_cross_site_id(
-                    entity.owner, request_user.mastodon_site, token)
-                if not cross_site_id is None:
-                    id_list.append(cross_site_id)
-                else:
-                    none_index.append(i)
-                    # populate those query-failed None postions
-                    # to ensure the consistency of the orders of 
-                    # the three(id_list, user_owned_entities, relationships)
-                    id_list.append(request_user.mastodon_id)
-
-        # Mastodon request
-        relationships = get_relationships(
-            request_user.mastodon_site, id_list, token)
-        mute_block_blocked_index = []
-        following_index = []
-        for i, r in enumerate(relationships):
-            # the order of relationships is corresponding to the id_list,
-            # and the order of id_list is the same as user_owned_entiies
-            if r['blocking'] or r['blocked_by'] or r['muting']:
-                mute_block_blocked_index.append(i)
-            if r['following']:
-                following_index.append(i)
-        available_entities = [
-            e for i, e in enumerate(user_owned_entities)
-                if ((e.is_private == True and i in following_index) or e.is_private == False or e.owner == request_user)
-                    and not i in mute_block_blocked_index and not i in none_index
-        ]
-        return available_entities
+        all_entities = cls.objects.filter(**query_kwargs).order_by("-edited_time")  # get all marks for song
+        visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user), all_entities))
+        return visible_entities
 
     @classmethod
-    def get_available_by_user(cls, owner, is_following):
+    def get_available_by_user(cls, owner, is_following):  # FIXME
         """ 
         Returns all avaliable owner's entities.
         Mute/Block relation is not handled in this method.
