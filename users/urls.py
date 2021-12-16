@@ -27,6 +27,8 @@ urlpatterns = [
     path('<str:id>/following/', following, name='following'),
     path('<str:id>/book/<str:status>/', book_list, name='book_list'),
     path('<str:id>/movie/<str:status>/', movie_list, name='movie_list'),
+    path('<str:id>/music/<str:status>/', music_list, name='music_list'),
+    path('<str:id>/game/<str:status>/', game_list, name='game_list'),
     path('report/', report, name='report'),
     path('manage_report/', manage_report, name='manage_report'),
 ]

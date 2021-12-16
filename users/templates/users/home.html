@@ -44,7 +44,7 @@
                                     {{ wish_book_count }}
                                 </span>
                                 {% if wish_book_more %}
-                                <a href="{% url 'users:book_list' user.id 'wish' %}"
+                                <a href="{% url 'users:book_list' user.mastodon_username 'wish' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
                                 <ul class="entity-sort__entity-list">
@@ -72,7 +72,7 @@
                                     {{ do_book_count }}
                                 </span>
                                 {% if do_book_more %}
-                                <a href="{% url 'users:book_list' user.id 'do' %}"
+                                <a href="{% url 'users:book_list' user.mastodon_username 'do' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -101,7 +101,7 @@
                                     {{ collect_book_count }}
                                 </span>
                                 {% if collect_book_more %}
-                                <a href="{% url 'users:book_list' user.id 'collect' %}"
+                                <a href="{% url 'users:book_list' user.mastodon_username 'collect' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -130,7 +130,7 @@
                                     {{ wish_movie_count }}
                                 </span>
                                 {% if wish_movie_more %}
-                                <a href="{% url 'users:movie_list' user.id 'wish' %}"
+                                <a href="{% url 'users:movie_list' user.mastodon_username 'wish' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -159,7 +159,7 @@
                                     {{ do_movie_count }}
                                 </span>
                                 {% if do_movie_more %}
-                                <a href="{% url 'users:movie_list' user.id 'do' %}"
+                                <a href="{% url 'users:movie_list' user.mastodon_username 'do' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -188,7 +188,7 @@
                                     {{ collect_movie_count }}
                                 </span>
                                 {% if collect_movie_more %}
-                                <a href="{% url 'users:movie_list' user.id 'collect' %}"
+                                <a href="{% url 'users:movie_list' user.mastodon_username 'collect' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -217,7 +217,7 @@
                                     {{ wish_music_count }}
                                 </span>
                                 {% if wish_music_more %}
-                                <a href="{% url 'users:music_list' user.id 'wish' %}"
+                                <a href="{% url 'users:music_list' user.mastodon_username 'wish' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -258,7 +258,7 @@
                                     {{ do_music_count }}
                                 </span>
                                 {% if do_music_more %}
-                                <a href="{% url 'users:music_list' user.id 'do' %}"
+                                <a href="{% url 'users:music_list' user.mastodon_username 'do' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -295,7 +295,7 @@
                                     {{ collect_music_count }}
                                 </span>
                                 {% if collect_music_more %}
-                                <a href="{% url 'users:music_list' user.id 'collect' %}"
+                                <a href="{% url 'users:music_list' user.mastodon_username 'collect' %}"
                                     class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
 
@@ -332,7 +332,7 @@
                                     {{ wish_game_count }}
                                 </span>
                                 {% if wish_game_more %}
-                                <a href="{% url 'users:game_list' user.id 'wish' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'users:game_list' user.mastodon_username 'wish' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
                             
                                 <ul class="entity-sort__entity-list">
@@ -360,7 +360,7 @@
                                     {{ do_game_count }}
                                 </span>
                                 {% if do_game_more %}
-                                <a href="{% url 'users:game_list' user.id 'do' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'users:game_list' user.mastodon_username 'do' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
                             
                                 <ul class="entity-sort__entity-list">
@@ -388,7 +388,7 @@
                                     {{ collect_game_count }}
                                 </span>
                                 {% if collect_game_more %}
-                                <a href="{% url 'users:game_list' user.id 'collect' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'users:game_list' user.mastodon_username 'collect' %}" class="entity-sort__more-link">{% trans '更多' %}</a>
                                 {% endif %}
                             
                                 <ul class="entity-sort__entity-list">
@@ -484,7 +484,7 @@
                                 <div class="user-profile__header">
                                     <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
                                     <img src="" class="user-profile__avatar mast-avatar">
-                                    <a href="{% url 'users:home' user.id %}">
+                                    <a href="{% url 'users:home' user.mastodon_username %}">
                                         <h5 class="user-profile__username mast-displayname"></h5>
                                     </a>
                                 </div>
@@ -517,7 +517,7 @@
                                         <h5 class="user-relation__label">
                                             {% trans '关注的人' %}
                                         </h5>
-                                        <a href="{% url 'users:following' user.id %}"
+                                        <a href="{% url 'users:following' user.mastodon_username %}"
                                             class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
                                         <ul class="user-relation__related-user-list mast-following">
                                             <li class="user-relation__related-user">
@@ -534,7 +534,7 @@
                                         <h5 class="user-relation__label">
                                             {% trans '被他们关注' %}
                                         </h5>
-                                        <a href="{% url 'users:followers' user.id %}"
+                                        <a href="{% url 'users:followers' user.mastodon_username %}"
                                             class="user-relation__more-link mast-followers-more">{% trans '更多' %}</a>
                                         <ul class="user-relation__related-user-list mast-followers">
                                             <li class="user-relation__related-user">

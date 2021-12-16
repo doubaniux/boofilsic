@@ -58,7 +58,7 @@
                                 <div class="user-profile__header">
                                     <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
                                     <img src="" class="user-profile__avatar mast-avatar">
-                                    <a href="{% url 'users:home' user.id %}">
+                                    <a href="{% url 'users:home' user.mastodon_username %}">
                                         <h5 class="user-profile__username mast-displayname"></h5>
                                     </a>
                                 </div>

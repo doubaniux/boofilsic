@@ -161,6 +161,7 @@ def get_cross_site_id(target_user, target_site, token):
         cross_site_id = get_site_id(
             target_user.username, target_user.mastodon_site, target_site, token)
         if not cross_site_id:
+            print(f'unable to find cross_site_id for {target_user} on {target_site}')
             return None
         cross_site_info = CrossSiteUserInfo.objects.create(
             uid=f"{target_user.username}@{target_user.mastodon_site}",

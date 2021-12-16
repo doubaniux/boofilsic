@@ -176,7 +176,7 @@
                                 <div class="user-profile__header">
                                     <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
                                     <img src="" class="user-profile__avatar mast-avatar">
-                                    <a href="{% url 'users:home' user.id %}">
+                                    <a href="{% url 'users:home' user.mastodon_username %}">
                                         <h5 class="user-profile__username mast-displayname"></h5>
                                     </a>
                                 </div>
@@ -206,7 +206,7 @@
                                         <h5 class="user-relation__label">
                                             {% trans '关注的人' %}
                                         </h5>
-                                        <a href="{% url 'users:following' user.id %}"
+                                        <a href="{% url 'users:following' user.mastodon_username %}"
                                             class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
                                         <ul class="user-relation__related-user-list mast-following">
                                             <li class="user-relation__related-user">
@@ -223,7 +223,7 @@
                                         <h5 class="user-relation__label">
                                             {% trans '被他们关注' %}
                                         </h5>
-                                        <a href="{% url 'users:followers' user.id %}"
+                                        <a href="{% url 'users:followers' user.mastodon_username %}"
                                             class="user-relation__more-link mast-followers-more">{% trans '更多' %}</a>
                                         <ul class="user-relation__related-user-list mast-followers">
                                             <li class="user-relation__related-user">
