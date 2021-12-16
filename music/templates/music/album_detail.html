@@ -243,7 +243,7 @@
                                 <h5 class="entity-reviews__title">{% trans '这部作品的评论' %}</h5>
 
                                 {% if review_list_more %}
-                                <a href="{% url 'music:retrieve_album_review_list' album.id %}" class="entity-reviews__more-link">{% trans '全部标记' %}</a>
+                                <a href="{% url 'music:retrieve_album_review_list' album.id %}" class="entity-reviews__more-link">{% trans '全部评论' %}</a>
                                 {% endif %}
                                 {% if review_list %}
                                 <ul class="entity-reviews__review-list">

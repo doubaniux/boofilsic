@@ -178,7 +178,7 @@
                             <div class="entity-reviews">
                                 <h5 class="entity-reviews__title">{% trans '这本书的评论' %}</h5>
                                 {% if review_list_more %}
-                                <a href="{% url 'books:retrieve_review_list' book.id %}" class="entity-reviews__more-link">{% trans '全部标记' %}</a>
+                                <a href="{% url 'books:retrieve_review_list' book.id %}" class="entity-reviews__more-link">{% trans '全部评论' %}</a>
                                 {% endif %}
                                 {% if review_list %}
                                 <ul class="entity-reviews__review-list">

@@ -60,7 +60,7 @@ def OAuth2_login(request):
                     del request.session['next_url']
                 else:
                     response = redirect(reverse('common:home'))
-                    
+
                 response.delete_cookie('mastodon_domain')
                 return response
             else:
@@ -262,7 +262,7 @@ def home(request, id):
             # cross site info for visiting other's home page
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
-            
+
             # make queries
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
@@ -282,7 +282,7 @@ def home(request, id):
 
 
         # book marks
-        filtered_book_marks = filter_marks(book_marks, BOOKS_PER_SET, 'book')          
+        filtered_book_marks = filter_marks(book_marks, BOOKS_PER_SET, 'book')
         book_marks_count = count_marks(book_marks, "book")
 
         # movie marks
@@ -296,7 +296,7 @@ def home(request, id):
         # music marks
         filtered_music_marks = filter_marks([song_marks, album_marks], MUSIC_PER_SET, 'music')
         music_marks_count = count_marks([song_marks, album_marks], "music")
-     
+
 
         for mark in filtered_music_marks["do_music_marks"] +\
             filtered_music_marks["wish_music_marks"] +\
@@ -306,7 +306,7 @@ def home(request, id):
                 mark.type = "album"
             else:
                 mark.type = "song"
-        
+
         try:
             layout = user.preference.get_serialized_home_layout()
         except ObjectDoesNotExist:
@@ -338,7 +338,7 @@ def home(request, id):
 
 def filter_marks(querysets, maximum, type_name):
     """
-    Filter marks by amount limits and order them edited time, store results in a dict, 
+    Filter marks by amount limits and order them edited time, store results in a dict,
     which could be directly used in template.
     @param querysets: one queryset or multiple querysets as a list
     """
@@ -352,7 +352,7 @@ def filter_marks(querysets, maximum, type_name):
         for queryset in querysets:
             marks += list(queryset.filter(status=MarkStatusEnum[status.upper()]).order_by("-edited_time")[:maximum])
             count += queryset.filter(status=MarkStatusEnum[status.upper()]).count()
-            
+
         # marks
         marks = sorted(marks, key=lambda e: e.edited_time, reverse=True)[:maximum]
         result[f"{status}_{type_name}_marks"] = marks
@@ -382,7 +382,7 @@ def count_marks(querysets, type_name):
 
 @mastodon_request_included
 @login_required
-def followers(request, id):  
+def followers(request, id):
     if request.method == 'GET':
         if isinstance(id, str):
             try:
@@ -405,7 +405,7 @@ def followers(request, id):
                     'msg': msg,
                     'secondary_msg': sec_msg,
                 }
-            )        
+            )
         # mastodon request
         if not user == request.user:
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
@@ -457,7 +457,7 @@ def following(request, id):
                     'msg': msg,
                     'secondary_msg': sec_msg,
                 }
-            )        
+            )
         # mastodon request
         if not user == request.user:
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
@@ -488,9 +488,9 @@ def following(request, id):
 @login_required
 def book_list(request, id, status):
     if request.method == 'GET':
-        if not status.upper() in MarkStatusEnum.names:
+        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
             return HttpResponseBadRequest()
-            
+
         if isinstance(id, str):
             try:
                 username = id.split('@')[0]
@@ -512,8 +512,8 @@ def book_list(request, id, status):
                     'msg': msg,
                     'secondary_msg': sec_msg,
                 }
-            )        
-        if not user == request.user:
+            )
+        if user != request.user:
             # mastodon request
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
@@ -525,13 +525,19 @@ def book_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            queryset = BookMark.get_available_by_user(user, relation['following']).filter(
-                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+            if status == 'reviewed':
+                queryset = BookReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+            else:
+                queryset = BookMark.get_available_by_user(user, relation['following']).filter(
+                    status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
         else:
-            queryset = BookMark.objects.filter(
-                owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+            if status == 'reviewed':
+                queryset = BookReview.objects.filter(owner=user).order_by("-edited_time")
+            else:
+                queryset = BookMark.objects.filter(
+                    owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -539,14 +545,15 @@ def book_list(request, id, status):
             mark.book.tag_list = mark.book.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
+        list_title = (str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()]) if status != 'reviewed' else _("评论过"))) + str(_("的书"))
         return render(
             request,
             'users/book_list.html',
             {
                 'marks': marks,
                 'user': user,
-                'list_title' : list_title,
+                'status': status,
+                'list_title': list_title,
             }
         )
     else:
@@ -557,7 +564,7 @@ def book_list(request, id, status):
 @login_required
 def movie_list(request, id, status):
     if request.method == 'GET':
-        if not status.upper() in MarkStatusEnum.names:
+        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
             return HttpResponseBadRequest()
 
         if isinstance(id, str):
@@ -582,7 +589,7 @@ def movie_list(request, id, status):
                     'secondary_msg': sec_msg,
                 }
             )
-        if not user == request.user:
+        if user != request.user:
             # mastodon request
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
             if relation['blocked_by']:
@@ -596,12 +603,16 @@ def movie_list(request, id, status):
                 )
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
-        
-            queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
-                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+            if status == 'reviewed':
+                queryset = MovieReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+            else:
+                queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
+                    status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         else:
-            queryset = MovieMark.objects.filter(
-                owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+            if status == 'reviewed':
+                queryset = MovieReview.objects.filter(owner=user).order_by("-edited_time")
+            else:
+                queryset = MovieMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -609,25 +620,102 @@ def movie_list(request, id, status):
             mark.movie.tag_list = mark.movie.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的电影和剧集"))
+        list_title = (str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) if status != 'reviewed' else _("评论过")) + str(_("的电影和剧集"))
         return render(
             request,
             'users/movie_list.html',
             {
                 'marks': marks,
                 'user': user,
-                'list_title' : list_title,
+                'status': status,
+                'list_title': list_title,
             }
         )
     else:
         return HttpResponseBadRequest()
-            
+
 
 @mastodon_request_included
 @login_required
 def game_list(request, id, status):
     if request.method == 'GET':
-        if not status.upper() in MarkStatusEnum.names:
+        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
+            return HttpResponseBadRequest()
+
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return HttpResponseBadRequest("Invalid user id")
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
+        try:
+            user = User.objects.get(**query_kwargs)
+        except ObjectDoesNotExist:
+            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            sec_msg = _("目前只开放本站用户注册")
+            return render(
+                request,
+                'common/error.html',
+                {
+                    'msg': msg,
+                    'secondary_msg': sec_msg,
+                }
+            )
+        if user != request.user:
+            # mastodon request
+            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            if relation['blocked_by']:
+                msg = _("你没有访问TA主页的权限😥")
+                return render(
+                    request,
+                    'common/error.html',
+                    {
+                        'msg': msg,
+                    }
+                )
+            user.target_site_id = get_cross_site_id(
+                user, request.user.mastodon_site, request.session['oauth_token'])
+            if status == 'reviewed':
+                queryset = GameReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+            else:
+                queryset = GameMark.get_available_by_user(user, relation['following']).filter(
+                    status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+        else:
+            if status == 'reviewed':
+                queryset = GameReview.objects.filter(owner=user).order_by("-edited_time")
+            else:
+                queryset = GameMark.objects.filter(
+                    owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+        paginator = Paginator(queryset, ITEMS_PER_PAGE)
+        page_number = request.GET.get('page', default=1)
+        marks = paginator.get_page(page_number)
+        for mark in marks:
+            mark.game.tag_list = mark.game.get_tags_manager().values('content').annotate(
+                tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
+        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        list_title = (str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) if status != 'reviewed' else _("评论过")) + str(_("的游戏"))
+        return render(
+            request,
+            'users/game_list.html',
+            {
+                'marks': marks,
+                'user': user,
+                'status': status,
+                'list_title': list_title,
+            }
+        )
+    else:
+        return HttpResponseBadRequest()
+
+
+@mastodon_request_included
+@login_required
+def music_list(request, id, status):
+    if request.method == 'GET':
+        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
             return HttpResponseBadRequest()
 
         if isinstance(id, str):
@@ -664,109 +752,49 @@ def game_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
-        
-            queryset = GameMark.get_available_by_user(user, relation['following']).filter(
-                status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
-        else:
-            queryset = GameMark.objects.filter(
-                owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
-        paginator = Paginator(queryset, ITEMS_PER_PAGE)
-        page_number = request.GET.get('page', default=1)
-        marks = paginator.get_page(page_number)
-        for mark in marks:
-            mark.game.tag_list = mark.game.get_tags_manager().values('content').annotate(
-                tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
-        marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的游戏"))
-        return render(
-            request,
-            'users/game_list.html',
-            {
-                'marks': marks,
-                'user': user,
-                'list_title' : list_title,
-            }
-        )
-    else:
-        return HttpResponseBadRequest()
-            
+            if status == 'reviewed':
+                queryset = list(AlbumReview.get_available_by_user(user, relation['following']).order_by("-edited_time")) + \
+                    list(SongReview.get_available_by_user(user, relation['following']).order_by("-edited_time"))
+            else:
+                queryset = list(AlbumMark.get_available_by_user(user, relation['following']).filter(
+                    status=MarkStatusEnum[status.upper()])) \
+                        + list(SongMark.get_available_by_user(user, relation['following']).filter(
+                        status=MarkStatusEnum[status.upper()]))
 
-@mastodon_request_included
-@login_required
-def music_list(request, id, status):
-    if request.method == 'GET':
-        if not status.upper() in MarkStatusEnum.names:
-            return HttpResponseBadRequest()
-
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
-            sec_msg = _("目前只开放本站用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )        
-        if not user == request.user:
-            # mastodon request
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
-            if relation['blocked_by']:
-                msg = _("你没有访问TA主页的权限😥")
-                return render(
-                    request,
-                    'common/error.html',
-                    {
-                        'msg': msg,
-                    }
-                )
-            queryset = list(AlbumMark.get_available_by_user(user, relation['following']).filter(
-                status=MarkStatusEnum[status.upper()])) \
-                + list(SongMark.get_available_by_user(user, relation['following']).filter(
-                    status=MarkStatusEnum[status.upper()]))
-            
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.session['oauth_token'])
         else:
-            queryset = list(AlbumMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()])) \
-                + list(SongMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]))
+            if status == 'reviewed':
+                queryset = list(AlbumReview.objects.filter(owner=user).order_by("-edited_time")) + \
+                    list(SongReview.objects.filter(owner=user).order_by("-edited_time"))
+            else:
+                queryset = list(AlbumMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()])) \
+                    + list(SongMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]))
         queryset = sorted(queryset, key=lambda e: e.edited_time, reverse=True)
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
         for mark in marks:
-            if mark.__class__ == AlbumMark:
+            if mark.__class__ == AlbumMark or mark.__class__ == AlbumReview:
                 mark.music = mark.album
                 mark.music.tag_list = mark.album.get_tags_manager().values('content').annotate(
                     tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
-            elif mark.__class__ == SongMark:
+            elif mark.__class__ == SongMark or mark.__class__ == SongReview:
                 mark.music = mark.song
                 mark.music.tag_list = mark.song.get_tags_manager().values('content').annotate(
                     tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
 
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = str(MusicMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的音乐"))
+        list_title = (str(MusicMarkStatusTranslator(MarkStatusEnum[status.upper()]) if status != 'reviewed' else _("评论过"))) + str(_("的音乐"))
+        print(mark)
         return render(
             request,
             'users/music_list.html',
             {
                 'marks': marks,
                 'user': user,
-                'list_title' : list_title,
+                'status': status,
+                'list_title': list_title,
             }
         )
     else:
@@ -813,7 +841,7 @@ def report(request):
                 'users/report.html',
                 {
                     'form': form,
-                }                
+                }
             )
     else:
         return HttpResponseBadRequest()
@@ -861,7 +889,7 @@ def auth_login(request, user, token):
 def auth_logout(request):
     """ Decorates django ``logout()``. Release token in session."""
     del request.session['oauth_token']
-    auth.logout(request)    
+    auth.logout(request)
 
 
 @mastodon_request_included
