@@ -187,10 +187,8 @@ def retrieve(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = GameMark.get_available(
-                game, request.user, request.session['oauth_token'])
-            review_list = GameReview.get_available(
-                game, request.user, request.session['oauth_token'])
+            mark_list = GameMark.get_available(game, request.user)
+            review_list = GameReview.get_available(game, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -337,11 +335,10 @@ def create_update_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_mark_list(request, game_id):
+def retrieve_mark_list(request, game_id, following_only=False):
     if request.method == 'GET':
         game = get_object_or_404(Game, pk=game_id)
-        queryset = GameMark.get_available(
-            game, request.user, request.session['oauth_token'])
+        queryset = GameMark.get_available(game, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -544,8 +541,7 @@ def retrieve_review(request, id):
 def retrieve_review_list(request, game_id):
     if request.method == 'GET':
         game = get_object_or_404(Game, pk=game_id)
-        queryset = GameReview.get_available(
-            game, request.user, request.session['oauth_token'])
+        queryset = GameReview.get_available(game, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)

@@ -205,10 +205,8 @@ def retrieve_song(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = SongMark.get_available(
-                song, request.user, request.session['oauth_token'])
-            review_list = SongReview.get_available(
-                song, request.user, request.session['oauth_token'])
+            mark_list = SongMark.get_available(song, request.user)
+            review_list = SongReview.get_available(song, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -355,11 +353,10 @@ def create_update_song_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_song_mark_list(request, song_id):
+def retrieve_song_mark_list(request, song_id, following_only=False):
     if request.method == 'GET':
         song = get_object_or_404(Song, pk=song_id)
-        queryset = SongMark.get_available(
-            song, request.user, request.session['oauth_token'])
+        queryset = SongMark.get_available(song, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -562,8 +559,7 @@ def retrieve_song_review(request, id):
 def retrieve_song_review_list(request, song_id):
     if request.method == 'GET':
         song = get_object_or_404(Song, pk=song_id)
-        queryset = SongReview.get_available(
-            song, request.user, request.session['oauth_token'])
+        queryset = SongReview.get_available(song, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)
@@ -776,10 +772,8 @@ def retrieve_album(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = AlbumMark.get_available(
-                album, request.user, request.session['oauth_token'])
-            review_list = AlbumReview.get_available(
-                album, request.user, request.session['oauth_token'])
+            mark_list = AlbumMark.get_available(album, request.user)
+            review_list = AlbumReview.get_available(album, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -926,11 +920,10 @@ def create_update_album_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_album_mark_list(request, album_id):
+def retrieve_album_mark_list(request, album_id, following_only=False):
     if request.method == 'GET':
         album = get_object_or_404(Album, pk=album_id)
-        queryset = AlbumMark.get_available(
-            album, request.user, request.session['oauth_token'])
+        queryset = AlbumMark.get_available(album, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -1133,8 +1126,7 @@ def retrieve_album_review(request, id):
 def retrieve_album_review_list(request, album_id):
     if request.method == 'GET':
         album = get_object_or_404(Album, pk=album_id)
-        queryset = AlbumReview.get_available(
-            album, request.user, request.session['oauth_token'])
+        queryset = AlbumReview.get_available(album, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)

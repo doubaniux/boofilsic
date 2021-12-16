@@ -17,7 +17,7 @@ class KeyValueInput(forms.Widget):
         data = None
         if context['widget']['value'] is not None:
             data = json.loads(context['widget']['value'])
-        context['widget']['value'] = [ {p[0]: p[1]} for p in data.items()] if data else []
+        context['widget']['value'] = [{p[0]: p[1]} for p in data.items()] if data else []
         return context
 
     class Media:
@@ -50,18 +50,18 @@ class JSONField(postgres.JSONField):
     def to_python(self, value):
         if not value:
             return None
-        json = {}
+        j = {}
         if isinstance(value, dict):
-            json = value
+            j = value
         else:
-            pairs = eval(value)
+            pairs = json.loads('[' + value + ']')
             if isinstance(pairs, dict):
-                json = pairs
+                j = pairs
             else:
                 # list or tuple
                 for pair in pairs:
-                    json = {**json, **pair}
-        return super().to_python(json)
+                    j = {**j, **pair}
+        return super().to_python(j)
 
 
 class RadioBooleanField(forms.ChoiceField):
@@ -167,9 +167,7 @@ class HstoreField(forms.CharField):
         # already in python types
         if isinstance(value, list):
             return value
-        pairs = eval(value)
-        if len(pairs) == 1:
-            pairs = (pairs,)
+        pairs = json.loads('[' + value + ']')
         return pairs
 
 
@@ -258,6 +256,7 @@ class MarkForm(forms.ModelForm):
 
         label=_("短评"),
     )
+
 
 class ReviewForm(forms.ModelForm):
     IS_PRIVATE_CHOICES = [

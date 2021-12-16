@@ -185,10 +185,8 @@ def retrieve(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = BookMark.get_available(
-                book, request.user, request.session['oauth_token'])
-            review_list = BookReview.get_available(
-                book, request.user, request.session['oauth_token'])
+            mark_list = BookMark.get_available(book, request.user)
+            review_list = BookReview.get_available(book, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -334,11 +332,10 @@ def create_update_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_mark_list(request, book_id):
+def retrieve_mark_list(request, book_id, following_only=False):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookMark.get_available(
-            book, request.user, request.session['oauth_token'])
+        queryset = BookMark.get_available(book, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -540,8 +537,7 @@ def retrieve_review(request, id):
 def retrieve_review_list(request, book_id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookReview.get_available(
-            book, request.user, request.session['oauth_token'])
+        queryset = BookReview.get_available(book, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)

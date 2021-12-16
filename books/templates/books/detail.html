@@ -151,6 +151,7 @@
                                 {% if mark_list_more %}
                                 <a href="{% url 'books:retrieve_mark_list' book.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
                                 {% endif %}
+                                <a href="{% url 'books:retrieve_mark_list' book.id 1 %}" class="entity-marks__more-link">关注的人的标记</a>
                                 {% if mark_list %}
                                 <ul class="entity-marks__mark-list">                                    
                                 {% for others_mark in mark_list %}

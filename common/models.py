@@ -171,11 +171,11 @@ class UserOwnedEntity(models.Model):
             return True
 
     @classmethod
-    def get_available(cls, entity, request_user, token):
+    def get_available(cls, entity, request_user, following_only=False):
         # e.g. SongMark.get_available(song, request.user, request.session['oauth_token'])
         query_kwargs = {entity.__class__.__name__.lower(): entity}
         all_entities = cls.objects.filter(**query_kwargs).order_by("-edited_time")  # get all marks for song
-        visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user), all_entities))
+        visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user) and (_entity.owner.mastodon_username in request_user.mastodon_following if following_only else True), all_entities))
         return visible_entities
 
     @classmethod

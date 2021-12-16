@@ -6,6 +6,7 @@
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
+{% load highlight %}
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
@@ -32,8 +33,7 @@
                         <div class="main-section-wrapper">
                             <div class="entity-marks">
                                 <h5 class="entity-marks__title entity-marks__title--stand-alone">
-                                    <a href="{% url 'music:retrieve_song' song.id %}">{{ song.title }}</a>{% trans '
-                                    的标记' %}
+                                    <a href="{% url 'music:retrieve_song' song.id %}">{{ song.title }}</a>{% trans '的标记' %}
                                 </h5>
                                 <ul class="entity-marks__mark-list">
 
@@ -110,8 +110,7 @@
                                             {{ song.title }}
                                         </a>
                                         <a href="{{ song.source_url }}"><span
-                                                class="source-label source-label__{{ song.source_site }}">{{
-                                                song.get_source_site_display }}</span></a>
+                                                class="source-label source-label__{{ song.source_site }}">{{song.get_source_site_display }}</span></a>
                                     </h5>
 
                                     <div>{% if song.artist %}{% trans '艺术家：' %}

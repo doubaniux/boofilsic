@@ -29,6 +29,9 @@ from django.conf import settings
 from urllib.parse import quote
 import django_rq
 from .export import *
+from datetime import timedelta
+from django.utils import timezone
+import json
 
 
 # Views
@@ -773,10 +776,8 @@ def music_list(request, id, status):
 @login_required
 def set_layout(request):
     if request.method == 'POST':
-        # json to python
-        raw_layout_data = request.POST.get('layout').replace('false', 'False').replace('true', 'True')
-        layout = eval(raw_layout_data)
-        request.user.preference.home_layout = eval(raw_layout_data)
+        layout = json.loads(request.POST.get('layout'))
+        request.user.preference.home_layout = layout
         request.user.preference.save()
         return redirect(reverse("common:home"))
     else:
@@ -852,8 +853,9 @@ def auth_login(request, user, token):
     """ Decorates django ``login()``. Attach token to session."""
     request.session['oauth_token'] = token
     auth.login(request, user)
-    # refresh_mastodon_data_task(user, token)
-    django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user, token)
+    if user.mastodon_last_refresh > timezone.now() - timedelta(hours=1):
+        # refresh_mastodon_data_task(user, token)
+        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user, token)
 
 
 def auth_logout(request):
