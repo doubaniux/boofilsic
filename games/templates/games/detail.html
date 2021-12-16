@@ -178,7 +178,7 @@
                                 
                                 <h5 class="entity-marks__title">{% trans '这个游戏的标记' %}</h5>
                                 {% if mark_list_more %}
-                                <a href="{% url 'games:retrieve_mark_list' game.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'games:retrieve_mark_list' game.id %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
                                 <a href="{% url 'games:retrieve_mark_list' game.id 1 %}" class="entity-marks__more-link">关注的人的标记</a>
                                 {% if mark_list %}
@@ -208,7 +208,7 @@
                                 <h5 class="entity-reviews__title">{% trans '这个游戏的评论' %}</h5>
 
                                 {% if review_list_more %}
-                                <a href="{% url 'games:retrieve_review_list' game.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'games:retrieve_review_list' game.id %}" class="entity-reviews__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
                                 {% if review_list %}
                                 <ul class="entity-reviews__review-list">

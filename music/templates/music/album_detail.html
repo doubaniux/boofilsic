@@ -213,7 +213,7 @@
                                 
                                 <h5 class="entity-marks__title">{% trans '这部作品的标记' %}</h5>
                                 {% if mark_list_more %}
-                                <a href="{% url 'music:retrieve_album_mark_list' album.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'music:retrieve_album_mark_list' album.id %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
                                 <a href="{% url 'music:retrieve_album_mark_list' album.id 1 %}" class="entity-marks__more-link">关注的人的标记</a>
                                 {% if mark_list %}
@@ -243,7 +243,7 @@
                                 <h5 class="entity-reviews__title">{% trans '这部作品的评论' %}</h5>
 
                                 {% if review_list_more %}
-                                <a href="{% url 'music:retrieve_album_review_list' album.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'music:retrieve_album_review_list' album.id %}" class="entity-reviews__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
                                 {% if review_list %}
                                 <ul class="entity-reviews__review-list">

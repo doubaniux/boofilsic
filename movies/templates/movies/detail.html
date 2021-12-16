@@ -249,7 +249,7 @@
                                 <h5 class="entity-marks__title">{% trans '这部电影的标记' %}</h5>
                                 {% endif %}
                                 {% if mark_list_more %}
-                                <a href="{% url 'movies:retrieve_mark_list' movie.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'movies:retrieve_mark_list' movie.id %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
                                 <a href="{% url 'movies:retrieve_mark_list' movie.id 1 %}" class="entity-marks__more-link">关注的人的标记</a>
                                 {% if mark_list %}
@@ -283,7 +283,7 @@
                                 {% endif %}
 
                                 {% if review_list_more %}
-                                <a href="{% url 'movies:retrieve_review_list' movie.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'movies:retrieve_review_list' movie.id %}" class="entity-reviews__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
                                 {% if review_list %}
                                 <ul class="entity-reviews__review-list">
