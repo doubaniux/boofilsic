@@ -207,7 +207,7 @@ def get_related_acct_list(site, token, api):
         response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
         url = None
         if response.status_code == 200:
-            results.extend(map(lambda u: (u['acct'] if u['acct'].find('@') != -1 else u['acct'] + site) if 'acct' in u else u, response.json()))
+            results.extend(map(lambda u: (u['acct'] if u['acct'].find('@') != -1 else u['acct'] + '@' + site) if 'acct' in u else u, response.json()))
             if 'Link' in response.headers:
                 for ls in response.headers['Link'].split(','):
                     li = ls.strip().split(';')
