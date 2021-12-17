@@ -249,6 +249,11 @@ def home(request, id):
             album_marks = request.user.user_albummarks.all()
             song_marks = request.user.user_songmarks.all()
             game_marks = request.user.user_gamemarks.all()
+            book_reviews = request.user.user_bookreviews.all()
+            movie_reviews = request.user.user_moviereviews.all()
+            album_reviews = request.user.user_albumreviews.all()
+            song_reviews = request.user.user_songreviews.all()
+            game_reviews = request.user.user_gamereviews.all()
 
             latest_task = user.user_synctasks.order_by("-id").first()
 
@@ -279,6 +284,11 @@ def home(request, id):
             song_marks = SongMark.get_available_by_user(user, relation['following'])
             album_marks = AlbumMark.get_available_by_user(user, relation['following'])
             game_marks = GameMark.get_available_by_user(user, relation['following'])
+            book_reviews = BookMark.get_available_by_user(user, relation['following'])
+            movie_reviews = MovieMark.get_available_by_user(user, relation['following'])
+            song_reviews = SongMark.get_available_by_user(user, relation['following'])
+            album_reviews = AlbumMark.get_available_by_user(user, relation['following'])
+            game_reviews = GameMark.get_available_by_user(user, relation['following'])
 
 
         # book marks
@@ -297,7 +307,6 @@ def home(request, id):
         filtered_music_marks = filter_marks([song_marks, album_marks], MUSIC_PER_SET, 'music')
         music_marks_count = count_marks([song_marks, album_marks], "music")
 
-
         for mark in filtered_music_marks["do_music_marks"] +\
             filtered_music_marks["wish_music_marks"] +\
                 filtered_music_marks["collect_music_marks"]:
@@ -306,6 +315,10 @@ def home(request, id):
                 mark.type = "album"
             else:
                 mark.type = "song"
+
+        music_reviews = list(album_reviews.order_by("-edited_time")) + list(song_reviews.order_by("-edited_time"))
+        for review in music_reviews:
+            review.type = 'album' if review.__class__ == AlbumReview else 'song'
 
         try:
             layout = user.preference.get_serialized_home_layout()
@@ -326,6 +339,20 @@ def home(request, id):
                 **movie_marks_count,
                 **music_marks_count,
                 **game_marks_count,
+
+                'book_reviews': book_reviews.order_by("-edited_time")[:BOOKS_PER_SET],
+                'movie_reviews': movie_reviews.order_by("-edited_time")[:MOVIES_PER_SET],
+                'music_reviews': music_reviews[:MUSIC_PER_SET],
+                'game_reviews': game_reviews[:GAMES_PER_SET],
+                'book_reviews_more': book_reviews.count() > BOOKS_PER_SET,
+                'movie_reviews_more': movie_reviews.count() > MOVIES_PER_SET,
+                'music_reviews_more': len(music_reviews) > MUSIC_PER_SET,
+                'game_reviews_more': game_reviews.count() > GAMES_PER_SET,
+                'book_reviews_count': book_reviews.count(),
+                'movie_reviews_count': movie_reviews.count(),
+                'music_reviews_count': len(music_reviews),
+                'game_reviews_count': game_reviews.count(),
+
                 'layout': layout,
                 'reports': reports,
                 'unread_announcements': unread_announcements,
