@@ -117,12 +117,18 @@ def connect(request):
             error_msg = str(e)
         else:
             # fill the form with returned data
-            data = response.json()
             if response.status_code != 200:
-                error_msg = str(data)
+                error_msg = "实例连接错误，代码: " + str(response.status_code)
+                print(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
             else:
-                app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
-                    client_secret=data['client_secret'], vapid_key=data['vapid_key'])
+                try:
+                    data = response.json()
+                except Exception as e:
+                    error_msg = "实例返回内容无法识别"
+                    print(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
+                else:
+                    app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
+                        client_secret=data['client_secret'], vapid_key=data['vapid_key'])
     if app is None:
         return render(request,
                 'common/error.html',
@@ -284,11 +290,11 @@ def home(request, id):
             song_marks = SongMark.get_available_by_user(user, relation['following'])
             album_marks = AlbumMark.get_available_by_user(user, relation['following'])
             game_marks = GameMark.get_available_by_user(user, relation['following'])
-            book_reviews = BookMark.get_available_by_user(user, relation['following'])
-            movie_reviews = MovieMark.get_available_by_user(user, relation['following'])
-            song_reviews = SongMark.get_available_by_user(user, relation['following'])
-            album_reviews = AlbumMark.get_available_by_user(user, relation['following'])
-            game_reviews = GameMark.get_available_by_user(user, relation['following'])
+            book_reviews = BookReview.get_available_by_user(user, relation['following'])
+            movie_reviews = MovieReview.get_available_by_user(user, relation['following'])
+            song_reviews = SongReview.get_available_by_user(user, relation['following'])
+            album_reviews = AlbumReview.get_available_by_user(user, relation['following'])
+            game_reviews = GameReview.get_available_by_user(user, relation['following'])
 
 
         # book marks
@@ -813,7 +819,6 @@ def music_list(request, id, status):
 
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         list_title = (str(MusicMarkStatusTranslator(MarkStatusEnum[status.upper()]) if status != 'reviewed' else _("评论过"))) + str(_("的音乐"))
-        print(mark)
         return render(
             request,
             'users/music_list.html',
@@ -908,7 +913,7 @@ def auth_login(request, user, token):
     """ Decorates django ``login()``. Attach token to session."""
     request.session['oauth_token'] = token
     auth.login(request, user)
-    if user.mastodon_last_refresh > timezone.now() - timedelta(hours=1):
+    if user.mastodon_last_refresh < timezone.now() - timedelta(hours=1):
         # refresh_mastodon_data_task(user, token)
         django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user, token)
 
@@ -964,5 +969,5 @@ def export_marks(request):
 @login_required
 def sync_mastodon(request):
     if request.method == 'POST':
-        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user)
+        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user, request.session['oauth_token'])
     return redirect(reverse("users:data"))

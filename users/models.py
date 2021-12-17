@@ -73,6 +73,7 @@ class User(AbstractUser):
             self.mastodon_domain_blocks = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/domain_blocks')
             updated = True
         elif code == 401:
+            print(f'401 {self}')
             self.mastodon_token = ''
         return updated
 
