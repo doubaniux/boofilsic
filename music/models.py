@@ -51,7 +51,7 @@ class Album(Entity):
     def get_embed_link(self):
         if self.source_site == SourceSiteEnum.SPOTIFY.value:
             return self.source_url.replace("open.spotify.com/", "open.spotify.com/embed/")
-        elif self.source_site == SourceSiteEnum.BANDCAMP.value:
+        elif self.source_site == SourceSiteEnum.BANDCAMP.value and self.other_info and 'bandcamp_album_id' in self.other_info:
             return f"https://bandcamp.com/EmbeddedPlayer/album={self.other_info['bandcamp_album_id']}/size=large/bgcol=ffffff/linkcol=19A2CA/artwork=small/transparent=true/"
         else:
             return None
