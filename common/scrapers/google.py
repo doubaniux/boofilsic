@@ -44,9 +44,9 @@ class GoogleBooksScraper(AbstractScraper):
         pub_year = None
         pub_month = None
         if 'publishedDate' in b['volumeInfo']:
-            pub_date = b['volumeInfo']['publishedDate']
-            pub_year = re.sub(r'(\d\d\d\d).+', r'\1', pub_date)
-            pub_month = re.sub(r'(\d\d\d\d)-(\d+).+', r'\2', pub_date) if len(pub_date) > 5 else None
+            pub_date = b['volumeInfo']['publishedDate'].split('-')
+            pub_year = pub_date[0]
+            pub_month = pub_date[1] if len(pub_date) > 1 else None
         pub_house = b['volumeInfo']['publisher'] if 'publisher' in b['volumeInfo'] else None
         language = b['volumeInfo']['language'] if 'language' in b['volumeInfo'] else None
         pages = b['volumeInfo']['pageCount'] if 'pageCount' in b['volumeInfo'] else None
