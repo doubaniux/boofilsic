@@ -27,6 +27,7 @@ urlpatterns = [
     path('movies/', include('movies.urls')),
     path('music/', include('music.urls')),
     path('games/', include('games.urls')),
+    path('collections/', include('collection.urls')),
     path('sync/', include('sync.urls')),
     path('announcement/', include('management.urls')),
     path('', include('common.urls')),

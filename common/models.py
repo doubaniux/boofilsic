@@ -152,8 +152,7 @@ class Entity(models.Model):
 class UserOwnedEntity(models.Model):
     is_private = models.BooleanField(default=False, null=True)  # first set allow null, then migration, finally (in a few days) remove for good
     visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
-    owner = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='user_%(class)ss')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_%(class)ss')
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(default=timezone.now)
 
