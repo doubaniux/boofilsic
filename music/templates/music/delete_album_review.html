@@ -35,7 +35,7 @@
                                 <h5 class="review-head__title">
                                     {{ review.title }}
                                 </h5>
-                                {% if review.is_private %}
+                                {% if review.visibility > 0 %}
                                 <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20">
                                             <path

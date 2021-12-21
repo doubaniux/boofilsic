@@ -1,4 +1,5 @@
 from django import forms
+from markdownx.fields import MarkdownxFormField
 import django.contrib.postgres.forms as postgres
 from django.utils import formats
 from django.core.exceptions import ValidationError
@@ -223,22 +224,25 @@ class DurationField(forms.TimeField):
 #############################
 # Form
 #############################
+VISIBILITY_CHOICES = [
+    (0, _("公开")),
+    (1, _("仅关注者")),
+    (2, _("仅自己")),
+]
 
-class MarkForm(forms.ModelForm):
-    IS_PRIVATE_CHOICES = [
-        (True, _("仅关注者")),
-        (False, _("公开")),
-    ]
-    
+
+class MarkForm(forms.ModelForm):    
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     share_to_mastodon = forms.BooleanField(
         label=_("分享到长毛象"), initial=True, required=False)
     rating = forms.IntegerField(
-        validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
-    is_private = RadioBooleanField(
+        label=_("评分"), validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
+    visibility = forms.TypedChoiceField(
         label=_("可见性"),
-        initial=True,
-        choices=IS_PRIVATE_CHOICES
+        initial=0,
+        coerce=int,
+        choices=VISIBILITY_CHOICES,
+        widget=forms.RadioSelect
     )
     tags = TagField(
         required=False,
@@ -259,15 +263,15 @@ class MarkForm(forms.ModelForm):
 
 
 class ReviewForm(forms.ModelForm):
-    IS_PRIVATE_CHOICES = [
-        (True, _("仅关注者")),
-        (False, _("公开")),
-    ]
+    title = forms.CharField(label=_("标题"))
+    content = MarkdownxFormField(label=_("正文 (Markdown)"))
     share_to_mastodon = forms.BooleanField(
         label=_("分享到长毛象"), initial=True, required=False)
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
-    is_private = RadioBooleanField(
+    visibility = forms.TypedChoiceField(
         label=_("可见性"),
-        initial=True,
-        choices=IS_PRIVATE_CHOICES
+        initial=0,
+        coerce=int,
+        choices=VISIBILITY_CHOICES,
+        widget=forms.RadioSelect
     )

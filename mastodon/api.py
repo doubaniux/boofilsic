@@ -76,6 +76,7 @@ def post_toot(site, content, visibility, token, local_only=False):
     }
     if not local_only:
         del payload['local_only']
+    print(payload)
     response = post(url, headers=headers, data=payload)
     return response
 
@@ -135,7 +136,7 @@ def get_site_id(username, user_site, target_site, token):
 
 
 # high level api below
-def get_relationship(request_user, target_user, token):
+def get_relationship(request_user, target_user, useless_token=None):
     return [{
         'blocked_by': target_user.is_blocking(request_user),
         'following': request_user.is_following(target_user),
@@ -170,22 +171,6 @@ def get_cross_site_id(target_user, target_site, token):
             local_id=target_user.id
         )
     return cross_site_info.site_id
-
-
-def check_visibility(user_owned_entity, token, visitor):
-    """
-    check if given user can see the user owned entity
-    """
-    if not visitor == user_owned_entity.owner:
-        # mastodon request
-        relationship = get_relationship(visitor, user_owned_entity.owner, token)[0]
-        if relationship['blocked_by']:
-            return False
-        if not relationship['following'] and user_owned_entity.is_private:
-            return False
-        return True
-    else:
-        return True
 
 
 # utils below

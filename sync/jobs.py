@@ -187,7 +187,7 @@ class DoufenRowData:
     rating: int
 
 
-def add_new_mark(data, user, entity, entity_class, mark_class, tag_class, sheet, is_private):
+def add_new_mark(data, user, entity, entity_class, mark_class, tag_class, sheet, default_public):
     params = {
         'owner': user,
         'created_time': data.time,
@@ -195,7 +195,7 @@ def add_new_mark(data, user, entity, entity_class, mark_class, tag_class, sheet,
         'rating': data.rating,
         'text': data.content,
         'status': translate_status(sheet),
-        'is_private': not is_private,
+        'visibility': 0 if default_public else 1,
         entity_class.__name__.lower(): entity,
     }
     mark = mark_class.objects.create(**params)

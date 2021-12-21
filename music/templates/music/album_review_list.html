@@ -42,7 +42,7 @@
 
                                         <a href="{% url 'users:home' review.owner.id %}"
                                             class="entity-reviews__owner-link">{{ review.owner.username }}</a>
-                                        {% if review.is_private %}
+                                        {% if review.visibility > 0 %}
                                         <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 20 20">
                                                     <path

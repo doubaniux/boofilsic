@@ -47,7 +47,7 @@
                                         <span class="entity-marks__rating-star rating-star"
                                             data-rating-score="{{ mark.rating | floatformat:" 0" }}"></span>
                                         {% endif %}
-                                        {% if mark.is_private %}
+                                        {% if mark.visibility > 0 %}
                                         <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 20 20">
                                                     <path

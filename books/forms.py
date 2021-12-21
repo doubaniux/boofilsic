@@ -96,11 +96,8 @@ class BookMarkForm(MarkForm):
             'status',
             'rating',
             'text',
-            'is_private',
-        ]
-        labels = {
-            'rating': _("评分"),
-        }        
+            'visibility',
+        ]       
         widgets = {
             'book': forms.TextInput(attrs={"hidden": ""}),
         }      
@@ -115,14 +112,8 @@ class BookReviewForm(ReviewForm):
             'book',
             'title',
             'content',
-            'is_private'
+            'visibility'
         ]
-        labels = {
-            'book': "",
-            'title': _("标题"),
-            'content': _("正文"),
-            'share_to_mastodon': _("分享到长毛象")
-        }
         widgets = {
             'book': forms.TextInput(attrs={"hidden": ""}),
         }

@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
-from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
+from mastodon.api import post_toot, TootVisibilityEnum
 from mastodon.utils import rating_to_emoji
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER, jump_or_scrape
@@ -304,7 +304,9 @@ def create_update_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
+                if form.cleaned_data['visibility'] == 2:
+                    visibility = TootVisibilityEnum.DIRECT
+                elif form.cleaned_data['visibility'] == 1:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
                     visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
@@ -398,7 +400,9 @@ def create_review(request, movie_id):
             form.instance.owner = request.user
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
+                if form.cleaned_data['visibility'] == 2:
+                    visibility = TootVisibilityEnum.DIRECT
+                elif form.cleaned_data['visibility'] == 1:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
                     visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
@@ -450,7 +454,9 @@ def update_review(request, id):
             form.instance.edited_time = timezone.now()
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
+                if form.cleaned_data['visibility'] == 2:
+                    visibility = TootVisibilityEnum.DIRECT
+                elif form.cleaned_data['visibility'] == 1:
                     visibility = TootVisibilityEnum.PRIVATE
                 else:
                     visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
@@ -505,7 +511,7 @@ def delete_review(request, id):
 def retrieve_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(MovieReview, pk=id)
-        if not check_visibility(review, request.session['oauth_token'], request.user):
+        if not review.is_visible_to(request.user):
             msg = _("你没有访问这个页面的权限😥")
             return render(
                 request,

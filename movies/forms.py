@@ -119,11 +119,8 @@ class MovieMarkForm(MarkForm):
             'status',
             'rating',
             'text',
-            'is_private',
+            'visibility',
         ]
-        labels = {
-            'rating': _("评分"),
-        }
         widgets = {
             'movie': forms.TextInput(attrs={"hidden": ""}),
         }
@@ -138,14 +135,8 @@ class MovieReviewForm(ReviewForm):
             'movie',
             'title',
             'content',
-            'is_private'
+            'visibility'
         ]
-        labels = {
-            'book': "",
-            'title': _("标题"),
-            'content': _("正文"),
-            'share_to_mastodon': _("分享到长毛象")
-        }
         widgets = {
             'movie': forms.TextInput(attrs={"hidden": ""}),
         }

@@ -150,7 +150,8 @@ class Entity(models.Model):
 
 
 class UserOwnedEntity(models.Model):
-    is_private = models.BooleanField()
+    is_private = models.BooleanField(default=False, null=True)  # first set allow null, then migration, finally (in a few days) remove for good
+    visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
     owner = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name='user_%(class)ss')
     created_time = models.DateTimeField(default=timezone.now)
@@ -163,9 +164,11 @@ class UserOwnedEntity(models.Model):
         owner = self.owner
         if owner == viewer:
             return True
+        if self.visibility == 2:
+            return False
         if viewer.is_blocking(owner) or owner.is_blocking(viewer) or viewer.is_muting(owner):
             return False
-        if self.is_private:
+        if self.visibility == 1:
             return viewer.is_following(owner)
         else:
             return True
@@ -189,7 +192,7 @@ class UserOwnedEntity(models.Model):
         """
         user_owned_entities = cls.objects.filter(owner=owner)
         if not is_following:
-            user_owned_entities = user_owned_entities.exclude(is_private=True)
+            user_owned_entities = user_owned_entities.exclude(visibility__gt=0)
         return user_owned_entities
 
 
