@@ -913,7 +913,7 @@ def auth_login(request, user, token):
     """ Decorates django ``login()``. Attach token to session."""
     request.session['oauth_token'] = token
     auth.login(request, user)
-    if user.mastodon_last_refresh < timezone.now() - timedelta(hours=1):
+    if user.mastodon_last_refresh < timezone.now() - timedelta(hours=1) or user.mastodon_account == {}:
         # refresh_mastodon_data_task(user, token)
         django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user, token)
 
