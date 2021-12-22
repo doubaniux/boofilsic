@@ -27,6 +27,16 @@
                 <div class="grid grid--reverse-order">
                     <div class="grid__main grid__main--reverse-order">
                         <div class="main-section-wrapper">
+                            {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
                                     <h5 class="import-panel__label">{% trans '导入豆瓣标记数据' %}</h5>
@@ -142,13 +152,13 @@
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
-                                            {% if export_status.marks_pending %} 
+                                            {% if export_status.marks_pending %}
                                             <input type="submit" class="import-panel__button" value="{% trans '正在导出兼容豆伴(doufen)和NiceDB的标记和短评' %}" id="uploadBtn" disabled />
                                             {% else %}
                                             <input type="submit" class="import-panel__button" value="{% trans '导出兼容豆伴(doufen)和NiceDB的标记和短评' %}" id="uploadBtn" />
                                             {% endif %}
-                                            {% if export_status.marks_file %} 
-                                            <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a> 
+                                            {% if export_status.marks_file %}
+                                            <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
                                             {% endif %}
                                         </form>
                                         <!-- <form action="{% url 'users:export_reviews' %}" method="POST" enctype="multipart/form-data" >
@@ -156,6 +166,28 @@
                                             <input type="submit" class="import-panel__button" value="{% trans '导出评论' %}" id="uploadBtn"
                                             >
                                         </form> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '重置所有标记和短评可见性' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:reset_visibility' %}" method="POST" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '重置' %}" id="uploadBtn" />
+                                            <div class="import-panel__checkbox">
+                                            <input type="radio" name="visibility" id="visPublic" value="0" checked>
+                                            <label for="visPublic">{% trans '公开' %}</label>
+                                            <input type="radio" name="visibility" id="visFollower" value="1">
+                                            <label for="visFollower">{% trans '仅关注者' %}</label>
+                                            <input type="radio" name="visibility" id="visSelf" value="2">
+                                            <label for="visSelf">{% trans '仅自己' %}</label>
+                                            </div>
+                                        </form>
                                     </div>
                                 </div>
                             </div>
@@ -173,11 +205,6 @@
                                                 为了正确展示短评和评论，NeoDB会缓存你的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
                                             </div>
                                         </form>
-                                        <!-- <form action="{% url 'users:export_reviews' %}" method="POST" enctype="multipart/form-data" >
-                                            {% csrf_token %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '导出评论' %}" id="uploadBtn"
-                                            >
-                                        </form> -->
                                     </div>
                                 </div>
                             </div>
@@ -209,10 +236,10 @@
                         <!-- contains relations, reports, and upload excel entry -->
                         <div class="relation-dropdown">
                             <div class="relation-dropdown__body">
-                                <!-- import douban data -->                                
-                                {% if user == request.user %}                                    
+                                <!-- import douban data -->
+                                {% if user == request.user %}
                                 {% endif %}
-                                    
+
                             </div>
                         </div>
                     </div>
@@ -220,7 +247,7 @@
             </section>
 
         </div>
-            
+
         {% include "partial/_footer.html" %}
     </div>
 
@@ -229,13 +256,13 @@
     <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
     <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
     <!--current user mastodon id-->
-    
+
     {% if user == request.user %}
     <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
     {% else %}
     <div id="userMastodonID" hidden="true">{{ user.target_site_id }}</div>
     {% endif %}
-        
+
     <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
 
     <div id="spinner" hidden>

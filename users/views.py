@@ -32,6 +32,11 @@ from .export import *
 from datetime import timedelta
 from django.utils import timezone
 import json
+from django.contrib import messages
+from books.models import BookMark
+from movies.models import MovieMark
+from games.models import GameMark
+from music.models import AlbumMark, SongMark
 
 
 # Views
@@ -958,6 +963,7 @@ def export_marks(request):
             django_rq.get_queue('export').enqueue(export_marks_task, request.user)
             request.user.preference.export_status['marks_pending'] = True
             request.user.preference.save()
+        messages.add_message(request, messages.INFO, _('导出已开始。'))
         return redirect(reverse("users:data"))
     else:
         with open(request.user.preference.export_status['marks_file'], 'rb') as fh:
@@ -970,4 +976,19 @@ def export_marks(request):
 def sync_mastodon(request):
     if request.method == 'POST':
         django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user, request.session['oauth_token'])
+        messages.add_message(request, messages.INFO, _('同步已开始。'))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def reset_visibility(request):
+    if request.method == 'POST':
+        visibility = int(request.POST.get('visibility'))
+        visibility = visibility if visibility >= 0 and visibility <= 2 else 0
+        BookMark.objects.filter(owner=request.user).update(visibility=visibility)
+        MovieMark.objects.filter(owner=request.user).update(visibility=visibility)
+        GameMark.objects.filter(owner=request.user).update(visibility=visibility)
+        AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
+        SongMark.objects.filter(owner=request.user).update(visibility=visibility)
+        messages.add_message(request, messages.INFO, _('已重置。'))
     return redirect(reverse("users:data"))
