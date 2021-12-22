@@ -721,10 +721,8 @@ def music_list(request, id, status):
 @login_required
 def set_layout(request):
     if request.method == 'POST':
-        # json to python
-        raw_layout_data = request.POST.get('layout').replace('false', 'False').replace('true', 'True')
-        layout = eval(raw_layout_data)
-        request.user.preference.home_layout = eval(raw_layout_data)
+        layout = json.loads(request.POST.get('layout'))
+        request.user.preference.home_layout = layout
         request.user.preference.save()
         return redirect(reverse("common:home"))
     else:
