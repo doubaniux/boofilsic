@@ -11,6 +11,7 @@ urlpatterns = [
     path('data/export_marks', export_marks, name='export_marks'),
     path('data/sync_mastodon', sync_mastodon, name='sync_mastodon'),
     path('data/reset_visibility', reset_visibility, name='reset_visibility'),
+    path('data/clear_data', clear_data, name='clear_data'),
     path('preferences/', preferences, name='preferences'),
     path('logout/', logout, name='logout'),
     path('delete/', delete, name='delete'),

@@ -33,10 +33,10 @@ from datetime import timedelta
 from django.utils import timezone
 import json
 from django.contrib import messages
-from books.models import BookMark
-from movies.models import MovieMark
-from games.models import GameMark
-from music.models import AlbumMark, SongMark
+from books.models import BookMark, BookReview
+from movies.models import MovieMark, MovieReview
+from games.models import GameMark, GameReview
+from music.models import AlbumMark, SongMark, AlbumReview, SongReview
 
 
 # Views
@@ -991,4 +991,40 @@ def reset_visibility(request):
         AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
         SongMark.objects.filter(owner=request.user).update(visibility=visibility)
         messages.add_message(request, messages.INFO, _('已重置。'))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def clear_data(request):
+    if request.method == 'POST':
+        if request.POST.get('verification') == request.user.mastodon_username:
+            BookMark.objects.filter(owner=request.user).delete()
+            MovieMark.objects.filter(owner=request.user).delete()
+            GameMark.objects.filter(owner=request.user).delete()
+            AlbumMark.objects.filter(owner=request.user).delete()
+            SongMark.objects.filter(owner=request.user).delete()
+            BookReview.objects.filter(owner=request.user).delete()
+            MovieReview.objects.filter(owner=request.user).delete()
+            GameReview.objects.filter(owner=request.user).delete()
+            AlbumReview.objects.filter(owner=request.user).delete()
+            SongReview.objects.filter(owner=request.user).delete()
+            request.user.first_name = request.user.username
+            request.user.last_name = request.user.mastodon_site
+            request.user.is_active = False
+            request.user.username = 'removed_' + str(request.user.id)
+            request.user.mastodon_id = 0
+            request.user.mastodon_site = 'removed'
+            request.user.mastodon_token = ''
+            request.user.mastodon_locked = False
+            request.user.mastodon_followers = []
+            request.user.mastodon_following = []
+            request.user.mastodon_mutes = []
+            request.user.mastodon_blocks = []
+            request.user.mastodon_domain_blocks = []
+            request.user.mastodon_account = {}
+            request.user.save()
+            auth_logout(request)
+            return redirect(reverse("users:login"))
+        else:
+            messages.add_message(request, messages.ERROR, _('验证信息不符。'))
     return redirect(reverse("users:data"))

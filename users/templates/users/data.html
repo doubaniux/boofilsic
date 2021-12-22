@@ -209,6 +209,25 @@
                                 </div>
                             </div>
                         </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '删除数据和帐号信息' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:clear_data' %}" method="POST" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '永久删除' %}" id="uploadBtn" />
+                                            <div class="import-panel__checkbox">输入完整的 用户名@实例名 以确认删除
+                                            <input type="input" name="verification" value="" placeholder="user@mastodon.social">
+                                            删除将无法撤销
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
                     <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
