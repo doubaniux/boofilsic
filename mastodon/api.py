@@ -104,11 +104,8 @@ def create_app(domain_name):
         'website': settings.APP_WEBSITE
     }
 
-    if settings.DEBUG:
-        payload['redirect_uris'] = 'http://localhost/users/OAuth2_login/\nurn:ietf:wg:oauth:2.0:oob'
-        payload['client_name'] = 'test_do_not_authorise'
-
     response = post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
+    print(payload)
     return response
 
 

@@ -1,6 +1,6 @@
 import uuid
 import django.contrib.postgres.fields as postgres
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse

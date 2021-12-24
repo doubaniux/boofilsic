@@ -46,7 +46,7 @@ class HstoreInput(forms.Widget):
         js = ('js/key_value_input.js',)
 
 
-class JSONField(postgres.JSONField):
+class JSONField(forms.fields.JSONField):
     widget = KeyValueInput
     def to_python(self, value):
         if not value:

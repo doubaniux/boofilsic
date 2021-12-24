@@ -1,7 +1,7 @@
 import re
 from decimal import *
 from markdown import markdown
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db import models, IntegrityError
 from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q
@@ -161,6 +161,8 @@ class UserOwnedEntity(models.Model):
         abstract = True
 
     def is_visible_to(self, viewer):
+        if not viewer.is_authenticated:
+            return self.visibility == 0
         owner = self.owner
         if owner == viewer:
             return True
