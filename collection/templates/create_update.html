@@ -1,0 +1,90 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ title }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+
+            <section id="content" class="container">
+                <div class="grid">
+                    <div class="single-section-wrapper" id="main">
+                        <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+                            {% csrf_token %}
+                            {{ form.media }}
+                            {% for field in form %}
+
+                            {% if field.name == 'release_date' %}
+                            {{ field.label_tag }}
+                            
+                            {% else %}
+                            {% if field.name != 'id' %}
+                            {{ field.label_tag }}
+                            {% endif %}
+                            {{ field }}
+                            {% endif %}
+
+                            {% endfor %}
+
+                            <input class="button" type="submit" value="{% trans '提交' %}">
+                        </form>
+                    </div>
+
+            </section>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+
+
+    {% comment %}
+    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
+    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
+    <!--current user mastodon id-->
+    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
+    {% endcomment %}
+
+    <script>
+        // mark required
+        $("#content *[required]").each(function () {
+            $(this).prev().prepend("*");
+        });
+
+        // when source site is this site, hide url input box and populate it with fake url
+        // the backend would update this field
+        if ($("select[name='source_site']").val() == "{{ this_site_enum_value }}") {
+            $("input[name='source_url']").hide();
+            $("label[for='id_source_url']").hide();
+            $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());
+        }
+        $("select[name='source_site']").change(function () {
+            let value = $(this).val();
+            if (value == "{{ this_site_enum_value }}") {
+                $("input[name='source_url']").hide();
+                $("label[for='id_source_url']").hide();
+                $("input[name='source_url']").val("https://www.temp.com/" + Date.now() + Math.random());
+            } else {
+                $("input[name='source_url']").show();
+                $("label[for='id_source_url']").show();
+                $("input[name='source_url']").val("");
+            }
+        });
+
+    </script>
+</body>
+
+
+</html>

@@ -5,8 +5,9 @@ from books.models import Book
 from music.models import Song, Album
 from games.models import Game
 from markdownx.models import MarkdownxField
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.conf import settings
+from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 
 
 def collection_cover_path(instance, filename):
@@ -14,7 +15,7 @@ def collection_cover_path(instance, filename):
 
 
 class Collection(UserOwnedEntity):
-    name = models.CharField(max_length=200)
+    title = models.CharField(max_length=200)
     description = MarkdownxField()
     cover = models.ImageField(_("封面"), upload_to=collection_cover_path, default=settings.DEFAULT_COLLECTION_IMAGE, blank=True)
 
