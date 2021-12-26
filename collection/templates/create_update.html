@@ -17,38 +17,22 @@
 
 <body>
     <div id="page-wrapper">
+        {% include "partial/_navbar.html" %}
         <div id="content-wrapper">
-            {% include "partial/_navbar.html" %}
-
             <section id="content" class="container">
                 <div class="grid">
                     <div class="single-section-wrapper" id="main">
                         <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
-                            {{ form.media }}
-                            {% for field in form %}
-
-                            {% if field.name == 'release_date' %}
-                            {{ field.label_tag }}
-                            
-                            {% else %}
-                            {% if field.name != 'id' %}
-                            {{ field.label_tag }}
-                            {% endif %}
-                            {{ field }}
-                            {% endif %}
-
-                            {% endfor %}
-
+                            {{ form }}
                             <input class="button" type="submit" value="{% trans '提交' %}">
                         </form>
+                        {{ form.media }}
                     </div>
-
             </section>
         </div>
         {% include "partial/_footer.html" %}
     </div>
-
 
     {% comment %}
     <div id="oauth2Token" hidden="true">{% oauth_token %}</div>

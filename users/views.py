@@ -37,6 +37,7 @@ from books.models import BookMark, BookReview
 from movies.models import MovieMark, MovieReview
 from games.models import GameMark, GameReview
 from music.models import AlbumMark, SongMark, AlbumReview, SongReview
+from collection.models import Collection
 
 
 # Views
@@ -301,7 +302,7 @@ def home(request, id):
             album_reviews = AlbumReview.get_available_by_user(user, relation['following'])
             game_reviews = GameReview.get_available_by_user(user, relation['following'])
 
-
+        collections = Collection.objects.filter(owner=user)
         # book marks
         filtered_book_marks = filter_marks(book_marks, BOOKS_PER_SET, 'book')
         book_marks_count = count_marks(book_marks, "book")
@@ -363,6 +364,10 @@ def home(request, id):
                 'movie_reviews_count': movie_reviews.count(),
                 'music_reviews_count': len(music_reviews),
                 'game_reviews_count': game_reviews.count(),
+
+                'collections': collections.order_by("-edited_time")[:BOOKS_PER_SET],
+                'collections_count': collections.count(),
+                'collections_more': collections.count() > BOOKS_PER_SET,
 
                 'layout': layout,
                 'reports': reports,
@@ -900,6 +905,34 @@ def manage_report(request):
         )
     else:
         return HttpResponseBadRequest()
+
+
+@login_required
+def collection_list(request, id):
+    from collection.views import list 
+    if isinstance(id, str):
+        try:
+            username = id.split('@')[0]
+            site = id.split('@')[1]
+        except IndexError as e:
+            return HttpResponseBadRequest("Invalid user id")
+        query_kwargs = {'username': username, 'mastodon_site': site}
+    elif isinstance(id, int):
+        query_kwargs = {'pk': id}
+    try:
+        user = User.objects.get(**query_kwargs)
+    except ObjectDoesNotExist:
+        msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+        sec_msg = _("目前只开放本站用户注册")
+        return render(
+            request,
+            'common/error.html',
+            {
+                'msg': msg,
+                'secondary_msg': sec_msg,
+            }
+        )
+    return list(request, user.id)
 
 
 # Utils

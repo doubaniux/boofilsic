@@ -18,6 +18,10 @@ from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
 from django.conf import settings
+import re
+from users.models import User
+from django.http import HttpResponseRedirect
+
 
 
 logger = logging.getLogger(__name__)
@@ -34,6 +38,13 @@ REVIEW_NUMBER = 5
 REVIEW_PER_PAGE = 20
 # max tags on detail page
 TAG_NUMBER = 10
+
+
+class HTTPResponseHXRedirect(HttpResponseRedirect):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self['HX-Redirect'] = self['Location']
+    status_code = 200
 
 
 # public data
@@ -73,7 +84,7 @@ def create(request):
                     'create_update.html',
                     {
                         'form': form,
-                        'title': _('添加收藏單'),
+                        'title': _('添加收藏单'),
                         'submit_url': reverse("collection:create"),
                         # provided for frontend js
                         'this_site_enum_value': SourceSiteEnum.IN_SITE.value,
@@ -87,7 +98,7 @@ def create(request):
 
 @login_required
 def update(request, id):
-    page_title = _("修改游戏")
+    page_title = _("修改收藏单")
     collection = get_object_or_404(Collection, pk=id)
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
@@ -112,10 +123,6 @@ def update(request, id):
             try:
                 with transaction.atomic():
                     form.save()
-                    if form.instance.source_site == SourceSiteEnum.IN_SITE.value:
-                        real_url = form.instance.get_absolute_url()
-                        form.instance.source_url = real_url
-                        form.instance.save()
             except IntegrityError as e:
                 logger.error(e.__str__())
                 return HttpResponseServerError("integrity error")
@@ -131,7 +138,7 @@ def update(request, id):
                     'this_site_enum_value': SourceSiteEnum.IN_SITE.value,
                 }
             )
-        return redirect(reverse("games:retrieve", args=[form.instance.id]))
+        return redirect(reverse("collection:retrieve", args=[form.instance.id]))
 
     else:
         return HttpResponseBadRequest()
@@ -156,32 +163,31 @@ def retrieve(request, id):
             {
                 'collection': collection,
                 'form': form,
+                'editable': collection.is_editable_by(request.user),
                 'followers': followers,
 
             }
         )
     else:
-        logger.warning('non-GET method at /games/<id>')
+        logger.warning('non-GET method at /collections/<id>')
         return HttpResponseBadRequest()
 
 
-@permission_required("games.delete_game")
+@permission_required("collections.delete_collection")
 @login_required
 def delete(request, id):
+    collection = get_object_or_404(Collection, pk=id)
     if request.method == 'GET':
-        game = get_object_or_404(Game, pk=id)
         return render(
             request,
-            'games/delete.html',
+            'collections/delete.html',
             {
-                'game': game,
+                'collection': collection,
             }
         )
     elif request.method == 'POST':
-        if request.user.is_staff:
-            # only staff has right to delete
-            game = get_object_or_404(Game, pk=id)
-            game.delete()
+        if request.user.is_staff or request.user == collection.owner:
+            collection.delete()
             return redirect(reverse("common:home"))
         else:
             raise PermissionDenied()
@@ -197,6 +203,112 @@ def follow(request, id):
 @login_required
 def unfollow(request, id):
     pass
+
+
+@login_required
+def list(request, user_id=None):
+    if request.method == 'GET':
+        queryset = Collection.objects.filter(owner=request.user if user_id is None else User.objects.get(id=user_id))
+        paginator = Paginator(queryset, REVIEW_PER_PAGE)
+        page_number = request.GET.get('page', default=1)
+        reviews = paginator.get_page(page_number)
+        reviews.pagination = PageLinksGenerator(
+            PAGE_LINK_NUMBER, page_number, paginator.num_pages)
+        return render(
+            request,
+            'list.html',
+            {
+                'collections': queryset,
+            }
+        )
+    else:
+        return HttpResponseBadRequest()
+
+
+def get_entity_by_url(url):
+    m = re.findall(r'^/?(movies|books|games|music/album|music/song)/(\d+)/?', url.lower().replace(settings.APP_WEBSITE.lower(), ''))
+    if len(m) > 0:
+        mapping = {
+            'movies': Movie,
+            'books': Book,
+            'games': Game,
+            'music/album': Album,
+            'music/song': Song,
+        }
+        cls = mapping.get(m[0][0])
+        id = int(m[0][1])
+        if cls is not None:
+            return cls.objects.get(id=id)
+    return None
+
+
+@login_required
+def append_item(request, id):
+    collection = get_object_or_404(Collection, pk=id)
+    if request.method == 'POST' and collection.is_editable_by(request.user):
+        url = request.POST.get('url')
+        comment = request.POST.get('comment')
+        item = get_entity_by_url(url)
+        collection.append_item(item, comment)
+        collection.save()
+        return redirect(reverse("collection:retrieve", args=[id]))
+    else:
+        return HttpResponseBadRequest()
+
+
+@login_required
+def delete_item(request, id, item_id):
+    collection = get_object_or_404(Collection, pk=id)
+    if request.method == 'POST' and collection.is_editable_by(request.user):
+        # item_id = int(request.POST.get('item_id'))
+        item = CollectionItem.objects.get(id=item_id)
+        if item is not None and item.collection == collection:
+            item.delete()
+            # collection.save()
+        return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+    return HttpResponseBadRequest()
+
+
+@login_required
+def move_up_item(request, id, item_id):
+    collection = get_object_or_404(Collection, pk=id)
+    if request.method == 'POST' and collection.is_editable_by(request.user):
+        # item_id = int(request.POST.get('item_id'))
+        item = CollectionItem.objects.get(id=item_id)
+        if item is not None and item.collection == collection:
+            items = collection.collectionitem_list
+            idx = items.index(item)
+            if idx > 0:
+                o = items[idx - 1]
+                p = o.position
+                o.position = item.position
+                item.position = p
+                o.save()
+                item.save()
+                # collection.save()
+        return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+    return HttpResponseBadRequest()
+
+
+@login_required
+def move_down_item(request, id, item_id):
+    collection = get_object_or_404(Collection, pk=id)
+    if request.method == 'POST' and collection.is_editable_by(request.user):
+        # item_id = int(request.POST.get('item_id'))
+        item = CollectionItem.objects.get(id=item_id)
+        if item is not None and item.collection == collection:
+            items = collection.collectionitem_list
+            idx = items.index(item)
+            if idx + 1 < len(items):
+                o = items[idx + 1]
+                p = o.position
+                o.position = item.position
+                item.position = p
+                o.save()
+                item.save()
+                # collection.save()
+        return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+    return HttpResponseBadRequest()
 
 
 @login_required

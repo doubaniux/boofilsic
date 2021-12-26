@@ -23,13 +23,28 @@ class Collection(UserOwnedEntity):
         return str(self.owner) + ': ' + self.name
 
     @property
+    def collectionitem_list(self):
+        return sorted(list(self.collectionitem_set.all()), key=lambda i: i.position)
+
+    @property
     def item_list(self):
-        return list(self.collectionitem_set.objects.all()).sort(lambda i: i.position)
+        return map(lambda i: i.item, self.collectionitem_list)
 
     @property
     def plain_description(self):
         html = markdown(self.description)
         return RE_HTML_TAG.sub(' ', html)
+
+    def append_item(self, item, comment=""):
+        cl = self.collectionitem_list
+        if item is None or len(list(filter(lambda i: i.item == item, cl))) > 0:
+            return None
+        else:
+            i = CollectionItem(collection=self, position=cl[-1].position + 1 if len(cl) else 1, comment=comment)
+            print(i)
+            i.set_item(item)
+            i.save()
+            return i
 
 
 class CollectionItem(models.Model):
@@ -46,3 +61,16 @@ class CollectionItem(models.Model):
     def item(self):
         items = list(filter(lambda i: i is not None, [self.movie, self.book, self.album, self.song, self.game]))
         return items[0] if len(items) > 0 else None
+
+    # @item.setter
+    def set_item(self, new_item):
+        old_item = self.item
+        if old_item == new_item:
+            return
+        if old_item is not None:
+            self.movie = None
+            self.book = None
+            self.album = None
+            self.song = None
+            self.game = None
+        setattr(self, new_item.__class__.__name__.lower(), new_item)

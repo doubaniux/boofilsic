@@ -174,6 +174,9 @@ class UserOwnedEntity(models.Model):
         else:
             return True
 
+    def is_editable_by(self, viewer):
+        return True if viewer.is_staff or viewer.is_superuser or viewer == self.owner else False
+
     @classmethod
     def get_available(cls, entity, request_user, following_only=False):
         # e.g. SongMark.get_available(song, request.user, request.session['oauth_token'])
