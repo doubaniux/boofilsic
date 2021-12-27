@@ -41,7 +41,6 @@ class Collection(UserOwnedEntity):
             return None
         else:
             i = CollectionItem(collection=self, position=cl[-1].position + 1 if len(cl) else 1, comment=comment)
-            print(i)
             i.set_item(item)
             i.save()
             return i

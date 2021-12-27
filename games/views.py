@@ -18,6 +18,7 @@ from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
 from django.conf import settings
+from collection.models import CollectionItem
 
 
 logger = logging.getLogger(__name__)
@@ -196,6 +197,7 @@ def retrieve(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, CollectionItem.objects.filter(movie=movie)))
 
         # def strip_html_tags(text):
         #     import re
@@ -220,6 +222,7 @@ def retrieve(request, id):
                 'review_list_more': review_list_more,
                 'game_tag_list': game_tag_list,
                 'mark_tags': mark_tags,
+                'collection_list': collection_list,
             }
         )
     else:

@@ -312,6 +312,21 @@
                             </div>
                         </div>
                         {% endif %}
+
+                        {% if collection_list %}
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '相关收藏单' %}</div>
+                                <div >
+                                    {% for c in collection_list %}
+                                    <p>
+                                        <a href="{% url 'collection:retrieve' c.id %}">{{ c.title }}</a>
+                                    </p>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
                     </div>
                 </div>
             </section>

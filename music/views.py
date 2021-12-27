@@ -18,6 +18,7 @@ from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 import logging
 from django.shortcuts import render
+from collection.models import CollectionItem
 
 
 logger = logging.getLogger(__name__)
@@ -214,6 +215,7 @@ def retrieve_song(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, CollectionItem.objects.filter(song=song)))
 
         # def strip_html_tags(text):
         #     import re
@@ -238,6 +240,7 @@ def retrieve_song(request, id):
                 'review_list_more': review_list_more,
                 'song_tag_list': song_tag_list,
                 'mark_tags': mark_tags,
+                'collection_list': collection_list,
             }
         )
     else:
@@ -787,6 +790,7 @@ def retrieve_album(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, CollectionItem.objects.filter(album=album)))
 
         # def strip_html_tags(text):
         #     import re
@@ -811,6 +815,7 @@ def retrieve_album(request, id):
                 'review_list_more': review_list_more,
                 'album_tag_list': album_tag_list,
                 'mark_tags': mark_tags,
+                'collection_list': collection_list,
             }
         )
     else:

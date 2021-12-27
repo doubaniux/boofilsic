@@ -76,7 +76,6 @@ def post_toot(site, content, visibility, token, local_only=False):
     }
     if not local_only:
         del payload['local_only']
-    print(payload)
     response = post(url, headers=headers, data=payload)
     return response
 
@@ -105,7 +104,6 @@ def create_app(domain_name):
     }
 
     response = post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
-    print(payload)
     return response
 
 

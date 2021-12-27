@@ -24,6 +24,7 @@
             {% endif %}
             <div class="entity-list__entity-title">
                 <a href="{{ item.item.get_absolute_url }}" style="font-size:16px">{{ item.item.title }}</a>
+                <span class="entity-list__entity-category">[{{item.item.verbose_category_name}}]</span>
                 <a href="{{ item.item.source_url }}">
                     <span class="source-label source-label__{{ item.item.source_site }}">{{ item.item.get_source_site_display }}</span>
                 </a>
