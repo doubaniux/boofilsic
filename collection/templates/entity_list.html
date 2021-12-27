@@ -1,0 +1,71 @@
+{% load thumb %}
+{% load i18n %}
+{% load l10n %}
+<ul class="entity-list__entities">
+    {% for item in collection.collectionitem_list %}
+    {% if item.item is not None %}
+    <li class="entity-list__entity">
+        <div class="entity-list__entity-img-wrapper">
+            <a href="{{ item.item.get_absolute_url }}">
+                <img src="{{ item.item.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
+            </a>
+        </div>
+        <div class="entity-list__entity-text">
+            {% if editable %}
+            <div style="float:right">
+                {% if not forloop.first %}
+                <a hx-target=".entity-list" hx-post="{% url 'collection:move_up_item' form.instance.id item.id %}">▲</a>
+                {% endif %}
+                {% if not forloop.last %}
+                <a hx-target=".entity-list" hx-post="{% url 'collection:move_down_item' form.instance.id item.id %}">▼</a>
+                {% endif %}
+                <a hx-target=".entity-list" hx-post="{% url 'collection:delete_item' form.instance.id item.id %}">✖</a>
+            </div>
+            {% endif %}
+            <div class="entity-list__entity-title">
+                <a href="{{ item.item.get_absolute_url }}" style="font-size:16px">{{ item.item.title }}</a>
+                <a href="{{ item.item.source_url }}">
+                    <span class="source-label source-label__{{ item.item.source_site }}">{{ item.item.get_source_site_display }}</span>
+                </a>
+            </div>
+            <span class="entity-list__entity-info entity-list__entity-info--full-length">
+                <p class="entity-list__entity-brief" style="white-space: normal;">
+                    {{ item.item.brief }}
+                </p>
+            </span>
+            <div class="tag-collection">
+                {% for tag_dict in item.item.tag_list %}
+                {% for k, v in tag_dict.items %}
+                {% if k == 'content' %}
+                <span class="tag-collection__tag">
+                    <a href="{% url 'common:search' %}?tag={{ v }}">{{ v }}</a>
+                </span>
+                {% endif %}
+                {% endfor %}
+                {% endfor %}
+            </div>
+            <div class="clearfix"></div>
+            <div class="dividing-line dividing-line--dashed"></div>
+            <div class="entity-marks" style="margin-bottom: 0;">
+                <ul class="entity-marks__mark-list">
+                    <li class="entity-marks__mark">
+                        <p class="entity-marks__mark-content">{{ item.comment }}</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </li>
+    {% endif %}
+    {% empty %}
+    {% endfor %}
+    {% if editable %}
+    <li>
+        <form hx-target=".entity-list" hx-post="{% url 'collection:append_item' form.instance.id %}" method="POST">
+            {% csrf_token %}
+            <input type="url" name="url" placeholder="https://neodb.social/movies/1/" style="min-width:24rem" required>
+            <input type="text" name="comment" placeholder="{% trans '备注' %}" style="min-width:24rem">
+            <input class="button" type="submit" value="{% trans '添加' %}" >
+        </form>
+    </li>
+    {% endif %}
+</ul>

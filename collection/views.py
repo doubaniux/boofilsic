@@ -173,6 +173,31 @@ def retrieve(request, id):
         return HttpResponseBadRequest()
 
 
+@mastodon_request_included
+# @login_required
+def retrieve_entity_list(request, id):
+    collection = get_object_or_404(Collection, pk=id)
+    if not collection.is_visible_to(request.user):
+        raise PermissionDenied()
+    form = CollectionForm(instance=collection)
+
+    followers = []
+    if request.user.is_authenticated:
+        followers = []
+
+    return render(
+        request,
+        'entity_list.html',
+        {
+            'collection': collection,
+            'form': form,
+            'editable': collection.is_editable_by(request.user),
+            'followers': followers,
+
+        }
+    )
+
+
 @permission_required("collections.delete_collection")
 @login_required
 def delete(request, id):
@@ -226,7 +251,7 @@ def list(request, user_id=None):
 
 
 def get_entity_by_url(url):
-    m = re.findall(r'^/?(movies|books|games|music/album|music/song)/(\d+)/?', url.lower().replace(settings.APP_WEBSITE.lower(), ''))
+    m = re.findall(r'^/?(movies|books|games|music/album|music/song)/(\d+)/?', url.strip().lower().replace(settings.APP_WEBSITE.lower(), ''))
     if len(m) > 0:
         mapping = {
             'movies': Movie,
@@ -251,7 +276,8 @@ def append_item(request, id):
         item = get_entity_by_url(url)
         collection.append_item(item, comment)
         collection.save()
-        return redirect(reverse("collection:retrieve", args=[id]))
+        # return redirect(reverse("collection:retrieve", args=[id]))
+        return retrieve_entity_list(request, id)
     else:
         return HttpResponseBadRequest()
 
@@ -265,7 +291,8 @@ def delete_item(request, id, item_id):
         if item is not None and item.collection == collection:
             item.delete()
             # collection.save()
-        return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+        # return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+        return retrieve_entity_list(request, id)
     return HttpResponseBadRequest()
 
 
@@ -286,7 +313,8 @@ def move_up_item(request, id, item_id):
                 o.save()
                 item.save()
                 # collection.save()
-        return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+        # return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+        return retrieve_entity_list(request, id)
     return HttpResponseBadRequest()
 
 
@@ -307,7 +335,8 @@ def move_down_item(request, id, item_id):
                 o.save()
                 item.save()
                 # collection.save()
-        return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+        # return HTTPResponseHXRedirect(redirect_to=reverse("collection:retrieve", args=[id]))
+        return retrieve_entity_list(request, id)
     return HttpResponseBadRequest()
 
 

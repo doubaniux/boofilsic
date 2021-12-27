@@ -7,6 +7,7 @@ urlpatterns = [
     path('mine/', list, name='list'),
     path('create/', create, name='create'),
     path('<int:id>/', retrieve, name='retrieve'),
+    path('<int:id>/entity_list', retrieve_entity_list, name='retrieve_entity_list'),
     path('update/<int:id>/', update, name='update'),
     path('delete/<int:id>/', delete, name='delete'),
     path('follow/<int:id>/', follow, name='follow'),
