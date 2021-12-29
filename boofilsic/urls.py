@@ -30,8 +30,8 @@ urlpatterns = [
     path('collections/', include('collection.urls')),
     path('sync/', include('sync.urls')),
     path('announcement/', include('management.urls')),
+    path('hijack/', include('hijack.urls')),
     path('', include('common.urls')),
-
 ]
 
 urlpatterns += [
