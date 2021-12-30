@@ -137,12 +137,12 @@ class Entity(models.Model):
         raise NotImplementedError("Subclass should implement this method.")
 
     @property
-    def tag_list(self):
+    def all_tag_list(self):
         return self.get_tags_manager().values('content').annotate(frequency=Count('content')).order_by('-frequency')
 
     @property
     def tags(self):
-        return list(map(lambda t:t['content'], self.tag_list))
+        return list(map(lambda t: t['content'], self.all_tag_list))
 
     @classmethod
     def get_category_mapping_dict(cls):

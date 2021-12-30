@@ -8,10 +8,11 @@ from django.db.models.signals import post_save, post_delete
 # search result translate back to model
 INDEX_NAME = 'items'
 INDEX_SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator', 'developer', 'brief', 'contents', 'track_list', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code', 'UPC', 'TMDB_ID', 'BANDCAMP_ALBUM_ID']
-INDEXABLE_DIRECT_TYPES = ['BigAutoField', 'BooleanField', 'CharField', 'DecimalField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'TextField', 'ArrayField']
+INDEXABLE_DIRECT_TYPES = ['BigAutoField', 'BooleanField', 'CharField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'TextField', 'ArrayField']
 INDEXABLE_TIME_TYPES = ['DateTimeField']
 INDEXABLE_DICT_TYPES = ['JSONField']
-# NONINDEXABLE_TYPES = ['ForeignKey', 'FileField']
+INDEXABLE_FLOAT_TYPES = ['DecimalField']
+# NONINDEXABLE_TYPES = ['ForeignKey', 'FileField',]
 
 
 def item_post_save_handler(sender, instance, **kwargs):
@@ -52,6 +53,7 @@ class Indexer:
         model.indexable_fields = ['tags']
         model.indexable_fields_time = []
         model.indexable_fields_dict = []
+        model.indexable_fields_float = []
         for field in model._meta.get_fields():
             type = field.get_internal_type()
             if type in INDEXABLE_DIRECT_TYPES:
@@ -60,6 +62,8 @@ class Indexer:
                 model.indexable_fields_time.append(field.name)
             elif type in INDEXABLE_DICT_TYPES:
                 model.indexable_fields_dict.append(field.name)
+            elif type in INDEXABLE_FLOAT_TYPES:
+                model.indexable_fields_float.append(field.name)
         post_save.connect(item_post_save_handler, sender=model)
         post_delete.connect(item_post_delete_handler, sender=model)
 
@@ -75,6 +79,8 @@ class Indexer:
             item[field] = getattr(obj, field)
         for field in obj.__class__.indexable_fields_time:
             item[field] = getattr(obj, field).timestamp()
+        for field in obj.__class__.indexable_fields_float:
+            item[field] = float(getattr(obj, field)) if getattr(obj, field) else None
         for field in obj.__class__.indexable_fields_dict:
             d = getattr(obj, field)
             if d.__class__ is dict:

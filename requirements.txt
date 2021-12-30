@@ -5,6 +5,7 @@ django-markdownx
 django-sass
 django-rq
 django-hijack
+meilisearch
 easy-thumbnails
 lxml
 openpyxl
