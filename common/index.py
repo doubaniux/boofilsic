@@ -49,6 +49,10 @@ class Indexer:
         self.instance().update_settings({'displayedAttributes': ['_id', '_class', 'id', 'title', 'tags']})
 
     @classmethod
+    def get_stats(self):
+        return self.instance().get_stats()
+
+    @classmethod
     def update_model_indexable(self, model):
         model.indexable_fields = ['tags']
         model.indexable_fields_time = []
@@ -68,7 +72,7 @@ class Indexer:
         post_delete.connect(item_post_delete_handler, sender=model)
 
     @classmethod
-    def replace_item(self, obj):
+    def obj_to_dict(self, obj):
         pk = f'{obj.__class__.__name__}-{obj.id}'
         item = {
             '_id': pk,
@@ -86,8 +90,11 @@ class Indexer:
             if d.__class__ is dict:
                 item.update(d)
         item = {k: v for k, v in item.items() if v}
-        # print(item)
-        self.instance().add_documents([item])
+        return item
+
+    @classmethod
+    def replace_item(self, obj):
+        self.instance().add_documents([self.obj_to_dict(obj)])
 
     @classmethod
     def delete_item(self, obj):
