@@ -56,7 +56,6 @@ class Entity(models.Model):
                 rating__lte=10), name='%(class)s_rating_upperbound'),
         ]
 
-
     def get_absolute_url(self):
         raise NotImplementedError("Subclass should implement this method")
 
@@ -136,6 +135,14 @@ class Entity(models.Model):
         There is no ocassion where visitor can simply view all the reviews.
         """
         raise NotImplementedError("Subclass should implement this method.")
+
+    @property
+    def tag_list(self):
+        return self.get_tags_manager().values('content').annotate(frequency=Count('content')).order_by('-frequency')
+
+    @property
+    def tags(self):
+        return list(map(lambda t:t['content'], self.tag_list))
 
     @classmethod
     def get_category_mapping_dict(cls):
