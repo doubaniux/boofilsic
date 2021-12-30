@@ -7,12 +7,13 @@ from django.db.models.signals import post_save, post_delete
 # use post_save, post_delete
 # search result translate back to model
 INDEX_NAME = 'items'
-INDEX_SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator', 'developer', 'brief', 'contents', 'track_list', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code', 'UPC', 'TMDB_ID', 'BANDCAMP_ALBUM_ID']
+INDEX_SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator', 'developer', 'director', 'actor', 'playwright', 'brief', 'contents', 'track_list', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code', 'UPC', 'TMDB_ID', 'BANDCAMP_ALBUM_ID']
 INDEXABLE_DIRECT_TYPES = ['BigAutoField', 'BooleanField', 'CharField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'TextField', 'ArrayField']
 INDEXABLE_TIME_TYPES = ['DateTimeField']
 INDEXABLE_DICT_TYPES = ['JSONField']
 INDEXABLE_FLOAT_TYPES = ['DecimalField']
 # NONINDEXABLE_TYPES = ['ForeignKey', 'FileField',]
+SEARCH_PAGE_SIZE = 20
 
 
 def item_post_save_handler(sender, instance, **kwargs):
@@ -32,6 +33,8 @@ def tag_post_delete_handler(sender, instance, **kwargs):
 
 
 class Indexer:
+    class_map = {}
+
     @classmethod
     def instance(self):
         return meilisearch.Client(settings.MEILISEARCH_SERVER, settings.MEILISEARCH_KEY).index(INDEX_NAME)
@@ -54,6 +57,7 @@ class Indexer:
 
     @classmethod
     def update_model_indexable(self, model):
+        self.class_map[model.__name__] = model
         model.indexable_fields = ['tags']
         model.indexable_fields_time = []
         model.indexable_fields_dict = []
@@ -108,3 +112,36 @@ class Indexer:
         for f in fields:
             data[f] = getattr(obj, f)
         self.instance().update_documents(documents=[data], primary_key=[pk])
+
+    @classmethod
+    def search(self, q, page=1, category=None, tag=None, sort=None):
+        if category or tag:
+            f = []
+            if category == 'music':
+                f.append("(_class = 'Album' OR _class = 'Song')")
+            elif category:
+                f.append(f"_class = '{category}'")
+            if tag:
+                f.append(f"tags = '{tag}'")
+            filter = ' AND '.join(f)
+        else:
+            filter = None
+        options = {
+            'offset': (page - 1) * SEARCH_PAGE_SIZE,
+            'limit': SEARCH_PAGE_SIZE,
+            'filter': filter,
+            'facetsDistribution': ['_class'],
+            'sort': None
+        }
+        r = self.instance().search(q, options)
+        print(r)
+        import types
+        results = types.SimpleNamespace()
+        results.items = list(map(lambda i: self.item_to_obj(i), r['hits']))
+        results.num_pages = (r['nbHits'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
+        print(results)
+        return results
+
+    @classmethod
+    def item_to_obj(self, item):
+        return self.class_map[item['_class']].objects.get(id=item['id'])

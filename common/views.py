@@ -24,6 +24,8 @@ from common.config import *
 from common.searcher import ExternalSources
 from management.models import Announcement
 from django.conf import settings
+from common.index import Indexer
+
 
 logger = logging.getLogger(__name__)
 
@@ -33,8 +35,48 @@ def home(request):
     return user_home(request, request.user.id)
 
 
+
 @login_required
 def search(request):
+    category = request.GET.get("c", default='all').strip().lower()
+    if category == 'all':
+        category = None
+    keywords = request.GET.get("q", default='').strip()
+    tag = request.GET.get("tag", default='').strip()
+    page_number = request.GET.get('page', default=1)
+    if not (keywords or tag):
+        return render(
+            request,
+            "common/search_result.html",
+            {
+                "items": None,
+            }
+        )
+    url_validator = URLValidator()
+    try:
+        url_validator(keywords)
+        # validation success
+        return jump_or_scrape(request, keywords)
+    except ValidationError as e:
+        pass
+    #
+    result = Indexer.search(keywords, page=page_number, category=category, tag=tag)
+    for item in result.items:
+        item.tag_list = item.all_tag_list[:TAG_NUMBER_ON_LIST]
+    return render(
+        request,
+        "common/search_result.html",
+        {
+            "items": result.items,
+            "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, page_number, result.num_pages),
+            "external_items": ExternalSources.search(category, keywords, page_number),
+            "categories": ['book', 'movie', 'music', 'game'],
+        }
+    )
+
+
+@login_required
+def search2(request):
     if request.method == 'GET':
 
         # test if input serach string is empty or not excluding param ?c=
