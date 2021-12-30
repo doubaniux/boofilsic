@@ -12,7 +12,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-BATCH_SIZE = 1000
+BATCH_SIZE = 10000
 
 
 class Command(BaseCommand):
@@ -35,4 +35,4 @@ class Command(BaseCommand):
                 if items:
                     Indexer.instance().update_documents(documents=items)
                     while Indexer.get_stats()['isIndexing']:
-                        sleep(0.1)
+                        sleep(0.5)
