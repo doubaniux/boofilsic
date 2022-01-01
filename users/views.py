@@ -153,7 +153,7 @@ def connect(request):
 @login_required
 def logout(request):
     if request.method == 'GET':
-        revoke_token(request.user.mastodon_site, request.session['oauth_token'])
+        # revoke_token(request.user.mastodon_site, request.session['oauth_token'])
         auth_logout(request)
         return redirect(reverse("users:login"))
     else:

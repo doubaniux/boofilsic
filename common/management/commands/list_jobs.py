@@ -17,5 +17,8 @@ class Command(BaseCommand):
         for registry in [queue.started_job_registry, queue.deferred_job_registry, queue.finished_job_registry, queue.failed_job_registry, queue.scheduled_job_registry]:
             self.stdout.write(self.style.SUCCESS(f'Registry {registry}'))
             for job_id in registry.get_job_ids():
-                job = Job.fetch(job_id, connection=redis)
-                print(f'Job {job}')
+                try:
+                    job = Job.fetch(job_id, connection=redis)
+                    pprint.pp(job)
+                except Exception as e:
+                    print(f'Error fetching {job_id}')

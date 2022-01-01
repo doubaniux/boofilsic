@@ -176,9 +176,11 @@ def random_string_generator(n):
 
 def verify_account(site, token):
     url = 'https://' + site + API_VERIFY_ACCOUNT
-    response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
-    return response.status_code, response.json() if response.status_code == 200 else None
-
+    try:
+        response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
+        return response.status_code, response.json() if response.status_code == 200 else None
+    except Exception:
+        return -1, None
 
 def get_related_acct_list(site, token, api):
     url = 'https://' + site + api
