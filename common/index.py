@@ -1,11 +1,9 @@
+import logging
 import meilisearch
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
 
 
-# TODO
-# use post_save, post_delete
-# search result translate back to model
 INDEX_NAME = 'items'
 INDEX_SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator', 'developer', 'director', 'actor', 'playwright', 'brief', 'contents', 'track_list', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code', 'UPC', 'TMDB_ID', 'BANDCAMP_ALBUM_ID']
 INDEXABLE_DIRECT_TYPES = ['BigAutoField', 'BooleanField', 'CharField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'TextField', 'ArrayField']
@@ -14,6 +12,9 @@ INDEXABLE_DICT_TYPES = ['JSONField']
 INDEXABLE_FLOAT_TYPES = ['DecimalField']
 # NONINDEXABLE_TYPES = ['ForeignKey', 'FileField',]
 SEARCH_PAGE_SIZE = 20
+
+
+logger = logging.getLogger(__name__)
 
 
 def item_post_save_handler(sender, instance, **kwargs):
@@ -98,12 +99,18 @@ class Indexer:
 
     @classmethod
     def replace_item(self, obj):
-        self.instance().add_documents([self.obj_to_dict(obj)])
+        try:
+            self.instance().add_documents([self.obj_to_dict(obj)])
+        except Exception as e:
+            logger.error(f"replace item error: \n{e}")
 
     @classmethod
     def delete_item(self, obj):
         pk = f'{obj.__class__.__name__}-{obj.id}'
-        self.instance().delete_document(pk)
+        try:
+            self.instance().delete_document(pk)
+        except Exception as e:
+            logger.error(f"delete item error: \n{e}")
 
     @classmethod
     def patch_item(self, obj, fields):
@@ -111,7 +118,10 @@ class Indexer:
         data = {}
         for f in fields:
             data[f] = getattr(obj, f)
-        self.instance().update_documents(documents=[data], primary_key=[pk])
+        try:
+            self.instance().update_documents(documents=[data], primary_key=[pk])
+        except Exception as e:
+            logger.error(f"patch item error: \n{e}")
 
     @classmethod
     def search(self, q, page=1, category=None, tag=None, sort=None):

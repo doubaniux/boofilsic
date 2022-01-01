@@ -12,7 +12,7 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-BATCH_SIZE = 10000
+BATCH_SIZE = 1000
 
 
 class Command(BaseCommand):
@@ -24,9 +24,11 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         h = int(options['hours'])
         print(f'Connecting to search server {settings.MEILISEARCH_SERVER} for index: {INDEX_NAME}')
-        Indexer.update_settings()
-        self.stdout.write(self.style.SUCCESS('Index settings updated.'))
-        for c in [Game, Movie, Book, Album, Song]:
+        if Indexer.get_stats()['isIndexing']:
+            print('Please wait for previous updates')
+        # Indexer.update_settings()
+        # self.stdout.write(self.style.SUCCESS('Index settings updated.'))
+        for c in [Book, Song, Album, Game, Movie]:
             print(f'Re-indexing {c}')
             qs = c.objects.all() if h == 0 else c.objects.filter(edited_time__gt=timezone.now() - timedelta(hours=h))
             pg = Paginator(qs.order_by('id'), BATCH_SIZE)
@@ -36,3 +38,4 @@ class Command(BaseCommand):
                     Indexer.instance().update_documents(documents=items)
                     while Indexer.get_stats()['isIndexing']:
                         sleep(0.5)
+
