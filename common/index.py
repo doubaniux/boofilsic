@@ -17,7 +17,9 @@ SEARCH_PAGE_SIZE = 20
 logger = logging.getLogger(__name__)
 
 
-def item_post_save_handler(sender, instance, **kwargs):
+def item_post_save_handler(sender, instance, created, **kwargs):
+    if not created and settings.MEILISEARCH_INDEX_NEW_ONLY:
+        return
     Indexer.replace_item(instance)
 
 
@@ -148,12 +150,12 @@ class Indexer:
             'sort': None
         }
         r = self.instance().search(q, options)
-        print(r)
+        # print(r)
         import types
         results = types.SimpleNamespace()
         results.items = list(map(lambda i: self.item_to_obj(i), r['hits']))
         results.num_pages = (r['nbHits'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
-        print(results)
+        # print(results)
         return results
 
     @classmethod
