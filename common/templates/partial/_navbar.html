@@ -14,11 +14,11 @@
                     <input type="search" class="" name="q" id="searchInput" required="true" value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}"
                         placeholder="搜索书影音游戏，或输入豆瓣/Goodreads/Steam/Spotify/Bandcamp/TMDB/IMDB/Bangumi等条目链接">
                     <select class="navbar__search-dropdown" id="searchCategory">
-                        <option value="all" {% if request.GET.c and request.GET.c != 'movie' and request.GET.c != 'book' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
-                        <option value="book" {% if request.GET.c and request.GET.c == 'book' %}selected{% endif %}>{% trans '书籍' %}</option>
-                        <option value="movie" {% if request.GET.c and request.GET.c == 'movie' %}selected{% endif %}>{% trans '电影' %}</option>
-                        <option value="music" {% if request.GET.c and request.GET.c == 'music' %}selected{% endif %}>{% trans '音乐' %}</option>
-                        <option value="game" {% if request.GET.c and request.GET.c == 'game' %}selected{% endif %}>{% trans '游戏' %}</option>
+                        <option value="all" {% if request.GET.c and request.GET.c == 'all' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
+                        <option value="book" {% if request.GET.c and request.GET.c == 'book' or '/books/' in request.path %}selected{% endif %}>{% trans '书籍' %}</option>
+                        <option value="movie" {% if request.GET.c and request.GET.c == 'movie' or '/movies/' in request.path  %}selected{% endif %}>{% trans '电影' %}</option>
+                        <option value="music" {% if request.GET.c and request.GET.c == 'music' or '/music/' in request.path  %}selected{% endif %}>{% trans '音乐' %}</option>
+                        <option value="game" {% if request.GET.c and request.GET.c == 'game' or '/games/' in request.path  %}selected{% endif %}>{% trans '游戏' %}</option>
                     </select>
                 </div>
                 <button class="navbar__dropdown-btn">• • •</button>
