@@ -43,7 +43,7 @@ def search(request):
         category = None
     keywords = request.GET.get("q", default='').strip()
     tag = request.GET.get("tag", default='').strip()
-    page_number = request.GET.get('page', default=1)
+    page_number = int(request.GET.get('page', default=1))
     if not (keywords or tag):
         return render(
             request,
