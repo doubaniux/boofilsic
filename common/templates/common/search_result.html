@@ -43,9 +43,7 @@
                                     
                                 <ul class="entity-list__entities">
                                     {% for item in items %}
-                                    
                                     {% include "partial/list_item.html" %}
-
                                     {% empty %}
                                     <li class="entity-list__entity">
                                     {% trans '无站内条目匹配' %}

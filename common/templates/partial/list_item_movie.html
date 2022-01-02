@@ -66,16 +66,12 @@
 
             {% if movie.director %}{% trans '导演' %}:
             {% for director in movie.director %}
-<<<<<<< Updated upstream
-            {{ director }}{% if not forloop.last %} {% endif %}
-=======
             {% if request.GET.q %}
             {{ director | highlight:request.GET.q }}
             {% else %}
             {{ director }}
             {% endif %}
             {% if not forloop.last %},{% endif %}
->>>>>>> Stashed changes
             {% endfor %}/
             {% endif %}
 
@@ -89,7 +85,13 @@
         <span class="entity-list__entity-info entity-list__entity-info--full-length">
             {% if movie.actor %}{% trans '主演' %}:
             {% for actor in movie.actor %}
-            <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>{{ actor }}</span>
+            <span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+            {% if request.GET.q %}
+            {{ actor | highlight:request.GET.q }}
+            {% else %}
+            {{ actor }}
+            {% endif %}
+            </span>
             {% if forloop.counter <= 5 %}
                 {% if not forloop.counter == 5 and not forloop.last %} {% endif %}
             {% endif %}

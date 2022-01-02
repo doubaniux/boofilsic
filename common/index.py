@@ -153,11 +153,15 @@ class Indexer:
         # print(r)
         import types
         results = types.SimpleNamespace()
-        results.items = list(map(lambda i: self.item_to_obj(i), r['hits']))
+        results.items = list([x for x in map(lambda i: self.item_to_obj(i), r['hits']) if x is not None])
         results.num_pages = (r['nbHits'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
         # print(results)
         return results
 
     @classmethod
     def item_to_obj(self, item):
-        return self.class_map[item['_class']].objects.get(id=item['id'])
+        try:
+            return self.class_map[item['_class']].objects.get(id=item['id'])
+        except Exception as e:
+            logger.error(f"unable to load search result item from db:\n{item}")
+            return None
