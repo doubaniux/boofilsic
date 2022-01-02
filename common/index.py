@@ -5,7 +5,7 @@ from django.db.models.signals import post_save, post_delete
 
 
 INDEX_NAME = 'items'
-INDEX_SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator', 'developer', 'director', 'actor', 'playwright', 'brief', 'contents', 'track_list', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code', 'UPC', 'TMDB_ID', 'BANDCAMP_ALBUM_ID']
+INDEX_SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator', 'developer', 'director', 'actor', 'playwright', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code']
 INDEXABLE_DIRECT_TYPES = ['BigAutoField', 'BooleanField', 'CharField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'TextField', 'ArrayField']
 INDEXABLE_TIME_TYPES = ['DateTimeField']
 INDEXABLE_DICT_TYPES = ['JSONField']
@@ -35,11 +35,13 @@ def tag_post_delete_handler(sender, instance, **kwargs):
 
 class Indexer:
     class_map = {}
+    _instance = None
 
     @classmethod
     def instance(self):
-        return meilisearch.Client(settings.MEILISEARCH_SERVER, settings.MEILISEARCH_KEY).index(INDEX_NAME)
-        # TODO cache per process/request
+        if self._instance is None:
+            self._instance = meilisearch.Client(settings.MEILISEARCH_SERVER, settings.MEILISEARCH_KEY).index(INDEX_NAME)
+        return self._instance
 
     @classmethod
     def init(self):
@@ -49,7 +51,7 @@ class Indexer:
     @classmethod
     def update_settings(self):
         self.instance().update_searchable_attributes(INDEX_SEARCHABLE_ATTRIBUTES)
-        self.instance().update_filterable_attributes(['_class', 'tags', 'genre', 'source_site'])
+        self.instance().update_filterable_attributes(['_class', 'tags', 'source_site'])
         self.instance().update_settings({'displayedAttributes': ['_id', '_class', 'id', 'title', 'tags']})
 
     @classmethod
@@ -58,6 +60,8 @@ class Indexer:
 
     @classmethod
     def update_model_indexable(self, model):
+        if settings.MEILISEARCH_SERVER is None:
+            return
         self.class_map[model.__name__] = model
         model.indexable_fields = ['tags']
         model.indexable_fields_time = []
