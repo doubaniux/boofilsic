@@ -38,6 +38,8 @@ def home(request):
 
 @login_required
 def search(request):
+    if settings.MEILISEARCH_SERVER is None:
+        return search2(request)
     category = request.GET.get("c", default='all').strip().lower()
     if category == 'all':
         category = None
