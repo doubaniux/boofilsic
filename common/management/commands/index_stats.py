@@ -23,7 +23,7 @@ class Command(BaseCommand):
         stats = Indexer.get_stats()
         print(stats)
         st = Indexer.instance().get_all_update_status() 
-        cnt = {"enqueued": [0, 0], "processing": [0, 0], "processed": [0, 0]}
+        cnt = {"enqueued": [0, 0], "processing": [0, 0], "processed": [0, 0], "failed": [0, 0]}
         lastEnq = {"enqueuedAt": ""}
         lastProc = {"enqueuedAt": ""}
         for s in st:
