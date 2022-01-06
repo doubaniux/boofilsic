@@ -80,6 +80,13 @@ def post_toot(site, content, visibility, token, local_only=False):
     return response
 
 
+def get_instance_domain(domain_name):
+    try:
+        response = get(f'https://{domain_name}/api/v1/instance', headers={'User-Agent': 'NeoDB/1.0'})
+        return response.json()['uri'].lower().split('//')[-1].split('/')[0]
+    except:
+        return domain_name
+
 def create_app(domain_name):
     # naive protocal strip
     is_http = False

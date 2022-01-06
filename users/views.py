@@ -109,10 +109,12 @@ def login(request):
     else:
         return HttpResponseBadRequest()
 
+
 def connect(request):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         return redirect(reverse("users:login"))
-    domain = request.GET.get('domain').strip().lower()
+    login_domain = request.GET.get('domain').strip().lower().split('//')[-1].split('/')[0].split('@')[-1]
+    domain = get_instance_domain(login_domain)
     app = MastodonApplication.objects.filter(domain_name=domain).first()
     if app is None:
         try:
@@ -144,7 +146,7 @@ def connect(request):
                 }
             )
     else:
-        login_url = "https://" + domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=" + quote(settings.MASTODON_CLIENT_SCOPE) + "&redirect_uri=" + request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
+        login_url = "https://" + login_domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=" + quote(settings.MASTODON_CLIENT_SCOPE) + "&redirect_uri=" + request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
         resp = redirect(login_url)
         resp.set_cookie("mastodon_domain", domain)
         return resp
