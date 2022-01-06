@@ -165,6 +165,8 @@ class UserOwnedEntity(models.Model):
         owner = self.owner
         if owner == viewer:
             return True
+        if owner.is_active == False:
+            return False
         if self.visibility == 2:
             return False
         if viewer.is_blocking(owner) or owner.is_blocking(viewer) or viewer.is_muting(owner):
