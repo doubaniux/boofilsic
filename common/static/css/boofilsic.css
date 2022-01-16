@@ -1058,8 +1058,46 @@ select::placeholder {
   word-break: break-all;
 }
 
+.add-to-list-modal {
+  z-index: 2;
+  display: none;
+  position: fixed;
+  width: 500px;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: #f7f7f7;
+  padding: 20px 20px 10px 20px;
+  color: #606c76;
+}
+
+.add-to-list-modal .add-to-list-modal__head {
+  margin-bottom: 20px;
+}
+
+.add-to-list-modal .add-to-list-modal__head::after {
+  content: ' ';
+  clear: both;
+  display: table;
+}
+
+.add-to-list-modal .add-to-list-modal__title {
+  font-weight: bold;
+  font-size: 1.2em;
+  float: left;
+}
+
+.add-to-list-modal .add-to-list-modal__close-button {
+  float: right;
+  cursor: pointer;
+}
+
+.add-to-list-modal .add-to-list-modal__confirm-button {
+  float: right;
+}
+
 @media (max-width: 575.98px) {
-  .mark-modal, .confirm-modal, .announcement-modal {
+  .mark-modal, .confirm-modal, .announcement-modal .add-to-list-modal {
     width: 100%;
   }
 }
@@ -1162,10 +1200,6 @@ select::placeholder {
 
 .main-section-wrapper input, .main-section-wrapper select {
   width: 100%;
-}
-
-.tools-section-wrapper input, .tools-section-wrapperl select {
-  width: unset;
 }
 
 .entity-list .entity-list__title {
@@ -2432,4 +2466,8 @@ select::placeholder {
 
 .tag-input input {
   flex-grow: 1;
+}
+
+.tools-section-wrapper input, .tools-section-wrapper select {
+  width: unset;
 }

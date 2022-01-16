@@ -24,11 +24,13 @@
     <title>{{ site_name }} - {% trans '游戏详情' %} | {{ game.title }}</title>
         
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.3"></script>
+    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
     <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-
+    <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
 </head>
 
 <body>
@@ -327,6 +329,9 @@
                                         <a href="{% url 'collection:retrieve' c.id %}">{{ c.title }}</a>
                                     </p>
                                     {% endfor %}
+                                    <div class="action-panel__button-group action-panel__button-group--center">
+                                        <button class="action-panel__button add-to-list" hx-get="{% url 'collection:add_to_list' 'game' game.id %}" hx-target="body" hx-swap="beforeend">{% trans '添加到收藏单' %}</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

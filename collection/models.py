@@ -35,9 +35,12 @@ class Collection(UserOwnedEntity):
         html = markdown(self.description)
         return RE_HTML_TAG.sub(' ', html)
 
+    def has_item(self, item):
+        return len(list(filter(lambda i: i.item == item, self.collectionitem_list))) > 0
+
     def append_item(self, item, comment=""):
         cl = self.collectionitem_list
-        if item is None or len(list(filter(lambda i: i.item == item, cl))) > 0:
+        if item is None or self.has_item(item):
             return None
         else:
             i = CollectionItem(collection=self, position=cl[-1].position + 1 if len(cl) else 1, comment=comment)

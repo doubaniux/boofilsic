@@ -343,3 +343,38 @@ def move_down_item(request, id, item_id):
 @login_required
 def list_with(request, type, id):
     pass
+
+
+def get_entity_by_type_id(type, id):
+    mapping = {
+        'movie': Movie,
+        'book': Book,
+        'game': Game,
+        'album': Album,
+        'song': Song,
+    }
+    cls = mapping.get(type)
+    if cls is not None:
+        return cls.objects.get(id=id)
+    return None
+
+
+@login_required
+def add_to_list(request, type, id):
+    item = get_entity_by_type_id(type, id)
+    if request.method == 'GET':
+        queryset = Collection.objects.filter(owner=request.user)
+        return render(
+            request,
+            'add_to_list.html',
+            {
+                'type': type,
+                'id': id,
+                'item': item,
+                'collections': queryset,
+            }
+        )
+    else:
+        collection = Collection.objects.filter(owner=request.user, id=request.POST.get('collection_id')).first()
+        collection.append_item(item, request.POST.get('comment'))
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -1,9 +1,12 @@
 {% load static %}
 {% load i18n %}
+{% load l10n %}
+{% load humanize %}
 {% load admin_url %}
 {% load mastodon %}
 {% load oauth_token %}
 {% load truncate %}
+{% load strip_scheme %}
 {% load thumb %}
 <!DOCTYPE html>
 <html lang="en">
@@ -26,10 +29,13 @@
     
     <title>{{ site_name }} - {% trans '书籍详情' %} | {{ book.title }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/hyperscript.org@0.9.3"></script>
+    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
 </head>
 
 <body>
@@ -323,6 +329,9 @@
                                         <a href="{% url 'collection:retrieve' c.id %}">{{ c.title }}</a>
                                     </p>
                                     {% endfor %}
+                                    <div class="action-panel__button-group action-panel__button-group--center">
+                                        <button class="action-panel__button add-to-list" hx-get="{% url 'collection:add_to_list' 'book' book.id %}" hx-target="body" hx-swap="beforeend">{% trans '添加到收藏单' %}</button>
+                                    </div>
                                 </div>
                             </div>
                         </div>
@@ -338,7 +347,6 @@
     <div id="modals">
         <div class="mark-modal modal">
             <div class="mark-modal__head">
-                
                 {% if not mark %}
                 <style>
                     .mark-modal__title::after {
@@ -355,12 +363,12 @@
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                             <polygon
                             points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
-                        </polygon>
-                    </svg>
+                            </polygon>
+                        </svg>
+                    </span>
                 </span>
-            </span>
-        </div>
-        <div class="mark-modal__body">
+            </div>
+            <div class="mark-modal__body">
                 <form action="{% url 'books:create_update_mark' %}" method="post">
                     {{ mark_form.media }}
                     {% csrf_token %}

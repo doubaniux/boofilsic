@@ -17,5 +17,7 @@ urlpatterns = [
     path('<int:id>/move_up_item/<int:item_id>', move_up_item, name='move_up_item'),
     path('<int:id>/move_down_item/<int:item_id>', move_down_item, name='move_down_item'),
     path('with/<str:type>/<int:id>/', list_with, name='list_with'),
+    path('add_to_list/<str:type>/<int:id>/', add_to_list, name='add_to_list'),
+
     # TODO: tag
 ]
