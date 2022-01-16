@@ -4,7 +4,7 @@ from markdown import markdown
 from django.utils.translation import gettext_lazy as _
 from django.db import models, IntegrityError
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q
+from django.db.models import Q, Count
 from markdownx.models import MarkdownxField
 from users.models import User
 from mastodon.api import get_relationships, get_cross_site_id
@@ -197,8 +197,10 @@ class UserOwnedEntity(models.Model):
         :param is_following: if the current user is following the owner
         """
         user_owned_entities = cls.objects.filter(owner=owner)
-        if not is_following:
-            user_owned_entities = user_owned_entities.exclude(visibility__gt=0)
+        if is_following:
+            user_owned_entities = user_owned_entities.exclude(visibility__ne=2)
+        else:
+            user_owned_entities = user_owned_entities.filter(visibility=0)
         return user_owned_entities
 
 
@@ -254,6 +256,23 @@ class Tag(models.Model):
 
     def __str__(self):
         return self.content
+
+    @property
+    def edited_time(self):
+        return self.mark.edited_time
+
+    @classmethod
+    def find_by_user(cls, tag, owner, is_following):
+        user_owned_entities = cls.objects.filter(content=tag, mark__owner=owner)
+        if is_following:
+            user_owned_entities = user_owned_entities.exclude(mark__visibility__ne=2)
+        else:
+            user_owned_entities = user_owned_entities.filter(mark__visibility=0)
+        return user_owned_entities
+
+    @classmethod
+    def all_by_user(cls, owner):
+        return cls.objects.filter(mark__owner=owner).values('content').annotate(total=Count('content')).order_by('-total')
 
     class Meta:
         abstract = True

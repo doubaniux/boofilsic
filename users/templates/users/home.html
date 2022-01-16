@@ -703,6 +703,53 @@
                                         </ul>
                                     </div>
 
+                                    <div class="user-relation">
+                                        <h5 class="user-relation__label">
+                                            {% trans '常用标签' %}
+                                        </h5>
+                                        <div class="tag-collection" style="margin-left: 0;">
+                                            {% if book_tags %}
+                                            <div>{% trans '书籍' %}</div>
+                                            {% for v in book_tags %}
+                                            <span class="tag-collection__tag">
+                                                <a href="{% url 'users:book_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                                            </span>
+                                            {% endfor %}
+                                            <div class="clearfix"></div>
+                                            {% endif %}
+
+                                            {% if movie_tags %}
+                                            <div>{% trans '电影和剧集' %}</div>
+                                            {% for v in movie_tags %}
+                                            <span class="tag-collection__tag">
+                                                <a href="{% url 'users:movie_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                                            </span>
+                                            {% endfor %}
+                                            <div class="clearfix"></div>
+                                            {% endif %}
+
+                                            {% if music_tags %}
+                                            <div>{% trans '音乐' %}</div>
+                                            {% for v in music_tags %}
+                                            <span class="tag-collection__tag">
+                                                <a href="{% url 'users:music_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                                            </span>
+                                            {% endfor %}
+                                            <div class="clearfix"></div>
+                                            {% endif %}
+
+                                            {% if game_tags %}
+                                            <div>{% trans '游戏' %}</div>
+                                            {% for v in game_tags %}
+                                            <span class="tag-collection__tag">
+                                                <a href="{% url 'users:game_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                                            </span>
+                                            {% endfor %}
+                                            <div class="clearfix"></div>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+
                                 </div>
                                 
                                 <!-- import douban data -->                                

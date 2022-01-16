@@ -354,6 +354,11 @@ def home(request, id):
                 **music_marks_count,
                 **game_marks_count,
 
+                'book_tags': list(map(lambda t: t['content'], BookTag.all_by_user(user)))[:10] if user == request.user else [],
+                'movie_tags': list(map(lambda t: t['content'], MovieTag.all_by_user(user)))[:10] if user == request.user else [],
+                'music_tags': list(map(lambda t: t['content'], AlbumTag.all_by_user(user)))[:10] if user == request.user else [],
+                'game_tags': list(map(lambda t: t['content'], GameTag.all_by_user(user)))[:10] if user == request.user else [],
+
                 'book_reviews': book_reviews.order_by("-edited_time")[:BOOKS_PER_SET],
                 'movie_reviews': movie_reviews.order_by("-edited_time")[:MOVIES_PER_SET],
                 'music_reviews': music_reviews[:MUSIC_PER_SET],
@@ -533,7 +538,7 @@ def following(request, id):
 @login_required
 def book_list(request, id, status):
     if request.method == 'GET':
-        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
+        if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
         if isinstance(id, str):
@@ -558,6 +563,7 @@ def book_list(request, id, status):
                     'secondary_msg': sec_msg,
                 }
             )
+        tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
@@ -572,6 +578,8 @@ def book_list(request, id, status):
                 )
             if status == 'reviewed':
                 queryset = BookReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+            elif status == 'tagged':
+                queryset = BookTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time")
             else:
                 queryset = BookMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -580,6 +588,8 @@ def book_list(request, id, status):
         else:
             if status == 'reviewed':
                 queryset = BookReview.objects.filter(owner=user).order_by("-edited_time")
+            elif status == 'tagged':
+                queryset = BookTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")
             else:
                 queryset = BookMark.objects.filter(
                     owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -590,7 +600,12 @@ def book_list(request, id, status):
             mark.book.tag_list = mark.book.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = (str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()]) if status != 'reviewed' else _("评论过"))) + str(_("的书"))
+        if status == 'reviewed':
+            list_title = str(_("评论过的书"))
+        elif status == 'tagged':
+            list_title = str(_(f"标记为「{tag}」的书"))
+        else:
+            list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
         return render(
             request,
             'users/book_list.html',
@@ -609,7 +624,7 @@ def book_list(request, id, status):
 @login_required
 def movie_list(request, id, status):
     if request.method == 'GET':
-        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
+        if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
         if isinstance(id, str):
@@ -634,6 +649,7 @@ def movie_list(request, id, status):
                     'secondary_msg': sec_msg,
                 }
             )
+        tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
@@ -650,12 +666,16 @@ def movie_list(request, id, status):
                 user, request.user.mastodon_site, request.session['oauth_token'])
             if status == 'reviewed':
                 queryset = MovieReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+            elif status == 'tagged':
+                queryset = MovieTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time")
             else:
                 queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         else:
             if status == 'reviewed':
                 queryset = MovieReview.objects.filter(owner=user).order_by("-edited_time")
+            elif status == 'tagged':
+                queryset = MovieTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")
             else:
                 queryset = MovieMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
@@ -665,7 +685,13 @@ def movie_list(request, id, status):
             mark.movie.tag_list = mark.movie.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = (str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) if status != 'reviewed' else _("评论过")) + str(_("的电影和剧集"))
+        if status == 'reviewed':
+            list_title = str(_("评论过的电影和剧集"))
+        elif status == 'tagged':
+            list_title = str(_(f"标记为「{tag}」的电影和剧集"))
+        else:
+            list_title = str(MovieMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的电影和剧集"))
+
         return render(
             request,
             'users/movie_list.html',
@@ -684,7 +710,7 @@ def movie_list(request, id, status):
 @login_required
 def game_list(request, id, status):
     if request.method == 'GET':
-        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
+        if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
         if isinstance(id, str):
@@ -709,6 +735,7 @@ def game_list(request, id, status):
                     'secondary_msg': sec_msg,
                 }
             )
+        tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
@@ -725,12 +752,16 @@ def game_list(request, id, status):
                 user, request.user.mastodon_site, request.session['oauth_token'])
             if status == 'reviewed':
                 queryset = GameReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+            elif status == 'tagged':
+                queryset = GameTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time")
             else:
                 queryset = GameMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
         else:
             if status == 'reviewed':
                 queryset = GameReview.objects.filter(owner=user).order_by("-edited_time")
+            elif status == 'tagged':
+                queryset = GameTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")                
             else:
                 queryset = GameMark.objects.filter(
                     owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -741,7 +772,12 @@ def game_list(request, id, status):
             mark.game.tag_list = mark.game.get_tags_manager().values('content').annotate(
                 tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = (str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) if status != 'reviewed' else _("评论过")) + str(_("的游戏"))
+        if status == 'reviewed':
+            list_title = str(_("评论过的游戏"))
+        elif status == 'tagged':
+            list_title = str(_(f"标记为「{tag}」的游戏"))
+        else:
+            list_title = str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的游戏"))        
         return render(
             request,
             'users/game_list.html',
@@ -760,7 +796,7 @@ def game_list(request, id, status):
 @login_required
 def music_list(request, id, status):
     if request.method == 'GET':
-        if status.upper() not in MarkStatusEnum.names and status != 'reviewed':
+        if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
         if isinstance(id, str):
@@ -785,6 +821,7 @@ def music_list(request, id, status):
                     'secondary_msg': sec_msg,
                 }
             )
+        tag = request.GET.get('t', default='')
         if not user == request.user:
             # mastodon request
             relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
@@ -800,6 +837,8 @@ def music_list(request, id, status):
             if status == 'reviewed':
                 queryset = list(AlbumReview.get_available_by_user(user, relation['following']).order_by("-edited_time")) + \
                     list(SongReview.get_available_by_user(user, relation['following']).order_by("-edited_time"))
+            elif status == 'tagged':
+                queryset = list(AlbumTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time"))
             else:
                 queryset = list(AlbumMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()])) \
@@ -812,6 +851,8 @@ def music_list(request, id, status):
             if status == 'reviewed':
                 queryset = list(AlbumReview.objects.filter(owner=user).order_by("-edited_time")) + \
                     list(SongReview.objects.filter(owner=user).order_by("-edited_time"))
+            elif status == 'tagged':
+                queryset = list(AlbumTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time"))
             else:
                 queryset = list(AlbumMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()])) \
                     + list(SongMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]))
@@ -820,7 +861,7 @@ def music_list(request, id, status):
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
         for mark in marks:
-            if mark.__class__ == AlbumMark or mark.__class__ == AlbumReview:
+            if mark.__class__ in [AlbumMark, AlbumReview, AlbumTag]:
                 mark.music = mark.album
                 mark.music.tag_list = mark.album.get_tags_manager().values('content').annotate(
                     tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
@@ -830,7 +871,12 @@ def music_list(request, id, status):
                     tag_frequency=Count('content')).order_by('-tag_frequency')[:TAG_NUMBER_ON_LIST]
 
         marks.pagination = PageLinksGenerator(PAGE_LINK_NUMBER, page_number, paginator.num_pages)
-        list_title = (str(MusicMarkStatusTranslator(MarkStatusEnum[status.upper()]) if status != 'reviewed' else _("评论过"))) + str(_("的音乐"))
+        if status == 'reviewed':
+            list_title = str(_("评论过的音乐"))
+        elif status == 'tagged':
+            list_title = str(_(f"标记为「{tag}」的音乐"))
+        else:
+            list_title = str(MusicMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的音乐"))
         return render(
             request,
             'users/music_list.html',
