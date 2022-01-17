@@ -198,26 +198,24 @@ def retrieve_entity_list(request, id):
     )
 
 
-@permission_required("collections.delete_collection")
 @login_required
 def delete(request, id):
     collection = get_object_or_404(Collection, pk=id)
-    if request.method == 'GET':
-        return render(
-            request,
-            'collections/delete.html',
-            {
-                'collection': collection,
-            }
-        )
-    elif request.method == 'POST':
-        if request.user.is_staff or request.user == collection.owner:
+    if request.user.is_staff or request.user == collection.owner:
+        if request.method == 'GET':
+            return render(
+                request,
+                'delete.html',
+                {
+                    'collection': collection,
+                    'form': CollectionForm(instance=collection)
+                }
+            )
+        elif request.method == 'POST':
             collection.delete()
             return redirect(reverse("common:home"))
-        else:
-            raise PermissionDenied()
     else:
-        return HttpResponseBadRequest()
+        raise PermissionDenied()
 
 
 @login_required
