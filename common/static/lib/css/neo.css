@@ -1,3 +1,19 @@
+.collection-item-position-edit {
+    float: right;
+}
+
+.collection-item-position-edit a {
+    cursor: pointer;
+    color: #ccc;
+}
+
+.action-icon svg {
+    cursor: pointer;
+    fill: #ccc;
+    height: 12px;
+    vertical-align: text-bottom;
+}
+
 /***** MODAL DIALOG ****/
 #modal {
     /* Underlay covers entire screen. */
@@ -25,7 +41,9 @@
     required if you want to click to dismiss the popup */
     position: absolute;
     z-index: -1;
-    top:0px;
+    .collection_list_position_edittop:0px;
+
+
     bottom:0px;
     left: 0px;
     right: 0px;

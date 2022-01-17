@@ -13,7 +13,7 @@ from django.conf import settings
 
 
 RE_HTML_TAG = re.compile(r"<[^>]*>")
-
+MAX_TOP_TAGS = 5
 
 # abstract base classes
 ###################################
@@ -118,6 +118,10 @@ class Entity(models.Model):
         this method works like interface.
         """
         raise NotImplementedError("Subclass should implement this method.")
+
+    @property
+    def top_tags(self):
+        return self.get_tags_manager().values('content').annotate(tag_frequency=Count('content')).order_by('-tag_frequency')[:MAX_TOP_TAGS]
 
     def get_marks_manager(self):
         """

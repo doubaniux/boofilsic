@@ -342,7 +342,7 @@ def show_item_comment(request, id, item_id):
     collection = get_object_or_404(Collection, pk=id)
     item = CollectionItem.objects.get(id=item_id)
     editable = collection.is_editable_by(request.user)
-    return render(request, 'show_item_comment.html', {'collection': collection, 'item': item, 'editable': editable})
+    return render(request, 'show_item_comment.html', {'collection': collection, 'collectionitem': item, 'editable': editable})
 
 @login_required
 def update_item_comment(request, id, item_id):
@@ -354,9 +354,9 @@ def update_item_comment(request, id, item_id):
             if request.method == 'POST':
                 item.comment = request.POST.get('comment', default='')
                 item.save()
-                return render(request, 'show_item_comment.html', {'collection': collection, 'item': item, 'editable': True})
+                return render(request, 'show_item_comment.html', {'collection': collection, 'collectionitem': item, 'editable': True})
             else:
-                return render(request, 'edit_item_comment.html', {'collection': collection, 'item': item})
+                return render(request, 'edit_item_comment.html', {'collection': collection, 'collectionitem': item})
         return retrieve_entity_list(request, id)
     return HttpResponseBadRequest()
 
