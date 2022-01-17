@@ -66,6 +66,7 @@
                                             {% if book.rating %}
                                             <span class="entity-detail__rating-star rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></span>
                                             <span class="entity-detail__rating-score"> {{ book.rating }} </span>
+                                            <small>({{ book.rating_number }}人评分)</small>
                                             {% else %}
                                             <span> {% trans '评分：暂无评分' %}</span>
                                             {% endif %}

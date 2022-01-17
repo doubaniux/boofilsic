@@ -61,6 +61,7 @@
                                             {% if album.rating %}
                                             <span class="entity-detail__rating-star rating-star" data-rating-score="{{ album.rating | floatformat:"0" }}"></span>
                                             <span class="entity-detail__rating-score"> {{ album.rating }} </span>
+                                            <small>({{ album.rating_number }}人评分)</small>
                                             {% else %}
                                             <span> {% trans '评分：暂无评分' %}</span>
                                             {% endif %}

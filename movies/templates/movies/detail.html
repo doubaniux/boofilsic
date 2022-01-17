@@ -83,6 +83,7 @@
                                             {% if movie.rating %}
                                             <span class="entity-detail__rating-star rating-star" data-rating-score="{{ movie.rating | floatformat:"0" }}"></span>
                                             <span class="entity-detail__rating-score"> {{ movie.rating }} </span>
+                                            <small>({{ movie.rating_number }}人评分)</small>
                                             {% else %}
                                             <span> {% trans '评分：暂无评分' %}</span>
                                             {% endif %}

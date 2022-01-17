@@ -60,6 +60,7 @@
                                             {% if song.rating %}
                                             <span class="entity-detail__rating-star rating-star" data-rating-score="{{ song.rating | floatformat:"0" }}"></span>
                                             <span class="entity-detail__rating-score"> {{ song.rating }} </span>
+                                            <small>({{ song.rating_number }}人评分)</small>
                                             {% else %}
                                             <span> {% trans '评分：暂无评分' %}</span>
                                             {% endif %}
