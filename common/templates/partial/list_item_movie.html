@@ -66,7 +66,16 @@
 
             {% if movie.director %}{% trans '导演' %}:
             {% for director in movie.director %}
+<<<<<<< Updated upstream
             {{ director }}{% if not forloop.last %} {% endif %}
+=======
+            {% if request.GET.q %}
+            {{ director | highlight:request.GET.q }}
+            {% else %}
+            {{ director }}
+            {% endif %}
+            {% if not forloop.last %},{% endif %}
+>>>>>>> Stashed changes
             {% endfor %}/
             {% endif %}
 

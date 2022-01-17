@@ -202,7 +202,7 @@ class UserOwnedEntity(models.Model):
         """
         user_owned_entities = cls.objects.filter(owner=owner)
         if is_following:
-            user_owned_entities = user_owned_entities.exclude(visibility__ne=2)
+            user_owned_entities = user_owned_entities.exclude(visibility=2)
         else:
             user_owned_entities = user_owned_entities.filter(visibility=0)
         return user_owned_entities
@@ -269,7 +269,7 @@ class Tag(models.Model):
     def find_by_user(cls, tag, owner, is_following):
         user_owned_entities = cls.objects.filter(content=tag, mark__owner=owner)
         if is_following:
-            user_owned_entities = user_owned_entities.exclude(mark__visibility__ne=2)
+            user_owned_entities = user_owned_entities.exclude(mark__visibility=2)
         else:
             user_owned_entities = user_owned_entities.filter(mark__visibility=0)
         return user_owned_entities
