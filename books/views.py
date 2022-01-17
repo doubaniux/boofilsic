@@ -306,7 +306,6 @@ def create_update_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                print(form.cleaned_data)
                 if form.cleaned_data['visibility'] == 2:
                     visibility = TootVisibilityEnum.DIRECT
                 elif form.cleaned_data['visibility'] == 1:

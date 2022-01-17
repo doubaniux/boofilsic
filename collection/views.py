@@ -340,6 +340,29 @@ def move_down_item(request, id, item_id):
     return HttpResponseBadRequest()
 
 
+def show_item_comment(request, id, item_id):
+    collection = get_object_or_404(Collection, pk=id)
+    item = CollectionItem.objects.get(id=item_id)
+    editable = collection.is_editable_by(request.user)
+    return render(request, 'show_item_comment.html', {'collection': collection, 'item': item, 'editable': editable})
+
+@login_required
+def update_item_comment(request, id, item_id):
+    collection = get_object_or_404(Collection, pk=id)
+    if collection.is_editable_by(request.user):
+        # item_id = int(request.POST.get('item_id'))
+        item = CollectionItem.objects.get(id=item_id)
+        if item is not None and item.collection == collection:
+            if request.method == 'POST':
+                item.comment = request.POST.get('comment', default='')
+                item.save()
+                return render(request, 'show_item_comment.html', {'collection': collection, 'item': item, 'editable': True})
+            else:
+                return render(request, 'edit_item_comment.html', {'collection': collection, 'item': item})
+        return retrieve_entity_list(request, id)
+    return HttpResponseBadRequest()
+
+
 @login_required
 def list_with(request, type, id):
     pass

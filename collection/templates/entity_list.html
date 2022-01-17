@@ -50,7 +50,9 @@
             <div class="entity-marks" style="margin-bottom: 0;">
                 <ul class="entity-marks__mark-list">
                     <li class="entity-marks__mark">
-                        <p class="entity-marks__mark-content">{{ item.comment }}</p>
+                        <p class="entity-marks__mark-content" hx-target="this" hx-swap="innerHTML">
+                            {% include "show_item_comment.html" %}
+                        </p>
                     </li>
                 </ul>
             </div>
