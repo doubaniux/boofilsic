@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from common.index import Indexer, INDEX_NAME
+from common.index import Indexer
 from django.conf import settings
 from movies.models import Movie
 from books.models import Book
@@ -23,8 +23,8 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         h = int(options['hours'])
-        print(f'Connecting to search server {settings.MEILISEARCH_SERVER} for index: {INDEX_NAME}')
-        if Indexer.get_stats()['isIndexing']:
+        print(f'Connecting to search server')
+        if Indexer.busy():
             print('Please wait for previous updates')
         # Indexer.update_settings()
         # self.stdout.write(self.style.SUCCESS('Index settings updated.'))
@@ -35,7 +35,6 @@ class Command(BaseCommand):
             for p in tqdm(pg.page_range):
                 items = list(map(lambda o: Indexer.obj_to_dict(o), pg.get_page(p).object_list))
                 if items:
-                    Indexer.instance().update_documents(documents=items)
-                    while Indexer.get_stats()['isIndexing']:
+                    Indexer.replace_batch(items)
+                    while Indexer.busy():
                         sleep(0.5)
-

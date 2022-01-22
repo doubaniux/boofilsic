@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from common.index import Indexer, INDEX_NAME
+from common.index import Indexer
 from django.conf import settings
 from movies.models import Movie
 from books.models import Book
@@ -12,14 +12,11 @@ from datetime import timedelta
 from django.utils import timezone
 
 
-BATCH_SIZE = 10000
-
-
 class Command(BaseCommand):
     help = 'Check search index'
 
     def handle(self, *args, **options):
-        print(f'Connecting to search server {settings.MEILISEARCH_SERVER} for index: {INDEX_NAME}')
+        print(f'Connecting to search server')
         stats = Indexer.get_stats()
         print(stats)
         st = Indexer.instance().get_all_update_status() 
