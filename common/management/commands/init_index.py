@@ -8,9 +8,11 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         print(f'Connecting to search server')
-        try:
-            Indexer.init()
-            self.stdout.write(self.style.SUCCESS('Index created.'))
-        except Exception:
-            Indexer.update_settings()
-            self.stdout.write(self.style.SUCCESS('Index settings updated.'))
+        Indexer.init()
+        self.stdout.write(self.style.SUCCESS('Index created.'))
+        # try:
+        #     Indexer.init()
+        #     self.stdout.write(self.style.SUCCESS('Index created.'))
+        # except Exception:
+        #     Indexer.update_settings()
+        #     self.stdout.write(self.style.SUCCESS('Index settings updated.'))

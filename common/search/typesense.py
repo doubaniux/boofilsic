@@ -5,9 +5,11 @@ from django.db.models.signals import post_save, post_delete
 
 
 INDEX_NAME = 'items'
-SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator', 'developer', 'director', 'actor', 'playwright', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code']
+SEARCHABLE_ATTRIBUTES = ['title', 'orig_title', 'other_title', 'subtitle', 'artist', 'author', 'translator',
+                         'developer', 'director', 'actor', 'playwright', 'pub_house', 'company', 'publisher', 'isbn', 'imdb_code']
 FILTERABLE_ATTRIBUTES = ['_class', 'tags', 'source_site']
-INDEXABLE_DIRECT_TYPES = ['BigAutoField', 'BooleanField', 'CharField', 'PositiveIntegerField', 'PositiveSmallIntegerField', 'TextField', 'ArrayField']
+INDEXABLE_DIRECT_TYPES = ['BigAutoField', 'BooleanField', 'CharField',
+                          'PositiveIntegerField', 'PositiveSmallIntegerField', 'TextField', 'ArrayField']
 INDEXABLE_TIME_TYPES = ['DateTimeField']
 INDEXABLE_DICT_TYPES = ['JSONField']
 INDEXABLE_FLOAT_TYPES = ['DecimalField']
@@ -50,12 +52,37 @@ class Indexer:
     @classmethod
     def init(self):
         # self.instance().collections[INDEX_NAME].delete()
+        # fields = [
+        #     {"name": "_class", "type": "string", "facet": True},
+        #     {"name": "source_site", "type": "string", "facet": True},
+        #     {"name": ".*", "type": "auto", "locale": "zh"},
+        # ]
+        # use dumb schema below before typesense fix a bug
         fields = [
-            {"name": "_class", "type": "string", "facet": True},
-            {"name": "source_site", "type": "string", "facet": True},
-            {"name": "tags", "type": "string[]", "locale": "zh", "facet": True},
-            {"name": ".*", "type": "auto", "locale": "zh"},
+            {'name': 'id', 'type': 'string'},
+            {'name': '_id', 'type': 'int64'},
+            {'name': '_class', 'type': 'string', "facet": True},
+            {'name': 'source_site', 'type': 'string', "facet": True},
+            {'name': 'isbn', 'optional': True, 'type': 'string'},
+            {'name': 'imdb_code', 'optional': True, 'type': 'string'},
+            {'name': 'author', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'orig_title', 'optional': True, 'locale': 'zh', 'type': 'string'},
+            {'name': 'pub_house', 'optional': True, 'locale': 'zh', 'type': 'string'},
+            {'name': 'title', 'optional': True, 'locale': 'zh', 'type': 'string'},
+            {'name': 'translator', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'subtitle', 'optional': True, 'locale': 'zh', 'type': 'string'},
+            {'name': 'artist', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'company', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'developer', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'other_title', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'publisher', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'actor', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'director', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'playwright', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': 'tags', 'optional': True, 'locale': 'zh', 'type': 'string[]'},
+            {'name': '.*', 'optional': True, 'locale': 'zh', 'type': 'auto'},
         ]
+
         self.instance().collections.create({
             "name": INDEX_NAME,
             "fields": fields
@@ -108,14 +135,17 @@ class Indexer:
         for field in obj.__class__.indexable_fields_time:
             item[field] = getattr(obj, field).timestamp()
         for field in obj.__class__.indexable_fields_float:
-            item[field] = float(getattr(obj, field)) if getattr(obj, field) else None
+            item[field] = float(getattr(obj, field)) if getattr(
+                obj, field) else None
         for field in obj.__class__.indexable_fields_dict:
             d = getattr(obj, field)
             if d.__class__ is dict:
                 item.update(d)
-        item = {k: v for k, v in item.items() if v and (k in SEARCHABLE_ATTRIBUTES or k in FILTERABLE_ATTRIBUTES or k == 'id')}
+        item = {k: v for k, v in item.items() if v and (
+            k in SEARCHABLE_ATTRIBUTES or k in FILTERABLE_ATTRIBUTES or k == 'id')}
         item['_id'] = item['id']
-        item['id'] = pk  # typesense requires primary key to be named 'id', type string 
+        # typesense requires primary key to be named 'id', type string
+        item['id'] = pk
         return item
 
     @classmethod
@@ -130,7 +160,8 @@ class Indexer:
     @classmethod
     def replace_batch(self, objects):
         try:
-            self.instance().collections[INDEX_NAME].documents.import_(objects, {'action': 'upsert'})
+            self.instance().collections[INDEX_NAME].documents.import_(
+                objects, {'action': 'upsert'})
         except Exception as e:
             logger.error(f"replace batch error: \n{e}")
 
@@ -146,13 +177,13 @@ class Indexer:
     def search(self, q, page=1, category=None, tag=None, sort=None):
         f = []
         if category == 'music':
-            f.append('_class: [Album, Song]')
+            f.append('_class:= [Album, Song]')
         elif category:
-            f.append('_class: ' + category)
+            f.append('_class:= ' + category)
         else:
             f.append('')
         if tag:
-            f.append(f"tags: '{tag}'")
+            f.append(f"tags:= '{tag}'")
         filter = ' && '.join(f)
         options = {
             'q': q,
@@ -168,8 +199,10 @@ class Indexer:
         # print(r)
         import types
         results = types.SimpleNamespace()
-        results.items = list([x for x in map(lambda i: self.item_to_obj(i['document']), r['hits']) if x is not None])
-        results.num_pages = (r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
+        results.items = list([x for x in map(lambda i: self.item_to_obj(
+            i['document']), r['hits']) if x is not None])
+        results.num_pages = (
+            r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
         # print(results)
         return results
 
