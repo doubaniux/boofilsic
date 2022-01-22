@@ -16,6 +16,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - {% trans '搜索结果' %}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
@@ -49,51 +50,18 @@
                                     {% trans '无站内条目匹配' %}
                                     </li>
                                     {% endfor %}
-
-                                    {% for item in external_items %}
-                                        <li class="entity-list__entity">
-                                            <div class="entity-list__entity-img-wrapper">
-                                                <a href="{{ item.link }}">
-                                                    <img src="{{ item.cover_url }}" alt="" class="entity-list__entity-img">
-                                                </a>
-                                            </div>
-                                            <div class="entity-list__entity-text">
-                                                <div class="entity-list__entity-title" style="font-style:italic;">
-                                                    <a href="{{ item.link }}" class="entity-list__entity-link">
-                                                        {% if request.GET.q %}
-                                                            {{ item.title | highlight:request.GET.q }}
-                                                        {% else %}
-                                                            {{ item.title }}
-                                                        {% endif %}
-                                                    </a>
-                                                    
-                                                    {% if not request.GET.c or not request.GET.c in categories %}
-                                                    <span class="entity-list__entity-category">[{{item.verbose_category_name}}]</span>
-                                                    {% endif %}
-                                                    <a href="{{ item.source_url }}">
-                                                        <span class="source-label source-label__{{ item.source_site }}">{{ item.source_site.label }}</span>
-                                                    </a>
-                                                </div>
-
-                                                <span class="entity-list__entity-info entity-list__entity-info--full-length">
-                                                    {{item.subtitle}}
-                                                </span>
-                                                <p class="entity-list__entity-brief">
-                                                    {{ item.brief }}
-                                                </p>
-                                                <div class="tag-collection">
-                                                </div>
-                                            </div>
-                                        
-                                        </li>
-                                    {% endfor %}
+                                    {% if request.GET.q %}
+                                    <li class="entity-list__entity" hx-get="{% url 'common:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}" hx-trigger="revealed" hx-swap="outerHTML">
+                                    {% trans '正在实时搜索站外条目' %}
+                                    </li>
+                                    {% endif %}
                                 </ul>
                             </div>
                             <div class="pagination" >
                                 
                                 {% if pagination.has_prev %}
                                     <a href="?page=1&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
-                                    <a href="?page={{ items.previous_page_number }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+                                    <a href="?page={{ pagination.previous_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
                                 {% endif %}
                                     
                                 {% for page in pagination.page_range %}
@@ -107,7 +75,7 @@
                                 {% endfor %}
                                     
                                 {% if pagination.has_next %}
-                                    <a href="?page={{ items.next_page_number }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                    <a href="?page={{ pagination.next_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
                                     <a href="?page={{ pagination.last_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link">&raquo;</a>
                                 {% endif %}           
                               

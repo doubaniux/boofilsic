@@ -35,6 +35,21 @@ def home(request):
     return user_home(request, request.user.id)
 
 
+@login_required
+def external_search(request):
+    category = request.GET.get("c", default='all').strip().lower()
+    if category == 'all':
+        category = None
+    keywords = request.GET.get("q", default='').strip()
+    page_number = int(request.GET.get('page', default=1))
+    return render(
+        request,
+        "common/external_search_result.html",
+        {
+            "external_items": ExternalSources.search(category, keywords, page_number) if keywords else [],
+        }
+    )
+
 
 @login_required
 def search(request):
@@ -71,7 +86,6 @@ def search(request):
         {
             "items": result.items,
             "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, page_number, result.num_pages),
-            "external_items": ExternalSources.search(category, keywords, page_number),
             "categories": ['book', 'movie', 'music', 'game'],
         }
     )
@@ -348,7 +362,6 @@ def search2(request):
             "common/search_result.html",
             {
                 "items": items,
-                "external_items": ExternalSources.search(category, input_string, page_number),
                 "categories": categories,
             }
         )

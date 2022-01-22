@@ -6,4 +6,5 @@ urlpatterns = [
     path('', home),
     path('home/', home, name='home'),
     path('search/', search, name='search'),
+    path('external_search/', external_search, name='external_search'),
 ]
