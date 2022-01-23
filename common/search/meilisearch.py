@@ -114,7 +114,7 @@ class Indexer:
         except Exception as e:
             logger.error(f"replace item error: \n{e}")
 
-    def replace_item(self, objects):
+    def replace_batch(self, objects):
         try:
             self.instance().update_documents(documents=objects)
         except Exception as e:
