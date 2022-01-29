@@ -1,6 +1,15 @@
 from django.core.management.base import BaseCommand
 from django.core.files.uploadedfile import SimpleUploadedFile
+from django.conf import settings
 from common.scraper import *
+from books.models import Book
+from books.forms import BookForm
+import requests
+import re
+import filetype
+from lxml import html
+from PIL import Image
+from io import BytesIO
 
 
 class DoubanPatcherMixin:
