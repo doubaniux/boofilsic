@@ -19,7 +19,7 @@ from mastodon.decorators import mastodon_request_included
 from users.views import home as user_home
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
-from common.scraper import scraper_registry
+from common.scraper import get_scraper_by_url, get_normalized_url
 from common.config import *
 from common.searcher import ExternalSources
 from management.models import Announcement
@@ -383,18 +383,12 @@ def jump_or_scrape(request, url):
     if this_site in url:
         return redirect(url)
 
-    # match url to registerd sites
-    matched_host = None
-    for host in scraper_registry:
-        if host in url:
-            matched_host = host
-            break
-
-    if matched_host is None:
+    url = get_normalized_url(url)
+    scraper = get_scraper_by_url(url)
+    if scraper is None:
         # invalid url
         return render(request, 'common/error.html', {'msg': _("链接非法，查询失败")})
     else:
-        scraper = scraper_registry[matched_host]
         try:
             # raise ObjectDoesNotExist
             effective_url = scraper.get_effective_url(url)

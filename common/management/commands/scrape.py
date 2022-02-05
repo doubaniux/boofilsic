@@ -1,5 +1,5 @@
 from django.core.management.base import BaseCommand
-from common.scraper import scraper_registry
+from common.scraper import get_scraper_by_url, get_normalized_url
 import pprint
 
 
@@ -11,17 +11,13 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         url = str(options['url'])
-        matched_host = None
-        for host in scraper_registry:
-            if host in url:
-                matched_host = host
-                break
+        url = get_normalized_url(url)
+        scraper = get_scraper_by_url(url)
 
-        if matched_host is None:
+        if scraper is None:
             self.stdout.write(self.style.ERROR(f'Unable to match a scraper for {url}'))
             return
 
-        scraper = scraper_registry[matched_host]
         effective_url = scraper.get_effective_url(url)
         self.stdout.write(f'Fetching {effective_url} via {scraper.__name__}')
         data, img = scraper.scrape(effective_url)

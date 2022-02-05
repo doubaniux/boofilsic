@@ -6,6 +6,8 @@ import re
 import dateparser
 import datetime
 import filetype
+import dns.resolver
+import urllib.parse
 from lxml import html
 from django.core.files.uploadedfile import SimpleUploadedFile
 from common.models import SourceSiteEnum
@@ -40,6 +42,11 @@ logger = logging.getLogger(__name__)
 
 # register all implemented scraper in form of {host: scraper_class,}
 scraper_registry = {}
+
+
+def get_normalized_url(raw_url):
+    url = re.sub(r'//m.douban.com/(\w+)/', r'//\1.douban.com/', raw_url)
+    return url
 
 
 def log_url(func):
@@ -218,3 +225,27 @@ from common.scrapers.imdb import ImdbMovieScraper
 from common.scrapers.spotify import SpotifyAlbumScraper, SpotifyTrackScraper
 from common.scrapers.douban import DoubanAlbumScraper, DoubanBookScraper, DoubanGameScraper, DoubanMovieScraper
 from common.scrapers.bangumi import BangumiScraper
+
+
+def get_scraper_by_url(url):
+    parsed_url = urllib.parse.urlparse(url)
+    hostname = parsed_url.netloc
+    for host in scraper_registry:
+        if host == hostname:
+            return scraper_registry[host]
+    # TODO move this logic to scraper class
+    try:
+        answers = dns.resolver.query(hostname, 'CNAME')
+        for rdata in answers:
+            if str(rdata.target) == 'dom.bandcamp.com.':
+                return BandcampAlbumScraper
+    except Exception as e:
+        pass
+    try:
+        answers = dns.resolver.query(hostname, 'A')
+        for rdata in answers:
+            if str(rdata.address) == '35.241.62.186':
+                return BandcampAlbumScraper
+    except Exception as e:
+        pass
+    return None
