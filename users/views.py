@@ -25,6 +25,7 @@ from movies.forms import MovieMarkStatusTranslator
 from music.forms import MusicMarkStatusTranslator
 from games.forms import GameMarkStatusTranslator
 from mastodon.models import MastodonApplication
+from mastodon.api import verify_account
 from django.conf import settings
 from urllib.parse import quote
 import django_rq
@@ -42,6 +43,30 @@ from collection.models import Collection
 
 # Views
 ########################################
+def swap_login(request, token, site):
+    del request.session['swap_login']
+    del request.session['swap_domain']
+    code, data = verify_account(site, token)
+    current_user = request.user
+    if code == 200 and data is not None:
+        username = data['username']
+        if username == current_user.username and site == current_user.mastodon_site:
+            messages.add_message(request, messages.ERROR, _(f'该身份 {username}@{site} 与当前账号相同。'))
+        else:
+            try:
+                existing_user = User.objects.get(username=username, mastodon_site=site)
+                messages.add_message(request, messages.ERROR, _(f'该身份 {username}@{site} 已被用于其它账号。'))
+            except ObjectDoesNotExist:
+                current_user.username = username
+                current_user.mastodon_site = site
+                current_user.mastodon_token = token
+                current_user.save(update_fields=['username', 'mastodon_site', 'mastodon_token'])
+                django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, current_user, token)
+                messages.add_message(request, messages.INFO, _(f'账号身份已更新为 {username}@{site}。'))
+    else:
+        messages.add_message(request, messages.ERROR, _('连接联邦网络获取身份信息失败。'))
+    return redirect(reverse('users:data'))
+
 
 # no page rendered
 @mastodon_request_included
@@ -57,7 +82,8 @@ def OAuth2_login(request):
         except ObjectDoesNotExist:
             return HttpResponseBadRequest("Mastodon site not registered")
         if token:
-            # oauth is completed when token aquired
+            if request.session.get('swap_login', False) and request.user.is_authenticated: # swap login for existing user
+                return swap_login(request, token, site)
             user = authenticate(request, token=token, site=site)
             if user:
                 auth_login(request, user, token)
@@ -113,7 +139,8 @@ def login(request):
 def connect(request):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         return redirect(reverse("users:login"))
-    login_domain = request.GET.get('domain').strip().lower().split('//')[-1].split('/')[0].split('@')[-1]
+    login_domain = request.session['swap_domain'] if request.session.get('swap_login') else request.GET.get('domain')
+    login_domain = login_domain.strip().lower().split('//')[-1].split('/')[0].split('@')[-1]
     domain = get_instance_domain(login_domain)
     app = MastodonApplication.objects.filter(domain_name=domain).first()
     if app is None:
@@ -150,6 +177,18 @@ def connect(request):
         resp = redirect(login_url)
         resp.set_cookie("mastodon_domain", domain)
         return resp
+
+
+@mastodon_request_included
+@login_required
+def reconnect(request):
+    if request.method == 'POST':
+        request.session['swap_login'] = True
+        request.session['swap_domain'] = request.POST['domain']
+        return connect(request)
+    else:
+        return HttpResponseBadRequest()
+
 
 @mastodon_request_included
 @login_required

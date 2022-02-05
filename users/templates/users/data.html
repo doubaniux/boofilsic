@@ -196,13 +196,33 @@
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans 'Mastodon/Pleroma社交关系数据' %}</h5>
+                                    <h5 class="import-panel__label">{% trans '更新社交关系数据' %}</h5>
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:sync_mastodon' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
                                             <input type="submit" class="import-panel__button" value="{% trans '同步' %}" id="uploadBtn" /> 上次更新时间 {{ user.mastodon_last_refresh }}
                                             <div>
-                                                为了正确展示短评和评论，NeoDB会缓存你的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
+                                            为了正确高效的展示短评和评论，NeoDB会缓存你在联邦网络的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '替换社交账号' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:reconnect' %}" method="POST" >
+                                            {% csrf_token %}
+                                            <div class="import-panel__checkbox">输入新社交账号所在的实例域名
+                                            <input type="input" name="domain" value="" placeholder="例如mastodon.online">
+                                            <input type="submit" class="import-panel__button" value="{% trans '登录新账号' %}" id="uploadBtn" />
+                                            </div>
+                                            <div>
+                                            替换后可使用新的联邦网络身份来登录NeoDB和控制数据可见性，已有的标记评论收藏单等数据不受影响。
                                             </div>
                                         </form>
                                     </div>
@@ -217,9 +237,11 @@
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:clear_data' %}" method="POST" >
                                             {% csrf_token %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '永久删除' %}" id="uploadBtn" />
                                             <div class="import-panel__checkbox">输入完整的 用户名@实例名 以确认删除
                                             <input type="input" name="verification" value="" placeholder="user@mastodon.social">
+                                            <input type="submit" class="import-panel__button" value="{% trans '永久删除' %}" id="uploadBtn" />
+                                            </div>
+                                            <div>
                                             删除将无法撤销
                                             </div>
                                         </form>

@@ -6,6 +6,7 @@ urlpatterns = [
     path('login/', login, name='login'),
     path('register/', register, name='register'),
     path('connect/', connect, name='connect'),
+    path('reconnect/', reconnect, name='reconnect'),
     path('data/', data, name='data'),
     path('data/export_reviews', export_reviews, name='export_reviews'),
     path('data/export_marks', export_marks, name='export_marks'),
