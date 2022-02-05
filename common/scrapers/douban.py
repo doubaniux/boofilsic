@@ -11,6 +11,7 @@ from music.models import Album
 from music.forms import AlbumForm
 from games.models import Game
 from games.forms import GameForm
+from django.core.validators import URLValidator
 from django.conf import settings
 from PIL import Image
 from io import BytesIO
@@ -432,6 +433,11 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
         site_elem = content.xpath(
             "//div[@id='info']//span[text()='官方网站:']/following-sibling::a[1]/@href")
         site = site_elem[0].strip() if site_elem else None
+        try:
+            validator = URLValidator()
+            validator(site)
+        except ValidationError:
+            site = None
 
         area_elem = content.xpath(
             "//div[@id='info']//span[text()='制片国家/地区:']/following-sibling::text()[1]")
@@ -461,7 +467,6 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
             duration = None
 
         season_elem = content.xpath(
-
             "//*[@id='season']/option[@selected='selected']/text()")
         if not season_elem:
             season_elem = content.xpath(
