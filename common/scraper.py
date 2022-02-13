@@ -139,7 +139,7 @@ class AbstractScraper:
         """
         url = cls.regex.findall(raw_url.replace('http:', 'https:'))  # force all http to be https
         if not url:
-            raise ValueError("not valid url")
+            raise ValueError(f"not valid url: {raw_url}")
         return url[0]
 
     @classmethod

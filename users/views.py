@@ -147,7 +147,7 @@ def connect(request):
         try:
             response = create_app(domain)
         except (requests.exceptions.Timeout, ConnectionError):
-            error_msg = _("长毛象请求超时。")
+            error_msg = _("联邦网络请求超时。")
         except Exception as e:
             error_msg = str(e)
         else:
@@ -222,7 +222,7 @@ def register(request):
                 request,
                 'common/error.html',
                 {
-                    'msg': _("长毛象访问失败😫")
+                    'msg': _("联邦网络访问失败😫")
                 }
             )
         new_user = User(
@@ -273,8 +273,8 @@ def home(request, id):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
-            sec_msg = _("目前只开放本站用户注册")
+            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
+            sec_msg = _("目前支持来自Mastodon和Pleroma实例的用户注册")
             return render(
                 request,
                 'common/error.html',
@@ -485,7 +485,7 @@ def followers(request, id):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
             sec_msg = _("目前只开放本站用户注册")
             return render(
                 request,
@@ -537,7 +537,7 @@ def following(request, id):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
             sec_msg = _("目前只开放本站用户注册")
             return render(
                 request,
@@ -592,7 +592,7 @@ def book_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
             sec_msg = _("目前只开放本站用户注册")
             return render(
                 request,
@@ -678,7 +678,7 @@ def movie_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
             sec_msg = _("目前只开放本站用户注册")
             return render(
                 request,
@@ -764,7 +764,7 @@ def game_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
             sec_msg = _("目前只开放本站用户注册")
             return render(
                 request,
@@ -850,7 +850,7 @@ def music_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
             sec_msg = _("目前只开放本站用户注册")
             return render(
                 request,
@@ -1009,7 +1009,7 @@ def collection_list(request, id):
     try:
         user = User.objects.get(**query_kwargs)
     except ObjectDoesNotExist:
-        msg = _("😖哎呀这位老师还没有注册书影音呢，快去长毛象喊TA来吧！")
+        msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
         sec_msg = _("目前只开放本站用户注册")
         return render(
             request,

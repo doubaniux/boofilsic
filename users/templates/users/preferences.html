@@ -29,11 +29,11 @@
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '联邦网络（长毛象）相关设置' %}</h5>
+                                    <h5 class="import-panel__label">{% trans '联邦网络（Mastodon/Pleroma）相关设置' %}</h5>
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:preferences' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
-                                            <span>{% trans '以公开方式分享的嘟文是否发布到公共时间轴上：' %}</span>
+                                            <span>{% trans '以公开方式分享的帖文是否发布到公共时间轴上：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if mastodon_publish_public%}checked{% endif %}>
                                                 <label for="visibility">{% trans '选中时为public，未选中时为unlisted' %}</label>

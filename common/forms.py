@@ -234,7 +234,7 @@ VISIBILITY_CHOICES = [
 class MarkForm(forms.ModelForm):    
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     share_to_mastodon = forms.BooleanField(
-        label=_("分享到长毛象"), initial=True, required=False)
+        label=_("分享到联邦网络"), initial=True, required=False)
     rating = forms.IntegerField(
         label=_("评分"), validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
     visibility = forms.TypedChoiceField(
@@ -266,7 +266,7 @@ class ReviewForm(forms.ModelForm):
     title = forms.CharField(label=_("标题"))
     content = MarkdownxFormField(label=_("正文 (Markdown)"))
     share_to_mastodon = forms.BooleanField(
-        label=_("分享到长毛象"), initial=True, required=False)
+        label=_("分享到联邦网络"), initial=True, required=False)
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     visibility = forms.TypedChoiceField(
         label=_("可见性"),
