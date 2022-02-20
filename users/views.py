@@ -163,7 +163,7 @@ def connect(request):
                     print(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
                 else:
                     app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
-                        client_secret=data['client_secret'], vapid_key=data['vapid_key'])
+                        client_secret=data['client_secret'], vapid_key=data['vapid_key'] if 'vapid_key' in data else '')
     if app is None:
         return render(request,
                 'common/error.html',
