@@ -48,15 +48,11 @@
         {% endif %}
 
         <span class="entity-list__entity-info">
-            {% if book.pub_year %}
-            {{ book.pub_year }}{% trans '年' %}
-            {% if book.pub_month %}
-            {{book.pub_month }}{% trans '月' %}
-            {% endif %}/
+            {% if book.pub_year %} /
+            {{ book.pub_year }}{% trans '年' %}{% if book.pub_month %}{{book.pub_month }}{% trans '月' %}{% endif %}
             {% endif %}
 
-            {% if book.author %}
-            {% trans '作者' %}:
+            {% if book.author %} /
             {% for author in book.author %}
             {% if request.GET.q %}
             {{ author | highlight:request.GET.q }}
@@ -64,11 +60,11 @@
             {{ author }}
             {% endif %}
             {% if not forloop.last %},{% endif %}
-            {% endfor %}/
+            {% endfor %}
             {% endif %}
 
-            {% if book.translator %}
-            {% trans '译者' %}:
+            {% if book.translator %} /
+            {% trans '翻译' %}:
             {% for translator in book.translator %}
             {% if request.GET.q %}
             {{ translator | highlight:request.GET.q }}
@@ -76,10 +72,19 @@
             {{ translator }}
             {% endif %}
             {% if not forloop.last %},{% endif %}
-            {% endfor %}/
+            {% endfor %}
             {% endif %}
 
-            {% if book.orig_title %}
+            {% if book.subtitle %} /
+            {% trans '副标题' %}:
+            {% if request.GET.q %}
+            {{ book.subtitle | highlight:request.GET.q }}
+            {% else %}
+            {{ book.subtitle }}
+            {% endif %}
+            {% endif %}
+
+            {% if book.orig_title %} /
             {% trans '原名' %}:
             {% if request.GET.q %}
             {{ book.orig_title | highlight:request.GET.q }}
