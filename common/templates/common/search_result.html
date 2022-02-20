@@ -50,7 +50,7 @@
                                     {% trans '无站内条目匹配' %}
                                     </li>
                                     {% endfor %}
-                                    {% if request.GET.q %}
+                                    {% if request.GET.q and user.is_authenticated %}
                                     <li class="entity-list__entity" hx-get="{% url 'common:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}" hx-trigger="revealed" hx-swap="outerHTML">
                                     {% trans '正在实时搜索站外条目' %}
                                     </li>

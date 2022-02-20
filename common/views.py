@@ -51,7 +51,6 @@ def external_search(request):
     )
 
 
-@login_required
 def search(request):
     if settings.SEARCH_BACKEND is None:
         return search2(request)
@@ -91,7 +90,6 @@ def search(request):
     )
 
 
-@login_required
 def search2(request):
     if request.method == 'GET':
 

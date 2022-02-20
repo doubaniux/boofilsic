@@ -5,7 +5,7 @@ from django.utils.translation import gettext_lazy as _
 
 class MastodonApplication(models.Model):
     domain_name = models.CharField(_('site domain name'), max_length=100, unique=True)
-    app_id = models.PositiveIntegerField(_('in-site app id'))
+    app_id = models.PositiveIntegerField(_('in-site app id'))  # TODO Remove? bc 1) it seems useless 2) GoToSocial returns a hash text id
     client_id = models.CharField(_('client id'), max_length=100)
     client_secret = models.CharField(_('client secret'), max_length=100)
     vapid_key = models.CharField(_('vapid key'), max_length=200)
