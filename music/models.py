@@ -48,6 +48,16 @@ class Album(Entity):
     def __str__(self):
         return self.title
 
+    def get_json(self):
+        r = {
+            'artist': self.artist,
+            'release_date': self.release_date,
+            'genre': self.genre,
+            'publisher': self.company,
+        }
+        r.update(super().get_json())
+        return r
+
     def get_embed_link(self):
         if self.source_site == SourceSiteEnum.SPOTIFY.value:
             return self.source_url.replace("open.spotify.com/", "open.spotify.com/embed/")
@@ -94,6 +104,15 @@ class Song(Entity):
 
     def __str__(self):
         return self.title
+
+    def get_json(self):
+        r = {
+            'artist': self.artist,
+            'release_date': self.release_date,
+            'genre': self.genre,
+        }
+        r.update(super().get_json())
+        return r
 
     def get_embed_link(self):
         return self.source_url.replace("open.spotify.com/", "open.spotify.com/embed/") if self.source_site == SourceSiteEnum.SPOTIFY.value else None

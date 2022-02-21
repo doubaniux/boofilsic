@@ -63,6 +63,21 @@ class Book(Entity):
     def __str__(self):
         return self.title
     
+    def get_json(self):
+        r = {
+            'subtitle': self.subtitle,
+            'original_title': self.orig_title,
+            'author': self.author,
+            'translator': self.translator,
+            'publisher': self.pub_house,
+            'publish_year': self.pub_year,
+            'publish_month': self.pub_month,
+            'language': self.language,
+            'isbn': self.isbn,
+        }
+        r.update(super().get_json())
+        return r
+
     def get_absolute_url(self):
         return reverse("books:retrieve", args=[self.id])
 

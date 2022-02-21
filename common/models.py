@@ -59,6 +59,18 @@ class Entity(models.Model):
     def get_absolute_url(self):
         raise NotImplementedError("Subclass should implement this method")
 
+    def get_json(self):
+        return {
+            'title': self.title,
+            'brief': self.brief,
+            'rating': self.rating,
+            'url': settings.APP_WEBSITE + self.get_absolute_url(),
+            'cover_url': settings.APP_WEBSITE + self.cover.url,
+            'top_tags': self.tags[:5],
+            'category_name': self.verbose_category_name,
+            'other_info': self.other_info,
+        }
+
     def save(self, *args, **kwargs):
         """ update rating and strip source url scheme & querystring before save to db """
         if self.rating_number and self.rating_total_score:

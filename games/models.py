@@ -75,6 +75,18 @@ class Game(Entity):
     def __str__(self):
         return self.title
 
+    def get_json(self):
+        r = {
+            'developer': self.developer,
+            'other_title': self.other_title,
+            'publisher': self.publisher,
+            'release_date': self.release_date,
+            'platform': self.platform,
+            'genre': self.genre,
+        }
+        r.update(super().get_json())
+        return r
+
     def get_absolute_url(self):
         return reverse("games:retrieve", args=[self.id])
 

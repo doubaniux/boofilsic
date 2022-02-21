@@ -170,13 +170,28 @@ class Movie(Entity):
         else:
             return self.title
 
+    def get_json(self):
+        r = {
+            'other_title': self.other_title,
+            'original_title': self.orig_title,
+            'director': self.director,
+            'playwright': self.playwright,
+            'actor': self.actor,
+            'release_year': self.year,
+            'genre': self.genre,
+            'language': self.language,
+            'season': self.season,
+            'duration': self.duration,
+            'imdb_code': self.imdb_code,
+        }
+        r.update(super().get_json())
+        return r
 
     def get_absolute_url(self):
         return reverse("movies:retrieve", args=[self.id])
 
     def get_tags_manager(self):
         return self.movie_tags
-
 
     def get_genre_display(self):
         translated_genre = []

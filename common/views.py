@@ -25,6 +25,7 @@ from common.searcher import ExternalSources
 from management.models import Announcement
 from django.conf import settings
 from common.index import Indexer
+from django.http import JsonResponse
 
 
 logger = logging.getLogger(__name__)
@@ -68,17 +69,23 @@ def search(request):
                 "items": None,
             }
         )
-    url_validator = URLValidator()
-    try:
-        url_validator(keywords)
-        # validation success
-        return jump_or_scrape(request, keywords)
-    except ValidationError as e:
-        pass
-    #
+    if request.user.is_authenticated:
+        url_validator = URLValidator()
+        try:
+            url_validator(keywords)
+            # validation success
+            return jump_or_scrape(request, keywords)
+        except ValidationError as e:
+            pass
+    
     result = Indexer.search(keywords, page=page_number, category=category, tag=tag)
     for item in result.items:
         item.tag_list = item.all_tag_list[:TAG_NUMBER_ON_LIST]
+    if request.path.endswith('.json/'):
+        return JsonResponse({
+            'num_pages': result.num_pages,
+            'items':list(map(lambda i:i.get_json(), result.items))
+            })
     return render(
         request,
         "common/search_result.html",
