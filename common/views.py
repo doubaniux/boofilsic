@@ -392,7 +392,7 @@ def jump_or_scrape(request, url):
     scraper = get_scraper_by_url(url)
     if scraper is None:
         # invalid url
-        return render(request, 'common/error.html', {'msg': _("链接非法，查询失败")})
+        return render(request, 'common/error.html', {'msg': _("链接无效，查询失败")})
     else:
         try:
             # raise ObjectDoesNotExist

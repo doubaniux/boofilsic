@@ -231,7 +231,7 @@ def get_scraper_by_url(url):
     parsed_url = urllib.parse.urlparse(url)
     hostname = parsed_url.netloc
     for host in scraper_registry:
-        if host == hostname:
+        if host in url:
             return scraper_registry[host]
     # TODO move this logic to scraper class
     try:
