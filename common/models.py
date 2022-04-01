@@ -7,7 +7,6 @@ from django.core.serializers.json import DjangoJSONEncoder
 from django.db.models import Q, Count
 from markdownx.models import MarkdownxField
 from users.models import User
-from mastodon.api import get_relationships, get_cross_site_id
 from django.utils import timezone
 from django.conf import settings
 

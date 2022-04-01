@@ -26,6 +26,7 @@ class User(AbstractUser):
     # mastodon domain name, eg donotban.com
     mastodon_site = models.CharField(max_length=100, blank=False)
     mastodon_token = models.CharField(max_length=100, default='')
+    mastodon_refresh_token = models.CharField(max_length=100, default='')
     mastodon_locked = models.BooleanField(default=False)
     mastodon_followers = models.JSONField(default=list)
     mastodon_following = models.JSONField(default=list)

@@ -43,7 +43,7 @@ from collection.models import Collection
 
 # Views
 ########################################
-def swap_login(request, token, site):
+def swap_login(request, token, site, refresh_token):
     del request.session['swap_login']
     del request.session['swap_domain']
     code, data = verify_account(site, token)
@@ -58,9 +58,12 @@ def swap_login(request, token, site):
                 messages.add_message(request, messages.ERROR, _(f'该身份 {username}@{site} 已被用于其它账号。'))
             except ObjectDoesNotExist:
                 current_user.username = username
+                current_user.mastodon_id = data['id']
                 current_user.mastodon_site = site
                 current_user.mastodon_token = token
-                current_user.save(update_fields=['username', 'mastodon_site', 'mastodon_token'])
+                current_user.mastodon_refresh_token = refresh_token
+                current_user.mastodon_account = data
+                current_user.save(update_fields=['username', 'mastodon_id', 'mastodon_site', 'mastodon_token', 'mastodon_refresh_token', 'mastodon_account'])
                 django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, current_user, token)
                 messages.add_message(request, messages.INFO, _(f'账号身份已更新为 {username}@{site}。'))
     else:
@@ -78,12 +81,12 @@ def OAuth2_login(request):
 
         # Network IO
         try:
-            token = obtain_token(site, request, code)
+            token, refresh_token = obtain_token(site, request, code)
         except ObjectDoesNotExist:
             return HttpResponseBadRequest("Mastodon site not registered")
         if token:
             if request.session.get('swap_login', False) and request.user.is_authenticated: # swap login for existing user
-                return swap_login(request, token, site)
+                return swap_login(request, token, site, refresh_token)
             user = authenticate(request, token=token, site=site)
             if user:
                 auth_login(request, user, token)
@@ -98,6 +101,7 @@ def OAuth2_login(request):
             else:
                 # will be passed to register page
                 request.session['new_user_token'] = token
+                request.session['new_user_refresh_token'] = refresh_token
                 return redirect(reverse('users:register'))
         else:
             return render(
@@ -142,38 +146,11 @@ def connect(request):
     login_domain = request.session['swap_domain'] if request.session.get('swap_login') else request.GET.get('domain')
     login_domain = login_domain.strip().lower().split('//')[-1].split('/')[0].split('@')[-1]
     domain = get_instance_domain(login_domain)
-    app = MastodonApplication.objects.filter(domain_name=domain).first()
+    app, error_msg = get_mastodon_application(domain)
     if app is None:
-        try:
-            response = create_app(domain)
-        except (requests.exceptions.Timeout, ConnectionError):
-            error_msg = _("联邦网络请求超时。")
-        except Exception as e:
-            error_msg = str(e)
-        else:
-            # fill the form with returned data
-            if response.status_code != 200:
-                error_msg = "实例连接错误，代码: " + str(response.status_code)
-                print(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
-            else:
-                try:
-                    data = response.json()
-                except Exception as e:
-                    error_msg = "实例返回内容无法识别"
-                    print(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
-                else:
-                    app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
-                        client_secret=data['client_secret'], vapid_key=data['vapid_key'] if 'vapid_key' in data else '')
-    if app is None:
-        return render(request,
-                'common/error.html',
-                {
-                    'msg': error_msg,
-                    'secondary_msg': "",
-                }
-            )
+        return render(request, 'common/error.html', {'msg': error_msg, 'secondary_msg': "", })
     else:
-        login_url = "https://" + login_domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=" + quote(settings.MASTODON_CLIENT_SCOPE) + "&redirect_uri=" + request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login') + "&response_type=code"
+        login_url = get_mastodon_login_url(app, login_domain, request)
         resp = redirect(login_url)
         resp.set_cookie("mastodon_domain", domain)
         return resp
@@ -216,8 +193,9 @@ def register(request):
             return HttpResponseBadRequest()
     elif request.method == 'POST':
         token = request.session['new_user_token']
-        user_data = get_user_data(request.COOKIES['mastodon_domain'], token)
-        if user_data is None:
+        refresh_token = request.session['new_user_refresh_token']
+        code, user_data = verify_account(request.COOKIES['mastodon_domain'], token)
+        if code != 200 or user_data is None:
             return render(
                 request,
                 'common/error.html',
@@ -229,9 +207,13 @@ def register(request):
             username=user_data['username'],
             mastodon_id=user_data['id'],
             mastodon_site=request.COOKIES['mastodon_domain'],
+            mastodon_token=token,
+            mastodon_refresh_token=refresh_token,
+            mastodon_account=user_data,
         )
         new_user.save()
         del request.session['new_user_token']
+        del request.session['new_user_refresh_token']
         auth_login(request, new_user, token)
         response = redirect(reverse('common:home'))
         response.delete_cookie('mastodon_domain')

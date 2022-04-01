@@ -45,13 +45,15 @@ API_CREATE_APP = '/api/v1/apps'
 # GET
 API_SEARCH = '/api/v2/search'
 
+TWITTER_DOMAIN = 'twitter.com'
+TWITTER_API = 'api.twitter.com'
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
 
 
 # low level api below
-def get_relationships(site, id_list, token):
+def get_relationships(site, id_list, token):  # no longer in use
     url = 'https://' + site + API_GET_RELATIONSHIPS
     payload = {'id[]': id_list}
     headers = {
@@ -63,29 +65,40 @@ def get_relationships(site, id_list, token):
 
 
 def post_toot(site, content, visibility, token, local_only=False):
-    url = 'https://' + site + API_PUBLISH_TOOT
     headers = {
         'User-Agent': 'NeoDB/1.0',
         'Authorization': f'Bearer {token}',
         'Idempotency-Key': random_string_generator(16)
     }
-    payload = {
-        'status': content,
-        'visibility': visibility,
-        'local_only': True,
-    }
-    if not local_only:
-        del payload['local_only']
-    response = post(url, headers=headers, data=payload)
+    if site == TWITTER_DOMAIN:
+        url = 'https://api.twitter.com/2/tweets'
+        payload = {
+            'text': content if len(content) <= 150 else content[0:150] + '...'
+        }
+        response = post(url, headers=headers, json=payload)
+    else:
+        url = 'https://' + site + API_PUBLISH_TOOT
+        payload = {
+            'status': content,
+            'visibility': visibility,
+        }
+        if local_only:
+            payload['local_only'] = True
+        response = post(url, headers=headers, data=payload)
+    if response.status_code == 201:
+        response.status_code = 200
     return response
 
 
 def get_instance_domain(domain_name):
+    if domain_name.lower().strip() == TWITTER_DOMAIN:
+        return TWITTER_DOMAIN
     try:
         response = get(f'https://{domain_name}/api/v1/instance', headers={'User-Agent': 'NeoDB/1.0'})
         return response.json()['uri'].lower().split('//')[-1].split('/')[0]
     except:
         return domain_name
+
 
 def create_app(domain_name):
     # naive protocal strip
@@ -154,6 +167,8 @@ def get_cross_site_id(target_user, target_site, token):
     """
     if target_site == target_user.mastodon_site:
         return target_user.mastodon_id
+    if target_site == TWITTER_DOMAIN:
+        return None
 
     try:
         cross_site_info = CrossSiteUserInfo.objects.get(
@@ -182,14 +197,36 @@ def random_string_generator(n):
 
 
 def verify_account(site, token):
+    if site == TWITTER_DOMAIN:
+        url = 'https://' + TWITTER_API + '/2/users/me?user.fields=id,username,name,description,profile_image_url,created_at,protected'
+        try:
+            response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
+            if response.status_code != 200:
+                print(url)
+                print(response.status_code)
+                print(response.text)
+                return response.status_code, None
+            r = response.json()['data']
+            r['display_name'] = r['name']
+            r['note'] = r['description']
+            r['avatar'] = r['profile_image_url']
+            r['avatar_static'] = r['profile_image_url']
+            r['locked'] = r['protected']
+            r['url'] = f'https://{TWITTER_DOMAIN}/{r["username"]}'
+            return 200, r
+        except Exception:
+            return -1, None
     url = 'https://' + site + API_VERIFY_ACCOUNT
     try:
         response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
-        return response.status_code, response.json() if response.status_code == 200 else None
+        return response.status_code, (response.json() if response.status_code == 200 else None)
     except Exception:
         return -1, None
 
+
 def get_related_acct_list(site, token, api):
+    if site == TWITTER_DOMAIN:
+        return []
     url = 'https://' + site + api
     results = []
     while url:
