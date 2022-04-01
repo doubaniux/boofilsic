@@ -16,3 +16,4 @@ setproctitle
 tqdm
 opencc
 dnspython
+typesense

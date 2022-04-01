@@ -141,7 +141,7 @@ def get_site_id(username, user_site, target_site, token):
     }
     response = get(url, params=payload, headers=headers)
     data = response.json()
-    if not data['accounts']: 
+    if 'accounts' not in data: 
         return None
     elif len(data['accounts']) == 0:  # target site may return empty if no cache of this user
         return None
