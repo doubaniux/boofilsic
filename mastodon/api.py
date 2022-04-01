@@ -90,14 +90,15 @@ def post_toot(site, content, visibility, token, local_only=False):
     return response
 
 
-def get_instance_domain(domain_name):
+def get_instance_info(domain_name):
     if domain_name.lower().strip() == TWITTER_DOMAIN:
-        return TWITTER_DOMAIN
+        return TWITTER_DOMAIN, ''
     try:
         response = get(f'https://{domain_name}/api/v1/instance', headers={'User-Agent': 'NeoDB/1.0'})
-        return response.json()['uri'].lower().split('//')[-1].split('/')[0]
+        j = response.json()
+        return j['uri'].lower().split('//')[-1].split('/')[0], j['version']
     except:
-        return domain_name
+        return domain_name, ''
 
 
 def create_app(domain_name):

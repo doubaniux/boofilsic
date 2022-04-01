@@ -1,7 +1,7 @@
 from django.core.management.base import BaseCommand
 from mastodon.models import MastodonApplication
 from django.conf import settings
-from mastodon.api import get_instance_domain
+from mastodon.api import get_instance_info
 from users.models import User
 
 
@@ -12,7 +12,7 @@ class Command(BaseCommand):
         for site in MastodonApplication.objects.all():
             d = site.domain_name
             login_domain = d.strip().lower().split('//')[-1].split('/')[0].split('@')[-1]
-            domain = get_instance_domain(login_domain)
+            domain, version = get_instance_info(login_domain)
             if d != domain:
                 print(f'{d} should be {domain}')
                 for u in User.objects.filter(mastodon_site=d, is_active=True):
