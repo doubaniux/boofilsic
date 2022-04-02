@@ -55,7 +55,7 @@
                                 {% if song.last_editor %}
                                 <div>
                                     {% trans '最近编辑者：' %}
-                                    <a href="{% url 'users:home' song.last_editor.id %}">
+                                    <a href="{% url 'users:home' song.last_editor.mastodon_username %}">
                                         <span>{{ song.last_editor | default:"" }}</span>
                                     </a>
                                 </div>

@@ -873,9 +873,9 @@
                                             <ul class="report-panel__report-list">
                                                 {% for report in reports %}
                                                 <li class="report-panel__report">
-                                                    <a href="{% url 'users:home' report.submit_user.id %}"
+                                                    <a href="{% url 'users:home' report.submit_user.mastodon_username %}"
                                                         class="report-panel__user-link">{{ report.submit_user }}</a>{% trans '举报了' %}<a
-                                                        href="{% url 'users:home' report.reported_user.id %}"
+                                                        href="{% url 'users:home' report.reported_user.mastodon_username %}"
                                                         class="report-panel__user-link">{{ report.reported_user }}</a>
                                                 </li>
                                                 {% empty %}

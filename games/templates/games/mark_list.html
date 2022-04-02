@@ -40,7 +40,7 @@
                                     {% for mark in marks %}
                                         
                                     <li class="entity-marks__mark entity-marks__mark--wider">
-                                        <a href="{% url 'users:home' mark.owner.id %}"
+                                        <a href="{% url 'users:home' mark.owner.mastodon_username %}"
                                             class="entity-marks__owner-link">{{ mark.owner.username }}</a>
                                         <span>{{ mark.get_status_display }}</span>
                                         {% if mark.rating %}

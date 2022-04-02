@@ -40,7 +40,7 @@
 
                                     <li class="entity-reviews__review entity-reviews__review--wider">
 
-                                        <a href="{% url 'users:home' review.owner.id %}"
+                                        <a href="{% url 'users:home' review.owner.mastodon_username %}"
                                             class="entity-reviews__owner-link">{{ review.owner.username }}</a>
                                         {% if review.visibility > 0 %}
                                         <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"

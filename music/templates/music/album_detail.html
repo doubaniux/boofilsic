@@ -130,7 +130,7 @@
                                         
                                     
                                         {% if album.last_editor %}
-                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' album.last_editor.id %}">{{ album.last_editor | default:"" }}</a></div>
+                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' album.last_editor.mastodon_username %}">{{ album.last_editor | default:"" }}</a></div>
                                         {% endif %}
 
                                         <div>
@@ -224,7 +224,7 @@
                                 <ul class="entity-marks__mark-list">                                    
                                 {% for others_mark in mark_list %}
                                 <li class="entity-marks__mark">
-                                    <a href="{% url 'users:home' others_mark.owner.id %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
+                                    <a href="{% url 'users:home' others_mark.owner.mastodon_username %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
                                     <span>{{ others_mark.get_status_display }}</span>
                                     {% if others_mark.rating %}
                                     <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
@@ -253,7 +253,7 @@
                                 <ul class="entity-reviews__review-list">
                                 {% for others_review in review_list %}
                                 <li class="entity-reviews__review">
-                                    <a href="{% url 'users:home' others_review.owner.id %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
+                                    <a href="{% url 'users:home' others_review.owner.mastodon_username %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
                                     {% if others_review.visibility > 0 %}
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}

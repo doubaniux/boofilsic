@@ -228,6 +228,15 @@ def delete(request):
     raise NotImplementedError
 
 
+def home_redirect(request, id):
+    try:
+        query_kwargs = {'pk': id}
+        user = User.objects.get(**query_kwargs)
+        return redirect(reverse("users:home", args=[user.mastodon_username]))
+    except Exception:
+        return redirect(settings.LOGIN_URL)
+
+
 def home_anonymous(request, id):
     login_url = settings.LOGIN_URL + "?next=" + request.get_full_path()
     try:
@@ -950,7 +959,7 @@ def report(request):
             form.instance.is_read = False
             form.instance.submit_user = request.user
             form.save()
-            return redirect(reverse("users:home", args=[form.instance.reported_user.id]))
+            return redirect(reverse("users:home", args=[form.instance.reported_user.mastodon_username]))
         else:
             return render(
                 request,

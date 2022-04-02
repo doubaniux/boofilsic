@@ -55,7 +55,7 @@
                                 {% if game.last_editor %}
                                 <div>
                                     {% trans '最近编辑者：' %}
-                                    <a href="{% url 'users:home' game.last_editor.id %}">
+                                    <a href="{% url 'users:home' game.last_editor.mastodon_username %}">
                                         <span>{{ game.last_editor | default:"" }}</span>
                                     </a>
                                 </div>
