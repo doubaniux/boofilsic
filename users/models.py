@@ -69,6 +69,9 @@ class User(AbstractUser):
         if mastodon_account:
             self.mastodon_account = mastodon_account
             self.mastodon_locked = mastodon_account['locked']
+            if self.username != mastodon_account['username']:
+                print(f"username changed from {self} to {mastodon_account['username']}")
+                self.username = mastodon_account['username']
             # self.mastodon_token = token
             # user.mastodon_id  = mastodon_account['id']
             self.mastodon_followers = get_related_acct_list(self.mastodon_site, self.mastodon_token, f'/api/v1/accounts/{self.mastodon_id}/followers')

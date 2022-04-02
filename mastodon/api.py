@@ -48,7 +48,12 @@ API_CREATE_APP = '/api/v1/apps'
 API_SEARCH = '/api/v2/search'
 
 TWITTER_DOMAIN = 'twitter.com'
-TWITTER_API = 'api.twitter.com'
+
+TWITTER_API_ME = 'https://api.twitter.com/2/users/me'
+
+TWITTER_API_POST = 'https://api.twitter.com/2/tweets'
+
+TWITTER_API_TOKEN = 'https://api.twitter.com/2/oauth2/token'
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
@@ -73,7 +78,7 @@ def post_toot(site, content, visibility, token, local_only=False):
         'Idempotency-Key': random_string_generator(16)
     }
     if site == TWITTER_DOMAIN:
-        url = 'https://api.twitter.com/2/tweets'
+        url = TWITTER_API_POST
         payload = {
             'text': content if len(content) <= 150 else content[0:150] + '...'
         }
@@ -201,7 +206,7 @@ def random_string_generator(n):
 
 def verify_account(site, token):
     if site == TWITTER_DOMAIN:
-        url = 'https://' + TWITTER_API + '/2/users/me?user.fields=id,username,name,description,profile_image_url,created_at,protected'
+        url = TWITTER_API_ME + '?user.fields=id,username,name,description,profile_image_url,created_at,protected'
         try:
             response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
             if response.status_code != 200:
@@ -307,7 +312,7 @@ def obtain_token(site, request, code):
     if mast_app.is_proxy:
         url = 'https://' + mast_app.proxy_to + API_OBTAIN_TOKEN
     elif site == TWITTER_DOMAIN:
-        url = 'https://api.twitter.com/2/oauth2/token'
+        url = TWITTER_API_TOKEN
         auth = (mast_app.client_id, mast_app.client_secret)
         del payload['client_secret']
     else:
@@ -327,7 +332,7 @@ def refresh_access_token(site, refresh_token):
     if site != TWITTER_DOMAIN:
         return None
     mast_app = MastodonApplication.objects.get(domain_name=site)
-    url = 'https://api.twitter.com/2/oauth2/token'
+    url = TWITTER_API_TOKEN
     payload = {
         'client_id': mast_app.client_id,
         'refresh_token': refresh_token,
