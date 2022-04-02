@@ -9,7 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from .models import User, Report, Preference
 from .forms import ReportForm
-from mastodon.auth import *
 from mastodon.api import *
 from mastodon import mastodon_request_included
 from common.config import *
@@ -89,7 +88,10 @@ def OAuth2_login(request):
                 return swap_login(request, token, site, refresh_token)
             user = authenticate(request, token=token, site=site)
             if user:
-                auth_login(request, user, token)
+                user.mastodon_token = token
+                user.mastodon_refresh_token = refresh_token
+                user.save(update_fields=['mastodon_token', 'mastodon_refresh_token'])
+                auth_login(request, user)
                 if request.session.get('next_url') is not None:
                     response = redirect(request.session.get('next_url'))
                     del request.session['next_url']
@@ -171,7 +173,7 @@ def reconnect(request):
 @login_required
 def logout(request):
     if request.method == 'GET':
-        # revoke_token(request.user.mastodon_site, request.session['oauth_token'])
+        # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
         auth_logout(request)
         return redirect(reverse("users:login"))
     else:
@@ -182,7 +184,7 @@ def logout(request):
 def register(request):
     """ register confirm page """
     if request.method == 'GET':
-        if request.session.get('oauth_token'):
+        if request.user.is_authenticated:
             return redirect(reverse('common:home'))
         elif request.session.get('new_user_token'):
             return render(
@@ -214,7 +216,7 @@ def register(request):
         new_user.save()
         del request.session['new_user_token']
         del request.session['new_user_refresh_token']
-        auth_login(request, new_user, token)
+        auth_login(request, new_user)
         response = redirect(reverse('common:home'))
         response.delete_cookie('mastodon_domain')
         return response
@@ -224,6 +226,7 @@ def register(request):
 
 def delete(request):
     raise NotImplementedError
+
 
 def home_anonymous(request, id):
     login_url = settings.LOGIN_URL + "?next=" + request.get_full_path()
@@ -237,6 +240,7 @@ def home_anonymous(request, id):
                 })
     except Exception:
         return redirect(login_url)
+
 
 @mastodon_request_included
 def home(request, id):
@@ -301,10 +305,10 @@ def home(request, id):
 
             # cross site info for visiting other's home page
             user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+                user, request.user.mastodon_site, request.user.mastodon_token)
 
             # make queries
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -435,6 +439,7 @@ def filter_marks(querysets, maximum, type_name):
 
     return result
 
+
 def count_marks(querysets, type_name):
     """
     Count all available marks, then assembly a dict to be used in template
@@ -479,7 +484,7 @@ def followers(request, id):
             )
         # mastodon request
         if not user == request.user:
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -490,7 +495,7 @@ def followers(request, id):
                     }
                 )
             user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+                user, request.user.mastodon_site, request.user.mastodon_token)
         return render(
             request,
             'users/relation_list.html',
@@ -531,7 +536,7 @@ def following(request, id):
             )
         # mastodon request
         if not user == request.user:
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -542,7 +547,7 @@ def following(request, id):
                     }
                 )
             user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+                user, request.user.mastodon_site, request.user.mastodon_token)
         return render(
             request,
             'users/relation_list.html',
@@ -587,7 +592,7 @@ def book_list(request, id, status):
         tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -605,7 +610,7 @@ def book_list(request, id, status):
                 queryset = BookMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
             user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+                user, request.user.mastodon_site, request.user.mastodon_token)
         else:
             if status == 'reviewed':
                 queryset = BookReview.objects.filter(owner=user).order_by("-edited_time")
@@ -673,7 +678,7 @@ def movie_list(request, id, status):
         tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -684,7 +689,7 @@ def movie_list(request, id, status):
                     }
                 )
             user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+                user, request.user.mastodon_site, request.user.mastodon_token)
             if status == 'reviewed':
                 queryset = MovieReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
@@ -759,7 +764,7 @@ def game_list(request, id, status):
         tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -770,7 +775,7 @@ def game_list(request, id, status):
                     }
                 )
             user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+                user, request.user.mastodon_site, request.user.mastodon_token)
             if status == 'reviewed':
                 queryset = GameReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
@@ -845,7 +850,7 @@ def music_list(request, id, status):
         tag = request.GET.get('t', default='')
         if not user == request.user:
             # mastodon request
-            relation = get_relationship(request.user, user, request.session['oauth_token'])[0]
+            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
             if relation['blocked_by']:
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
@@ -867,7 +872,7 @@ def music_list(request, id, status):
                         status=MarkStatusEnum[status.upper()]))
 
             user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.session['oauth_token'])
+                user, request.user.mastodon_site, request.user.mastodon_token)
         else:
             if status == 'reviewed':
                 queryset = list(AlbumReview.objects.filter(owner=user).order_by("-edited_time")) + \
@@ -1016,18 +1021,15 @@ def refresh_mastodon_data_task(user, token=None):
         print(f"{user} mastodon data refresh failed")
 
 
-def auth_login(request, user, token):
+def auth_login(request, user):
     """ Decorates django ``login()``. Attach token to session."""
-    request.session['oauth_token'] = token
     auth.login(request, user)
     if user.mastodon_last_refresh < timezone.now() - timedelta(hours=1) or user.mastodon_account == {}:
-        # refresh_mastodon_data_task(user, token)
-        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user, token)
+        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user)
 
 
 def auth_logout(request):
     """ Decorates django ``logout()``. Release token in session."""
-    del request.session['oauth_token']
     auth.logout(request)
 
 
@@ -1077,7 +1079,7 @@ def export_marks(request):
 @login_required
 def sync_mastodon(request):
     if request.method == 'POST':
-        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user, request.session['oauth_token'])
+        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user)
         messages.add_message(request, messages.INFO, _('同步已开始。'))
     return redirect(reverse("users:data"))
 

@@ -9,7 +9,6 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db.models import Count
 from .models import User, Report, Preference
 from .forms import ReportForm
-from mastodon.auth import *
 from mastodon.api import *
 from mastodon import mastodon_request_included
 from common.config import *

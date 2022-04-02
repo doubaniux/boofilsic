@@ -343,7 +343,7 @@ def create_update_song_mark(request):
                 content = words + '\n' + url + '\n' + \
                     form.cleaned_data['text'] + '\n' + tags
                 response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
+                                     request.user.mastodon_token)
                 if response.status_code != 200:
                     mastodon_logger.error(
                         f"CODE:{response.status_code} {response.text}")
@@ -436,7 +436,7 @@ def create_song_review(request, song_id):
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
                 response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
+                                     request.user.mastodon_token)
                 if response.status_code != 200:
                     mastodon_logger.error(
                         f"CODE:{response.status_code} {response.text}")
@@ -490,7 +490,7 @@ def update_song_review(request, id):
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
                 response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
+                                     request.user.mastodon_token)
                 if response.status_code != 200:
                     mastodon_logger.error(
                         f"CODE:{response.status_code} {response.text}")
@@ -918,7 +918,7 @@ def create_update_album_mark(request):
                 content = words + '\n' + url + '\n' + \
                     form.cleaned_data['text'] + '\n' + tags
                 response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
+                                     request.user.mastodon_token)
                 if response.status_code != 200:
                     mastodon_logger.error(
                         f"CODE:{response.status_code} {response.text}")
@@ -1011,7 +1011,7 @@ def create_album_review(request, album_id):
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
                 response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
+                                     request.user.mastodon_token)
                 if response.status_code != 200:
                     mastodon_logger.error(
                         f"CODE:{response.status_code} {response.text}")
@@ -1065,7 +1065,7 @@ def update_album_review(request, id):
                 content = words + '\n' + url + \
                     '\n' + form.cleaned_data['title'] + '\n' + tags
                 response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
+                                     request.user.mastodon_token)
                 if response.status_code != 200:
                     mastodon_logger.error(
                         f"CODE:{response.status_code} {response.text}")

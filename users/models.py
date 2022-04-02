@@ -61,6 +61,10 @@ class User(AbstractUser):
         """ Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db """
         self.mastodon_last_refresh = timezone.now()
         code, mastodon_account = verify_account(self.mastodon_site, self.mastodon_token)
+        if code == 401 and self.mastodon_refresh_token:
+            self.mastodon_token = refresh_access_token(self.mastodon_site, self.mastodon_refresh_token)
+            if self.mastodon_token:
+                code, mastodon_account = verify_account(self.mastodon_site, self.mastodon_token)
         updated = False
         if mastodon_account:
             self.mastodon_account = mastodon_account
