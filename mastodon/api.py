@@ -291,7 +291,7 @@ def get_mastodon_login_url(app, login_domain, version, request):
     url = request.scheme + "://" + request.get_host() + reverse('users:OAuth2_login')
     if login_domain == TWITTER_DOMAIN:
         return f"https://twitter.com/i/oauth2/authorize?response_type=code&client_id={app.client_id}&redirect_uri={quote(url)}&scope={quote(settings.TWITTER_CLIENT_SCOPE)}&state=state&code_challenge=challenge&code_challenge_method=plain"
-    scope = 'read' if 'Pixelfed' in version else settings.MASTODON_CLIENT_SCOPE
+    scope = settings.MASTODON_LEGACY_CLIENT_SCOPE if 'Pixelfed' in version else settings.MASTODON_CLIENT_SCOPE
     return "https://" + login_domain + "/oauth/authorize?client_id=" + app.client_id + "&scope=" + quote(scope) + "&redirect_uri=" + url + "&response_type=code"
 
 
