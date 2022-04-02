@@ -1,7 +1,7 @@
 dateparser
 django~=3.2.10
 django-hstore
-django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@a8eb0775767b075f5a5d08eed09f89739f832cce
+django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e2637fe9a548084f6e084c33e91f13083d3b4673
 django-sass
 django-rq
 django-hijack
