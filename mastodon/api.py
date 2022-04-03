@@ -304,8 +304,7 @@ def obtain_token(site, request, code):
         'client_secret': mast_app.client_secret,
         'redirect_uri': redirect_uri,
         'grant_type': 'authorization_code',
-        'code': code,
-        'code_verifier': 'challenge'
+        'code': code
     }
     headers = {'User-Agent': 'NeoDB/1.0'}
     auth = None
@@ -315,6 +314,7 @@ def obtain_token(site, request, code):
         url = TWITTER_API_TOKEN
         auth = (mast_app.client_id, mast_app.client_secret)
         del payload['client_secret']
+        payload['code_verifier'] = 'challenge'
     else:
         url = 'https://' + mast_app.domain_name + API_OBTAIN_TOKEN
     response = post(url, data=payload, headers=headers, auth=auth)
