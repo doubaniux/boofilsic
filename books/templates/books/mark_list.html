@@ -53,6 +53,10 @@
                                                     </svg></span>
                                         {% endif %}
                                         <span class="entity-marks__mark-time">{{ mark.edited_time }}</span>
+                                        {% if mark.book != book %}
+                                        <span class="entity-marks__mark-time source-label"><a class="entity-marks__mark-time" href="{% url 'books:retrieve' mark.book.id %}">{{ mark.book.get_source_site_display }}</a></span>
+                                        {% endif %}
+
                                         {% if mark.text %}
                                         <p class="entity-marks__mark-content">{{ mark.text }}</p>
                                         {% endif %}

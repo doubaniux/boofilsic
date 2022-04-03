@@ -186,8 +186,8 @@ def retrieve(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = BookMark.get_available(book, request.user)
-            review_list = BookReview.get_available(book, request.user)
+            mark_list = BookMark.get_available_for_identicals(book, request.user)
+            review_list = BookReview.get_available_for_identicals(book, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -284,7 +284,7 @@ def create_update_mark(request):
             form.instance.owner = request.user
             form.instance.edited_time = timezone.now()
             book = form.instance.book
-            
+
             try:
                 with transaction.atomic():
                     # update book rating
@@ -340,7 +340,7 @@ def create_update_mark(request):
 def retrieve_mark_list(request, book_id, following_only=False):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookMark.get_available(book, request.user, following_only=following_only)
+        queryset = BookMark.get_available_for_identicals(book, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -546,7 +546,7 @@ def retrieve_review(request, id):
 def retrieve_review_list(request, book_id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookReview.get_available(book, request.user)
+        queryset = BookReview.get_available_for_identicals(book, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)
