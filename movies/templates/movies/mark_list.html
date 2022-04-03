@@ -54,6 +54,11 @@
                                                     </svg></span>
                                         {% endif %}
                                         <span class="entity-marks__mark-time">{{ mark.edited_time }}</span>
+                                        <span class="entity-marks__mark-time">{{ mark.edited_time }}</span>
+                                        {% if mark.movie != movie %}
+                                        <span class="entity-marks__mark-time source-label"><a class="entity-marks__mark-time" href="{% url 'movies:retrieve' mark.movie.id %}">{{ mark.movie.get_source_site_display }}</a></span>
+                                        {% endif %}
+
                                         {% if mark.text %}
                                         <p class="entity-marks__mark-content">{{ mark.text }}</p>
                                         {% endif %}

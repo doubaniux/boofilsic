@@ -208,6 +208,15 @@ class Movie(Entity):
         qs = qs & ~Q(id=self.id)
         return Movie.objects.filter(qs).order_by('season')
 
+    def get_identicals(self):
+        qs = Q(orig_title=self.title)
+        if self.imdb_code:
+            qs = Q(imdb_code=self.imdb_code)
+            # qs = qs & ~Q(id=self.id)
+            return Movie.objects.filter(qs)
+        else:
+            return [self]  # Book.objects.filter(id=self.id)
+
     @property
     def verbose_category_name(self):
         if self.is_series:

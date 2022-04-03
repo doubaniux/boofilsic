@@ -268,6 +268,10 @@
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-marks__mark-time">{{ others_mark.edited_time }}</span>
+                                    {% if others_mark.movie != movie %}
+                                    <span class="entity-marks__mark-time source-label"><a class="entity-marks__mark-time" href="{% url 'movies:retrieve' others_mark.movie.id %}">{{ others_mark.movie.get_source_site_display }}</a></span>
+                                    {% endif %}
+
                                     {% if others_mark.text %}
                                     <p class="entity-marks__mark-content">{{ others_mark.text }}</p>
                                     {% endif %}
@@ -297,6 +301,10 @@
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
+                                    {% if others_review.movie != movie %}
+                                    <span class="entity-reviews__review-time source-label"><a class="entity-reviews__review-time" href="{% url 'movies:retrieve' others_review.movie.id %}">{{ others_review.movie.get_source_site_display }}</a></span>
+                                    {% endif %}
+
                                     <span class="entity-reviews__review-title"> <a href="{% url 'movies:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
                                     <span>{{ others_review.get_plain_content | truncate:100 }}</span>
                                 </li>

@@ -187,8 +187,8 @@ def retrieve(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = MovieMark.get_available(movie, request.user)
-            review_list = MovieReview.get_available(movie, request.user)
+            mark_list = MovieMark.get_available_for_identicals(movie, request.user)
+            review_list = MovieReview.get_available_for_identicals(movie, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -342,7 +342,7 @@ def create_update_mark(request):
 def retrieve_mark_list(request, movie_id, following_only=False):
     if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=movie_id)
-        queryset = MovieMark.get_available(movie, request.user, following_only=following_only)
+        queryset = MovieMark.get_available_for_identicals(movie, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -549,7 +549,7 @@ def retrieve_review(request, id):
 def retrieve_review_list(request, movie_id):
     if request.method == 'GET':
         movie = get_object_or_404(Movie, pk=movie_id)
-        queryset = MovieReview.get_available(movie, request.user)
+        queryset = MovieReview.get_available_for_identicals(movie, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)
