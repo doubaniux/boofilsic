@@ -5,6 +5,7 @@ django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e26
 django-sass
 django-rq
 django-hijack
+django-user-messages
 meilisearch
 easy-thumbnails
 lxml

@@ -1,15 +1,16 @@
 import re
 import requests
 from lxml import html
+from datetime import datetime
 # from common.scrapers.goodreads import GoodreadsScraper
 from common.scraper import get_scraper_by_url
 from books.models import Book, BookMark
 from collection.models import Collection
 from common.models import MarkStatusEnum
-from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from user_messages import api as msg
 import django_rq
+from django.utils.timezone import make_aware
 
 
 re_shelf = r'^https://www.goodreads.com/review/list/\d+[^?]*\?shelf=[^&]+'
@@ -65,14 +66,15 @@ class GoodreadsImporter:
                 for book in shelf['books']:
                     params = {
                         'owner': user,
-                        # 'created_time': data.time,
-                        # 'edited_time': data.time,
                         'rating': book['rating'],
                         'text': book['review'],
                         'status': status,
                         'visibility': 0,
                         'book': book['book'],
                     }
+                    if book['last_updated']:
+                        params['created_time'] = book['last_updated']
+                        params['edited_time'] = book['last_updated']
                     try:
                         mark = BookMark.objects.create(**params)
                         mark.book.update_rating(None, mark.rating)
@@ -84,63 +86,73 @@ class GoodreadsImporter:
 
     @classmethod
     def parse_shelf(cls, url, user):  # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
+        title = None
         books = []
         url_shelf = url + '&view=table'
         while url_shelf:
-            print(url_shelf)
+            print(f'Shelf loading {url_shelf}')
             r = requests.get(url_shelf, timeout=settings.SCRAPING_TIMEOUT)
+            if r.status_code != 200:
+                print(f'Shelf loading error {url_shelf}')
+                break
             url_shelf = None
-            if r.status_code == 200:
-                content = html.fromstring(r.content.decode('utf-8'))
+            content = html.fromstring(r.content.decode('utf-8'))
+            title_elem = content.xpath("//span[@class='h1Shelf']/text()")
+            if not title_elem:
+                print(f'Shelf parsing error {url_shelf}')
+                break
+            title = title_elem[0].strip()
+            print("Shelf title: " + title)
+            for cell in content.xpath("//tbody[@id='booksBody']/tr"):
+                url_book = 'https://www.goodreads.com' + \
+                    cell.xpath(
+                        ".//td[@class='field title']//a/@href")[0].strip()
+                # has_review = cell.xpath(
+                #     ".//td[@class='field actions']//a/text()")[0].strip() == 'view (with text)'
+                rating_elem = cell.xpath(
+                    ".//td[@class='field rating']//span/@title")
+                rating = gr_rating.get(
+                    rating_elem[0].strip()) if rating_elem else None
+                url_review = 'https://www.goodreads.com' + \
+                    cell.xpath(
+                        ".//td[@class='field actions']//a/@href")[0].strip()
+                review = ''
+                last_updated = None
                 try:
-                    title = content.xpath(
-                        "//span[@class='h1Shelf']/text()")[0].strip()
-                except IndexError:
-                    raise ValueError("given url contains no book info")
-                print(title)
-                for cell in content.xpath("//tbody[@id='booksBody']/tr"):
-                    url_book = 'https://www.goodreads.com' + \
-                        cell.xpath(
-                            ".//td[@class='field title']//a/@href")[0].strip()
-                    action = cell.xpath(
-                        ".//td[@class='field actions']//a/text()")[0].strip()
-                    rating_elem = cell.xpath(
-                        ".//td[@class='field rating']//span/@title")
-                    rating = gr_rating.get(
-                        rating_elem[0].strip()) if rating_elem else None
-                    url_review = 'https://www.goodreads.com' + \
-                        cell.xpath(
-                            ".//td[@class='field actions']//a/@href")[0].strip()
-                    review = ''
-                    try:
-                        if action == 'view (with text)':
-                            r2 = requests.get(
-                                url_review, timeout=settings.SCRAPING_TIMEOUT)
-                            if r2.status_code == 200:
-                                c2 = html.fromstring(r2.content.decode('utf-8'))
-                                review_elem = c2.xpath(
-                                    "//div[@itemprop='reviewBody']/text()")
-                                review = '\n'.join(
-                                    p.strip() for p in review_elem) if review_elem else ''
-                            else:
-                                print(r2.status_code)
-                        scraper = get_scraper_by_url(url_book)
-                        url_book = scraper.get_effective_url(url_book)
-                        book = Book.objects.filter(source_url=url_book).first()
-                        if not book:
-                            print("add new book " + url_book)
-                            scraper.scrape(url_book)
-                            form = scraper.save(request_user=user)
-                            book = form.instance
-                        books.append({
-                            'url': url_book,
-                            'book': book,
-                            'rating': rating,
-                            'review': review
-                        })
-                    except Exception:
-                        print("Error adding " + url_book)
-                        pass  # likely just download error
-                next_elem = content.xpath("//a[@class='next_page']/@href")
-                url_shelf = ('https://www.goodreads.com' + next_elem[0].strip()) if next_elem else None
+                    r2 = requests.get(
+                        url_review, timeout=settings.SCRAPING_TIMEOUT)
+                    if r2.status_code == 200:
+                        c2 = html.fromstring(r2.content.decode('utf-8'))
+                        review_elem = c2.xpath(
+                            "//div[@itemprop='reviewBody']/text()")
+                        review = '\n'.join(
+                            p.strip() for p in review_elem) if review_elem else ''
+                        date_elem = c2.xpath(
+                            "//div[@class='readingTimeline__text']/text()")
+                        for d in date_elem:
+                            date_matched = re.search(r'(\w+)\s+(\d+),\s+(\d+)', d)
+                            if date_matched:
+                                last_updated = make_aware(datetime.strptime(date_matched[1] + ' ' + date_matched[2] + ' ' + date_matched[3], '%B %d %Y'))
+                    else:
+                        print(f"Error loading review{url_review}, ignored")
+                    scraper = get_scraper_by_url(url_book)
+                    url_book = scraper.get_effective_url(url_book)
+                    book = Book.objects.filter(source_url=url_book).first()
+                    if not book:
+                        print("add new book " + url_book)
+                        scraper.scrape(url_book)
+                        form = scraper.save(request_user=user)
+                        book = form.instance
+                    books.append({
+                        'url': url_book,
+                        'book': book,
+                        'rating': rating,
+                        'review': review,
+                        'last_updated': last_updated
+                    })
+                except Exception:
+                    print("Error adding " + url_book)
+                    pass  # likely just download error
+            next_elem = content.xpath("//a[@class='next_page']/@href")
+            url_shelf = ('https://www.goodreads.com' + next_elem[0].strip()) if next_elem else None
         return {'title': title, 'books': books}
