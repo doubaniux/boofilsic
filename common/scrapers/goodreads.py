@@ -36,8 +36,7 @@ class GoodreadsScraper(AbstractScraper):
         if response is not None:
             content = html.fromstring(response.content.decode('utf-8'))
         else:
-            headers = DEFAULT_REQUEST_HEADERS.copy()
-            headers['Host'] = self.host
+            headers = None  # DEFAULT_REQUEST_HEADERS.copy()
             content = self.download_page(url, headers)
 
         try:

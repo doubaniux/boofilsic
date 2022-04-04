@@ -38,6 +38,7 @@ from movies.models import MovieMark, MovieReview
 from games.models import GameMark, GameReview
 from music.models import AlbumMark, SongMark, AlbumReview, SongReview
 from collection.models import Collection
+from common.importers.goodreads import GoodreadsImporter
 
 
 # Views
@@ -1140,4 +1141,15 @@ def clear_data(request):
             return redirect(reverse("users:login"))
         else:
             messages.add_message(request, messages.ERROR, _('验证信息不符。'))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def import_goodreads(request):
+    if request.method == 'POST':
+        raw_url = request.POST.get('url')
+        if GoodreadsImporter.import_from_url(raw_url, request.user):
+            messages.add_message(request, messages.INFO, _('开始后台导入。'))
+        else:
+            messages.add_message(request, messages.ERROR, _('无法识别链接。'))
     return redirect(reverse("users:data"))

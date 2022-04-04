@@ -146,15 +146,19 @@ class AbstractScraper:
     def download_page(cls, url, headers):
         url = cls.get_effective_url(url)
 
-        session_id = random.random()
-        proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
-                     (settings.LUMINATI_USERNAME, session_id, settings.LUMINATI_PASSWORD, PORT))
-        proxies = {
-            'http': proxy_url,
-            'https': proxy_url,
-        }
         if settings.LUMINATI_USERNAME is None:
             proxies = None
+            if settings.SCRAPESTACK_KEY is not None:
+                url = f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}'
+        else:
+            session_id = random.random()
+            proxy_url = ('http://%s-country-cn-session-%s:%s@zproxy.lum-superproxy.io:%d' %
+                         (settings.LUMINATI_USERNAME, session_id, settings.LUMINATI_PASSWORD, PORT))
+            proxies = {
+                'http': proxy_url,
+                'https': proxy_url,
+            }
+
         r = requests.get(url, proxies=proxies,
                          headers=headers, timeout=settings.SCRAPING_TIMEOUT)
 
