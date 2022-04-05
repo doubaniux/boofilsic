@@ -21,7 +21,7 @@ from common.scraper import *
 # https://developers.google.com/books/docs/v1/using
 class GoogleBooksScraper(AbstractScraper):
     site_name = SourceSiteEnum.GOOGLEBOOKS.value
-    host = "books.google.com"
+    host = ["books.google.com", "www.google.com/books"]
     data_class = Book
     form_class = BookForm
     regex = re.compile(r"https://books\.google\.com/books\?id=([^&#]+)")

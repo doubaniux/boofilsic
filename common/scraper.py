@@ -46,6 +46,7 @@ scraper_registry = {}
 
 def get_normalized_url(raw_url):
     url = re.sub(r'//m.douban.com/(\w+)/', r'//\1.douban.com/', raw_url)
+    url = re.sub(r'//www.google.com/books/edition/_/([A-Za-z0-9_\-]+)[\?]*', r'//books.google.com/books?id=\1&', url)
     return url
 
 
