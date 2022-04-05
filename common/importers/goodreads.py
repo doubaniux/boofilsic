@@ -13,6 +13,7 @@ import django_rq
 from django.utils.timezone import make_aware
 
 
+re_list = r'^https://www.goodreads.com/list/show/\d+'
 re_shelf = r'^https://www.goodreads.com/review/list/\d+[^?]*\?shelf=[^&]+'
 re_profile = r'^https://www.goodreads.com/user/show/(\d+)'
 gr_rating = {
@@ -29,9 +30,10 @@ gr_status = {
 class GoodreadsImporter:
     @classmethod
     def import_from_url(self, raw_url, user):
+        match_list = re.match(re_list, raw_url)
         match_shelf = re.match(re_shelf, raw_url)
         match_profile = re.match(re_profile, raw_url)
-        if match_profile or match_shelf:
+        if match_profile or match_shelf or match_list:
             django_rq.get_queue('doufen').enqueue(self.import_from_url_task, raw_url, user)
             return True
         else:
@@ -39,14 +41,15 @@ class GoodreadsImporter:
 
     @classmethod
     def import_from_url_task(cls, url, user):
+        match_list = re.match(re_list, url)
         match_shelf = re.match(re_shelf, url)
         match_profile = re.match(re_profile, url)
         total = 0
-        if match_shelf:
-            shelf = cls.parse_shelf(match_shelf[0], user)
+        if match_list or match_shelf:
+            shelf = cls.parse_shelf(match_shelf[0], user) if match_shelf else cls.parse_list(match_list[0], user)
             if shelf['title'] and shelf['books']:
                 collection = Collection.objects.create(title=shelf['title'],
-                                                       description='Imported from [Goodreads](' + url + ')',
+                                                       description=shelf['description'] + '\n\nImported from [Goodreads](' + url + ')',
                                                        owner=user)
                 for book in shelf['books']:
                     collection.append_item(book['book'], book['review'])
@@ -78,11 +81,11 @@ class GoodreadsImporter:
                     try:
                         mark = BookMark.objects.create(**params)
                         mark.book.update_rating(None, mark.rating)
-                    except Exception as e:
-                        # print(e)
+                    except Exception:
+                        print(f'Skip mark for {mark.book}')
                         pass
                     total += 1
-            msg.success(user, f'成功从Goodreads导入{total}个标记。')
+            msg.success(user, f'成功从Goodreads用户主页导入{total}个标记。')
 
     @classmethod
     def parse_shelf(cls, url, user):  # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
@@ -155,4 +158,47 @@ class GoodreadsImporter:
                     pass  # likely just download error
             next_elem = content.xpath("//a[@class='next_page']/@href")
             url_shelf = ('https://www.goodreads.com' + next_elem[0].strip()) if next_elem else None
-        return {'title': title, 'books': books}
+        return {'title': title, 'description': '', 'books': books}
+
+    @classmethod
+    def parse_list(cls, url, user):  # return {'title': 'abc', books: [{'book': obj, 'rating': 10, 'review': 'txt'}, ...]}
+        title = None
+        books = []
+        url_shelf = url
+        while url_shelf:
+            print(f'List loading {url_shelf}')
+            r = requests.get(url_shelf, timeout=settings.SCRAPING_TIMEOUT)
+            if r.status_code != 200:
+                print(f'List loading error {url_shelf}')
+                break
+            url_shelf = None
+            content = html.fromstring(r.content.decode('utf-8'))
+            title_elem = content.xpath('//h1[@class="gr-h1 gr-h1--serif"]/text()')
+            if not title_elem:
+                print(f'List parsing error {url_shelf}')
+                break
+            title = title_elem[0].strip()
+            description = content.xpath('//div[@class="mediumText"]/text()')[0].strip()
+            print("List title: " + title)
+            for link in content.xpath('//a[@class="bookTitle"]/@href'):
+                url_book = 'https://www.goodreads.com' + link
+                try:
+                    scraper = get_scraper_by_url(url_book)
+                    url_book = scraper.get_effective_url(url_book)
+                    book = Book.objects.filter(source_url=url_book).first()
+                    if not book:
+                        print("add new book " + url_book)
+                        scraper.scrape(url_book)
+                        form = scraper.save(request_user=user)
+                        book = form.instance
+                    books.append({
+                        'url': url_book,
+                        'book': book,
+                        'review': '',
+                    })
+                except Exception:
+                    print("Error adding " + url_book)
+                    pass  # likely just download error
+            next_elem = content.xpath("//a[@class='next_page']/@href")
+            url_shelf = ('https://www.goodreads.com' + next_elem[0].strip()) if next_elem else None
+        return {'title': title, 'description': description, 'books': books}
