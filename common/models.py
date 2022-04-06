@@ -170,6 +170,10 @@ class Entity(models.Model):
     def verbose_category_name(self):
         raise NotImplementedError("Subclass should implement this.")
 
+    @property
+    def mark_class(self):
+        raise NotImplementedError("Subclass should implement this.")
+
 
 class UserOwnedEntity(models.Model):
     is_private = models.BooleanField(default=False, null=True)  # first set allow null, then migration, finally (in a few days) remove for good
@@ -187,7 +191,7 @@ class UserOwnedEntity(models.Model):
         owner = self.owner
         if owner == viewer:
             return True
-        if owner.is_active == False:
+        if not owner.is_active:
             return False
         if self.visibility == 2:
             return False
@@ -233,6 +237,11 @@ class UserOwnedEntity(models.Model):
             user_owned_entities = user_owned_entities.filter(visibility=0)
         return user_owned_entities
 
+    @property
+    def item(self):
+        attr = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', self.__class__.__name__)[0].lower()
+        return getattr(self, attr)
+
 
 # commonly used entity classes
 ###################################
@@ -258,7 +267,7 @@ class Mark(UserOwnedEntity):
             models.CheckConstraint(check=models.Q(
                 rating__lte=10), name='mark_rating_upperbound'),
         ]
-    
+
     # TODO update entity rating when save
     # TODO update tags
 

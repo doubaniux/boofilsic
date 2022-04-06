@@ -100,6 +100,11 @@ class User(AbstractUser):
     def is_followed_by(self, target):
         return target.is_following(self)
 
+    def get_mark_for_item(self, item):
+        params = {item.__class__.__name__.lower() + '_id': item.id, 'owner': self}
+        mark = item.mark_class.objects.filter(**params).first()
+        return mark
+
 
 class Preference(models.Model):
     user = models.OneToOneField(User, models.CASCADE, primary_key=True)

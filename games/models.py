@@ -97,6 +97,10 @@ class Game(Entity):
     def verbose_category_name(self):
         return _("游戏")
 
+    @property
+    def mark_class(self):
+        return GameMark
+
 
 class GameMark(Mark):
     game = models.ForeignKey(

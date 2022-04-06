@@ -2,7 +2,7 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count
@@ -334,6 +334,26 @@ def create_update_mark(request):
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("games:retrieve", args=[form.instance.game.id]))
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def wish(request, id):
+    if request.method == 'POST':
+        game = get_object_or_404(Game, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': 0,
+            'game': game,
+        }
+        try:
+            GameMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
     else:
         return HttpResponseBadRequest("invalid method")
 

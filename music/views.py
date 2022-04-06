@@ -12,7 +12,7 @@ from django.utils import timezone
 from django.db.models import Count
 from django.db import IntegrityError, transaction
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect, reverse
@@ -352,6 +352,26 @@ def create_update_song_mark(request):
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("music:retrieve_song", args=[form.instance.song.id]))
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def wish_song(request, id):
+    if request.method == 'POST':
+        song = get_object_or_404(Song, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': 0,
+            'song': song,
+        }
+        try:
+            SongMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
     else:
         return HttpResponseBadRequest("invalid method")
 
@@ -927,6 +947,26 @@ def create_update_album_mark(request):
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("music:retrieve_album", args=[form.instance.album.id]))
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def wish_album(request, id):
+    if request.method == 'POST':
+        album = get_object_or_404(Album, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': 0,
+            'album': album,
+        }
+        try:
+            AlbumMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
     else:
         return HttpResponseBadRequest("invalid method")
 

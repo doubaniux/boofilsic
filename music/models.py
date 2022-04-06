@@ -76,6 +76,10 @@ class Album(Entity):
     def verbose_category_name(self):
         return _("专辑")
 
+    @property
+    def mark_class(self):
+        return AlbumMark
+
 
 class Song(Entity):
     '''
@@ -122,10 +126,15 @@ class Song(Entity):
 
     def get_tags_manager(self):
         return self.song_tags
-    
+
     @property
     def verbose_category_name(self):
         return _("单曲")
+
+    @property
+    def mark_class(self):
+        return SongMark
+
 
 class SongMark(Mark):
     song = models.ForeignKey(

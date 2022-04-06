@@ -111,6 +111,10 @@ class Book(Entity):
     def verbose_category_name(self):
         return _("书籍")
 
+    @property
+    def mark_class(self):
+        return BookMark
+
 
 class BookMark(Mark):
     book = models.ForeignKey(

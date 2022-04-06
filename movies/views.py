@@ -2,7 +2,7 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count
@@ -333,6 +333,26 @@ def create_update_mark(request):
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("movies:retrieve", args=[form.instance.movie.id]))
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def wish(request, id):
+    if request.method == 'POST':
+        movie = get_object_or_404(Movie, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': 0,
+            'movie': movie,
+        }
+        try:
+            MovieMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
     else:
         return HttpResponseBadRequest("invalid method")
 

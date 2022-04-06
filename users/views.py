@@ -644,7 +644,7 @@ def book_list(request, id, status):
             list_title = str(BookMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的书"))
         return render(
             request,
-            'users/book_list.html',
+            'users/item_list.html',
             {
                 'marks': marks,
                 'user': user,
@@ -730,7 +730,7 @@ def movie_list(request, id, status):
 
         return render(
             request,
-            'users/movie_list.html',
+            'users/item_list.html',
             {
                 'marks': marks,
                 'user': user,
@@ -816,7 +816,7 @@ def game_list(request, id, status):
             list_title = str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的游戏"))        
         return render(
             request,
-            'users/game_list.html',
+            'users/item_list.html',
             {
                 'marks': marks,
                 'user': user,
@@ -915,7 +915,7 @@ def music_list(request, id, status):
             list_title = str(MusicMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的音乐"))
         return render(
             request,
-            'users/music_list.html',
+            'users/item_list.html',
             {
                 'marks': marks,
                 'user': user,
