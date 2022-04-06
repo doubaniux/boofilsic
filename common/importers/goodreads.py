@@ -23,8 +23,6 @@ gr_rating = {
     'really liked it': 8,
     'it was amazing': 10
 }
-gr_status = {
-}
 
 
 class GoodreadsImporter:
