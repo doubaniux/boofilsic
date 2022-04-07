@@ -565,457 +565,84 @@
 
                         </div>
                             
-                            {% if user == request.user %}
-                                
-                            <div class="entity-sort-control">
-                                <div class="entity-sort-control__button" id="sortEditButton">
-                                    <span class="entity-sort-control__text" id="sortEditText">
-                                        {% trans '编辑布局' %}
-                                    </span>
-                                    <span class="entity-sort-control__text" id="sortSaveText" style="display: none;">
-                                        {% trans '保存' %}
-                                    </span>
-                                    <span class="icon-edit" id="sortEditIcon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 383.947 383.947">
-                                            <polygon points="0,303.947 0,383.947 80,383.947 316.053,147.893 236.053,67.893    " />
-                                            <path
-                                                d="M377.707,56.053L327.893,6.24c-8.32-8.32-21.867-8.32-30.187,0l-39.04,39.04l80,80l39.04-39.04     C386.027,77.92,386.027,64.373,377.707,56.053z" />
-                                        </svg>
-                                    </span>
-                                    <span class="icon-save" id="sortSaveIcon" style="display: none;">
-                                        <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 384 384" >
-                                            <path
-                                                d="M298.667,0h-256C19.093,0,0,19.093,0,42.667v298.667C0,364.907,19.093,384,42.667,384h298.667    C364.907,384,384,364.907,384,341.333v-256L298.667,0z M192,341.333c-35.307,0-64-28.693-64-64c0-35.307,28.693-64,64-64    s64,28.693,64,64C256,312.64,227.307,341.333,192,341.333z M256,128H42.667V42.667H256V128z" />
-                                        </svg>
-                                    </span>
-                                </div>
-                                <div class="entity-sort-control__button" id="sortExitButton" style="display: none;">
-                                    <span class="entity-sort-control__text">
-                                        {% trans '取消' %}
-                                    </span>
-                                </div>
-                            </div>
-                            <div class="entity-sort-control__button entity-sort-control__button--float-right" id="toggleDisplayButtonTemplate" style="display: none;">
-                                <span class="showText" style="display: none;">
-                                    {% trans '显示' %}
+                        {% if user == request.user %}
+                            
+                        <div class="entity-sort-control">
+                            <div class="entity-sort-control__button" id="sortEditButton">
+                                <span class="entity-sort-control__text" id="sortEditText">
+                                    {% trans '编辑布局' %}
                                 </span>
-                                <span class="hideText" style="display: none;">
-                                    {% trans '隐藏' %}
+                                <span class="entity-sort-control__text" id="sortSaveText" style="display: none;">
+                                    {% trans '保存' %}
                                 </span>
-                            </div>
-                            <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
-                                {% csrf_token %}
-                                <input type="hidden" name="layout">
-                            </form>
-                            <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.10.0/html5sortable.min.js"
-                                integrity="sha512-tBlVMq89XaEC9iU5LyRjP2Vxs8SmVhEHGbv2Co6SbGa14Wsxy2qZN0jadrN+Xn5AifORaUbvZcG21/ExcNfWDA=="
-                                crossorigin="anonymous"></script>
-                            <script src="{% static 'js/sort_layout.js' %}"></script>
-                            {% endif %}
-                            <script>
-                                const initialLayoutData = JSON.parse("{{ layout|escapejs }}");
-                                // initialize sort element visibility and order
-                                    initialLayoutData.forEach(elem => {
-                                        // False to false, True to true
-                                        if (elem.visibility === "False") {
-                                            elem.visibility = false;
-                                        } else {
-                                            elem.visibility = true;
-                                        }
-                                        // set visiblity
-                                        $('#' + elem.id).data('visibility', elem.visibility);
-                                        if (!elem.visibility) {
-                                            $('#' + elem.id).hide();
-                                        }
-                                        // order
-                                        $('#' + elem.id).appendTo('.main-section-wrapper');
-                                    });
-                            </script>
-
-                    </div>
-
-                    <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
-                        <div class="aside-section-wrapper aside-section-wrapper--no-margin">
-                            <div class="user-profile" id="userInfoCard">
-                                <div class="user-profile__header">
-                                    <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
-                                    <img src="{{ user.mastodon_account.avatar }}" class="user-profile__avatar mast-avatar">
-                                    <a href="{% url 'users:home' user.mastodon_username %}">
-                                        <h5 class="user-profile__username mast-displayname">{{ user.mastodon_account.display_name }}</h5>
-                                    </a>
-                                </div>
-                                <p><a class="user-profile__link mast-acct" target="_blank" href="{{ user.mastodon_account.url }}">@{{ user.username }}@{{ user.mastodon_site }}</a></p>
-                                <p class="user-profile__bio mast-brief">{{ user.mastodon_account.note }}</p>
-                                <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
-
-                                {% if request.user != user %}
-                                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                                    class="user-profile__report-link">{% trans '举报用户' %}</a>
-                                {% endif %}
-
-                            </div>
-                        </div>
-
-                        <!-- contains relations, reports, and upload excel entry -->
-                        <div class="relation-dropdown">
-                            <div class="relation-dropdown__button">
-                                <span class="icon-arrow">
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
-                                        <path d="M8.12,3.29,5,6.42,1.86,3.29H.45L5,7.84,9.55,3.29Z" />
+                                <span class="icon-edit" id="sortEditIcon">
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 383.947 383.947">
+                                        <polygon points="0,303.947 0,383.947 80,383.947 316.053,147.893 236.053,67.893    " />
+                                        <path
+                                            d="M377.707,56.053L327.893,6.24c-8.32-8.32-21.867-8.32-30.187,0l-39.04,39.04l80,80l39.04-39.04     C386.027,77.92,386.027,64.373,377.707,56.053z" />
+                                    </svg>
+                                </span>
+                                <span class="icon-save" id="sortSaveIcon" style="display: none;">
+                                    <svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 384 384" >
+                                        <path
+                                            d="M298.667,0h-256C19.093,0,0,19.093,0,42.667v298.667C0,364.907,19.093,384,42.667,384h298.667    C364.907,384,384,364.907,384,341.333v-256L298.667,0z M192,341.333c-35.307,0-64-28.693-64-64c0-35.307,28.693-64,64-64    s64,28.693,64,64C256,312.64,227.307,341.333,192,341.333z M256,128H42.667V42.667H256V128z" />
                                     </svg>
                                 </span>
                             </div>
-                            <div class="relation-dropdown__body">
-                                <div
-                                    class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-
-                                    <div class="user-relation" id="followings">
-                                        <h5 class="user-relation__label">
-                                            {% trans '关注的人' %}
-                                        </h5>
-                                        <a href="{% url 'users:following' user.mastodon_username %}"
-                                            class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
-                                        <ul class="user-relation__related-user-list mast-following">
-                                            <li class="user-relation__related-user">
-                                                <a>
-                                                    <img src="" alt="" class="user-relation__related-user-avatar">
-                                                    <div class="user-relation__related-user-name mast-displayname">
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="user-relation" id="followers">
-                                        <h5 class="user-relation__label">
-                                            {% trans '被他们关注' %}
-                                        </h5>
-                                        <a href="{% url 'users:followers' user.mastodon_username %}"
-                                            class="user-relation__more-link mast-followers-more">{% trans '更多' %}</a>
-                                        <ul class="user-relation__related-user-list mast-followers">
-                                            <li class="user-relation__related-user">
-                                                <a>
-                                                    <img src="" alt="" class="user-relation__related-user-avatar">
-                                                    <div class="user-relation__related-user-name mast-displayname">
-                                                    </div>
-                                                </a>
-                                            </li>
-                                        </ul>
-                                    </div>
-
-                                    <div class="user-relation">
-                                        <h5 class="user-relation__label">
-                                            {% trans '常用标签' %}
-                                        </h5>
-                                        <div class="tag-collection" style="margin-left: 0;">
-                                            {% if book_tags %}
-                                            <div>{% trans '书籍' %}</div>
-                                            {% for v in book_tags %}
-                                            <span class="tag-collection__tag">
-                                                <a href="{% url 'users:book_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
-                                            </span>
-                                            {% endfor %}
-                                            <div class="clearfix"></div>
-                                            {% endif %}
-
-                                            {% if movie_tags %}
-                                            <div>{% trans '电影和剧集' %}</div>
-                                            {% for v in movie_tags %}
-                                            <span class="tag-collection__tag">
-                                                <a href="{% url 'users:movie_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
-                                            </span>
-                                            {% endfor %}
-                                            <div class="clearfix"></div>
-                                            {% endif %}
-
-                                            {% if music_tags %}
-                                            <div>{% trans '音乐' %}</div>
-                                            {% for v in music_tags %}
-                                            <span class="tag-collection__tag">
-                                                <a href="{% url 'users:music_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
-                                            </span>
-                                            {% endfor %}
-                                            <div class="clearfix"></div>
-                                            {% endif %}
-
-                                            {% if game_tags %}
-                                            <div>{% trans '游戏' %}</div>
-                                            {% for v in game_tags %}
-                                            <span class="tag-collection__tag">
-                                                <a href="{% url 'users:game_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
-                                            </span>
-                                            {% endfor %}
-                                            <div class="clearfix"></div>
-                                            {% endif %}
-                                        </div>
-                                    </div>
-
-                                </div>
-                                
-                                <!-- import douban data -->                                
-                                <!-- {% if user == request.user %}
-                                <div class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-                                    <div class="import-panel">
-                                        <h5 class="import-panel__label">{% trans '导入豆瓣标记数据' %}</h5>
-                                        <span id="importHelp" class="import-panel__help">?</span>
-                                        <div class="import-panel__body">
-                                            <form action="{% url 'sync:douban' %}" method="POST" enctype="multipart/form-data" >
-
-                                                {% csrf_token %}
-                                                <input type="hidden" name="user" value="{{ request.user.id }}">
-                                                <span>{% trans '导入：' %}</span>
-                                                <div class="import-panel__checkbox">
-                                                    <input type="checkbox" name="sync_book" id="syncBook">
-                                                    <label for="syncBook">{% trans '书' %}</label>
-                                                </div>
-                                                <div class="import-panel__checkbox">
-                                                    <input type="checkbox" name="sync_movie" id="syncMovie">
-                                                    <label for="syncMovie">{% trans '电影' %}</label>
-                                                </div>
-                                                <div class="import-panel__checkbox">
-                                                    <input type="checkbox" name="sync_music" id="syncMusic">
-                                                    <label for="syncMusic">{% trans '音乐' %}</label>
-                                                </div>
-                                                <div class="import-panel__checkbox">
-                                                    <input type="checkbox" name="sync_game" id="syncGame">
-                                                    <label for="syncGame">{% trans '游戏' %}</label>
-                                                </div>
-                                                <div></div>
-                                                <span>{% trans '覆盖：' %}</span>
-                                                <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                    <input type="checkbox" name="overwrite" id="overwrite">
-                                                    <label for="overwrite">{% trans '覆盖原有标记' %}</label>
-                                                </div>
-                                                <span id="overwriteHelp" class="import-panel__help">?</span>
-                                                <div></div>
-                                                <span>{% trans '可见性：' %}</span>
-                                                <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                    <input type="checkbox" name="default_public" id="visibility">
-                                                    <label for="visibility">{% trans '公开' %}</label>
-                                                </div>
-                                                <span id="visibilityHelp" class="import-panel__help">?</span>
-                                                <div></div>
-                                                <div class="import-panel__file-input">
-                                                    <input type="file" name="file" id="excelFile" required accept=".xlsx">
-                                                </div>
-                                                <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn"
-                                                    {% if not latest_task is None and not latest_task.is_finished %}
-                                                    disabled
-                                                    {% endif %}
-                                                >
-                                            </form>
-                                            <div class="import-panel__progress"
-                                                {% if latest_task.is_finished or latest_task is None %}
-                                                style="display: none;"
-                                                {% endif %}
-                                            >
-                                                <label for="importProgress">{% trans '进度' %}</label>
-                                                <progress id="importProgress" value="{{ latest_task.finished_items }}" max="{{ latest_task.total_items }}"></progress>
-                                                <span class="float-right" id="progressPercent">{{ latest_task.get_progress | floatformat:"0" }}%</span>
-                                                <span class="clearfix"></span>
-                                            </div>
-                                            <div class="import-panel__last-task"
-                                                {% if not latest_task.is_finished %}`
-                                                style="display: none;"
-                                                {% endif %}
-                                            >
-                                                {% trans '上次导入：' %}
-                                                <span class="index">{% trans '总数' %} <span id="lastTaskTotalItems">{{ latest_task.total_items }}</span></span>
-                                                <span class="index">{% trans '同步' %} <span id="lastTaskSuccessItems">{{ latest_task.success_items }}</span></span>
-                                                <span class="index">{% trans '状态' %} <span id="lastTaskStatus">{{ latest_task.get_status_emoji }}</span></span>
-                                                <div class="import-panel__fail-urls"
-                                                {% if not latest_task.failed_urls %}
-                                                    style="display: none;"
-                                                {% endif %}
-                                                >
-                                                    <span>
-                                                        {% trans '失败条目链接' %}
-                                                    </span>
-                                                    <a class="float-right" style="cursor: pointer;" id="failedUrlsBtn">
-                                                        ▶
-                                                    </a>
-                                                    <script>
-                                                        $("#failedUrlsBtn").data("collapse", true);
-                                                        $("#failedUrlsBtn").click(()=>{
-                                                            const btn = $("#failedUrlsBtn");
-                                                            if(btn.data("collapse") == true) {
-                                                                btn.data("collapse", false);
-                                                                btn.text("▼");
-                                                                $("#failedUrls").show();
-                                                            } else {
-                                                                btn.data("collapse", true);
-                                                                btn.text("▶");
-                                                                $("#failedUrls").hide();
-                                                            }
-                                                        });
-                                                    </script>
-                                                    <span class="clearfix"></span>
-                                                    <ul id="failedUrls" style="display: none;">
-                                                        {% for url in latest_task.failed_urls %}
-                                                        <li>{{ url }}</li>
-                                                        {% endfor %}
-                                                    </ul>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                {% endif %}
-                                 -->   
-                                <div
-                                    class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
-                                    {% if request.user.is_staff and request.user == user%}
-                                    <div class="report-panel">
-                                        <h5 class="report-panel__label">{% trans '举报信息' %}</h5>
-                                        <a class="report-panel__all-link"
-                                            href="{% url 'users:manage_report' %}">全部举报</a>
-                                        <div class="report-panel__body">
-                                            <ul class="report-panel__report-list">
-                                                {% for report in reports %}
-                                                <li class="report-panel__report">
-                                                    <a href="{% url 'users:home' report.submit_user.mastodon_username %}"
-                                                        class="report-panel__user-link">{{ report.submit_user }}</a>{% trans '举报了' %}<a
-                                                        href="{% url 'users:home' report.reported_user.mastodon_username %}"
-                                                        class="report-panel__user-link">{{ report.reported_user }}</a>
-                                                </li>
-                                                {% empty %}
-                                                <div>{% trans '暂无新举报' %}</div>
-                                                {% endfor %}
-    
-                                            </ul>
-                                        </div>
-                                    </div>
-                                    {% endif %}
-                                </div>
+                            <div class="entity-sort-control__button" id="sortExitButton" style="display: none;">
+                                <span class="entity-sort-control__text">
+                                    {% trans '取消' %}
+                                </span>
                             </div>
                         </div>
+                        <div class="entity-sort-control__button entity-sort-control__button--float-right" id="toggleDisplayButtonTemplate" style="display: none;">
+                            <span class="showText" style="display: none;">
+                                {% trans '显示' %}
+                            </span>
+                            <span class="hideText" style="display: none;">
+                                {% trans '隐藏' %}
+                            </span>
+                        </div>
+                        <form action="{% url 'users:set_layout' %}" method="post" id="sortForm">
+                            {% csrf_token %}
+                            <input type="hidden" name="layout">
+                        </form>
+                        <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.10.0/html5sortable.min.js"
+                            integrity="sha512-tBlVMq89XaEC9iU5LyRjP2Vxs8SmVhEHGbv2Co6SbGa14Wsxy2qZN0jadrN+Xn5AifORaUbvZcG21/ExcNfWDA=="
+                            crossorigin="anonymous"></script>
+                        <script src="{% static 'js/sort_layout.js' %}"></script>
+                        {% endif %}
+                        <script>
+                            const initialLayoutData = JSON.parse("{{ layout|escapejs }}");
+                            // initialize sort element visibility and order
+                                initialLayoutData.forEach(elem => {
+                                    // False to false, True to true
+                                    if (elem.visibility === "False") {
+                                        elem.visibility = false;
+                                    } else {
+                                        elem.visibility = true;
+                                    }
+                                    // set visiblity
+                                    $('#' + elem.id).data('visibility', elem.visibility);
+                                    if (!elem.visibility) {
+                                        $('#' + elem.id).hide();
+                                    }
+                                    // order
+                                    $('#' + elem.id).appendTo('.main-section-wrapper');
+                                });
+                        </script>
 
                     </div>
+
+                    {% include "partial/_sidebar.html" with show_follow=True %}
                 </div>
             </section>
-
         </div>
-            
         {% include "partial/_footer.html" %}
     </div>
 
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
-    <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
-    <!--current user mastodon id-->
-    
-    {% if user == request.user %}
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% else %}
-    <div id="userMastodonID" hidden="true">{{ user.target_site_id }}</div>
-    {% endif %}
-        
-    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
-
-    <div id="spinner" hidden>
-        <div class="spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-
     {% if unread_announcements %}
-    <div id="modals">
-        <style>
-            .bottom-link {
-                margin-top: 30px; text-align: center; margin-bottom: 5px;
-            }
-            .bottom-link a {
-                color: #ccc;
-            }
-        </style>
-        <div class="announcement-modal modal">
-            <div class="announcement-modal__head">
-                <h4 class="announcement-modal__title">{% trans '公告' %}</h4>
-        
-                <span class="announcement-modal__close-button modal-close">
-                    <span class="icon-cross">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                            <polygon
-                                points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
-                            </polygon>
-                        </svg>
-                    </span>
-                </span>
-            </div>
-            <div class="announcement-modal__body">
-                <ul>
-                    {% for ann in unread_announcements %}
-                        <li class="announcement">
-                            <a href="{% url 'management:retrieve' ann.pk %}">
-                                <h5 class="announcement__title">{{ ann.title }}</h5>
-                            </a>
-                            <span class="announcement__datetime">{{ ann.created_time }}</span>
-                            <p class="announcement__content">{{ ann.get_plain_content | truncate:200 }}</p>
-                        </li>
-                        {% if not forloop.last %}
-                            <div class="dividing-line" style="border-top-style: dashed;"></div>
-                        {% endif %}
-                    {% endfor %}
-                </ul>
-                <div class="bottom-link">
-                    <a href="{% url 'management:list' %}">{% trans '查看全部公告' %}</a>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="bg-mask"></div>
+    {% include "partial/_announcement.html" %}
     {% endif %}
-    
-    
-    <script>
-        // because the modal and mask elements only exist when there are new announcements
-        $(".announcement-modal").show();
-        $(".bg-mask").show();
-        $(".modal-close").on('click', function () {
-            $(this).parents(".modal").hide();
-            $(".bg-mask").hide();
-        });
-
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
-        integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/tippy.umd.min.js"
-        integrity="sha512-Ns7w8bjVjVcBVa+k3XLt0ObfsG2LQfr573HoIYtC4wh8gUKLvCx+rlggxfvsHqup6jvMAEmBtYXmhcKHL+6R5A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        tippy('#importHelp', {
-            content: "{% trans '上传导入由<a href=\"https://github.com/doufen-org/tofu\" target=\"_blank\">豆伴</a>（豆坟）导出的Excel文件，<strong>请勿手动修改该文件</strong>。部分条目由于需要登陆无法自动同步。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-        tippy('#overwriteHelp', {
-            content: "{% trans '在导入之前如果已经在本站标记了某一个条目，是否使用来自豆瓣的标记覆盖原有的。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-        tippy('#visibilityHelp', {
-            content: "{% trans '所同步的标记可见性是否为公开；对于已有的标记即便覆盖也不会改变可见性。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-    </script>
 </body>
-
-
 </html>

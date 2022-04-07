@@ -1,16 +1,14 @@
-
 $(document).ready( function() {
     $("#userInfoCard .mast-brief").text($("<div>"+$("#userInfoCard .mast-brief").text().replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
     $("#userInfoCard .mast-brief").html($("#userInfoCard .mast-brief").html().replace(/\n/g,'<br/>'));
     
     let token = $("#oauth2Token").text();
-    let mast_uri = $("#mastodonURI").text();
-    let mast_domain = new URL(mast_uri);
-    mast_domain = mast_domain.hostname;
+    let mast_domain = $("#mastodonURI").text();
+    let mast_uri = 'https://' + mast_domain
     let id = $("#userMastodonID").text();
 
     if (id && id != 'None' && mast_domain != 'twitter.com') {
-        let userInfoSpinner = $("#spinner").clone().removeAttr("hidden");
+        // let userInfoSpinner = $("#spinner").clone().removeAttr("hidden");
         let followersSpinner = $("#spinner").clone().removeAttr("hidden");
         let followingSpinner = $("#spinner").clone().removeAttr("hidden");
         // $("#userInfoCard").append(userInfoSpinner);
@@ -18,26 +16,26 @@ $(document).ready( function() {
         $("#followers h5").after(followersSpinner);
         $(".mast-following-more").hide();
         $(".mast-followers-more").hide();
-        getUserInfo(
-            id, 
-            mast_uri, 
-            token, 
-            function(userData) {
-                let userName;
-                if (userData.display_name) {
-                    userName = translateEmojis(userData.display_name, userData.emojis, true);
-                } else {
-                    userName = userData.username;
-                }
-                //$("#userInfoCard .mast-acct").text(userData.acct);
-                $("#userInfoCard .mast-acct").attr("href", userData.url);
-                $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
-                $("#userInfoCard .mast-displayname").html(userName);
-                $("#userInfoCard .mast-brief").text($("<div>"+userData.note.replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
-                $("#userInfoCard .mast-brief").html($("#userInfoCard .mast-brief").html().replace(/\n/g,'<br/>'));
-                $(userInfoSpinner).remove();
-            }
-        );
+        // getUserInfo(
+        //     id, 
+        //     mast_uri, 
+        //     token, 
+        //     function(userData) {
+        //         let userName;
+        //         if (userData.display_name) {
+        //             userName = translateEmojis(userData.display_name, userData.emojis, true);
+        //         } else {
+        //             userName = userData.username;
+        //         }
+        //         //$("#userInfoCard .mast-acct").text(userData.acct);
+        //         $("#userInfoCard .mast-acct").attr("href", userData.url);
+        //         $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
+        //         $("#userInfoCard .mast-displayname").html(userName);
+        //         $("#userInfoCard .mast-brief").text($("<div>"+userData.note.replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
+        //         $("#userInfoCard .mast-brief").html($("#userInfoCard .mast-brief").html().replace(/\n/g,'<br/>'));
+        //         $(userInfoSpinner).remove();
+        //     }
+        // );
 
         getFollowers(
             id,

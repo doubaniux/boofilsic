@@ -52,38 +52,7 @@
                         </div>
                     </div>
 
-                    <div class="grid__aside grid__aside--reverse-order grid__aside--tablet-column">
-                        <div class="aside-section-wrapper aside-section-wrapper--no-margin">
-                            <div class="user-profile" id="userInfoCard">
-                                <div class="user-profile__header">
-                                    <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
-                                    <img src="" class="user-profile__avatar mast-avatar">
-                                    <a href="{% url 'users:home' user.mastodon_username %}">
-                                        <h5 class="user-profile__username mast-displayname"></h5>
-                                    </a>
-                                </div>
-                                <p><a class="user-profile__link mast-acct" target="_blank" href="https://{{ user.mastodon_site }}/@{{ user.username }}">@{{ user.username }}@{{ user.mastodon_site }}</a></p>
-                                <p class="user-profile__bio mast-brief"></p>
-                                <!-- <a href="#" class="follow">{% trans '关注TA' %}</a> -->
-
-                                {% if request.user != user %}
-                                <a href="{% url 'users:report' %}?user_id={{ user.id }}"
-                                    class="user-profile__report-link">{% trans '举报用户' %}</a>
-                                {% endif %}
-
-                            </div>
-                        </div>
-
-                        <!-- contains relations, reports, and upload excel entry -->
-                        <div class="relation-dropdown">
-                            <div class="relation-dropdown__body">
-                                <!-- import douban data -->                                
-                                {% if user == request.user %}                                    
-                                {% endif %}
-                                    
-                            </div>
-                        </div>
-                    </div>
+                    {% include "partial/_sidebar.html" with show_follow=False %}
                 </div>
             </section>
 
@@ -92,72 +61,6 @@
         {% include "partial/_footer.html" %}
     </div>
 
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
-    <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
-    <!--current user mastodon id-->
-    
-    {% if user == request.user %}
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% else %}
-    <div id="userMastodonID" hidden="true">{{ user.target_site_id }}</div>
-    {% endif %}
-        
-    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
-
-    <div id="spinner" hidden>
-        <div class="spinner">
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-            <div></div>
-        </div>
-    </div>
-
-    <script>
-        // because the modal and mask elements only exist when there are new announcements
-        $(".bg-mask").show();
-        $(".modal-close").on('click', function () {
-            $(this).parents(".modal").hide();
-            $(".bg-mask").hide();
-        });
-
-    </script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
-        integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/tippy.umd.min.js"
-        integrity="sha512-Ns7w8bjVjVcBVa+k3XLt0ObfsG2LQfr573HoIYtC4wh8gUKLvCx+rlggxfvsHqup6jvMAEmBtYXmhcKHL+6R5A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        tippy('#importHelp', {
-            content: "{% trans '上传导入由<a href=\"https://github.com/doufen-org/tofu\" target=\"_blank\">豆伴</a>（豆坟）导出的Excel文件，<strong>请勿手动修改该文件</strong>。部分条目由于需要登陆无法自动同步。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-        tippy('#overwriteHelp', {
-            content: "{% trans '在导入之前如果已经在本站标记了某一个条目，是否使用来自豆瓣的标记覆盖原有的。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-        tippy('#visibilityHelp', {
-            content: "{% trans '所同步的标记可见性是否为公开；对于已有的标记即便覆盖也不会改变可见性。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-    </script>
 </body>
 
 
