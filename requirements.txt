@@ -6,6 +6,7 @@ django-sass
 django-rq
 django-hijack
 django-user-messages
+django-slack
 meilisearch
 easy-thumbnails
 lxml

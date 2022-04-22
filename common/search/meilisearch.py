@@ -149,7 +149,7 @@ class Indexer:
             elif category:
                 f.append(f"_class = '{category}'")
             if tag:
-                t = tag.replace("'", "")
+                t = tag.replace("'", "").replace('"', "")
                 f.append(f"tags = '{t}'")
             filter = ' AND '.join(f)
         else:
