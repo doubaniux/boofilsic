@@ -4,7 +4,7 @@ from markdown import markdown
 from django.utils.translation import gettext_lazy as _
 from django.db import models, IntegrityError
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q, Count
+from django.db.models import Q, Count, Sum
 from markdownx.models import MarkdownxField
 from users.models import User
 from django.utils import timezone
@@ -122,6 +122,15 @@ class Entity(models.Model):
         self.calculate_rating(old_rating, new_rating)
         self.save()
 
+    def refresh_rating(self):  # TODO: replace update_rating()
+        a = self.marks.filter(rating__gt=0).aggregate(Sum('rating'), Count('rating'))
+        if self.rating_total_score != a['rating__sum'] or self.rating_number != a['rating__count']:
+            self.rating_total_score = a['rating__sum']
+            self.rating_number = a['rating__count']
+            self.rating = a['rating__sum'] / a['rating__count'] if a['rating__count'] > 0 else None
+            self.save()
+        return self.rating
+
     def get_tags_manager(self):
         """
         Since relation between tag and entity is foreign key, and related name has to be unique,
@@ -154,6 +163,11 @@ class Entity(models.Model):
     @property
     def tags(self):
         return list(map(lambda t: t['content'], self.all_tag_list))
+
+    @property
+    def marks(self):
+        params = {self.__class__.__name__.lower() + '_id': self.id}
+        return self.mark_class.objects.filter(**params)
 
     @classmethod
     def get_category_mapping_dict(cls):
