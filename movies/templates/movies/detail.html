@@ -80,12 +80,12 @@
                                     
                                     <div class="entity-detail__fields">
                                         <div class="entity-detail__rating">
-                                            {% if movie.rating %}
+                                            {% if movie.rating and movie.rating_number >= 5 %}
                                             <span class="entity-detail__rating-star rating-star" data-rating-score="{{ movie.rating | floatformat:"0" }}"></span>
                                             <span class="entity-detail__rating-score"> {{ movie.rating }} </span>
                                             <small>({{ movie.rating_number }}人评分)</small>
                                             {% else %}
-                                            <span> {% trans '评分：暂无评分' %}</span>
+                                            <span> {% trans '评分：评分人数不足' %}</span>
                                             {% endif %}
                                         </div>
                                         <div>{% if movie.imdb_code %}

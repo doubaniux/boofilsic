@@ -58,12 +58,12 @@
                                     
                                     <div class="entity-detail__fields">
                                         <div class="entity-detail__rating">
-                                            {% if album.rating %}
+                                            {% if album.rating and album.rating_number >= 5 %}
                                             <span class="entity-detail__rating-star rating-star" data-rating-score="{{ album.rating | floatformat:"0" }}"></span>
                                             <span class="entity-detail__rating-score"> {{ album.rating }} </span>
                                             <small>({{ album.rating_number }}人评分)</small>
                                             {% else %}
-                                            <span> {% trans '评分：暂无评分' %}</span>
+                                            <span> {% trans '评分：评分人数不足' %}</span>
                                             {% endif %}
                                         </div>
                                         <div>{% if album.artist %}{% trans '艺术家：' %}
