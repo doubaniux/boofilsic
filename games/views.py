@@ -10,8 +10,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
-from mastodon.api import post_toot, TootVisibilityEnum
-from mastodon.utils import rating_to_emoji
+from mastodon.api import share_mark, share_review
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER, jump_or_scrape
 from common.models import SourceSiteEnum
@@ -308,27 +307,7 @@ def create_update_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['visibility'] == 2:
-                    visibility = TootVisibilityEnum.DIRECT
-                elif form.cleaned_data['visibility'] == 1:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("games:retrieve",
-                                                                args=[game.id])
-                words = GameMarkStatusTranslator(form.cleaned_data['status']) +\
-                    f"《{game.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'], MastodonApplication.objects.get(domain_name=request.user.mastodon_site).star_mode)
-
-                # tags = settings.MASTODON_TAGS % {'category': '书', 'type': '标记'}
-                tags = ''
-                content = words + '\n' + url + '\n' + \
-                    form.cleaned_data['text'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.user.mastodon_token)
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
+                if not share_mark(form.instance):
                     return HttpResponseServerError("publishing mastodon status failed")
         else:
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
@@ -424,24 +403,7 @@ def create_review(request, game_id):
             form.instance.owner = request.user
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['visibility'] == 2:
-                    visibility = TootVisibilityEnum.DIRECT
-                elif form.cleaned_data['visibility'] == 1:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("games:retrieve_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.game.title}》" + "的评论"
-                # tags = settings.MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.user.mastodon_token)
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
+                if not share_review(form.instance):
                     return HttpResponseServerError("publishing mastodon status failed")
             return redirect(reverse("games:retrieve_review", args=[form.instance.id]))
         else:
@@ -478,24 +440,7 @@ def update_review(request, id):
             form.instance.edited_time = timezone.now()
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['visibility'] == 2:
-                    visibility = TootVisibilityEnum.DIRECT
-                elif form.cleaned_data['visibility'] == 1:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.PUBLIC if request.user.preference.mastodon_publish_public else TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("games:retrieve_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.game.title}》" + "的评论"
-                # tags = settings.MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.user.mastodon_token)
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
+                if not share_review(form.instance):
                     return HttpResponseServerError("publishing mastodon status failed")
             return redirect(reverse("games:retrieve_review", args=[form.instance.id]))
         else:

@@ -58,12 +58,16 @@ class Entity(models.Model):
     def get_absolute_url(self):
         raise NotImplementedError("Subclass should implement this method")
 
+    @property
+    def url(self):
+        return settings.APP_WEBSITE + self.get_absolute_url()
+
     def get_json(self):
         return {
             'title': self.title,
             'brief': self.brief,
             'rating': self.rating,
-            'url': settings.APP_WEBSITE + self.get_absolute_url(),
+            'url': self.url,
             'cover_url': settings.APP_WEBSITE + self.cover.url,
             'top_tags': self.tags[:5],
             'category_name': self.verbose_category_name,
@@ -272,6 +276,10 @@ class Mark(UserOwnedEntity):
 
     def __str__(self):
         return f"Mark({self.id} {self.owner} {self.status.upper()})"
+
+    @property
+    def translated_status(self):
+        raise NotImplementedError("Subclass should implement this.")
 
     class Meta:
         abstract = True

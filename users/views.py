@@ -1048,8 +1048,9 @@ def auth_logout(request):
 def preferences(request):
     if request.method == 'POST':
         request.user.preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
+        request.user.preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
         request.user.preference.save()
-    return render(request, 'users/preferences.html', {'mastodon_publish_public': request.user.preference.mastodon_publish_public})
+    return render(request, 'users/preferences.html')
 
 
 @mastodon_request_included

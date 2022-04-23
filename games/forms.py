@@ -1,18 +1,13 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
-from .models import Game, GameMark, GameReview
+from .models import Game, GameMark, GameReview, GameMarkStatusTranslation
 from common.models import MarkStatusEnum
 from common.forms import *
 
 
 def GameMarkStatusTranslator(status):
-    trans_dict = {
-        MarkStatusEnum.DO.value: _("在玩"),
-        MarkStatusEnum.WISH.value: _("想玩"),
-        MarkStatusEnum.COLLECT.value: _("玩过")
-    }
-    return trans_dict[status]
+    return GameMarkStatusTranslation[status]
 
 
 class GameForm(forms.ModelForm):

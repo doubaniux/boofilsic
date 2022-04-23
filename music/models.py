@@ -4,10 +4,17 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
-from common.models import Entity, Mark, Review, Tag, SourceSiteEnum
+from common.models import Entity, Mark, Review, Tag, SourceSiteEnum, MarkStatusEnum
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
+
+
+MusicMarkStatusTranslation = {
+    MarkStatusEnum.DO.value: _("在听"),
+    MarkStatusEnum.WISH.value: _("想听"),
+    MarkStatusEnum.COLLECT.value: _("听过")
+}
 
 
 def song_cover_path(instance, filename):
@@ -146,6 +153,10 @@ class SongMark(Mark):
                 fields=['owner', 'song'], name='unique_song_mark')
         ]
 
+    @property
+    def translated_status(self):
+        return MusicMarkStatusTranslation[self.status]
+
 
 class SongReview(Review):
     song = models.ForeignKey(
@@ -156,6 +167,10 @@ class SongReview(Review):
             models.UniqueConstraint(
                 fields=['owner', 'song'], name='unique_song_review')
         ]
+
+    @property
+    def url(self):
+        return settings.APP_WEBSITE + reverse("songs:retrieve_review", args=[self.id])
 
 
 class SongTag(Tag):
@@ -181,6 +196,10 @@ class AlbumMark(Mark):
                 fields=['owner', 'album'], name='unique_album_mark')
         ]
 
+    @property
+    def translated_status(self):
+        return MusicMarkStatusTranslation[self.status]
+
 
 class AlbumReview(Review):
     album = models.ForeignKey(
@@ -191,6 +210,10 @@ class AlbumReview(Review):
             models.UniqueConstraint(
                 fields=['owner', 'album'], name='unique_album_review')
         ]
+
+    @property
+    def url(self):
+        return settings.APP_WEBSITE + reverse("albums:retrieve_review", args=[self.id])
 
 
 class AlbumTag(Tag):

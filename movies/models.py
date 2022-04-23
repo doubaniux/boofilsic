@@ -4,12 +4,19 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
-from common.models import Entity, Mark, Review, Tag
+from common.models import Entity, Mark, Review, Tag, MarkStatusEnum
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
 from django.db.models import Q
 import re
+
+
+MovieMarkStatusTranslation = {
+    MarkStatusEnum.DO.value: _("在看"),
+    MarkStatusEnum.WISH.value: _("想看"),
+    MarkStatusEnum.COLLECT.value: _("看过")
+}
 
 
 def movie_cover_path(instance, filename):
@@ -231,10 +238,15 @@ class Movie(Entity):
 
 class MovieMark(Mark):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='movie_marks', null=True)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['owner', 'movie'], name='unique_movie_mark')
         ]
+
+    @property
+    def translated_status(self):
+        return MovieMarkStatusTranslation[self.status]
 
 
 class MovieReview(Review):
@@ -244,6 +256,10 @@ class MovieReview(Review):
             models.UniqueConstraint(
                 fields=['owner', 'movie'], name='unique_movie_review')
         ]
+
+    @property
+    def url(self):
+        return settings.APP_WEBSITE + reverse("movies:retrieve_review", args=[self.id])
 
 
 class MovieTag(Tag):

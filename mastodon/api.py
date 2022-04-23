@@ -2,11 +2,16 @@ import requests
 import string
 import random
 import functools
+import logging
 from django.core.exceptions import ObjectDoesNotExist
 from django.conf import settings
 from django.shortcuts import reverse
 from urllib.parse import quote
 from .models import CrossSiteUserInfo, MastodonApplication
+from mastodon.utils import rating_to_emoji
+
+
+logger = logging.getLogger(__name__)
 
 # See https://docs.joinmastodon.org/methods/accounts/
 
@@ -94,6 +99,8 @@ def post_toot(site, content, visibility, token, local_only=False):
         response = post(url, headers=headers, data=payload)
     if response.status_code == 201:
         response.status_code = 200
+    if response.status_code != 200:
+        logger.error(f"Error {url} {response.status_code} {response.text}")
     return response
 
 
@@ -187,7 +194,7 @@ def get_cross_site_id(target_user, target_site, token):
         cross_site_id = get_site_id(
             target_user.username, target_user.mastodon_site, target_site, token)
         if not cross_site_id:
-            print(f'unable to find cross_site_id for {target_user} on {target_site}')
+            logger.error(f'unable to find cross_site_id for {target_user} on {target_site}')
             return None
         cross_site_info = CrossSiteUserInfo.objects.create(
             uid=f"{target_user.username}@{target_user.mastodon_site}",
@@ -210,9 +217,7 @@ def verify_account(site, token):
         try:
             response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
             if response.status_code != 200:
-                print(url)
-                print(response.status_code)
-                print(response.text)
+                logger.error(f"Error {url} {response.status_code} {response.text}")
                 return response.status_code, None
             r = response.json()['data']
             r['display_name'] = r['name']
@@ -274,13 +279,13 @@ def get_mastodon_application(domain):
         # fill the form with returned data
         if response.status_code != 200:
             error_msg = "实例连接错误，代码: " + str(response.status_code)
-            print(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
+            logger.error(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
         else:
             try:
                 data = response.json()
             except Exception as e:
                 error_msg = "实例返回内容无法识别"
-                print(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")} {e}')
+                logger.error(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")} {e}')
             else:
                 app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
                     client_secret=data['client_secret'], vapid_key=data['vapid_key'] if 'vapid_key' in data else '')
@@ -320,9 +325,7 @@ def obtain_token(site, request, code):
     response = post(url, data=payload, headers=headers, auth=auth)
     # {"token_type":"bearer","expires_in":7200,"access_token":"VGpkOEZGR3FQRDJ5NkZ0dmYyYWIwS0dqeHpvTnk4eXp0NV9nWDJ2TEpmM1ZTOjE2NDg3ODMxNTU4Mzc6MToxOmF0OjE","scope":"block.read follows.read offline.access tweet.write users.read mute.read","refresh_token":"b1pXbGEzeUF1WE5yZHJOWmxTeWpvMTBrQmZPd0czLU0tQndZQTUyU3FwRDVIOjE2NDg3ODMxNTU4Mzg6MToxOnJ0OjE"}
     if response.status_code != 200:
-        print(url)
-        print(response.status_code)
-        print(response.text)
+        logger.error(f"Error {url} {response.status_code} {response.text}")
         return None, None
     data = response.json()
     return data.get('access_token'), data.get('refresh_token', '')
@@ -342,10 +345,7 @@ def refresh_access_token(site, refresh_token):
     auth = (mast_app.client_id, mast_app.client_secret)
     response = post(url, data=payload, headers=headers, auth=auth)
     if response.status_code != 200:
-        print(url)
-        print(payload)
-        print(response.status_code)
-        print(response.text)
+        logger.error(f"Error {url} {response.status_code} {response.text}")
         return None
     data = response.json()
     return data.get('access_token')
@@ -366,3 +366,35 @@ def revoke_token(site, token):
         url = 'https://' + site + API_REVOKE_TOKEN
     post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
 
+
+def share_mark(mark):
+    user = mark.owner
+    if mark.visibility == 2:
+        visibility = TootVisibilityEnum.DIRECT
+    elif mark.visibility == 1:
+        visibility = TootVisibilityEnum.PRIVATE
+    elif user.preference.mastodon_publish_public:
+        visibility = TootVisibilityEnum.PUBLIC
+    else:
+        visibility = TootVisibilityEnum.UNLISTED
+    tags = '\n' + user.preference.mastodon_append_tag.replace('[category]', str(mark.item.verbose_category_name)) if user.preference.mastodon_append_tag else ''
+    stars = rating_to_emoji(mark.rating,MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode)
+    content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.url}\n{mark.text}{tags}"
+    response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
+    return response.status_code == 200
+
+
+def share_review(review):
+    user = review.owner
+    if review.visibility == 2:
+        visibility = TootVisibilityEnum.DIRECT
+    elif review.visibility == 1:
+        visibility = TootVisibilityEnum.PRIVATE
+    elif user.preference.mastodon_publish_public:
+        visibility = TootVisibilityEnum.PUBLIC
+    else:
+        visibility = TootVisibilityEnum.UNLISTED
+    tags = '\n' + user.preference.mastodon_append_tag.replace('[category]', str(review.item.verbose_category_name)) if user.preference.mastodon_append_tag else ''
+    content = f"发布了关于《{review.item.title}》的评论\n{review.url}\n{review.title}{tags}"
+    response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
+    return response.status_code == 200

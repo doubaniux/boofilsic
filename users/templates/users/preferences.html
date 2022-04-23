@@ -29,21 +29,24 @@
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '联邦网络（Mastodon/Pleroma）相关设置' %}</h5>
+                                    <h5 class="import-panel__label">{% trans '社交网络分享相关设置' %}</h5>
                                     <div class="import-panel__body">
-                                        <form action="{% url 'users:preferences' %}" method="POST" enctype="multipart/form-data" >
+                                        <form action="{% url 'users:preferences' %}" method="POST">
                                             {% csrf_token %}
-                                            <span>{% trans '以公开方式分享的帖文是否发布到公共时间轴上：' %}</span>
+                                            <span>{% trans '在联邦网络上以公开方式分享的帖文是否发布到公共时间轴上：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if mastodon_publish_public%}checked{% endif %}>
+                                                <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if request.user.preference.mastodon_publish_public%}checked{% endif %}>
                                                 <label for="visibility">{% trans '选中时为public，未选中时为unlisted' %}</label>
                                             </div>
+                                            <br><br>
+                                            <span>{% trans '分享贴文时附加标签：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input name="mastodon_append_tag" id="tag" placeholder="#我的书影音" value="{{ request.user.preference.mastodon_append_tag }}" >
+                                                <label for="tag">{% trans '输入标签文字会被添加到贴文结尾' %}</label>
+                                            </div>
+
                                             <div> 
-                                                <input type="submit" class="import-panel__button" value="{% trans '保存' %}" id="uploadBtn"
-                                                    {% if not latest_task is None and not latest_task.is_finished %}
-                                                    disabled
-                                                    {% endif %}
-                                                >
+                                                <input type="submit" class="import-panel__button" value="{% trans '保存' %}">
                                             </div>
                                         </form>
                                     </div>

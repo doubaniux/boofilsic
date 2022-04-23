@@ -7,12 +7,7 @@ from common.forms import *
 
 
 def MusicMarkStatusTranslator(status):
-    trans_dict = {
-        MarkStatusEnum.DO.value: _("在听"),
-        MarkStatusEnum.WISH.value: _("想听"),
-        MarkStatusEnum.COLLECT.value: _("听过")
-    }
-    return trans_dict[status]
+    return MusicMarkStatusTranslation[status]
 
 
 class SongForm(forms.ModelForm):

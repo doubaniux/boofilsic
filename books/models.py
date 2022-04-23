@@ -2,10 +2,17 @@ import django.contrib.postgres.fields as postgres
 from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.shortcuts import reverse
-from common.models import Entity, Mark, Review, Tag
+from common.models import Entity, Mark, Review, Tag, MarkStatusEnum
 from common.utils import GenerateDateUUIDMediaFilePath
 from django.conf import settings
 from django.db.models import Q
+
+
+BookMarkStatusTranslation = {
+    MarkStatusEnum.DO.value: _("在读"),
+    MarkStatusEnum.WISH.value: _("想读"),
+    MarkStatusEnum.COLLECT.value: _("读过")
+}
 
 
 def book_cover_path(instance, filename):
@@ -115,7 +122,6 @@ class Book(Entity):
     def mark_class(self):
         return BookMark
 
-
 class BookMark(Mark):
     book = models.ForeignKey(
         Book, on_delete=models.CASCADE, related_name='book_marks', null=True)
@@ -125,6 +131,10 @@ class BookMark(Mark):
             models.UniqueConstraint(
                 fields=['owner', 'book'], name="unique_book_mark")
         ]
+
+    @property
+    def translated_status(self):
+        return BookMarkStatusTranslation[self.status]
 
 
 class BookReview(Review):
@@ -136,6 +146,10 @@ class BookReview(Review):
             models.UniqueConstraint(
                 fields=['owner', 'book'], name="unique_book_review")
         ]
+
+    @property
+    def url(self):
+        return settings.APP_WEBSITE + reverse("books:retrieve_review", args=[self.id])
 
 
 class BookTag(Tag):

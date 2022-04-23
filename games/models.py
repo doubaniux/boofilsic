@@ -4,10 +4,17 @@ from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
-from common.models import Entity, Mark, Review, Tag
+from common.models import Entity, Mark, Review, Tag, MarkStatusEnum
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
+
+
+GameMarkStatusTranslation = {
+    MarkStatusEnum.DO.value: _("在玩"),
+    MarkStatusEnum.WISH.value: _("想玩"),
+    MarkStatusEnum.COLLECT.value: _("玩过")
+}
 
 
 def game_cover_path(instance, filename):
@@ -112,6 +119,10 @@ class GameMark(Mark):
                 fields=['owner', 'game'], name='unique_game_mark')
         ]
 
+    @property
+    def translated_status(self):
+        return GameMarkStatusTranslation[self.status]
+
 
 class GameReview(Review):
     game = models.ForeignKey(
@@ -122,6 +133,10 @@ class GameReview(Review):
             models.UniqueConstraint(
                 fields=['owner', 'game'], name='unique_game_review')
         ]
+
+    @property
+    def url(self):
+        return settings.APP_WEBSITE + reverse("games:retrieve_review", args=[self.id])
 
 
 class GameTag(Tag):

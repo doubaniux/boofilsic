@@ -11,7 +11,6 @@ from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
 from mastodon.api import post_toot, TootVisibilityEnum
-from mastodon.utils import rating_to_emoji
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER, jump_or_scrape
 from common.models import SourceSiteEnum

@@ -1,18 +1,13 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
-from .models import Movie, MovieMark, MovieReview, MovieGenreEnum
+from .models import Movie, MovieMark, MovieReview, MovieGenreEnum, MovieMarkStatusTranslation
 from common.models import MarkStatusEnum
 from common.forms import *
 
 
 def MovieMarkStatusTranslator(status):
-    trans_dict = {
-        MarkStatusEnum.DO.value: _("在看"),
-        MarkStatusEnum.WISH.value: _("想看"),
-        MarkStatusEnum.COLLECT.value: _("看过")
-    }
-    return trans_dict[status]
+    return MovieMarkStatusTranslation[status]
 
 
 class MovieForm(forms.ModelForm):
