@@ -270,3 +270,7 @@ class MovieTag(Tag):
             models.UniqueConstraint(
                 fields=['content', 'mark'], name="unique_moviemark_tag")
         ]
+
+    @property
+    def item(self):
+        return self.movie

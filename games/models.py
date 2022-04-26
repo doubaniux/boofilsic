@@ -150,3 +150,7 @@ class GameTag(Tag):
             models.UniqueConstraint(
                 fields=['content', 'mark'], name="unique_gamemark_tag")
         ]
+
+    @property
+    def item(self):
+        return self.game

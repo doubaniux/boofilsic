@@ -163,3 +163,7 @@ class BookTag(Tag):
             models.UniqueConstraint(
                 fields=['content', 'mark'], name="unique_bookmark_tag")
         ]
+
+    @property
+    def item(self):
+        return self.book

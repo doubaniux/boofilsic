@@ -185,6 +185,10 @@ class SongTag(Tag):
                 fields=['content', 'mark'], name="unique_songmark_tag")
         ]
 
+    @property
+    def item(self):
+        return self.song
+
 
 class AlbumMark(Mark):
     album = models.ForeignKey(
@@ -227,3 +231,7 @@ class AlbumTag(Tag):
             models.UniqueConstraint(
                 fields=['content', 'mark'], name="unique_albummark_tag")
         ]
+
+    @property
+    def item(self):
+        return self.album
