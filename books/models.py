@@ -122,6 +122,11 @@ class Book(Entity):
     def mark_class(self):
         return BookMark
 
+    @property
+    def tag_class(self):
+        return BookTag
+
+
 class BookMark(Mark):
     book = models.ForeignKey(
         Book, on_delete=models.CASCADE, related_name='book_marks', null=True)

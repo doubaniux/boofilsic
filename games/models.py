@@ -108,6 +108,10 @@ class Game(Entity):
     def mark_class(self):
         return GameMark
 
+    @property
+    def tag_class(self):
+        return GameTag
+
 
 class GameMark(Mark):
     game = models.ForeignKey(

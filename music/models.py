@@ -87,6 +87,10 @@ class Album(Entity):
     def mark_class(self):
         return AlbumMark
 
+    @property
+    def tag_class(self):
+        return AlbumTag
+
 
 class Song(Entity):
     '''
@@ -141,6 +145,10 @@ class Song(Entity):
     @property
     def mark_class(self):
         return SongMark
+
+    @property
+    def tag_class(self):
+        return SongTag
 
 
 class SongMark(Mark):

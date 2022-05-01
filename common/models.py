@@ -192,6 +192,10 @@ class Entity(models.Model):
     def mark_class(self):
         raise NotImplementedError("Subclass should implement this.")
 
+    @property
+    def tag_class(self):
+        raise NotImplementedError("Subclass should implement this.")
+
 
 class UserOwnedEntity(models.Model):
     is_private = models.BooleanField(default=False, null=True)  # first set allow null, then migration, finally (in a few days) remove for good
@@ -280,6 +284,11 @@ class Mark(UserOwnedEntity):
     @property
     def translated_status(self):
         raise NotImplementedError("Subclass should implement this.")
+
+    @property
+    def tags(self):
+        tags = self.item.tag_class.objects.filter(mark_id=self.id)
+        return tags
 
     class Meta:
         abstract = True

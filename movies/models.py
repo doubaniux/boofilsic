@@ -235,6 +235,10 @@ class Movie(Entity):
     def mark_class(self):
         return MovieMark
 
+    @property
+    def tag_class(self):
+        return MovieTag
+
 
 class MovieMark(Mark):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='movie_marks', null=True)
