@@ -55,6 +55,7 @@ def query_progress(request):
         return JsonResponse()
 
 
+@login_required
 def query_last_task(request):
     task = request.user.user_synctasks.order_by('-id').first()
     if task is not None:
