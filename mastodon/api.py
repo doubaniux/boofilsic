@@ -100,7 +100,7 @@ def post_toot(site, content, visibility, token, local_only=False):
     if response.status_code == 201:
         response.status_code = 200
     if response.status_code != 200:
-        logger.error(f"Error {url} {response.status_code} {response.text}")
+        logger.error(f"Error {url} {response.status_code}")
     return response
 
 
@@ -108,10 +108,12 @@ def get_instance_info(domain_name):
     if domain_name.lower().strip() == TWITTER_DOMAIN:
         return TWITTER_DOMAIN, ''
     try:
-        response = get(f'https://{domain_name}/api/v1/instance', headers={'User-Agent': 'NeoDB/1.0'})
+        url = f'https://{domain_name}/api/v1/instance'
+        response = get(url, headers={'User-Agent': 'NeoDB/1.0'})
         j = response.json()
         return j['uri'].lower().split('//')[-1].split('/')[0], j['version']
-    except:
+    except Exception:
+        logger.error(f"Error {url}")
         return domain_name, ''
 
 
@@ -217,7 +219,7 @@ def verify_account(site, token):
         try:
             response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
             if response.status_code != 200:
-                logger.error(f"Error {url} {response.status_code} {response.text}")
+                logger.error(f"Error {url} {response.status_code}")
                 return response.status_code, None
             r = response.json()['data']
             r['display_name'] = r['name']
@@ -272,20 +274,22 @@ def get_mastodon_application(domain):
     try:
         response = create_app(domain)
     except (requests.exceptions.Timeout, ConnectionError):
-        error_msg = _("联邦网络请求超时。")
+        error_msg = "联邦网络请求超时。"
+        logger.error(f'Error creating app for {domain}: Timeout')
     except Exception as e:
-        error_msg = str(e)
+        error_msg = "联邦网络请求失败 " + str(e)
+        logger.error(f'Error creating app for {domain}: {e}')
     else:
         # fill the form with returned data
         if response.status_code != 200:
             error_msg = "实例连接错误，代码: " + str(response.status_code)
-            logger.error(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")}')
+            logger.error(f'Error creating app for {domain}: {response.status_code}')
         else:
             try:
                 data = response.json()
-            except Exception as e:
+            except Exception:
                 error_msg = "实例返回内容无法识别"
-                logger.error(f'Error connecting {domain}: {response.status_code} {response.content.decode("utf-8")} {e}')
+                logger.error(f'Error creating app for {domain}: unable to parse response')
             else:
                 app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
                     client_secret=data['client_secret'], vapid_key=data['vapid_key'] if 'vapid_key' in data else '')
@@ -325,7 +329,7 @@ def obtain_token(site, request, code):
     response = post(url, data=payload, headers=headers, auth=auth)
     # {"token_type":"bearer","expires_in":7200,"access_token":"VGpkOEZGR3FQRDJ5NkZ0dmYyYWIwS0dqeHpvTnk4eXp0NV9nWDJ2TEpmM1ZTOjE2NDg3ODMxNTU4Mzc6MToxOmF0OjE","scope":"block.read follows.read offline.access tweet.write users.read mute.read","refresh_token":"b1pXbGEzeUF1WE5yZHJOWmxTeWpvMTBrQmZPd0czLU0tQndZQTUyU3FwRDVIOjE2NDg3ODMxNTU4Mzg6MToxOnJ0OjE"}
     if response.status_code != 200:
-        logger.error(f"Error {url} {response.status_code} {response.text}")
+        logger.error(f"Error {url} {response.status_code}")
         return None, None
     data = response.json()
     return data.get('access_token'), data.get('refresh_token', '')
@@ -345,7 +349,7 @@ def refresh_access_token(site, refresh_token):
     auth = (mast_app.client_id, mast_app.client_secret)
     response = post(url, data=payload, headers=headers, auth=auth)
     if response.status_code != 200:
-        logger.error(f"Error {url} {response.status_code} {response.text}")
+        logger.error(f"Error {url} {response.status_code}")
         return None
     data = response.json()
     return data.get('access_token')

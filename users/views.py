@@ -147,6 +147,8 @@ def connect(request):
     if not settings.MASTODON_ALLOW_ANY_SITE:
         return redirect(reverse("users:login"))
     login_domain = request.session['swap_domain'] if request.session.get('swap_login') else request.GET.get('domain')
+    if not login_domain:
+        return render(request, 'common/error.html', {'msg': '未指定实例域名', 'secondary_msg': "", })
     login_domain = login_domain.strip().lower().split('//')[-1].split('/')[0].split('@')[-1]
     domain, version = get_instance_info(login_domain)
     app, error_msg = get_mastodon_application(domain)
