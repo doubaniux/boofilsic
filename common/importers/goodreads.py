@@ -80,7 +80,7 @@ class GoodreadsImporter:
                         mark = BookMark.objects.create(**params)
                         mark.book.update_rating(None, mark.rating)
                     except Exception:
-                        print(f'Skip mark for {mark.book}')
+                        print(f'Skip mark for {book["book"]}')
                         pass
                     total += 1
             msg.success(user, f'成功从Goodreads用户主页导入{total}个标记。')
