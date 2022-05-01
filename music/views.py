@@ -325,7 +325,7 @@ def create_update_song_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                if not share_review(form.instance):
+                if not share_mark(form.instance):
                     return HttpResponseServerError("publishing mastodon status failed")
         else:
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
