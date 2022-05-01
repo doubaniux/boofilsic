@@ -42,7 +42,7 @@ class Book(Entity):
         default=list,
     )
     language = models.CharField(
-        _("language"), blank=True, default='', max_length=10)
+        _("language"), blank=True, default='', max_length=50)
     pub_house = models.CharField(
         _("publishing house"), blank=True, default='', max_length=200)
     pub_year = models.IntegerField(_("published year"), null=True, blank=True)
