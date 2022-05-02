@@ -61,23 +61,23 @@
                             <div class="pagination" >
                                 
                                 {% if pagination.has_prev %}
-                                    <a href="?page=1&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
-                                    <a href="?page={{ pagination.previous_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+                                    <a href="?page=1&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
+                                    <a href="?page={{ pagination.previous_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
                                 {% endif %}
                                     
                                 {% for page in pagination.page_range %}
                                     
                                     {% if page == pagination.current_page %}
-                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
                                     {% else %}
-                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__page-link">{{ page }}</a>
+                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__page-link">{{ page }}</a>
                                     {% endif %}
                                         
                                 {% endfor %}
                                     
                                 {% if pagination.has_next %}
-                                    <a href="?page={{ pagination.next_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-                                    <a href="?page={{ pagination.last_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link">&raquo;</a>
+                                    <a href="?page={{ pagination.next_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                    <a href="?page={{ pagination.last_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link">&raquo;</a>
                                 {% endif %}           
                               
                             </div>            
