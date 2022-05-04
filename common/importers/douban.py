@@ -89,30 +89,32 @@ class DoubanImporter:
                     destination.write(chunk)
             self.file = file
             self.update_user_import_status(2)
-            django_rq.get_queue('doufen').enqueue(self.import_from_file_task)
+            jid = f'Douban_{self.user.id}_{os.path.basename(self.file)}'
+            django_rq.get_queue('doufen').enqueue(self.import_from_file_task, job_id=jid)
         except Exception:
             return False
         # self.import_from_file_task(file, user, visibility)
         return True
 
     def import_from_file_task(self):
+        print(f'{self.user} import start')
         msg.info(self.user, f'开始导入豆瓣评论')
         self.update_user_import_status(1)
         f = open(self.file, 'rb')
         wb = openpyxl.load_workbook(f, read_only=True, data_only=True, keep_links=False)
-        self.import_sheet(wb['书评'], DoubanBookScraper, Book, BookReview)
-        self.import_sheet(wb['影评'], DoubanMovieScraper, Movie, MovieReview)
-        self.import_sheet(wb['乐评'], DoubanAlbumScraper, Album, AlbumReview)
-        self.import_sheet(wb['游戏评论&攻略'], DoubanGameScraper, Game, GameReview)
+        self.import_sheet(wb['书评'] if '书评' in wb else None, DoubanBookScraper, Book, BookReview)
+        self.import_sheet(wb['影评'] if '影评' in wb else None, DoubanMovieScraper, Movie, MovieReview)
+        self.import_sheet(wb['乐评'] if '乐评' in wb else None, DoubanAlbumScraper, Album, AlbumReview)
+        self.import_sheet(wb['游戏评论&攻略'] if '游戏评论&攻略' in wb else None, DoubanGameScraper, Game, GameReview)
         self.update_user_import_status(0)
         msg.success(self.user, f'豆瓣评论导入完成，共处理{self.total}篇，已存在{self.skipped}篇，新增{self.imported}篇。')
         if len(self.failed):
             msg.error(self.user, f'豆瓣评论导入时未能处理以下网址：\n{" , ".join(self.failed)}')
 
     def import_sheet(self, worksheet, scraper, entity_class, review_class):
-        prefix = f'{self.user} {review_class.__name__} |'
+        prefix = f'{self.user} |'
         if worksheet is None:  # or worksheet.max_row < 2:
-            print(f'{prefix} empty sheet')
+            print(f'{prefix} {review_class.__name__} empty sheet')
             return
         for row in worksheet.iter_rows(min_row=2, values_only=True):
             cells = [cell for cell in row]
@@ -144,7 +146,7 @@ class DoubanImporter:
 
     def import_review(self, title, review_url, content, time, scraper, entity_class, review_class):
         # return 1: done / 2: skipped / None: failed
-        prefix = f'{self.user} {review_class.__name__} |'
+        prefix = f'{self.user} |'
         url = None
         print(f'{prefix} fetching {review_url}')
         try:
@@ -161,7 +163,7 @@ class DoubanImporter:
                 if '.douban.com/subject/' in u:
                     url = u
             if not url:
-                print(f'{prefix} fetching error {review_url} unable to locate url')
+                print(f'{prefix} fetching error {review_url} unable to locate entity url')
                 return
         except Exception:
             print(f'{prefix} fetching exception {review_url}')
