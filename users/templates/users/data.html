@@ -39,7 +39,7 @@
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导入豆瓣标记数据' %}</h5>
+                                    <h5 class="import-panel__label">{% trans '导入豆瓣标记和短评' %}</h5>
                                     <span id="importHelp" class="import-panel__help">?</span>
                                     <div class="import-panel__body">
                                         <form action="{% url 'sync:douban' %}" method="POST" enctype="multipart/form-data" >
@@ -48,19 +48,19 @@
                                             <input type="hidden" name="user" value="{{ request.user.id }}">
                                             <span>{% trans '导入：' %}</span>
                                             <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_book" id="syncBook">
+                                                <input type="checkbox" name="sync_book" id="syncBook" checked>
                                                 <label for="syncBook">{% trans '书' %}</label>
                                             </div>
                                             <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_movie" id="syncMovie">
+                                                <input type="checkbox" name="sync_movie" id="syncMovie" checked>
                                                 <label for="syncMovie">{% trans '电影' %}</label>
                                             </div>
                                             <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_music" id="syncMusic">
+                                                <input type="checkbox" name="sync_music" id="syncMusic" checked>
                                                 <label for="syncMusic">{% trans '音乐' %}</label>
                                             </div>
                                             <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_game" id="syncGame">
+                                                <input type="checkbox" name="sync_game" id="syncGame" checked>
                                                 <label for="syncGame">{% trans '游戏' %}</label>
                                             </div>
                                             <div></div>
@@ -73,12 +73,13 @@
                                             <div></div>
                                             <span>{% trans '可见性：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="default_public" id="visibility">
+                                                <input type="checkbox" name="default_public" id="visibility" checked>
                                                 <label for="visibility">{% trans '公开' %}</label>
                                             </div>
                                             <span id="visibilityHelp" class="import-panel__help">?</span>
                                             <div></div>
                                             <div class="import-panel__file-input">
+                                                从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
                                                 <input type="file" name="file" id="excelFile" required accept=".xlsx">
                                             </div>
                                             <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn"
@@ -148,7 +149,7 @@
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导入豆瓣评论数据' %}</h5>
+                                    <h5 class="import-panel__label">{% trans '导入豆瓣评论' %}</h5>
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
@@ -182,7 +183,7 @@
                                                 {% endif %}
                                             </div>
                                             <div>
-                                                NeoDB中已经存在的标记、短评和评论不会被覆盖；匿名用户看不到的评论目前无法导入。
+                                                已经存在的评论不会被覆盖；匿名用户看不到的豆瓣评论目前无法导入NeoDB。
                                             </div>
                                         </form>
                                     </div>
