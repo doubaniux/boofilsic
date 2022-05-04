@@ -19,3 +19,4 @@ tqdm
 opencc
 dnspython
 typesense
+markdownify

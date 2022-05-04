@@ -114,6 +114,7 @@ class Preference(models.Model):
         default=list,
     )
     export_status = models.JSONField(blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
+    import_status = models.JSONField(blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
     mastodon_publish_public = models.BooleanField(null=False, default=False)
     mastodon_append_tag = models.CharField(max_length=2048, default='')
 

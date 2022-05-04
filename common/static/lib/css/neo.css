@@ -1,3 +1,15 @@
+.markdownx-preview h1 {
+    font-size: 2.5em;
+}
+
+.markdownx-preview h2 {
+    font-size: 2.0em;
+}
+
+.markdownx-preview h3 {
+    font-size: 1.6em;
+}
+
 .collection-item-position-edit {
     float: right;
 }

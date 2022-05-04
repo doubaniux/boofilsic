@@ -9,6 +9,7 @@ urlpatterns = [
     path('reconnect/', reconnect, name='reconnect'),
     path('data/', data, name='data'),
     path('data/import_goodreads', import_goodreads, name='import_goodreads'),
+    path('data/import_douban', import_douban, name='import_douban'),
     path('data/export_reviews', export_reviews, name='export_reviews'),
     path('data/export_marks', export_marks, name='export_marks'),
     path('data/sync_mastodon', sync_mastodon, name='sync_mastodon'),

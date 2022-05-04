@@ -39,6 +39,7 @@ from games.models import GameMark, GameReview
 from music.models import AlbumMark, SongMark, AlbumReview, SongReview
 from collection.models import Collection
 from common.importers.goodreads import GoodreadsImporter
+from common.importers.douban import DoubanImporter
 
 
 # Views
@@ -1060,6 +1061,7 @@ def preferences(request):
 def data(request):
     return render(request, 'users/data.html', {
         'latest_task': request.user.user_synctasks.order_by("-id").first(),
+        'import_status': request.user.preference.import_status,
         'export_status': request.user.preference.export_status
     })
 
@@ -1152,7 +1154,18 @@ def import_goodreads(request):
     if request.method == 'POST':
         raw_url = request.POST.get('url')
         if GoodreadsImporter.import_from_url(raw_url, request.user):
-            messages.add_message(request, messages.INFO, _('开始后台导入。'))
+            messages.add_message(request, messages.INFO, _('链接已保存，等待后台导入。'))
         else:
             messages.add_message(request, messages.ERROR, _('无法识别链接。'))
+    return redirect(reverse("users:data"))
+
+
+@login_required
+def import_douban(request):
+    if request.method == 'POST':
+        importer = DoubanImporter(request.user, request.POST.get('visibility'))
+        if importer.import_from_file(request.FILES['file']):
+            messages.add_message(request, messages.INFO, _('文件上传成功，等待后台导入。'))
+        else:
+            messages.add_message(request, messages.ERROR, _('无法识别文件。'))
     return redirect(reverse("users:data"))

@@ -148,6 +148,51 @@
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导入豆瓣评论数据' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <div class="import-panel__checkbox">
+                                                <p>从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
+                                                    <input type="file" name="file" id="excel" required accept=".xlsx">
+                                                </p>
+                                                <p>可见性:
+                                                    <label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" checked>
+                                                     公开</label>
+                                                    <label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1">
+                                                     仅关注者</label>
+                                                    <label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2">
+                                                     仅自己</label>
+                                                </p>
+                                                {% if import_status.douban_pending %}
+                                                <input type="submit" class="import-panel__button" value="{% trans '备份文件已上传' %}" disabled />
+                                                {% else %}
+                                                <input type="submit" class="import-panel__button" value="{% trans '导入' %}"/>
+                                                {% endif %}
+
+                                                {% if import_status.douban_pending == 2 %}
+                                                正在等待
+                                                {% elif import_status.douban_total %}
+                                                    {% if import_status.douban_pending == 1 %}
+                                                    正在导入，目前已
+                                                    {% else %}
+                                                    上次共计
+                                                    {% endif %}
+                                                    处理{{ import_status.douban_total }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                NeoDB中已经存在的标记、短评和评论不会被覆盖；匿名用户看不到的评论目前无法导入。
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
                                     <h5 class="import-panel__label">{% trans '导入Goodreads帐号或书单' %}</h5>
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:import_goodreads' %}" method="POST" >
