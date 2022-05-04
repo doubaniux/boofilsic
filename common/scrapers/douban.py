@@ -481,7 +481,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         episodes_elem = content.xpath(
             "//div[@id='info']//span[text()='集数:']/following-sibling::text()[1]")
-        episodes = int(episodes_elem[0].strip()) if episodes_elem else None
+        episodes = int(episodes_elem[0].strip()) if episodes_elem and episodes_elem[0].isdigit() else None
 
         single_episode_length_elem = content.xpath(
             "//div[@id='info']//span[text()='单集片长:']/following-sibling::text()[1]")

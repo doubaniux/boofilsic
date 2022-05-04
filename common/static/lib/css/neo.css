@@ -10,6 +10,11 @@
     font-size: 1.6em;
 }
 
+.markdownx-preview blockquote {
+    border-left: lightgray solid 0.4em;
+    padding-left: 0.4em;
+}
+
 .collection-item-position-edit {
     float: right;
 }
