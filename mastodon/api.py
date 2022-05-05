@@ -156,12 +156,16 @@ def get_site_id(username, user_site, target_site, token):
         'Authorization': f'Bearer {token}'
     }
     response = get(url, params=payload, headers=headers)
-    data = response.json()
-    if 'accounts' not in data: 
+    try:
+        data = response.json()
+    except Exception:
+        logger.error(f"Error parsing JSON from {url}")
+        return None
+    if 'accounts' not in data:
         return None
     elif len(data['accounts']) == 0:  # target site may return empty if no cache of this user
         return None
-    elif data['accounts'][0]['acct'] != f"{username}@{user_site}":  # or return another user with a similar id which needs to be skipped  
+    elif data['accounts'][0]['acct'] != f"{username}@{user_site}":  # or return another user with a similar id which needs to be skipped
         return None
     else:
         return data['accounts'][0]['id']
