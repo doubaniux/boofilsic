@@ -166,7 +166,7 @@
                                                      仅自己</label>
                                                 </p>
                                                 {% if import_status.douban_pending %}
-                                                <input type="submit" class="import-panel__button" value="{% trans '备份文件已上传' %}" disabled />
+                                                <input type="submit" class="import-panel__button" value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}" disabled />
                                                 {% else %}
                                                 <input type="submit" class="import-panel__button" value="{% trans '导入' %}"/>
                                                 {% endif %}
@@ -184,7 +184,7 @@
                                                 {% endif %}
                                             </div>
                                             <div>
-                                                已经存在的评论不会被覆盖；匿名用户看不到的豆瓣评论目前无法导入NeoDB。
+                                                已经存在的评论不会被覆盖。
                                             </div>
                                         </form>
                                     </div>
