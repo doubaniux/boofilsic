@@ -251,6 +251,7 @@ class DoubanImporter:
         if review_class.objects.filter(**params).exists():
             return 2
         content = re.sub(r'<span style="font-weight: bold;">([^<]+)</span>', r'<b>\1</b>', content)
+        content = re.sub(r'(<img [^>]+>)', r'\1<br>', content)
         content = re.sub(r'<div class="image-caption">([^<]+)</div>', r'<br><i>\1</i><br>', content)
         content = md(content)
         content = re.sub(r'(?<=!\[\]\()([^)]+)(?=\))', lambda x: fetch_remote_image(x[1]), content)
