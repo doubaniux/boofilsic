@@ -101,6 +101,9 @@ class DoufenParser:
 
         is_first_sheet = True
         for mapping in item_classes_mappings:
+            if mapping['sheet'] not in self.__wb:
+                print(f"Sheet not found: {mapping['sheet']}")
+                continue
             ws = self.__wb[mapping['sheet']]
 
             max_row = ws.max_row
@@ -153,7 +156,8 @@ class DoufenParser:
         sheets = [mapping['sheet'] for mapping in self.__mappings]
         item_number = 0
         for sheet in sheets:
-            item_number += self.__wb[sheet].max_row - 1
+            if sheet in self.__wb:
+                item_number += self.__wb[sheet].max_row - 1
 
         return item_number
 
