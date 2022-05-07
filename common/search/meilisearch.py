@@ -2,6 +2,7 @@ import logging
 import meilisearch
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
+import types
 
 
 INDEX_NAME = 'items'
@@ -149,7 +150,7 @@ class Indexer:
             elif category:
                 f.append(f"_class = '{category}'")
             if tag:
-                t = tag.replace("'", "").replace('"', "")
+                t = tag.replace("'", "\'")
                 f.append(f"tags = '{t}'")
             filter = ' AND '.join(f)
         else:
@@ -161,9 +162,12 @@ class Indexer:
             'facetsDistribution': ['_class'],
             'sort': None
         }
-        r = self.instance().search(q, options)
+        try:
+            r = self.instance().search(q, options)
+        except Exception as e:
+            logger.error(f"MeiliSearch error: \n{e}")
+            r = {'nbHits': 0, 'hits': []}
         # print(r)
-        import types
         results = types.SimpleNamespace()
         results.items = list([x for x in map(lambda i: self.item_to_obj(i), r['hits']) if x is not None])
         results.num_pages = (r['nbHits'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
