@@ -32,6 +32,16 @@ from datetime import datetime
 import os
 
 
+def refresh_mastodon_data_task(user, token=None):
+    if token:
+        user.mastodon_token = token
+    if user.refresh_mastodon_data():
+        user.save()
+        print(f"{user} mastodon data refreshed")
+    else:
+        print(f"{user} mastodon data refresh failed")
+
+
 def export_marks_task(user):
     user.preference.export_status['marks_pending'] = True
     user.preference.save()

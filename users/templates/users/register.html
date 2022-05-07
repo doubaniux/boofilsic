@@ -30,8 +30,7 @@
                 此外，{{ site_name }}现处于测试阶段，疏漏在所难免，请妥善备份您的数据。
                 使用过程中遇到的问题或者错误欢迎向<a href="{{ support_link }}">维护者</a>提出。感谢理解和支持！
             </p>
-            <form action="{% url 'users:register' %}" method="post">
-                {% csrf_token %}
+            <form action="{% url 'common:home' %}">
                 <input type="submit" class="button" value="{% trans 'Cut the sh*t and get me in!' %}">
             </form>
 

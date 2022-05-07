@@ -28,7 +28,8 @@ from mastodon.api import verify_account
 from django.conf import settings
 from urllib.parse import quote
 import django_rq
-from .export import *
+from .account import *
+from .data import *
 from datetime import timedelta
 from django.utils import timezone
 import json
@@ -40,196 +41,6 @@ from music.models import AlbumMark, SongMark, AlbumReview, SongReview
 from collection.models import Collection
 from common.importers.goodreads import GoodreadsImporter
 from common.importers.douban import DoubanImporter
-
-
-# Views
-########################################
-def swap_login(request, token, site, refresh_token):
-    del request.session['swap_login']
-    del request.session['swap_domain']
-    code, data = verify_account(site, token)
-    current_user = request.user
-    if code == 200 and data is not None:
-        username = data['username']
-        if username == current_user.username and site == current_user.mastodon_site:
-            messages.add_message(request, messages.ERROR, _(f'该身份 {username}@{site} 与当前账号相同。'))
-        else:
-            try:
-                existing_user = User.objects.get(username=username, mastodon_site=site)
-                messages.add_message(request, messages.ERROR, _(f'该身份 {username}@{site} 已被用于其它账号。'))
-            except ObjectDoesNotExist:
-                current_user.username = username
-                current_user.mastodon_id = data['id']
-                current_user.mastodon_site = site
-                current_user.mastodon_token = token
-                current_user.mastodon_refresh_token = refresh_token
-                current_user.mastodon_account = data
-                current_user.save(update_fields=['username', 'mastodon_id', 'mastodon_site', 'mastodon_token', 'mastodon_refresh_token', 'mastodon_account'])
-                django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, current_user, token)
-                messages.add_message(request, messages.INFO, _(f'账号身份已更新为 {username}@{site}。'))
-    else:
-        messages.add_message(request, messages.ERROR, _('连接联邦网络获取身份信息失败。'))
-    return redirect(reverse('users:data'))
-
-
-# no page rendered
-@mastodon_request_included
-def OAuth2_login(request):
-    """ oauth authentication and logging user into django system """
-    if request.method == 'GET':
-        code = request.GET.get('code')
-        site = request.COOKIES.get('mastodon_domain')
-
-        # Network IO
-        try:
-            token, refresh_token = obtain_token(site, request, code)
-        except ObjectDoesNotExist:
-            return HttpResponseBadRequest("Mastodon site not registered")
-        if token:
-            if request.session.get('swap_login', False) and request.user.is_authenticated: # swap login for existing user
-                return swap_login(request, token, site, refresh_token)
-            user = authenticate(request, token=token, site=site)
-            if user:
-                user.mastodon_token = token
-                user.mastodon_refresh_token = refresh_token
-                user.save(update_fields=['mastodon_token', 'mastodon_refresh_token'])
-                auth_login(request, user)
-                if request.session.get('next_url') is not None:
-                    response = redirect(request.session.get('next_url'))
-                    del request.session['next_url']
-                else:
-                    response = redirect(reverse('common:home'))
-
-                response.delete_cookie('mastodon_domain')
-                return response
-            else:
-                # will be passed to register page
-                request.session['new_user_token'] = token
-                request.session['new_user_refresh_token'] = refresh_token
-                return redirect(reverse('users:register'))
-        else:
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': _("认证失败😫")
-                }
-            )
-    else:
-        return HttpResponseBadRequest()
-
-
-# the 'login' page that user can see
-def login(request):
-    if request.method == 'GET':
-        selected_site = request.GET.get('site', default='')
-
-        sites = MastodonApplication.objects.all().order_by("domain_name")
-
-        # store redirect url in the cookie
-        if request.GET.get('next'):
-            request.session['next_url'] = request.GET.get('next')
-
-        return render(
-            request,
-            'users/login.html',
-            {
-                'sites': sites,
-                'scope': quote(settings.MASTODON_CLIENT_SCOPE),
-                'selected_site': selected_site,
-                'allow_any_site': settings.MASTODON_ALLOW_ANY_SITE,
-            }
-        )
-    else:
-        return HttpResponseBadRequest()
-
-
-def connect(request):
-    if not settings.MASTODON_ALLOW_ANY_SITE:
-        return redirect(reverse("users:login"))
-    login_domain = request.session['swap_domain'] if request.session.get('swap_login') else request.GET.get('domain')
-    if not login_domain:
-        return render(request, 'common/error.html', {'msg': '未指定实例域名', 'secondary_msg': "", })
-    login_domain = login_domain.strip().lower().split('//')[-1].split('/')[0].split('@')[-1]
-    domain, version = get_instance_info(login_domain)
-    app, error_msg = get_mastodon_application(domain)
-    if app is None:
-        return render(request, 'common/error.html', {'msg': error_msg, 'secondary_msg': "", })
-    else:
-        login_url = get_mastodon_login_url(app, login_domain, version, request)
-        resp = redirect(login_url)
-        resp.set_cookie("mastodon_domain", domain)
-        return resp
-
-
-@mastodon_request_included
-@login_required
-def reconnect(request):
-    if request.method == 'POST':
-        request.session['swap_login'] = True
-        request.session['swap_domain'] = request.POST['domain']
-        return connect(request)
-    else:
-        return HttpResponseBadRequest()
-
-
-@mastodon_request_included
-@login_required
-def logout(request):
-    if request.method == 'GET':
-        # revoke_token(request.user.mastodon_site, request.user.mastodon_token)
-        auth_logout(request)
-        return redirect(reverse("users:login"))
-    else:
-        return HttpResponseBadRequest()
-
-
-@mastodon_request_included
-def register(request):
-    """ register confirm page """
-    if request.method == 'GET':
-        if request.user.is_authenticated:
-            return redirect(reverse('common:home'))
-        elif request.session.get('new_user_token'):
-            return render(
-                request,
-                'users/register.html'
-            )
-        else:
-            return HttpResponseBadRequest()
-    elif request.method == 'POST':
-        token = request.session['new_user_token']
-        refresh_token = request.session['new_user_refresh_token']
-        code, user_data = verify_account(request.COOKIES['mastodon_domain'], token)
-        if code != 200 or user_data is None:
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': _("联邦网络访问失败😫")
-                }
-            )
-        new_user = User(
-            username=user_data['username'],
-            mastodon_id=user_data['id'],
-            mastodon_site=request.COOKIES['mastodon_domain'],
-            mastodon_token=token,
-            mastodon_refresh_token=refresh_token,
-            mastodon_account=user_data,
-        )
-        new_user.save()
-        del request.session['new_user_token']
-        del request.session['new_user_refresh_token']
-        auth_login(request, new_user)
-        response = redirect(reverse('common:home'))
-        response.delete_cookie('mastodon_domain')
-        return response
-    else:
-        return HttpResponseBadRequest()
-
-
-def delete(request):
-    raise NotImplementedError
 
 
 def home_redirect(request, id):
@@ -247,10 +58,10 @@ def home_anonymous(request, id):
         username = id.split('@')[0]
         site = id.split('@')[1]
         return render(request, 'users/home_anonymous.html', {
-                    'login_url': login_url,
-                    'username': username,
-                    'site': site,
-                })
+                      'login_url': login_url,
+                      'username': username,
+                      'site': site,
+                      })
     except Exception:
         return redirect(login_url)
 
@@ -349,7 +160,7 @@ def home(request, id):
 
         # movie marks
         filtered_movie_marks = filter_marks(movie_marks, MOVIES_PER_SET, 'movie')
-        movie_marks_count= count_marks(movie_marks, "movie")
+        movie_marks_count = count_marks(movie_marks, "movie")
 
         # game marks
         filtered_game_marks = filter_marks(game_marks, GAMES_PER_SET, 'game')
@@ -800,7 +611,7 @@ def game_list(request, id, status):
             if status == 'reviewed':
                 queryset = GameReview.objects.filter(owner=user).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = GameTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")                
+                queryset = GameTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")
             else:
                 queryset = GameMark.objects.filter(
                     owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -816,7 +627,7 @@ def game_list(request, id, status):
         elif status == 'tagged':
             list_title = str(_(f"标记为「{tag}」的游戏"))
         else:
-            list_title = str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的游戏"))        
+            list_title = str(GameMarkStatusTranslator(MarkStatusEnum[status.upper()])) + str(_("的游戏"))
         return render(
             request,
             'users/item_list.html',
@@ -1020,152 +831,3 @@ def collection_list(request, id):
             }
         )
     return list(request, user.id)
-
-
-# Utils
-########################################
-def refresh_mastodon_data_task(user, token=None):
-    if token:
-        user.mastodon_token = token
-    if user.refresh_mastodon_data():
-        user.save()
-        print(f"{user} mastodon data refreshed")
-    else:
-        print(f"{user} mastodon data refresh failed")
-
-
-def auth_login(request, user):
-    """ Decorates django ``login()``. Attach token to session."""
-    auth.login(request, user)
-    if user.mastodon_last_refresh < timezone.now() - timedelta(hours=1) or user.mastodon_account == {}:
-        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user)
-
-
-def auth_logout(request):
-    """ Decorates django ``logout()``. Release token in session."""
-    auth.logout(request)
-
-
-@mastodon_request_included
-@login_required
-def preferences(request):
-    if request.method == 'POST':
-        request.user.preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
-        request.user.preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
-        request.user.preference.save()
-    return render(request, 'users/preferences.html')
-
-
-@mastodon_request_included
-@login_required
-def data(request):
-    return render(request, 'users/data.html', {
-        'latest_task': request.user.user_synctasks.order_by("-id").first(),
-        'import_status': request.user.preference.import_status,
-        'export_status': request.user.preference.export_status
-    })
-
-
-@mastodon_request_included
-@login_required
-def export_reviews(request):
-    if request.method != 'POST':
-        return redirect(reverse("users:data"))
-    return render(request, 'users/data.html')
-
-
-@mastodon_request_included
-@login_required
-def export_marks(request):
-    if request.method == 'POST':
-        if not request.user.preference.export_status.get('marks_pending'):
-            django_rq.get_queue('export').enqueue(export_marks_task, request.user)
-            request.user.preference.export_status['marks_pending'] = True
-            request.user.preference.save()
-        messages.add_message(request, messages.INFO, _('导出已开始。'))
-        return redirect(reverse("users:data"))
-    else:
-        with open(request.user.preference.export_status['marks_file'], 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'attachment;filename="marks.xlsx"'
-            return response
-
-
-@login_required
-def sync_mastodon(request):
-    if request.method == 'POST':
-        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user)
-        messages.add_message(request, messages.INFO, _('同步已开始。'))
-    return redirect(reverse("users:data"))
-
-
-@login_required
-def reset_visibility(request):
-    if request.method == 'POST':
-        visibility = int(request.POST.get('visibility'))
-        visibility = visibility if visibility >= 0 and visibility <= 2 else 0
-        BookMark.objects.filter(owner=request.user).update(visibility=visibility)
-        MovieMark.objects.filter(owner=request.user).update(visibility=visibility)
-        GameMark.objects.filter(owner=request.user).update(visibility=visibility)
-        AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
-        SongMark.objects.filter(owner=request.user).update(visibility=visibility)
-        messages.add_message(request, messages.INFO, _('已重置。'))
-    return redirect(reverse("users:data"))
-
-
-@login_required
-def clear_data(request):
-    if request.method == 'POST':
-        if request.POST.get('verification') == request.user.mastodon_username:
-            BookMark.objects.filter(owner=request.user).delete()
-            MovieMark.objects.filter(owner=request.user).delete()
-            GameMark.objects.filter(owner=request.user).delete()
-            AlbumMark.objects.filter(owner=request.user).delete()
-            SongMark.objects.filter(owner=request.user).delete()
-            BookReview.objects.filter(owner=request.user).delete()
-            MovieReview.objects.filter(owner=request.user).delete()
-            GameReview.objects.filter(owner=request.user).delete()
-            AlbumReview.objects.filter(owner=request.user).delete()
-            SongReview.objects.filter(owner=request.user).delete()
-            request.user.first_name = request.user.username
-            request.user.last_name = request.user.mastodon_site
-            request.user.is_active = False
-            request.user.username = 'removed_' + str(request.user.id)
-            request.user.mastodon_id = 0
-            request.user.mastodon_site = 'removed'
-            request.user.mastodon_token = ''
-            request.user.mastodon_locked = False
-            request.user.mastodon_followers = []
-            request.user.mastodon_following = []
-            request.user.mastodon_mutes = []
-            request.user.mastodon_blocks = []
-            request.user.mastodon_domain_blocks = []
-            request.user.mastodon_account = {}
-            request.user.save()
-            auth_logout(request)
-            return redirect(reverse("users:login"))
-        else:
-            messages.add_message(request, messages.ERROR, _('验证信息不符。'))
-    return redirect(reverse("users:data"))
-
-
-@login_required
-def import_goodreads(request):
-    if request.method == 'POST':
-        raw_url = request.POST.get('url')
-        if GoodreadsImporter.import_from_url(raw_url, request.user):
-            messages.add_message(request, messages.INFO, _('链接已保存，等待后台导入。'))
-        else:
-            messages.add_message(request, messages.ERROR, _('无法识别链接。'))
-    return redirect(reverse("users:data"))
-
-
-@login_required
-def import_douban(request):
-    if request.method == 'POST':
-        importer = DoubanImporter(request.user, request.POST.get('visibility'))
-        if importer.import_from_file(request.FILES['file']):
-            messages.add_message(request, messages.INFO, _('文件上传成功，等待后台导入。'))
-        else:
-            messages.add_message(request, messages.ERROR, _('无法识别文件。'))
-    return redirect(reverse("users:data"))

@@ -17,7 +17,6 @@ urlpatterns = [
     path('data/clear_data', clear_data, name='clear_data'),
     path('preferences/', preferences, name='preferences'),
     path('logout/', logout, name='logout'),
-    path('delete/', delete, name='delete'),
     path('layout/', set_layout, name='set_layout'),
     path('OAuth2_login/', OAuth2_login, name='OAuth2_login'),
     path('<int:id>/', home_redirect, name='home_redirect'),
