@@ -270,6 +270,8 @@ def create_update_mark(request):
                 return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.bookmark_tags.all()
+            if mark.status != request.POST.get('status'):
+                mark.created_time = timezone.now()
             # update
             form = BookMarkForm(request.POST, instance=mark)
         else:

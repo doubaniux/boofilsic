@@ -132,7 +132,7 @@
                         </svg></span>
                     {% endif %}
                     <span class="entity-marks__mark-time">
-                        {% trans '于' %} {{ mark.edited_time }}
+                        {% trans '于' %} {{ mark.created_time }}
                         {% if status == 'reviewed' %}
                         {% trans '评论' %}: 
                         {% if music.category_name|lower == 'album' %}

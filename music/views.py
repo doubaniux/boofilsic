@@ -290,6 +290,8 @@ def create_update_song_mark(request):
                 return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.songmark_tags.all()
+            if mark.status != request.POST.get('status'):
+                mark.created_time = timezone.now()
             # update
             form = SongMarkForm(request.POST, instance=mark)
         else:
@@ -831,6 +833,8 @@ def create_update_album_mark(request):
                 return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.albummark_tags.all()
+            if mark.status != request.POST.get('status'):
+                mark.created_time = timezone.now()
             # update
             form = AlbumMarkForm(request.POST, instance=mark)
         else:
