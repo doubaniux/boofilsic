@@ -20,7 +20,7 @@ class Collection(UserOwnedEntity):
     cover = models.ImageField(_("封面"), upload_to=collection_cover_path, default=settings.DEFAULT_COLLECTION_IMAGE, blank=True)
 
     def __str__(self):
-        return str(self.owner) + ': ' + self.title
+        return f"Collection({self.id} {self.owner} {self.title})"
 
     @property
     def collectionitem_list(self):

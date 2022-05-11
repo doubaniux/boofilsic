@@ -12,7 +12,7 @@ from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
 from mastodon.api import share_mark, share_review
 from common.utils import PageLinksGenerator
-from common.views import PAGE_LINK_NUMBER, jump_or_scrape
+from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
@@ -310,7 +310,7 @@ def create_update_mark(request):
 
             if form.cleaned_data['share_to_mastodon']:
                 if not share_mark(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
         else:
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
@@ -406,7 +406,7 @@ def create_review(request, game_id):
             form.save()
             if form.cleaned_data['share_to_mastodon']:
                 if not share_review(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
             return redirect(reverse("games:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -443,7 +443,7 @@ def update_review(request, id):
             form.save()
             if form.cleaned_data['share_to_mastodon']:
                 if not share_review(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
             return redirect(reverse("games:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()

@@ -60,7 +60,8 @@ def search(request):
         category = None
     keywords = request.GET.get("q", default='').strip()
     tag = request.GET.get("tag", default='').strip()
-    page_number = int(request.GET.get('page', default=1))
+    p = request.GET.get('page', default='1')
+    page_number = int(p) if p.isdigit() else 1
     if not (keywords or tag):
         return render(
             request,
@@ -175,7 +176,7 @@ def search2(request):
             else:
                 ordered_queryset = list(queryset)
             return ordered_queryset
-            
+
         def movie_param_handler(**kwargs):
             # keywords
             keywords = kwargs.get('keywords')
@@ -412,3 +413,9 @@ def jump_or_scrape(request, url):
                 return render(request, 'common/error.html', {'msg': _("爬取数据失败😫")})
             return redirect(form.instance)
 
+
+def go_relogin(request):
+    return render(request, 'common/error.html', {
+        'url': reverse("users:connect") + '?domain=' + request.user.mastodon_site,
+        'msg': _("信息已保存，但是未能分享到联邦网络"),
+        'secondary_msg': _("可能是你在联邦网络(Mastodon/Pleroma/...)的登录状态过期了，正在跳转到联邦网络重新登录😼")})

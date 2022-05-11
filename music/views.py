@@ -1,7 +1,7 @@
 from .forms import *
 from .models import *
 from common.models import SourceSiteEnum
-from common.views import PAGE_LINK_NUMBER, jump_or_scrape
+from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.utils import PageLinksGenerator
 from mastodon.models import MastodonApplication
 from mastodon.api import share_mark, share_review
@@ -328,7 +328,7 @@ def create_update_song_mark(request):
 
             if form.cleaned_data['share_to_mastodon']:
                 if not share_mark(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
         else:
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
@@ -424,7 +424,7 @@ def create_song_review(request, song_id):
             form.save()
             if form.cleaned_data['share_to_mastodon']:
                 if not share_review(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_song_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -461,7 +461,7 @@ def update_song_review(request, id):
             form.save()
             if form.cleaned_data['share_to_mastodon']:
                 if not share_review(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_song_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -871,7 +871,7 @@ def create_update_album_mark(request):
 
             if form.cleaned_data['share_to_mastodon']:
                 if not share_mark(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
         else:
             return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
@@ -967,7 +967,7 @@ def create_album_review(request, album_id):
             form.save()
             if form.cleaned_data['share_to_mastodon']:
                 if not share_review(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_album_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -1004,7 +1004,7 @@ def update_album_review(request, id):
             form.save()
             if form.cleaned_data['share_to_mastodon']:
                 if not share_review(form.instance):
-                    return HttpResponseServerError("publishing mastodon status failed")
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_album_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
