@@ -330,10 +330,14 @@ def obtain_token(site, request, code):
         payload['code_verifier'] = 'challenge'
     else:
         url = 'https://' + mast_app.domain_name + API_OBTAIN_TOKEN
-    response = post(url, data=payload, headers=headers, auth=auth)
-    # {"token_type":"bearer","expires_in":7200,"access_token":"VGpkOEZGR3FQRDJ5NkZ0dmYyYWIwS0dqeHpvTnk4eXp0NV9nWDJ2TEpmM1ZTOjE2NDg3ODMxNTU4Mzc6MToxOmF0OjE","scope":"block.read follows.read offline.access tweet.write users.read mute.read","refresh_token":"b1pXbGEzeUF1WE5yZHJOWmxTeWpvMTBrQmZPd0czLU0tQndZQTUyU3FwRDVIOjE2NDg3ODMxNTU4Mzg6MToxOnJ0OjE"}
-    if response.status_code != 200:
-        logger.error(f"Error {url} {response.status_code}")
+    try:
+        response = post(url, data=payload, headers=headers, auth=auth)
+        # {"token_type":"bearer","expires_in":7200,"access_token":"VGpkOEZGR3FQRDJ5NkZ0dmYyYWIwS0dqeHpvTnk4eXp0NV9nWDJ2TEpmM1ZTOjE2NDg3ODMxNTU4Mzc6MToxOmF0OjE","scope":"block.read follows.read offline.access tweet.write users.read mute.read","refresh_token":"b1pXbGEzeUF1WE5yZHJOWmxTeWpvMTBrQmZPd0czLU0tQndZQTUyU3FwRDVIOjE2NDg3ODMxNTU4Mzg6MToxOnJ0OjE"}
+        if response.status_code != 200:
+            logger.error(f"Error {url} {response.status_code}")
+            return None, None
+    except Exception as e:
+        logger.error(f"Error {url} {e}")
         return None, None
     data = response.json()
     return data.get('access_token'), data.get('refresh_token', '')
