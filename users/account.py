@@ -142,6 +142,7 @@ def OAuth2_login(request):
             mastodon_account=user_data,
         )
         new_user.save()
+        Preference.objects.create(user=new_user)
         request.session['new_user'] = True
         auth_login(request, new_user)
         return redirect(reverse('users:register'))
