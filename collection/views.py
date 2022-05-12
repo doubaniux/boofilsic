@@ -152,8 +152,11 @@ def retrieve(request, id):
             raise PermissionDenied()
         form = CollectionForm(instance=collection)
 
-        followers = []
         if request.user.is_authenticated:
+            following = True if CollectionMark.objects.filter(owner=request.user, collection=collection).first() is not None else False
+            followers = []
+        else:
+            following = False
             followers = []
 
         return render(
@@ -164,7 +167,7 @@ def retrieve(request, id):
                 'form': form,
                 'editable': collection.is_editable_by(request.user),
                 'followers': followers,
-
+                'following': following,
             }
         )
     else:
@@ -219,28 +222,37 @@ def delete(request, id):
 
 @login_required
 def follow(request, id):
-    pass
+    CollectionMark.objects.create(owner=request.user, collection=Collection.objects.get(id=id))
+    return redirect(reverse("collection:retrieve", args=[id]))
 
 
 @login_required
 def unfollow(request, id):
-    pass
+    CollectionMark.objects.filter(owner=request.user, collection=Collection.objects.get(id=id)).delete()
+    return redirect(reverse("collection:retrieve", args=[id]))
 
 
 @login_required
-def list(request, user_id=None):
+def list(request, user_id=None, marked=False):
     if request.method == 'GET':
-        queryset = Collection.objects.filter(owner=request.user if user_id is None else User.objects.get(id=user_id))
+        user = request.user if user_id is None else User.objects.get(id=user_id)
+        if marked:
+            title = user.mastodon_username + _('关注的收藏单')
+            queryset = Collection.objects.filter(pk__in=CollectionMark.objects.filter(owner=user).values_list('collection', flat=True))
+        else:
+            title = user.mastodon_username + _('创建的收藏单')
+            queryset = Collection.objects.filter(owner=user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
-        reviews = paginator.get_page(page_number)
-        reviews.pagination = PageLinksGenerator(
+        collections = paginator.get_page(page_number)
+        collections.pagination = PageLinksGenerator(
             PAGE_LINK_NUMBER, page_number, paginator.num_pages)
         return render(
             request,
             'list.html',
             {
-                'collections': queryset,
+                'collections': collections,
+                'title': title,
             }
         )
     else:

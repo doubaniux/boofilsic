@@ -43,6 +43,19 @@ from common.importers.goodreads import GoodreadsImporter
 from common.importers.douban import DoubanImporter
 
 
+def render_user_not_found(request):
+    msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
+    sec_msg = _("")
+    return render(
+        request,
+        'common/error.html',
+        {
+            'msg': msg,
+            'secondary_msg': sec_msg,
+        }
+    )
+
+
 def home_redirect(request, id):
     try:
         query_kwargs = {'pk': id}
@@ -83,16 +96,7 @@ def home(request, id):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-            sec_msg = _("目前支持来自Mastodon和Pleroma实例的用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )
+            return render_user_not_found(request)
 
         # access one's own home page
         if user == request.user:
@@ -118,11 +122,8 @@ def home(request, id):
             song_reviews = request.user.user_songreviews.all()
             game_reviews = request.user.user_gamereviews.all()
 
-            latest_task = user.user_synctasks.order_by("-id").first()
-
         # visit other's home page
         else:
-            latest_task = None
             # no these value on other's home page
             reports = None
             unread_announcements = None
@@ -154,6 +155,8 @@ def home(request, id):
             game_reviews = GameReview.get_available_by_user(user, relation['following'])
 
         collections = Collection.objects.filter(owner=user)
+        marked_collections = Collection.objects.filter(pk__in=CollectionMark.objects.filter(owner=user).values_list('collection', flat=True))
+
         # book marks
         filtered_book_marks = filter_marks(book_marks, BOOKS_PER_SET, 'book')
         book_marks_count = count_marks(book_marks, "book")
@@ -225,10 +228,13 @@ def home(request, id):
                 'collections_count': collections.count(),
                 'collections_more': collections.count() > BOOKS_PER_SET,
 
+                'marked_collections': marked_collections.order_by("-edited_time")[:BOOKS_PER_SET],
+                'marked_collections_count': marked_collections.count(),
+                'marked_collections_more': marked_collections.count() > BOOKS_PER_SET,
+
                 'layout': layout,
                 'reports': reports,
                 'unread_announcements': unread_announcements,
-                'latest_task': latest_task,
             }
         )
     else:
@@ -296,16 +302,7 @@ def followers(request, id):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-            sec_msg = _("目前只开放本站用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )
+            return render_user_not_found(request)
         # mastodon request
         if not user == request.user:
             relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
@@ -348,16 +345,7 @@ def following(request, id):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-            sec_msg = _("目前只开放本站用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )
+            return render_user_not_found(request)
         # mastodon request
         if not user == request.user:
             relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
@@ -403,16 +391,7 @@ def book_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-            sec_msg = _("目前只开放本站用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )
+            return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
@@ -489,16 +468,7 @@ def movie_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-            sec_msg = _("目前只开放本站用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )
+            return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
@@ -575,16 +545,7 @@ def game_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-            sec_msg = _("目前只开放本站用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )
+            return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
             # mastodon request
@@ -661,16 +622,7 @@ def music_list(request, id, status):
         try:
             user = User.objects.get(**query_kwargs)
         except ObjectDoesNotExist:
-            msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-            sec_msg = _("目前只开放本站用户注册")
-            return render(
-                request,
-                'common/error.html',
-                {
-                    'msg': msg,
-                    'secondary_msg': sec_msg,
-                }
-            )
+            return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if not user == request.user:
             # mastodon request
@@ -807,7 +759,7 @@ def manage_report(request):
 
 @login_required
 def collection_list(request, id):
-    from collection.views import list 
+    from collection.views import list
     if isinstance(id, str):
         try:
             username = id.split('@')[0]
@@ -820,14 +772,24 @@ def collection_list(request, id):
     try:
         user = User.objects.get(**query_kwargs)
     except ObjectDoesNotExist:
-        msg = _("😖哎呀，这位用户还没有加入本站，快去联邦宇宙呼唤TA来注册吧！")
-        sec_msg = _("目前只开放本站用户注册")
-        return render(
-            request,
-            'common/error.html',
-            {
-                'msg': msg,
-                'secondary_msg': sec_msg,
-            }
-        )
+        return render_user_not_found(request)
     return list(request, user.id)
+
+
+@login_required
+def marked_collection_list(request, id):
+    from collection.views import list
+    if isinstance(id, str):
+        try:
+            username = id.split('@')[0]
+            site = id.split('@')[1]
+        except IndexError as e:
+            return HttpResponseBadRequest("Invalid user id")
+        query_kwargs = {'username': username, 'mastodon_site': site}
+    elif isinstance(id, int):
+        query_kwargs = {'pk': id}
+    try:
+        user = User.objects.get(**query_kwargs)
+    except ObjectDoesNotExist:
+        return render_user_not_found(request)
+    return list(request, user.id, True)

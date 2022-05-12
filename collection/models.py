@@ -76,3 +76,17 @@ class CollectionItem(models.Model):
             self.song = None
             self.game = None
         setattr(self, new_item.__class__.__name__.lower(), new_item)
+
+
+class CollectionMark(UserOwnedEntity):
+    collection = models.ForeignKey(
+        Collection, on_delete=models.CASCADE, related_name='collection_marks', null=True)
+
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(
+                fields=['owner', 'collection'], name="unique_collection_mark")
+        ]
+
+    def __str__(self):
+        return f"CollectionMark({self.id} {self.owner} {self.collection})"

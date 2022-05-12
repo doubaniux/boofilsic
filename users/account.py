@@ -38,7 +38,7 @@ from books.models import BookMark, BookReview
 from movies.models import MovieMark, MovieReview
 from games.models import GameMark, GameReview
 from music.models import AlbumMark, SongMark, AlbumReview, SongReview
-from collection.models import Collection  #, CollectionMark
+from collection.models import Collection, CollectionMark
 from common.importers.goodreads import GoodreadsImporter
 from common.importers.douban import DoubanImporter
 
@@ -233,7 +233,7 @@ def clear_data(request):
             GameReview.objects.filter(owner=request.user).delete()
             AlbumReview.objects.filter(owner=request.user).delete()
             SongReview.objects.filter(owner=request.user).delete()
-            # CollectionMark.objects.filter(owner=request.user).delete()
+            CollectionMark.objects.filter(owner=request.user).delete()
             Collection.objects.filter(owner=request.user).delete()
             request.user.first_name = request.user.username
             request.user.last_name = request.user.mastodon_site

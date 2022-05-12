@@ -14,7 +14,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ site_name }} - {{ request.user.mastodon_username }}{% trans '的收藏' %}</title>
+    <title>{{ site_name }} - {{ title }}</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
@@ -33,7 +33,7 @@
                         <div class="main-section-wrapper">
                             <div class="entity-reviews">
                                 <h5 class="entity-reviews__title entity-reviews__title--stand-alone">
-                                    {{ request.user.mastodon_username }}{% trans '的收藏单' %}
+                                    {{ title }}
                                 </h5>
                                 <ul class="entity-reviews__review-list">
 

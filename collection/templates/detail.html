@@ -93,6 +93,23 @@
                                     </h5>
                                 </div>
                             </div>
+                            {% if request.user != collection.owner %}
+                            <div class="action-panel">
+                                <div class="action-panel__button-group action-panel__button-group--center">
+                                    {% if following %}
+                                    <form action="{% url 'collection:unfollow' collection.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="action-panel__button">{% trans '取消关注' %}</button>
+                                    </form>
+                                    {% else %}
+                                    <form action="{% url 'collection:follow' collection.id %}" method="post">
+                                        {% csrf_token %}
+                                        <button class="action-panel__button">{% trans '关注' %}</button>
+                                    </form>
+                                    {% endif %}                                         
+                                </div>
+                            </div>
+                            {% endif %}     
                         </div>
                     </div>
                 </div>

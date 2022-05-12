@@ -31,6 +31,7 @@ urlpatterns = [
     path('<str:id>/followers/', followers, name='followers'),
     path('<str:id>/following/', following, name='following'),
     path('<str:id>/collections/', collection_list, name='collection_list'),
+    path('<str:id>/collections/marked/', marked_collection_list, name='marked_collection_list'),
     path('<str:id>/book/<str:status>/', book_list, name='book_list'),
     path('<str:id>/movie/<str:status>/', movie_list, name='movie_list'),
     path('<str:id>/music/<str:status>/', music_list, name='music_list'),
