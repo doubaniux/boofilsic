@@ -22,7 +22,6 @@ from users.models import User
 from django.http import HttpResponseRedirect
 
 
-
 logger = logging.getLogger(__name__)
 mastodon_logger = logging.getLogger("django.mastodon")
 
@@ -354,6 +353,7 @@ def show_item_comment(request, id, item_id):
     item = CollectionItem.objects.get(id=item_id)
     editable = collection.is_editable_by(request.user)
     return render(request, 'show_item_comment.html', {'collection': collection, 'collectionitem': item, 'editable': editable})
+
 
 @login_required
 def update_item_comment(request, id, item_id):

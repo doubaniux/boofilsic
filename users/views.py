@@ -84,18 +84,8 @@ def home(request, id):
     if not request.user.is_authenticated:
         return home_anonymous(request, id)
     if request.method == 'GET':
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
+        user = User.get(id)
+        if user is None:
             return render_user_not_found(request)
 
         # access one's own home page
@@ -206,10 +196,10 @@ def home(request, id):
                 **music_marks_count,
                 **game_marks_count,
 
-                'book_tags': list(map(lambda t: t['content'], BookTag.all_by_user(user)))[:10] if user == request.user else [],
-                'movie_tags': list(map(lambda t: t['content'], MovieTag.all_by_user(user)))[:10] if user == request.user else [],
-                'music_tags': list(map(lambda t: t['content'], AlbumTag.all_by_user(user)))[:10] if user == request.user else [],
-                'game_tags': list(map(lambda t: t['content'], GameTag.all_by_user(user)))[:10] if user == request.user else [],
+                'book_tags': BookTag.all_by_user(user)[:10] if user == request.user else [],
+                'movie_tags': MovieTag.all_by_user(user)[:10] if user == request.user else [],
+                'music_tags': AlbumTag.all_by_user(user)[:10] if user == request.user else [],
+                'game_tags': GameTag.all_by_user(user)[:10] if user == request.user else [],
 
                 'book_reviews': book_reviews.order_by("-edited_time")[:BOOKS_PER_SET],
                 'movie_reviews': movie_reviews.order_by("-edited_time")[:MOVIES_PER_SET],
@@ -290,18 +280,8 @@ def count_marks(querysets, type_name):
 @login_required
 def followers(request, id):
     if request.method == 'GET':
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
+        user = User.get(id)
+        if user is None:
             return render_user_not_found(request)
         # mastodon request
         if not user == request.user:
@@ -333,18 +313,8 @@ def followers(request, id):
 @login_required
 def following(request, id):
     if request.method == 'GET':
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
+        user = User.get(id)
+        if user is None:
             return render_user_not_found(request)
         # mastodon request
         if not user == request.user:
@@ -379,18 +349,8 @@ def book_list(request, id, status):
         if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
+        user = User.get(id)
+        if user is None:
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
@@ -408,7 +368,7 @@ def book_list(request, id, status):
             if status == 'reviewed':
                 queryset = BookReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = BookTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time")
+                queryset = BookTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time")
             else:
                 queryset = BookMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -456,18 +416,8 @@ def movie_list(request, id, status):
         if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
+        user = User.get(id)
+        if user is None:
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
@@ -487,7 +437,7 @@ def movie_list(request, id, status):
             if status == 'reviewed':
                 queryset = MovieReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = MovieTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time")
+                queryset = MovieTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time")
             else:
                 queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -533,18 +483,8 @@ def game_list(request, id, status):
         if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
+        user = User.get(id)
+        if user is None:
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
@@ -564,7 +504,7 @@ def game_list(request, id, status):
             if status == 'reviewed':
                 queryset = GameReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = GameTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time")
+                queryset = GameTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time")
             else:
                 queryset = GameMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
@@ -610,18 +550,8 @@ def music_list(request, id, status):
         if status.upper() not in MarkStatusEnum.names and status not in ['reviewed', 'tagged']:
             return HttpResponseBadRequest()
 
-        if isinstance(id, str):
-            try:
-                username = id.split('@')[0]
-                site = id.split('@')[1]
-            except IndexError as e:
-                return HttpResponseBadRequest("Invalid user id")
-            query_kwargs = {'username': username, 'mastodon_site': site}
-        elif isinstance(id, int):
-            query_kwargs = {'pk': id}
-        try:
-            user = User.objects.get(**query_kwargs)
-        except ObjectDoesNotExist:
+        user = User.get(id)
+        if user is None:
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if not user == request.user:
@@ -640,7 +570,7 @@ def music_list(request, id, status):
                 queryset = list(AlbumReview.get_available_by_user(user, relation['following']).order_by("-edited_time")) + \
                     list(SongReview.get_available_by_user(user, relation['following']).order_by("-edited_time"))
             elif status == 'tagged':
-                queryset = list(AlbumTag.find_by_user(tag, user, relation['following']).order_by("-mark__edited_time"))
+                queryset = list(AlbumTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time"))
             else:
                 queryset = list(AlbumMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()])) \
@@ -760,18 +690,8 @@ def manage_report(request):
 @login_required
 def collection_list(request, id):
     from collection.views import list
-    if isinstance(id, str):
-        try:
-            username = id.split('@')[0]
-            site = id.split('@')[1]
-        except IndexError as e:
-            return HttpResponseBadRequest("Invalid user id")
-        query_kwargs = {'username': username, 'mastodon_site': site}
-    elif isinstance(id, int):
-        query_kwargs = {'pk': id}
-    try:
-        user = User.objects.get(**query_kwargs)
-    except ObjectDoesNotExist:
+    user = User.get(id)
+    if user is None:
         return render_user_not_found(request)
     return list(request, user.id)
 
@@ -779,17 +699,25 @@ def collection_list(request, id):
 @login_required
 def marked_collection_list(request, id):
     from collection.views import list
-    if isinstance(id, str):
-        try:
-            username = id.split('@')[0]
-            site = id.split('@')[1]
-        except IndexError as e:
-            return HttpResponseBadRequest("Invalid user id")
-        query_kwargs = {'username': username, 'mastodon_site': site}
-    elif isinstance(id, int):
-        query_kwargs = {'pk': id}
-    try:
-        user = User.objects.get(**query_kwargs)
-    except ObjectDoesNotExist:
+    user = User.get(id)
+    if user is None:
         return render_user_not_found(request)
     return list(request, user.id, True)
+
+
+@login_required
+def tag_list(request, id):
+    user = User.get(id)
+    if user is None:
+        return render_user_not_found(request)
+    if user != request.user:
+        raise PermissionDenied()  # tag list is for user's own view only, for now
+    return render(
+        request,
+        'users/tags.html', {
+            'book_tags': BookTag.all_by_user(user),
+            'movie_tags': MovieTag.all_by_user(user),
+            'music_tags': AlbumTag.all_by_user(user),
+            'game_tags': GameTag.all_by_user(user),
+        }
+    )

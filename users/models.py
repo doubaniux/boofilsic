@@ -35,7 +35,7 @@ class User(AbstractUser):
     mastodon_domain_blocks = models.JSONField(default=list)
     mastodon_account = models.JSONField(default=dict)
     mastodon_last_refresh = models.DateTimeField(default=timezone.now)
-    # store the latest read announcement id, 
+    # store the latest read announcement id,
     # every time user read the announcement update this field
     read_announcement_index = models.PositiveIntegerField(default=0)
 
@@ -104,6 +104,33 @@ class User(AbstractUser):
         params = {item.__class__.__name__.lower() + '_id': item.id, 'owner': self}
         mark = item.mark_class.objects.filter(**params).first()
         return mark
+
+    def get_max_visibility(self, viewer):
+        if not viewer.is_authenticated:
+            return 0
+        elif viewer == self:
+            return 2
+        elif viewer.is_blocked_by(self):
+            return -1
+        elif viewer.is_following(self):
+            return 1
+        else:
+            return 0
+
+    @classmethod
+    def get(self, id):
+        if isinstance(id, str):
+            try:
+                username = id.split('@')[0]
+                site = id.split('@')[1]
+            except IndexError as e:
+                return None
+            query_kwargs = {'username': username, 'mastodon_site': site}
+        elif isinstance(id, int):
+            query_kwargs = {'pk': id}
+        else:
+            return None
+        return User.objects.filter(**query_kwargs).first()
 
 
 class Preference(models.Model):

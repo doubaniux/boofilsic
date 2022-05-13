@@ -35,7 +35,7 @@
                 </svg>
             </span>
         </div>
-        {% if show_follow %}
+        {% if user == request.user %}
         <div class="relation-dropdown__body">
             <div
                 class="aside-section-wrapper aside-section-wrapper--transparent aside-section-wrapper--collapse">
@@ -78,12 +78,14 @@
                     <h5 class="user-relation__label">
                         {% trans '常用标签' %}
                     </h5>
+                    <a href="{% url 'users:tag_list' user.mastodon_username %}"
+                        class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
                     <div class="tag-collection" style="margin-left: 0;">
                         {% if book_tags %}
                         <div>{% trans '书籍' %}</div>
                         {% for v in book_tags %}
                         <span class="tag-collection__tag">
-                            <a href="{% url 'users:book_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                            <a href="{% url 'users:book_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
                         </span>
                         {% endfor %}
                         <div class="clearfix"></div>
@@ -93,7 +95,7 @@
                         <div>{% trans '电影和剧集' %}</div>
                         {% for v in movie_tags %}
                         <span class="tag-collection__tag">
-                            <a href="{% url 'users:movie_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                            <a href="{% url 'users:movie_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
                         </span>
                         {% endfor %}
                         <div class="clearfix"></div>
@@ -103,7 +105,7 @@
                         <div>{% trans '音乐' %}</div>
                         {% for v in music_tags %}
                         <span class="tag-collection__tag">
-                            <a href="{% url 'users:music_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                            <a href="{% url 'users:music_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
                         </span>
                         {% endfor %}
                         <div class="clearfix"></div>
@@ -113,7 +115,7 @@
                         <div>{% trans '游戏' %}</div>
                         {% for v in game_tags %}
                         <span class="tag-collection__tag">
-                            <a href="{% url 'users:game_list' user.mastodon_username 'tagged' %}?t={{ v }}">{{ v }}</a>
+                            <a href="{% url 'users:game_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
                         </span>
                         {% endfor %}
                         <div class="clearfix"></div>
@@ -153,7 +155,7 @@
     </div>
 </div>
 
-{% if show_follow %}
+{% if user == request.user %}
 <div id="oauth2Token" hidden="true">{{ request.user.mastodon_token }}</div>
 <div id="mastodonURI" hidden="true">{{ request.user.mastodon_site }}</div>
 {% if user == request.user %}

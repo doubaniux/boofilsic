@@ -14,6 +14,7 @@ from django.conf import settings
 RE_HTML_TAG = re.compile(r"<[^>]*>")
 MAX_TOP_TAGS = 5
 
+
 # abstract base classes
 ###################################
 class SourceSiteEnum(models.TextChoices):
@@ -148,7 +149,7 @@ class Entity(models.Model):
 
     def get_marks_manager(self):
         """
-        Normally this won't be used. 
+        Normally this won't be used.
         There is no ocassion where visitor can simply view all the marks.
         """
         raise NotImplementedError("Subclass should implement this method.")
@@ -245,7 +246,7 @@ class UserOwnedEntity(models.Model):
 
     @classmethod
     def get_available_by_user(cls, owner, is_following):  # FIXME
-        """ 
+        """
         Returns all avaliable owner's entities.
         Mute/Block relation is not handled in this method.
 
@@ -332,13 +333,11 @@ class Tag(models.Model):
         return self.mark.edited_time
 
     @classmethod
-    def find_by_user(cls, tag, owner, is_following):
-        user_owned_entities = cls.objects.filter(content=tag, mark__owner=owner)
-        if is_following:
-            user_owned_entities = user_owned_entities.exclude(mark__visibility=2)
-        else:
-            user_owned_entities = user_owned_entities.filter(mark__visibility=0)
-        return user_owned_entities
+    def find_by_user(cls, tag, owner, viewer):
+        qs = cls.objects.filter(content=tag, mark__owner=owner)
+        if owner != viewer:
+            qs = qs.filter(mark__visibility__lte=owner.get_max_visibility(viewer))
+        return qs
 
     @classmethod
     def all_by_user(cls, owner):

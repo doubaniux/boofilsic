@@ -30,6 +30,7 @@ urlpatterns = [
     path('<str:id>/', home, name='home'),
     path('<str:id>/followers/', followers, name='followers'),
     path('<str:id>/following/', following, name='following'),
+    path('<str:id>/tags/', tag_list, name='tag_list'),
     path('<str:id>/collections/', collection_list, name='collection_list'),
     path('<str:id>/collections/marked/', marked_collection_list, name='marked_collection_list'),
     path('<str:id>/book/<str:status>/', book_list, name='book_list'),

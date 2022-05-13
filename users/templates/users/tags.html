@@ -1,0 +1,100 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - 我的标签</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main" id="main">
+                        <div class="main-section-wrapper">
+                            <div class="entity-reviews">                                
+                                <div class="tag-collection entity-reviews__review-list">
+                                    <h5>{% trans '书籍' %}</h5>
+                                    {% for v in book_tags %}
+                                    <span class="tag-collection__tag">
+                                        <a href="{% url 'users:book_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
+                                    </span>
+                                    <span class="entity-reviews__review-time">({{ v.total }})</span>
+                                    {% empty %}
+                                        {% trans '暂无标签' %}
+                                    {% endfor %}
+                                    <div class="clearfix" style="margin-bottom: 16px;"></div>
+
+                                    <h5>{% trans '电影和剧集' %}</h5>
+                                    {% for v in movie_tags %}
+                                    <span class="tag-collection__tag">
+                                        <a href="{% url 'users:movie_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
+                                    </span>
+                                    <span class="entity-reviews__review-time">({{ v.total }})</span>
+                                    {% empty %}
+                                        {% trans '暂无标签' %}
+                                    {% endfor %}
+                                    <div class="clearfix" style="margin-bottom: 16px;"></div>
+
+                                    <h5>{% trans '音乐' %}</h5>
+                                    {% for v in music_tags %}
+                                    <span class="tag-collection__tag">
+                                        <a href="{% url 'users:music_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
+                                    </span>
+                                    <span class="entity-reviews__review-time">({{ v.total }})</span>
+                                    {% empty %}
+                                        {% trans '暂无标签' %}
+                                    {% endfor %}
+                                    <div class="clearfix" style="margin-bottom: 16px;"></div>
+
+                                    <h5>{% trans '游戏' %}</h5>
+                                    {% for v in game_tags %}
+                                    <span class="tag-collection__tag">
+                                        <a href="{% url 'users:game_list' user.mastodon_username 'tagged' %}?t={{ v.content }}">{{ v.content }}</a>
+                                    </span>
+                                    <span class="entity-reviews__review-time">({{ v.total }})</span>
+                                    {% empty %}
+                                        {% trans '暂无标签' %}
+                                    {% endfor %}
+                                    <div class="clearfix" style="margin-bottom: 16px;"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% include "partial/_sidebar.html" %}
+
+                </div>
+            </section>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+
+    
+
+    <script>
+
+    </script>
+</body>
+
+
+</html>
