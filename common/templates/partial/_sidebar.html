@@ -78,8 +78,7 @@
                     <h5 class="user-relation__label">
                         {% trans '常用标签' %}
                     </h5>
-                    <a href="{% url 'users:tag_list' user.mastodon_username %}"
-                        class="user-relation__more-link mast-following-more">{% trans '更多' %}</a>
+                    <a href="{% url 'users:tag_list' user.mastodon_username %}">{% trans '更多' %}</a>
                     <div class="tag-collection" style="margin-left: 0;">
                         {% if book_tags %}
                         <div>{% trans '书籍' %}</div>

@@ -5,7 +5,7 @@ from django.contrib import auth
 from django.contrib.auth import authenticate
 from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db.models import Count
 from .models import User, Report, Preference
 from .forms import ReportForm
