@@ -232,7 +232,7 @@ class UserOwnedEntity(models.Model):
     def get_available(cls, entity, request_user, following_only=False):
         # e.g. SongMark.get_available(song, request.user)
         query_kwargs = {entity.__class__.__name__.lower(): entity}
-        all_entities = cls.objects.filter(**query_kwargs).order_by("-edited_time")  # get all marks for song
+        all_entities = cls.objects.filter(**query_kwargs).order_by("-created_time")  # get all marks for song
         visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user) and (_entity.owner.mastodon_username in request_user.mastodon_following if following_only else True), all_entities))
         return visible_entities
 
@@ -240,7 +240,7 @@ class UserOwnedEntity(models.Model):
     def get_available_for_identicals(cls, entity, request_user, following_only=False):
         # e.g. SongMark.get_available(song, request.user)
         query_kwargs = {entity.__class__.__name__.lower() + '__in': entity.get_identicals()}
-        all_entities = cls.objects.filter(**query_kwargs).order_by("-edited_time")  # get all marks for song
+        all_entities = cls.objects.filter(**query_kwargs).order_by("-created_time")  # get all marks for song
         visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user) and (_entity.owner.mastodon_username in request_user.mastodon_following if following_only else True), all_entities))
         return visible_entities
 
@@ -331,6 +331,14 @@ class Tag(models.Model):
     @property
     def edited_time(self):
         return self.mark.edited_time
+
+    @property
+    def created_time(self):
+        return self.mark.created_time
+
+    @property
+    def text(self):
+        return self.mark.text
 
     @classmethod
     def find_by_user(cls, tag, owner, viewer):

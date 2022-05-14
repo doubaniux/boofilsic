@@ -245,7 +245,7 @@ def filter_marks(querysets, maximum, type_name):
         marks = []
         count = 0
         for queryset in querysets:
-            marks += list(queryset.filter(status=MarkStatusEnum[status.upper()]).order_by("-edited_time")[:maximum])
+            marks += list(queryset.filter(status=MarkStatusEnum[status.upper()]).order_by("-created_time")[:maximum])
             count += queryset.filter(status=MarkStatusEnum[status.upper()]).count()
 
         # marks
@@ -368,20 +368,20 @@ def book_list(request, id, status):
             if status == 'reviewed':
                 queryset = BookReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = BookTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time")
+                queryset = BookTag.find_by_user(tag, user, request.user).order_by("-mark__created_time")
             else:
                 queryset = BookMark.get_available_by_user(user, relation['following']).filter(
-                    status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+                    status=MarkStatusEnum[status.upper()]).order_by("-created_time")
             user.target_site_id = get_cross_site_id(
                 user, request.user.mastodon_site, request.user.mastodon_token)
         else:
             if status == 'reviewed':
                 queryset = BookReview.objects.filter(owner=user).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = BookTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")
+                queryset = BookTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__created_time")
             else:
                 queryset = BookMark.objects.filter(
-                    owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+                    owner=user, status=MarkStatusEnum[status.upper()]).order_by("-created_time")
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -437,17 +437,17 @@ def movie_list(request, id, status):
             if status == 'reviewed':
                 queryset = MovieReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = MovieTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time")
+                queryset = MovieTag.find_by_user(tag, user, request.user).order_by("-mark__created_time")
             else:
                 queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
-                    status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+                    status=MarkStatusEnum[status.upper()]).order_by("-created_time")
         else:
             if status == 'reviewed':
                 queryset = MovieReview.objects.filter(owner=user).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = MovieTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")
+                queryset = MovieTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__created_time")
             else:
-                queryset = MovieMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+                queryset = MovieMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]).order_by("-created_time")
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -504,18 +504,18 @@ def game_list(request, id, status):
             if status == 'reviewed':
                 queryset = GameReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = GameTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time")
+                queryset = GameTag.find_by_user(tag, user, request.user).order_by("-mark__created_time")
             else:
                 queryset = GameMark.get_available_by_user(user, relation['following']).filter(
-                    status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+                    status=MarkStatusEnum[status.upper()]).order_by("-created_time")
         else:
             if status == 'reviewed':
                 queryset = GameReview.objects.filter(owner=user).order_by("-edited_time")
             elif status == 'tagged':
-                queryset = GameTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time")
+                queryset = GameTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__created_time")
             else:
                 queryset = GameMark.objects.filter(
-                    owner=user, status=MarkStatusEnum[status.upper()]).order_by("-edited_time")
+                    owner=user, status=MarkStatusEnum[status.upper()]).order_by("-created_time")
         paginator = Paginator(queryset, ITEMS_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -570,7 +570,7 @@ def music_list(request, id, status):
                 queryset = list(AlbumReview.get_available_by_user(user, relation['following']).order_by("-edited_time")) + \
                     list(SongReview.get_available_by_user(user, relation['following']).order_by("-edited_time"))
             elif status == 'tagged':
-                queryset = list(AlbumTag.find_by_user(tag, user, request.user).order_by("-mark__edited_time"))
+                queryset = list(AlbumTag.find_by_user(tag, user, request.user).order_by("-mark__created_time"))
             else:
                 queryset = list(AlbumMark.get_available_by_user(user, relation['following']).filter(
                     status=MarkStatusEnum[status.upper()])) \
@@ -584,7 +584,7 @@ def music_list(request, id, status):
                 queryset = list(AlbumReview.objects.filter(owner=user).order_by("-edited_time")) + \
                     list(SongReview.objects.filter(owner=user).order_by("-edited_time"))
             elif status == 'tagged':
-                queryset = list(AlbumTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__edited_time"))
+                queryset = list(AlbumTag.objects.filter(content=tag, mark__owner=user).order_by("-mark__created_time"))
             else:
                 queryset = list(AlbumMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()])) \
                     + list(SongMark.objects.filter(owner=user, status=MarkStatusEnum[status.upper()]))
