@@ -396,8 +396,11 @@ def jump_or_scrape(request, url):
         return render(request, 'common/error.html', {'msg': _("链接无效，查询失败")})
     else:
         try:
-            # raise ObjectDoesNotExist
             effective_url = scraper.get_effective_url(url)
+        except ValueError:
+            return render(request, 'common/error.html', {'msg': _("链接无效，查询失败")})
+        try:
+            # raise ObjectDoesNotExist
             entity = scraper.data_class.objects.get(source_url=effective_url)
             # if exists then jump to detail page
             return redirect(entity)
