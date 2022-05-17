@@ -44,7 +44,7 @@ def refresh_mastodon_data_task(user, token=None):
 
 def export_marks_task(user):
     user.preference.export_status['marks_pending'] = True
-    user.preference.save()
+    user.preference.save(update_fields=['export_status'])
     filename = GenerateDateUUIDMediaFilePath(None, 'f.xlsx', settings.MEDIA_ROOT + settings.EXPORT_FILE_PATH_ROOT)
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
@@ -126,4 +126,4 @@ def export_marks_task(user):
     user.preference.export_status['marks_pending'] = False
     user.preference.export_status['marks_file'] = filename
     user.preference.export_status['marks_date'] = datetime.now().strftime("%Y-%m-%d %H:%M")
-    user.preference.save()
+    user.preference.save(update_fields=['export_status'])

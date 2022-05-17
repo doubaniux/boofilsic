@@ -166,28 +166,7 @@
                                 <a href="{% url 'music:retrieve_song_mark_list' song.id %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
                                 <a href="{% url 'music:retrieve_song_mark_list' song.id 1 %}" class="entity-marks__more-link">关注的人的标记</a>
-                                {% if mark_list %}
-                                <ul class="entity-marks__mark-list">                                    
-                                {% for others_mark in mark_list %}
-                                <li class="entity-marks__mark">
-                                    <a href="{% url 'users:home' others_mark.owner.mastodon_username %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
-                                    <span>{{ others_mark.get_status_display }}</span>
-                                    {% if others_mark.rating %}
-                                    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
-                                    {% endif %}
-                                    {% if others_mark.visibility > 0 %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
-                                    {% endif %}
-                                    <span class="entity-marks__mark-time">{{ others_mark.created_time }}</span>
-                                    {% if others_mark.text %}
-                                    <p class="entity-marks__mark-content">{{ others_mark.text }}</p>
-                                    {% endif %}
-                                </li>
-                                {% endfor %}
-                                </ul>
-                                {% else %}
-                                <div>{% trans '暂无标记' %}</div>    
-                                {% endif %}
+                                {% include "partial/mark_list.html" with mark_list=mark_list current_item=song %}    
                             </div>
                             <div class="entity-reviews">
                                 <h5 class="entity-reviews__title">{% trans '这部作品的评论' %}</h5>

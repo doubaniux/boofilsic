@@ -96,11 +96,14 @@ def post_toot(site, content, visibility, token, local_only=False):
         }
         if local_only:
             payload['local_only'] = True
-        response = post(url, headers=headers, data=payload)
-    if response.status_code == 201:
-        response.status_code = 200
-    if response.status_code != 200:
-        logger.error(f"Error {url} {response.status_code}")
+        try:
+            response = post(url, headers=headers, data=payload)
+            if response.status_code == 201:
+                response.status_code = 200
+            if response.status_code != 200:
+                logger.error(f"Error {url} {response.status_code}")
+        except Exception:
+            response = None
     return response
 
 
@@ -390,10 +393,17 @@ def share_mark(mark):
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = '\n' + user.preference.mastodon_append_tag.replace('[category]', str(mark.item.verbose_category_name)) if user.preference.mastodon_append_tag else ''
-    stars = rating_to_emoji(mark.rating,MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode)
+    stars = rating_to_emoji(mark.rating, MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode)
     content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.url}\n{mark.text}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
-    return response.status_code == 200
+    if response and response.status_code == 200:
+        j = response.json()
+        if 'url' in j:
+            mark.shared_link = j['url']
+            mark.save(update_fields=['shared_link'])
+        return True
+    else:
+        return False
 
 
 def share_review(review):
@@ -409,4 +419,11 @@ def share_review(review):
     tags = '\n' + user.preference.mastodon_append_tag.replace('[category]', str(review.item.verbose_category_name)) if user.preference.mastodon_append_tag else ''
     content = f"发布了关于《{review.item.title}》的评论\n{review.url}\n{review.title}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
-    return response.status_code == 200
+    if response and response.status_code == 200:
+        j = response.json()
+        if 'url' in j:
+            review.shared_link = j['url']
+            review.save(update_fields=['shared_link'])
+        return True
+    else:
+        return False

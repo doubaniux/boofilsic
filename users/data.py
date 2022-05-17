@@ -82,10 +82,14 @@ def export_marks(request):
         messages.add_message(request, messages.INFO, _('导出已开始。'))
         return redirect(reverse("users:data"))
     else:
-        with open(request.user.preference.export_status['marks_file'], 'rb') as fh:
-            response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-            response['Content-Disposition'] = 'attachment;filename="marks.xlsx"'
-            return response
+        try:
+            with open(request.user.preference.export_status['marks_file'], 'rb') as fh:
+                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
+                response['Content-Disposition'] = 'attachment;filename="marks.xlsx"'
+                return response
+        except Exception:
+            messages.add_message(request, messages.ERROR, _('导出文件已过期，请重新导出'))
+            return redirect(reverse("users:data"))
 
 
 @login_required

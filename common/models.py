@@ -278,6 +278,7 @@ class Mark(UserOwnedEntity):
     status = models.CharField(choices=MarkStatusEnum.choices, max_length=20)
     rating = models.PositiveSmallIntegerField(blank=True, null=True)
     text = models.CharField(max_length=5000, blank=True, default='')
+    shared_link = models.CharField(max_length=5000, blank=True, default='')
 
     def __str__(self):
         return f"Mark({self.id} {self.owner} {self.status.upper()})"
@@ -307,6 +308,7 @@ class Mark(UserOwnedEntity):
 class Review(UserOwnedEntity):
     title = models.CharField(max_length=120)
     content = MarkdownxField()
+    shared_link = models.CharField(max_length=5000, blank=True, default='')
 
     def __str__(self):
         return self.title
