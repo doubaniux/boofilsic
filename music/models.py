@@ -178,7 +178,7 @@ class SongReview(Review):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("songs:retrieve_review", args=[self.id])
+        return settings.APP_WEBSITE + reverse("music:retrieve_song_review", args=[self.id])
 
 
 class SongTag(Tag):
@@ -225,7 +225,7 @@ class AlbumReview(Review):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("albums:retrieve_review", args=[self.id])
+        return settings.APP_WEBSITE + reverse("music:retrieve_album_review", args=[self.id])
 
 
 class AlbumTag(Tag):
