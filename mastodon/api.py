@@ -396,10 +396,13 @@ def share_mark(mark):
     stars = rating_to_emoji(mark.rating, MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode)
     content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.url}\n{mark.text}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
-    if response and response.status_code == 200:
+    if response and response.status_code in [200, 201]:
         j = response.json()
         if 'url' in j:
             mark.shared_link = j['url']
+        elif 'data' in j:
+            mark.shared_link = f"https://twitter.com/{user.username}/status/{j['data']['id']}"
+        if mark.shared_link:
             mark.save(update_fields=['shared_link'])
         return True
     else:
@@ -419,10 +422,13 @@ def share_review(review):
     tags = '\n' + user.preference.mastodon_append_tag.replace('[category]', str(review.item.verbose_category_name)) if user.preference.mastodon_append_tag else ''
     content = f"发布了关于《{review.item.title}》的评论\n{review.url}\n{review.title}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
-    if response and response.status_code == 200:
+    if response and response.status_code in [200, 201]:
         j = response.json()
         if 'url' in j:
             review.shared_link = j['url']
+        elif 'data' in j:
+            review.shared_link = f"https://twitter.com/{user.username}/status/{j['data']['id']}"
+        if review.shared_link:
             review.save(update_fields=['shared_link'])
         return True
     else:
