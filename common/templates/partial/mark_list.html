@@ -22,7 +22,7 @@
     {% endif %}
 
     {% if current_item and others_mark.item != current_item %}
-    <span class="entity-marks__mark-time source-label"><a class="entity-marks__mark-time" href="{% url 'books:retrieve' others_mark.book.id %}">{{ others_mark.book.get_source_site_display }}</a></span>
+    <span class="entity-marks__mark-time source-label"><a class="entity-marks__mark-time" href="{% url 'books:retrieve' others_mark.item.id %}">{{ others_mark.item.get_source_site_display }}</a></span>
     {% endif %}
 
     {% if others_mark.text %}
