@@ -323,6 +323,10 @@ class Review(UserOwnedEntity):
     class Meta:
         abstract = True
 
+    @property
+    def translated_status(self):
+        return '评论了'
+
 
 class Tag(models.Model):
     content = models.CharField(max_length=50)

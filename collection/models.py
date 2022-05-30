@@ -8,6 +8,7 @@ from markdownx.models import MarkdownxField
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
+from django.shortcuts import reverse
 
 
 def collection_cover_path(instance, filename):
@@ -21,6 +22,10 @@ class Collection(UserOwnedEntity):
 
     def __str__(self):
         return f"Collection({self.id} {self.owner} {self.title})"
+
+    @property
+    def translated_status(self):
+        return '创建了收藏单'
 
     @property
     def collectionitem_list(self):
@@ -47,6 +52,14 @@ class Collection(UserOwnedEntity):
             i.set_item(item)
             i.save()
             return i
+
+    @property
+    def item(self):
+        return self
+
+    @property
+    def url(self):
+        return settings.APP_WEBSITE + reverse("collection:retrieve", args=[self.id])
 
 
 class CollectionItem(models.Model):
@@ -90,3 +103,7 @@ class CollectionMark(UserOwnedEntity):
 
     def __str__(self):
         return f"CollectionMark({self.id} {self.owner} {self.collection})"
+
+    @property
+    def translated_status(self):
+        return '关注了收藏单'

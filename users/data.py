@@ -38,6 +38,7 @@ from books.models import BookMark, BookReview
 from movies.models import MovieMark, MovieReview
 from games.models import GameMark, GameReview
 from music.models import AlbumMark, SongMark, AlbumReview, SongReview
+from timeline.models import Activity
 from collection.models import Collection
 from common.importers.goodreads import GoodreadsImporter
 from common.importers.douban import DoubanImporter
@@ -47,6 +48,7 @@ from common.importers.douban import DoubanImporter
 @login_required
 def preferences(request):
     if request.method == 'POST':
+        request.user.preference.default_visibility = int(request.POST.get('default_visibility'))
         request.user.preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
         request.user.preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
         request.user.preference.save()
@@ -110,6 +112,7 @@ def reset_visibility(request):
         GameMark.objects.filter(owner=request.user).update(visibility=visibility)
         AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
         SongMark.objects.filter(owner=request.user).update(visibility=visibility)
+        Activity.objects.filter(owner=request.user).update(visibility=visibility)
         messages.add_message(request, messages.INFO, _('已重置。'))
     return redirect(reverse("users:data"))
 

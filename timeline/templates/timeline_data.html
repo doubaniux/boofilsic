@@ -1,0 +1,116 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+{% load neo %}
+
+{% for activity in activities %}
+<li class="entity-list__entity">
+    <div class="entity-list__entity-img-wrapper">
+        <a href="{{ activity.target.item.url }}">
+            <img src="{{ activity.target.item.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img" style="min-width:80px;max-width:80px">
+        </a>
+    </div>
+    <div class="entity-list__entity-text">
+        <div class="collection-item-position-edit">
+            <span class="entity-marks__mark-time">
+                {% if activity.target.shared_link %}
+                <a href="{{ activity.target.shared_link }}" target="_blank"><span class="entity-marks__mark-time">{{ activity.target.created_time|prettydate }}</span></a>
+                {% else %}
+                <a><span class="entity-marks__mark-time">{{ activity.target.created_time|prettydate }}</span></a>
+                {% endif %}
+            </span>
+        </div>
+        <span class="entity-list__entity-info" style="top:0px;">
+            <a href="{% url 'users:home' activity.owner.mastodon_username %}">{{ activity.owner.mastodon_account.display_name }}</a> {{ activity.target.translated_status }}
+        </span>
+        <div class="entity-list__entity-title">
+            <a href="{{ activity.target.item.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.target.item.title }}</a>
+            {% if activity.target.item.source_url %}
+            <a href="{{ activity.target.item.source_url }}">
+                <span class="source-label source-label__{{ activity.target.item.source_site }}" style="font-size:xx-small;">{{ activity.target.item.get_source_site_display }}</span>
+            </a>
+            {% endif %}
+        </div>
+        <p class="entity-list__entity-brief">
+            {% if activity.review %}
+                <a href="{{ activity.review.url }}">{{ activity.review.title }}</a>
+            {% endif %}
+            {% if activity.mark %}
+                {% if activity.mark.rating %}
+                <span class="entity-marks__rating-star rating-star" data-rating-score="{{ activity.mark.rating | floatformat:"0" }}" style=""></span>
+                {% endif %}
+
+                {% if activity.mark.text %}
+                <p class="entity-marks__mark-content">{{ activity.mark.text }}</p>
+                {% endif %}
+            {% endif %}
+        </p>
+    </div>
+</li>
+{% if forloop.last %}
+<div class="htmx-indicator" style="margin-left: 60px;" 
+    hx-get="{% url 'timeline:data' %}?last={{ activity.created_time|date:'Y-m-d H:i:s.uO'|urlencode }}"
+    hx-trigger="revealed"
+    hx-swap="outerHTML">
+<svg width="16" height="16" viewBox="0 0 135 140" xmlns="http://www.w3.org/2000/svg" fill="#ccc">
+    <rect y="10" width="15" height="120" rx="6">
+        <animate attributeName="height"
+             begin="0.5s" dur="1s"
+             values="120;110;100;90;80;70;60;50;40;140;120" calcMode="linear"
+             repeatCount="indefinite" />
+        <animate attributeName="y"
+             begin="0.5s" dur="1s"
+             values="10;15;20;25;30;35;40;45;50;0;10" calcMode="linear"
+             repeatCount="indefinite" />
+    </rect>
+    <rect x="30" y="10" width="15" height="120" rx="6">
+        <animate attributeName="height"
+             begin="0.25s" dur="1s"
+             values="120;110;100;90;80;70;60;50;40;140;120" calcMode="linear"
+             repeatCount="indefinite" />
+        <animate attributeName="y"
+             begin="0.25s" dur="1s"
+             values="10;15;20;25;30;35;40;45;50;0;10" calcMode="linear"
+             repeatCount="indefinite" />
+    </rect>
+    <rect x="60" width="15" height="140" rx="6">
+        <animate attributeName="height"
+             begin="0s" dur="1s"
+             values="120;110;100;90;80;70;60;50;40;140;120" calcMode="linear"
+             repeatCount="indefinite" />
+        <animate attributeName="y"
+             begin="0s" dur="1s"
+             values="10;15;20;25;30;35;40;45;50;0;10" calcMode="linear"
+             repeatCount="indefinite" />
+    </rect>
+    <rect x="90" y="10" width="15" height="120" rx="6">
+        <animate attributeName="height"
+             begin="0.25s" dur="1s"
+             values="120;110;100;90;80;70;60;50;40;140;120" calcMode="linear"
+             repeatCount="indefinite" />
+        <animate attributeName="y"
+             begin="0.25s" dur="1s"
+             values="10;15;20;25;30;35;40;45;50;0;10" calcMode="linear"
+             repeatCount="indefinite" />
+    </rect>
+    <rect x="120" y="10" width="15" height="120" rx="6">
+        <animate attributeName="height"
+             begin="0.5s" dur="1s"
+             values="120;110;100;90;80;70;60;50;40;140;120" calcMode="linear"
+             repeatCount="indefinite" />
+        <animate attributeName="y"
+             begin="0.5s" dur="1s"
+             values="10;15;20;25;30;35;40;45;50;0;10" calcMode="linear"
+             repeatCount="indefinite" />
+    </rect>
+</svg>
+</div>
+{% endif %}
+{% empty %}
+<div>{% trans '目前没有更多内容了' %}</div>
+{% endfor %}

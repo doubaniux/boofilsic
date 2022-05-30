@@ -22,6 +22,7 @@ class User(AbstractUser):
             unique=False,
             help_text=_('Required. 150 characters or fewer. Letters, digits and @/./+/-/_ only.'),
         )
+    following = models.JSONField(default=list)
     mastodon_id = models.CharField(max_length=100, blank=False)
     # mastodon domain name, eg donotban.com
     mastodon_site = models.CharField(max_length=100, blank=False)
@@ -79,11 +80,20 @@ class User(AbstractUser):
             self.mastodon_mutes = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/mutes')
             self.mastodon_blocks = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/blocks')
             self.mastodon_domain_blocks = get_related_acct_list(self.mastodon_site, self.mastodon_token, '/api/v1/domain_blocks')
+            self.following = self.get_following_ids()
             updated = True
         elif code == 401:
             print(f'401 {self}')
             self.mastodon_token = ''
         return updated
+
+    def get_following_ids(self):
+        fl = []
+        for m in self.mastodon_following:
+            target = User.get(m)
+            if target and ((not target.mastodon_locked) or self.mastodon_username in target.mastodon_followers):
+                fl.append(target.id)
+        return fl
 
     def is_blocking(self, target):
         return target.mastodon_username in self.mastodon_blocks or target.mastodon_site in self.mastodon_domain_blocks
@@ -142,6 +152,7 @@ class Preference(models.Model):
     )
     export_status = models.JSONField(blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
     import_status = models.JSONField(blank=True, null=True, encoder=DjangoJSONEncoder, default=dict)
+    default_visibility = models.PositiveSmallIntegerField(default=0)
     mastodon_publish_public = models.BooleanField(null=False, default=False)
     mastodon_append_tag = models.CharField(max_length=2048, default='')
 

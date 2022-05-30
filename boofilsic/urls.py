@@ -28,6 +28,7 @@ urlpatterns = [
     path('music/', include('music.urls')),
     path('games/', include('games.urls')),
     path('collections/', include('collection.urls')),
+    path('timeline/', include('timeline.urls')),
     path('sync/', include('sync.urls')),
     path('announcement/', include('management.urls')),
     path('hijack/', include('hijack.urls')),

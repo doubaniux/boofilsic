@@ -33,6 +33,17 @@
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:preferences' %}" method="POST">
                                             {% csrf_token %}
+                                            <span>{% trans '新标记默认可见性：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                可见性:
+                                                <label for="id_visibility_0"><input type="radio" name="default_visibility" value="0" required="" id="id_visibility_0" {%if request.user.preference.default_visibility == 0 %}checked{% endif %}>
+                                                 公开</label>
+                                                <label for="id_visibility_1"><input type="radio" name="default_visibility" value="1" required="" id="id_visibility_1" {%if request.user.preference.default_visibility == 1 %}checked{% endif %}>
+                                                 仅关注者</label>
+                                                <label for="id_visibility_2"><input type="radio" name="default_visibility" value="2" required="" id="id_visibility_2" {%if request.user.preference.default_visibility == 2 %}checked{% endif %}>
+                                                 仅自己</label>
+                                            </div>
+                                            <br>
                                             <span>{% trans '在联邦网络上以公开方式分享的帖文是否发布到公共时间轴上：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if request.user.preference.mastodon_publish_public%}checked{% endif %}>

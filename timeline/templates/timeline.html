@@ -1,0 +1,83 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ user.mastodon_username }} {{ list_title }}</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://unpkg.com/htmx.org@1.6.1"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script>
+        $(document).ready( function() {
+        let render = function() {
+            let ratingLabels = $(".rating-star");
+            $(ratingLabels).each( function(index, value) {
+                let ratingScore = $(this).data("rating-score") / 2;
+                $(this).starRating({
+                    initialRating: ratingScore,
+                    readOnly: true,
+                    starSize: 16,
+                });
+            });
+        };
+        document.body.addEventListener('htmx:load', function(evt) {
+            render();
+        });
+        render();
+        });
+    </script>
+    <script src="{% static 'js/mastodon.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+
+            <section id="content" class="container">
+                <div class="grid grid--reverse-order">
+                    <div class="grid__main grid__main--reverse-order">
+                        <div class="main-section-wrapper">
+                            <div class="entity-list">
+
+                                <!-- <div class="set">
+                                    <h5 class="entity-list__title">
+                                        我的时间轴
+                                    </h5>
+                                </div> -->
+                                <ul class="entity-list__entities" hx-indicator=".htmx-indicator">
+                                    <div hx-get="{% url 'timeline:data' %}" hx-trigger="revealed" hx-swap="outerHTML"></div>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+
+                    {% include "partial/_sidebar.html" %}
+                </div>
+            </section>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+    </script>
+</body>
+
+
+</html>
