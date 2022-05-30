@@ -26,7 +26,7 @@
             </span>
         </div>
         <span class="entity-list__entity-info" style="top:0px;">
-            <a href="{% url 'users:home' activity.owner.mastodon_username %}">{{ activity.owner.mastodon_account.display_name }}</a> {{ activity.target.translated_status }}
+            <a href="{% url 'users:home' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {{ activity.target.translated_status }}
         </span>
         <div class="entity-list__entity-title">
             <a href="{{ activity.target.item.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.target.item.title }}</a>

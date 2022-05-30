@@ -55,6 +55,10 @@ class User(AbstractUser):
     def mastodon_username(self):
         return self.username + '@' + self.mastodon_site
 
+    @property
+    def display_name(self):
+        return self.mastodon_account['display_name'] if self.mastodon_account and 'display_name' in self.mastodon_account and self.mastodon_account['display_name'] else self.mastodon_username
+
     def __str__(self):
         return self.mastodon_username
 
