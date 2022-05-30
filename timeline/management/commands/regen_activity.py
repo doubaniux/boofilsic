@@ -16,5 +16,5 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         for cl in [BookMark, BookReview, MovieMark, MovieReview, GameMark, GameReview, AlbumMark, AlbumReview, SongMark, SongReview, Collection, CollectionMark]:
-            for a in tqdm(cl.objects.all(), desc=f'Populating {cl.__name__}'):
+            for a in tqdm(cl.objects.filter(created_time__gt='2022-1-1 00:00+0800'), desc=f'Populating {cl.__name__}'):
                 Activity.upsert_item(a)

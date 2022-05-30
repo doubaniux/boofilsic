@@ -45,7 +45,7 @@ class Activity(UserOwnedEntity):
         activity = Activity.objects.filter(**f).first()
         if not activity:
             activity = Activity.objects.create(**f)
-            activity.created_time = item.created_time
+        activity.created_time = item.created_time
         activity.visibility = item.visibility
         activity.save()
 
