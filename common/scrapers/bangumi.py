@@ -9,6 +9,7 @@ from music.forms import AlbumForm, SongForm
 from games.models import Game
 from games.forms import GameForm
 from common.scraper import *
+from django.core.exceptions import ObjectDoesNotExist
 
 
 def find_entity(source_url):
