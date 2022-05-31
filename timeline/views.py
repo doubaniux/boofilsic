@@ -12,8 +12,6 @@ from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
 from mastodon.api import post_toot, TootVisibilityEnum
 from common.utils import PageLinksGenerator
-from common.views import PAGE_LINK_NUMBER, jump_or_scrape
-from common.models import SourceSiteEnum
 from .models import *
 from django.conf import settings
 import re

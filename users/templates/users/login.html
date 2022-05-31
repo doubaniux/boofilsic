@@ -35,7 +35,7 @@
             
             
             {% if user.is_authenticated %}
-            <a href="{% url 'common:home' %}" class="button">{% trans '前往我的主页' %}</a>
+            <a href="{% url 'common:home' %}" class="button">{% trans '前往首页' %}</a>
             {% elif allow_any_site %}
             <form action="/users/connect" onsubmit="return /^(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,})$/.test($('#domain').val())">
             <input type="search" name="domain" id="domain" placeholder="实例域名，如mastodon.social (不含@)" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />

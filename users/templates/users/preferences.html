@@ -27,15 +27,14 @@
                 <div class="grid grid--reverse-order">
                     <div class="grid__main grid__main--reverse-order">
                         <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '社交网络分享相关设置' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'users:preferences' %}" method="POST">
+                            <form action="{% url 'users:preferences' %}" method="POST">
+                                <div class="tools-section-wrapper">
+                                    <div class="import-panel">
+                                        <h5 class="import-panel__label">{% trans 'NeoDB使用偏好设置' %}</h5>
+                                        <div class="import-panel__body">
                                             {% csrf_token %}
                                             <span>{% trans '新标记默认可见性：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                可见性:
                                                 <label for="id_visibility_0"><input type="radio" name="default_visibility" value="0" required="" id="id_visibility_0" {%if request.user.preference.default_visibility == 0 %}checked{% endif %}>
                                                  公开</label>
                                                 <label for="id_visibility_1"><input type="radio" name="default_visibility" value="1" required="" id="id_visibility_1" {%if request.user.preference.default_visibility == 1 %}checked{% endif %}>
@@ -44,25 +43,39 @@
                                                  仅自己</label>
                                             </div>
                                             <br>
+                                            <span>{% trans '使用个人主页作为首页：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="classic_homepage" id="classic_homepage" {%if request.user.preference.classic_homepage %}checked{% endif %}>
+                                                <label for="classic_homepage">{% trans '默认启用时间轴视图作为首页，如果希望使用原版风格首页可选中此处' %}</label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="tools-section-wrapper" style="margin-top: 2em;">
+                                    <div class="import-panel">
+                                        <h5 class="import-panel__label">{% trans '社交网络分享相关设置' %}</h5>
+                                        <div class="import-panel__body">
+                                            {% csrf_token %}
                                             <span>{% trans '在联邦网络上以公开方式分享的帖文是否发布到公共时间轴上：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if request.user.preference.mastodon_publish_public%}checked{% endif %}>
+                                                <input type="checkbox" name="mastodon_publish_public" id="visibility" {%if request.user.preference.mastodon_publish_public %}checked{% endif %}>
                                                 <label for="visibility">{% trans '选中时为public，未选中时为unlisted' %}</label>
                                             </div>
                                             <br><br>
-                                            <span>{% trans '分享帖文时附加标签：' %}</span>
+                                            <span>{% trans '在联邦网络上分享帖文时附加标签：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input name="mastodon_append_tag" id="tag" placeholder="#我的书影音" value="{{ request.user.preference.mastodon_append_tag }}" >
                                                 <label for="tag">{% trans '输入标签文字会被添加到帖文结尾' %}</label>
                                             </div>
-
-                                            <div> 
-                                                <input type="submit" class="import-panel__button" value="{% trans '保存' %}">
-                                            </div>
-                                        </form>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
+
+                                <div style="margin-top: 2em;">
+                                    <input type="submit" class="import-panel__button" value="{% trans '保存' %}">
+                                </div>
+                            </form>
                         </div>
                     </div>
 
@@ -71,7 +84,7 @@
             </section>
 
         </div>
-            
+
         {% include "partial/_footer.html" %}
     </div>
 

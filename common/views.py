@@ -17,6 +17,7 @@ from music.models import Album, Song, AlbumMark, SongMark
 from users.models import Report, User, Preference
 from mastodon.decorators import mastodon_request_included
 from users.views import home as user_home
+from timeline.views import timeline as user_timeline
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from common.scraper import get_scraper_by_url, get_normalized_url
@@ -33,7 +34,15 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def home(request):
-    return user_home(request, request.user.id)
+    try:
+        classic = request.user.preference.classic_homepage
+    except ObjectDoesNotExist:
+        Preference.objects.create(user=user)
+        classic = request.user.preference.classic_homepage
+    if classic:
+        return user_home(request, request.user.id)
+    else:
+        return user_timeline(request)
 
 
 @login_required

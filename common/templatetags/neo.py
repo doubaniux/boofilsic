@@ -24,6 +24,6 @@ def prettydate(d):
     elif s < 120:
         return '刚刚'
     elif s < 3600:
-        return '{} 分钟前'.format(s / 60)
+        return '{} 分钟前'.format(s // 60)
     else:
-        return '{} 小时前'.format(s / 3600)
+        return '{} 小时前'.format(s // 3600)

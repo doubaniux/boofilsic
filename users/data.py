@@ -49,9 +49,10 @@ from common.importers.douban import DoubanImporter
 def preferences(request):
     if request.method == 'POST':
         request.user.preference.default_visibility = int(request.POST.get('default_visibility'))
+        request.user.preference.classic_homepage = bool(request.POST.get('classic_homepage'))
         request.user.preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
         request.user.preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
-        request.user.preference.save()
+        request.user.preference.save(update_fields=['default_visibility', 'classic_homepage', 'mastodon_publish_public', 'mastodon_append_tag'])
     return render(request, 'users/preferences.html')
 
 
