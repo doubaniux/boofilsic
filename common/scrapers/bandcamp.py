@@ -15,7 +15,7 @@ class BandcampAlbumScraper(AbstractScraper):
     data_class = Album
     form_class = AlbumForm
 
-    regex = re.compile(r"https://[a-zA-Z0-0\-\.]+/album/[^?#]+")
+    regex = re.compile(r"https://[a-zA-Z0-9\-\.]+/album/[^?#]+")
 
     def scrape(self, url, response=None):
         effective_url = self.get_effective_url(url)
