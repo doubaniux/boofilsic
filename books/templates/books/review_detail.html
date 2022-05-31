@@ -72,6 +72,7 @@
                                     {{ form.content }}
                                 </div>
                                 {{ form.media }}
+                                {% csrf_token %}
                             </div>
                         </div>
                         
@@ -115,8 +116,6 @@
     
         
     <script>
-
-
         $(".markdownx textarea").hide();
     </script>
 </body>
