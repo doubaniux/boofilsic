@@ -29,8 +29,9 @@
                 {% csrf_token %}
                 <select name="collection_id">
                     {% for collection in collections %}
-                      <option value="{{ collection.id }}">{{ collection.title }}{% if collection.visibility > 0 %}🔒{% endif %}</option>
+                    <option value="{{ collection.id }}">{{ collection.title }}{% if collection.visibility > 0 %}🔒{% endif %}</option>
                     {% endfor %}
+                    <option value="0">新建收藏单</option>
                 </select>
                 <div>
                     <textarea type="text" name="comment" placeholder="条目备注"></textarea>

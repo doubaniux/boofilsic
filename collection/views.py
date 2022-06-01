@@ -407,6 +407,9 @@ def add_to_list(request, type, id):
             }
         )
     else:
-        collection = Collection.objects.filter(owner=request.user, id=request.POST.get('collection_id')).first()
+        cid = int(request.POST.get('collection_id', default=0))
+        if not cid:
+            cid = Collection.objects.create(owner=request.user, title=f'{request.user.username}的收藏单').id
+        collection = Collection.objects.filter(owner=request.user, id=cid).first()
         collection.append_item(item, request.POST.get('comment'))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
