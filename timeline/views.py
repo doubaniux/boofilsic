@@ -13,12 +13,17 @@ from mastodon.models import MastodonApplication
 from mastodon.api import post_toot, TootVisibilityEnum
 from common.utils import PageLinksGenerator
 from .models import *
+from books.models import BookTag
+from movies.models import MovieTag
+from games.models import GameTag
+from music.models import AlbumTag
 from django.conf import settings
 import re
 from users.models import User
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 import time
+from management.models import Announcement
 
 
 logger = logging.getLogger(__name__)
@@ -29,10 +34,16 @@ PAGE_SIZE = 20
 def timeline(request):
     if request.method != 'GET':
         return
+    user = request.user
     return render(
         request,
         'timeline.html',
         {
+            'book_tags': BookTag.all_by_user(user)[:10],
+            'movie_tags': MovieTag.all_by_user(user)[:10],
+            'music_tags': AlbumTag.all_by_user(user)[:10],
+            'game_tags': GameTag.all_by_user(user)[:10],
+            'unread_announcements': Announcement.objects.filter(pk__gt=request.user.read_announcement_index).order_by('-pk'),
         }
     )
 
