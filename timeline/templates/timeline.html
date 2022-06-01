@@ -77,7 +77,9 @@
         event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
       })
     </script>
+
+{% if unread_announcements %}
+{% include "partial/_announcement.html" %}
+{% endif %}
 </body>
-
-
 </html>
