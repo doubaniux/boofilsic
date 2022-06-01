@@ -35,6 +35,10 @@ def timeline(request):
     if request.method != 'GET':
         return
     user = request.user
+    unread = Announcement.objects.filter(pk__gt=user.read_announcement_index).order_by('-pk')
+    if unread:
+        user.read_announcement_index = Announcement.objects.latest('pk').pk
+        user.save(update_fields=['read_announcement_index'])
     return render(
         request,
         'timeline.html',
@@ -43,7 +47,7 @@ def timeline(request):
             'movie_tags': MovieTag.all_by_user(user)[:10],
             'music_tags': AlbumTag.all_by_user(user)[:10],
             'game_tags': GameTag.all_by_user(user)[:10],
-            'unread_announcements': Announcement.objects.filter(pk__gt=request.user.read_announcement_index).order_by('-pk'),
+            'unread_announcements': unread,
         }
     )
 
