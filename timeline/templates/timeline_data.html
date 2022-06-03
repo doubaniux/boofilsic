@@ -19,7 +19,9 @@
         <div class="collection-item-position-edit">
             <span class="entity-marks__mark-time">
                 {% if activity.target.shared_link %}
-                <a href="{{ activity.target.shared_link }}" target="_blank"><span class="entity-marks__mark-time">{{ activity.target.created_time|prettydate }}</span></a>
+                <a href="{{ activity.target.shared_link }}" target="_blank">
+                    <img src="{% static 'img/fediverse.svg' %}" style="filter: invert(93%) sepia(1%) saturate(53%) hue-rotate(314deg) brightness(95%) contrast(80%); vertical-align:text-top; max-width:14px; margin-right:6px;" />
+                    <span class="entity-marks__mark-time">{{ activity.target.created_time|prettydate }}</span></a>
                 {% else %}
                 <a><span class="entity-marks__mark-time">{{ activity.target.created_time|prettydate }}</span></a>
                 {% endif %}
