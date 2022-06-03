@@ -497,7 +497,6 @@ def delete_song_review(request, id):
 
 
 @mastodon_request_included
-@login_required
 def retrieve_song_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(SongReview, pk=id)
@@ -1041,7 +1040,6 @@ def delete_album_review(request, id):
 
 
 @mastodon_request_included
-@login_required
 def retrieve_album_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(AlbumReview, pk=id)

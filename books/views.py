@@ -477,7 +477,6 @@ def delete_review(request, id):
 
 
 @mastodon_request_included
-@login_required
 def retrieve_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(BookReview, pk=id)
