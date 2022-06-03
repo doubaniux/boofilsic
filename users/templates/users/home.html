@@ -11,18 +11,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    
     {% if user == request.user %}
         <title>{{ site_name }} - {% trans '我的个人主页' %}</title>
     {% else %}
         <title>{{ site_name }} - {{user.display_name}}</title>
     {% endif %}
-        
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="{% static 'js/mastodon.js' %}"></script>
     <script src="{% static 'js/home.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
-
+    <link rel="search"type="application/opensearchdescription+xml" title="NeoDB" href="{% static 'opensearch.xml' %}">
 </head>
 
 <body>
