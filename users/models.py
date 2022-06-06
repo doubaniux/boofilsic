@@ -62,6 +62,12 @@ class User(AbstractUser):
     def __str__(self):
         return self.mastodon_username
 
+    def get_preference(self):
+        pref = self.preference
+        if not pref:
+            pref = Preference.objects.create(user=self)
+        return pref
+
     def refresh_mastodon_data(self):
         """ Try refresh account data from mastodon server, return true if refreshed successfully, note it will not save to db """
         self.mastodon_last_refresh = timezone.now()

@@ -388,11 +388,11 @@ def share_mark(mark):
         visibility = TootVisibilityEnum.DIRECT
     elif mark.visibility == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.preference.mastodon_publish_public:
+    elif user.get_preference().mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
-    tags = '\n' + user.preference.mastodon_append_tag.replace('[category]', str(mark.item.verbose_category_name)) if user.preference.mastodon_append_tag else ''
+    tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', str(mark.item.verbose_category_name)) if user.get_preference().mastodon_append_tag else ''
     stars = rating_to_emoji(mark.rating, MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode)
     content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.url}\n{mark.text}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
@@ -415,11 +415,11 @@ def share_review(review):
         visibility = TootVisibilityEnum.DIRECT
     elif review.visibility == 1:
         visibility = TootVisibilityEnum.PRIVATE
-    elif user.preference.mastodon_publish_public:
+    elif user.get_preference().mastodon_publish_public:
         visibility = TootVisibilityEnum.PUBLIC
     else:
         visibility = TootVisibilityEnum.UNLISTED
-    tags = '\n' + user.preference.mastodon_append_tag.replace('[category]', str(review.item.verbose_category_name)) if user.preference.mastodon_append_tag else ''
+    tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', str(review.item.verbose_category_name)) if user.get_preference().mastodon_append_tag else ''
     content = f"发布了关于《{review.item.title}》的评论\n{review.url}\n{review.title}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
     if response and response.status_code in [200, 201]:

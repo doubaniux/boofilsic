@@ -34,12 +34,7 @@ logger = logging.getLogger(__name__)
 
 @login_required
 def home(request):
-    try:
-        classic = request.user.preference.classic_homepage
-    except ObjectDoesNotExist:
-        Preference.objects.create(user=user)
-        classic = request.user.preference.classic_homepage
-    if classic:
+    if request.user.get_preference().classic_homepage:
         return user_home(request, request.user.id)
     else:
         return user_timeline(request)

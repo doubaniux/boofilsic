@@ -186,7 +186,7 @@ def retrieve_song(request, id):
         else:
             mark_form = SongMarkForm(initial={
                 'song': song,
-                'visibility': request.user.preference.default_visibility if request.user.is_authenticated else 0,
+                'visibility': request.user.get_preference().default_visibility if request.user.is_authenticated else 0,
                 'tags': mark_tags
             })
 
@@ -729,7 +729,7 @@ def retrieve_album(request, id):
         else:
             mark_form = AlbumMarkForm(initial={
                 'album': album,
-                'visibility': request.user.preference.default_visibility if request.user.is_authenticated else 0,
+                'visibility': request.user.get_preference().default_visibility if request.user.is_authenticated else 0,
                 'tags': mark_tags
             })
 

@@ -47,12 +47,13 @@ from common.importers.douban import DoubanImporter
 @mastodon_request_included
 @login_required
 def preferences(request):
+    preference = request.user.get_preference()
     if request.method == 'POST':
-        request.user.preference.default_visibility = int(request.POST.get('default_visibility'))
-        request.user.preference.classic_homepage = bool(request.POST.get('classic_homepage'))
-        request.user.preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
-        request.user.preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
-        request.user.preference.save(update_fields=['default_visibility', 'classic_homepage', 'mastodon_publish_public', 'mastodon_append_tag'])
+        preference.default_visibility = int(request.POST.get('default_visibility'))
+        preference.classic_homepage = bool(request.POST.get('classic_homepage'))
+        preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
+        preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
+        preference.save(update_fields=['default_visibility', 'classic_homepage', 'mastodon_publish_public', 'mastodon_append_tag'])
     return render(request, 'users/preferences.html')
 
 
@@ -61,8 +62,8 @@ def preferences(request):
 def data(request):
     return render(request, 'users/data.html', {
         'latest_task': request.user.user_synctasks.order_by("-id").first(),
-        'import_status': request.user.preference.import_status,
-        'export_status': request.user.preference.export_status
+        'import_status': request.user.get_preference().import_status,
+        'export_status': request.user.get_preference().export_status
     })
 
 

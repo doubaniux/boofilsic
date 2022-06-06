@@ -176,11 +176,7 @@ def home(request, id):
         for review in music_reviews:
             review.type = 'album' if review.__class__ == AlbumReview else 'song'
 
-        try:
-            layout = user.preference.get_serialized_home_layout()
-        except ObjectDoesNotExist:
-            Preference.objects.create(user=user)
-            layout = user.preference.get_serialized_home_layout()
+        layout = user.get_preference().get_serialized_home_layout()
 
         return render(
             request,

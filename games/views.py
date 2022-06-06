@@ -168,7 +168,7 @@ def retrieve(request, id):
         else:
             mark_form = GameMarkForm(initial={
                 'game': game,
-                'visibility': request.user.preference.default_visibility if request.user.is_authenticated else 0,
+                'visibility': request.user.get_preference().default_visibility if request.user.is_authenticated else 0,
                 'tags': mark_tags
             })
 
