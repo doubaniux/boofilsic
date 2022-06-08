@@ -30,6 +30,7 @@ logger = logging.getLogger(__name__)
 mastodon_logger = logging.getLogger("django.mastodon")
 PAGE_SIZE = 20
 
+
 @login_required
 def timeline(request):
     if request.method != 'GET':
@@ -52,6 +53,7 @@ def timeline(request):
     )
 
 
+@login_required
 def data(request):
     if request.method != 'GET':
         return
