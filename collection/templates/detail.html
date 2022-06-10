@@ -61,6 +61,8 @@
                                             {% if request.user == collection.owner %}
                                             <a class="review-head__action-link" href="{% url 'collection:update' collection.id %}">{% trans '编辑' %}</a>
                                             <a class="review-head__action-link" href="{% url 'collection:delete' collection.id %}">{% trans '删除' %}</a>
+                                            {% elif editable %}
+                                            <span class="review-head__time">可协作整理</span>
                                             {% endif %}
                                     </div>
                                 </div>

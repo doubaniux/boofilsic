@@ -4,6 +4,12 @@ from .models import Collection
 from common.forms import *
 
 
+COLLABORATIVE_CHOICES = [
+    (0, _("仅限创建者")),
+    (1, _("创建者及其互关用户")),
+]
+
+
 class CollectionForm(forms.ModelForm):
     # id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     title = forms.CharField(label=_("标题"))
@@ -16,6 +22,13 @@ class CollectionForm(forms.ModelForm):
         choices=VISIBILITY_CHOICES,
         widget=forms.RadioSelect
     )
+    collaborative = forms.TypedChoiceField(
+        label=_("协作整理权限"),
+        initial=0,
+        coerce=int,
+        choices=COLLABORATIVE_CHOICES,
+        widget=forms.RadioSelect
+    )
 
     class Meta:
         model = Collection
@@ -24,6 +37,7 @@ class CollectionForm(forms.ModelForm):
             'description',
             'cover',
             'visibility',
+            'collaborative',
         ]
 
         widgets = {

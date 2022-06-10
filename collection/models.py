@@ -19,6 +19,7 @@ class Collection(UserOwnedEntity):
     title = models.CharField(max_length=200)
     description = MarkdownxField()
     cover = models.ImageField(_("封面"), upload_to=collection_cover_path, default=settings.DEFAULT_COLLECTION_IMAGE, blank=True)
+    collaborative = models.PositiveSmallIntegerField(default=0)  # 0: Editable by owner only / 1: Editable by bi-direction followers
 
     def __str__(self):
         return f"Collection({self.id} {self.owner} {self.title})"
@@ -60,6 +61,14 @@ class Collection(UserOwnedEntity):
     @property
     def url(self):
         return settings.APP_WEBSITE + reverse("collection:retrieve", args=[self.id])
+
+    def is_editable_by(self, viewer):
+        if viewer.is_staff or viewer.is_superuser or viewer == self.owner:
+            return True
+        elif self.collaborative == 1 and viewer.is_following(self.owner) and viewer.is_followed_by(self.owner):
+            return True
+        else:
+            return False
 
 
 class CollectionItem(models.Model):
