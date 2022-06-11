@@ -19,7 +19,7 @@ def current_user_relationship(context, user):
     if current_user and current_user.is_authenticated:
         if current_user.is_following(user):
             if current_user.is_followed_by(user):
-                return '双向关注'
+                return '互相关注'
             else:
                 return '已关注'
         elif current_user.is_followed_by(user):
