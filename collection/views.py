@@ -10,9 +10,9 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
-from mastodon.api import post_toot, TootVisibilityEnum
+from mastodon.api import post_toot, TootVisibilityEnum, share_collection
 from common.utils import PageLinksGenerator
-from common.views import PAGE_LINK_NUMBER, jump_or_scrape
+from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
@@ -413,3 +413,19 @@ def add_to_list(request, type, id):
         collection = Collection.objects.filter(owner=request.user, id=cid).first()
         collection.append_item(item, request.POST.get('comment'))
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+@login_required
+def share(request, id):
+    collection = Collection.objects.filter(id=id).first()
+    if not collection:
+        return HttpResponseBadRequest()
+    if request.method == 'GET':
+        return render(request, 'share_collection.html', {'id': id, 'visibility': request.user.get_preference().default_visibility})
+    else:
+        visibility = int(request.POST.get('visibility', default=0))
+        comment = request.POST.get('comment')
+        if share_collection(collection, comment, request.user, visibility):
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+            return go_relogin(request)

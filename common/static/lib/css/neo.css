@@ -160,3 +160,7 @@
 #modal .add-to-list-modal__confirm-button {
   float: right;
 }
+
+#modal li, #modal ul, #modal label {
+  display: inline;
+}

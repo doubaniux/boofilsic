@@ -433,3 +433,28 @@ def share_review(review):
         return True
     else:
         return False
+
+
+def share_collection(collection, comment, user, visibility_no):
+    if visibility_no == 2:
+        visibility = TootVisibilityEnum.DIRECT
+    elif visibility_no == 1:
+        visibility = TootVisibilityEnum.PRIVATE
+    elif user.get_preference().mastodon_publish_public:
+        visibility = TootVisibilityEnum.PUBLIC
+    else:
+        visibility = TootVisibilityEnum.UNLISTED
+    tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', '收藏单') if user.get_preference().mastodon_append_tag else ''
+    content = f"分享收藏单《{collection.title}》\n{collection.url}\n{comment}{tags}"
+    response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
+    if response and response.status_code in [200, 201]:
+        j = response.json()
+        if 'url' in j:
+            shared_link = j['url']
+        elif 'data' in j:
+            shared_link = f"https://twitter.com/{user.username}/status/{j['data']['id']}"
+        if shared_link:
+            pass
+        return True
+    else:
+        return False

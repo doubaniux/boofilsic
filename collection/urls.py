@@ -20,6 +20,7 @@ urlpatterns = [
     path('<int:id>/show_item_comment/<int:item_id>', show_item_comment, name='show_item_comment'),
     path('with/<str:type>/<int:id>/', list_with, name='list_with'),
     path('add_to_list/<str:type>/<int:id>/', add_to_list, name='add_to_list'),
+    path('share/<int:id>/', share, name='share'),
 
     # TODO: tag
 ]

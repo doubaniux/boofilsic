@@ -27,6 +27,7 @@
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.7.0/htmx.min.js"></script>
+    <script src="{% static 'lib/js/hyperscript-0.9.5.min.js' %}"></script>
 </head>
 
 <body>
@@ -95,7 +96,10 @@
                                     </h5>
                                 </div>
                             </div>
-                            {% if request.user != collection.owner %}
+                        </div>
+
+                        {% if request.user != collection.owner %}
+                        <div class="aside-section-wrapper">
                             <div class="action-panel">
                                 <div class="action-panel__button-group action-panel__button-group--center">
                                     {% if following %}
@@ -111,7 +115,17 @@
                                     {% endif %}                                         
                                 </div>
                             </div>
-                            {% endif %}     
+                        </div>
+                        {% endif %}
+
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__button-group action-panel__button-group--center">
+                                    <form>
+                                        <button class="action-panel__button add-to-list" hx-get="{% url 'collection:share' collection.id %}" hx-target="body" hx-swap="beforeend">{% trans '分享到联邦网络' %}</button>
+                                    </form>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
