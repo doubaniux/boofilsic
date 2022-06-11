@@ -35,9 +35,9 @@ logger = logging.getLogger(__name__)
 @login_required
 def home(request):
     if request.user.get_preference().classic_homepage:
-        return user_home(request, request.user.id)
+        return redirect(reverse("users:home", args=[request.user.mastodon_username]))
     else:
-        return user_timeline(request)
+        return redirect(reverse("timeline:timeline"))
 
 
 @login_required
