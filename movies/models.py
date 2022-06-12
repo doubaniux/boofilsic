@@ -170,10 +170,9 @@ class Movie(Entity):
     ############################################
     is_series = models.BooleanField(default=False)
 
-
     def __str__(self):
         if self.year:
-            return self.title + f"({self.year})"  
+            return self.title + f"({self.year})"
         else:
             return self.title
 
@@ -196,6 +195,10 @@ class Movie(Entity):
 
     def get_absolute_url(self):
         return reverse("movies:retrieve", args=[self.id])
+
+    @property
+    def wish_url(self):
+        return reverse("movies:wish", args=[self.id])
 
     def get_tags_manager(self):
         return self.movie_tags

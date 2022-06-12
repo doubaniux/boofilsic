@@ -92,6 +92,10 @@ class Book(Entity):
     def get_absolute_url(self):
         return reverse("books:retrieve", args=[self.id])
 
+    @property
+    def wish_url(self):
+        return reverse("books:wish", args=[self.id])
+
     def get_tags_manager(self):
         return self.book_tags
 

@@ -59,8 +59,16 @@ class Collection(UserOwnedEntity):
         return self
 
     @property
+    def mark_class(self):
+        return CollectionMark
+
+    @property
     def url(self):
         return settings.APP_WEBSITE + reverse("collection:retrieve", args=[self.id])
+
+    @property
+    def wish_url(self):
+        return reverse("collection:wish", args=[self.id])
 
     def is_editable_by(self, viewer):
         if viewer.is_staff or viewer.is_superuser or viewer == self.owner:

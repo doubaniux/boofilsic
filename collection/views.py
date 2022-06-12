@@ -2,7 +2,7 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count
@@ -217,6 +217,15 @@ def delete(request, id):
             return redirect(reverse("common:home"))
     else:
         raise PermissionDenied()
+
+
+@login_required
+def wish(request, id):
+    try:
+        CollectionMark.objects.create(owner=request.user, collection=Collection.objects.get(id=id))
+    except Exception:
+        pass
+    return HttpResponse("✔️")
 
 
 @login_required

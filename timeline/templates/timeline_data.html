@@ -9,11 +9,15 @@
 {% load neo %}
 
 {% for activity in activities %}
+{% current_user_marked_item activity.target.item as marked %}
 <li class="entity-list__entity">
     <div class="entity-list__entity-img-wrapper">
         <a href="{{ activity.target.item.url }}">
             <img src="{{ activity.target.item.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img" style="min-width:80px;max-width:80px">
         </a>
+        {% if not marked %}
+        <a class="entity-list__entity-action-icon" hx-post="{{ activity.target.item.wish_url }}">➕</a>
+        {% endif %}
     </div>
     <div class="entity-list__entity-text">
         <div class="collection-item-position-edit">

@@ -76,6 +76,10 @@ class Album(Entity):
     def get_absolute_url(self):
         return reverse("music:retrieve_album", args=[self.id])
 
+    @property
+    def wish_url(self):
+        return reverse("music:wish_album", args=[self.id])
+
     def get_tags_manager(self):
         return self.album_tags
 
@@ -134,6 +138,10 @@ class Song(Entity):
 
     def get_absolute_url(self):
         return reverse("music:retrieve_song", args=[self.id])
+
+    @property
+    def wish_url(self):
+        return reverse("music:wish_song", args=[self.id])
 
     def get_tags_manager(self):
         return self.song_tags

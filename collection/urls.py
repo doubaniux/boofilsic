@@ -21,6 +21,7 @@ urlpatterns = [
     path('with/<str:type>/<int:id>/', list_with, name='list_with'),
     path('add_to_list/<str:type>/<int:id>/', add_to_list, name='add_to_list'),
     path('share/<int:id>/', share, name='share'),
+    path('follow2/<int:id>/', wish, name='wish'),
 
     # TODO: tag
 ]

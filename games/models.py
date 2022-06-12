@@ -77,8 +77,6 @@ class Game(Entity):
 
     cover = models.ImageField(_("封面"), upload_to=game_cover_path, default=settings.DEFAULT_GAME_IMAGE, blank=True)
 
-
-
     def __str__(self):
         return self.title
 
@@ -96,6 +94,10 @@ class Game(Entity):
 
     def get_absolute_url(self):
         return reverse("games:retrieve", args=[self.id])
+
+    @property
+    def wish_url(self):
+        return reverse("games:wish", args=[self.id])
 
     def get_tags_manager(self):
         return self.game_tags
