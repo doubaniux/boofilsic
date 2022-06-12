@@ -60,7 +60,7 @@ class Goodreads:
             if r.url.startswith('https://www.goodreads.com/book/show/'):
                 # Goodreads will 302 if only one result matches ISBN
                 data, img = GoodreadsScraper.scrape(r.url, r)
-                subtitle = f"{data['pub_year']} {', '.join(data['author'])} {', '.join(data['translator'])}"
+                subtitle = f"{data['pub_year']} {', '.join(data['author'])} {', '.join(data['translator'] if data['translator'] else [])}"
                 results.append(SearchResultItem(Category.Book, SourceSiteEnum.GOODREADS,
                                                 data['source_url'], data['title'], subtitle,
                                                 data['brief'], data['cover_url']))
