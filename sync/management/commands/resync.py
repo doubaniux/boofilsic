@@ -5,12 +5,26 @@ from sync.models import SyncTask
 from users.models import User
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from tqdm import tqdm
+from django.conf import settings
+import requests
 
 
 class Command(BaseCommand):
     help = 'Re-scrape failed urls (via local proxy)'
 
     def handle(self, *args, **options):
+        self.stdout.write(f'Checking local proxy...')
+        url = f'{settings.LOCAL_PROXY}?url=https://www.douban.com/doumail/'
+        try:
+            r = requests.get(url, timeout=settings.SCRAPING_TIMEOUT)
+        except Exception as e:
+            self.stdout.write(self.style.ERROR(e))
+            return
+        content = r.content.decode('utf-8')
+        if content.find('我的豆邮') == -1:
+            self.stdout.write(self.style.ERROR(f'Proxy check failed.'))
+            return
+
         self.stdout.write(f'Loading failed urls...')
         tasks = SyncTask.objects.filter(failed_urls__isnull=False)
         urls = []
@@ -25,6 +39,7 @@ class Command(BaseCommand):
         f_i = open("/tmp/resync_ignore.txt", "a")
         f_s = open("/tmp/resync_success.txt", "a")
         user = User.objects.get(id=1)
+
         for url in tqdm(urls):
             url = get_normalized_url(url)
             scraper = get_scraper_by_url(url)
