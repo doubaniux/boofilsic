@@ -109,7 +109,10 @@ class DoubanScrapperMixin:
 
         def latest():
             nonlocal r, error, content
-            if settings.SCRAPESTACK_KEY is not None:
+            if settings.LOCAL_PROXY is not None:
+                error = error + '\nLocal: '
+                get(f'{settings.LOCAL_PROXY}?url={url}')
+            elif settings.SCRAPESTACK_KEY is not None:
                 error = error + '\nScrapeStack: '
                 get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}')
             elif settings.SCRAPERAPI_KEY is not None:
