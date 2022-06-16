@@ -470,6 +470,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
             duration = duration_elem[0].strip()
             if other_duration_elem:
                 duration += other_duration_elem[0].rstrip()
+            duration = duration.split('/')[0].strip()
         else:
             duration = None
 
