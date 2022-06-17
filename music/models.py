@@ -34,7 +34,7 @@ class Album(Entity):
     duration = models.PositiveIntegerField(_("时长"), null=True, blank=True)
     artist = postgres.ArrayField(
         models.CharField(_("artist"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,

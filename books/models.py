@@ -21,22 +21,22 @@ def book_cover_path(instance, filename):
 
 class Book(Entity):
     # widely recognized name, usually in Chinese
-    title = models.CharField(_("title"), max_length=200)
+    title = models.CharField(_("title"), max_length=500)
     subtitle = models.CharField(
-        _("subtitle"), blank=True, default='', max_length=200)
+        _("subtitle"), blank=True, default='', max_length=500)
     # original name, for books in foreign language
     orig_title = models.CharField(
-        _("original title"), blank=True, default='', max_length=200)
+        _("original title"), blank=True, default='', max_length=500)
 
     author = postgres.ArrayField(
-        models.CharField(_("author"), blank=True, default='', max_length=100),
+        models.CharField(_("author"), blank=True, default='', max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     translator = postgres.ArrayField(
         models.CharField(_("translator"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,
@@ -49,7 +49,7 @@ class Book(Entity):
     pub_month = models.IntegerField(
         _("published month"), null=True, blank=True)
     binding = models.CharField(
-        _("binding"), blank=True, default='', max_length=50)
+        _("binding"), blank=True, default='', max_length=200)
     # since data origin is not formatted and might be CNY USD or other currency, use char instead
     price = models.CharField(_("pricing"), blank=True,
                              default='', max_length=50)

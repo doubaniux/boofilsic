@@ -71,13 +71,13 @@ class Movie(Entity):
     Can either be movie or series.
     '''
     # widely recognized name, usually in Chinese
-    title = models.CharField(_("title"), max_length=200)
+    title = models.CharField(_("title"), max_length=500)
     # original name, for books in foreign language
     orig_title = models.CharField(
-        _("original title"), blank=True, default='', max_length=200)
+        _("original title"), blank=True, default='', max_length=500)
     other_title = postgres.ArrayField(
         models.CharField(_("other title"), blank=True,
-                         default='', max_length=300),
+                         default='', max_length=500),
         null=True,
         blank=True,
         default=list,
@@ -86,21 +86,21 @@ class Movie(Entity):
         blank=True, max_length=10, null=False, db_index=True, default='')
     director = postgres.ArrayField(
         models.CharField(_("director"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     playwright = postgres.ArrayField(
         models.CharField(_("playwright"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     actor = postgres.ArrayField(
         models.CharField(_("actor"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,
@@ -125,7 +125,7 @@ class Movie(Entity):
         default=list,
     )
     site = models.URLField(_('site url'), blank=True, default='', max_length=200)
-    
+
     # country or region
     area = postgres.ArrayField(
         models.CharField(

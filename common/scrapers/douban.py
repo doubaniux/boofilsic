@@ -414,6 +414,10 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
                 g = g.split(' ')[0]
                 if g == '紀錄片':  # likely some original data on douban was corrupted
                     g = '纪录片'
+                elif g == '鬼怪':
+                    g = '惊悚'
+                elif g == 'News':
+                    g = '新闻'
                 if g in genre_translator:
                     genre.append(genre_translator[g])
                 else:
