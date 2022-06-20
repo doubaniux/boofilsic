@@ -128,7 +128,7 @@ class DoubanScrapperMixin:
                 check_content()
 
         latest()
-        if content is None:
+        if content is None and settings.LOCAL_PROXY is None:
             wayback_cdx()
 
         if content is None:

@@ -13,7 +13,16 @@ import os
 class Command(BaseCommand):
     help = 'Re-scrape failed urls (via local proxy)'
 
+    def add_arguments(self, parser):
+        parser.add_argument('action', type=str, help='list/download')
+
     def handle(self, *args, **options):
+        if options['action'] == 'list':
+            self.do_list()
+        else:
+            self.do_download()
+
+    def do_list(self):
         tasks = SyncTask.objects.filter(failed_urls__isnull=False)
         urls = []
         for task in tqdm(tasks):
@@ -30,8 +39,8 @@ class Command(BaseCommand):
         f = open("/tmp/resync_todo.txt", "w")
         f.write("\n".join(urls))
         f.close()
-        return
 
+    def do_download(self):
         self.stdout.write(f'Checking local proxy...{settings.LOCAL_PROXY}')
         url = f'{settings.LOCAL_PROXY}?url=https://www.douban.com/doumail/'
         try:
