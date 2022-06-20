@@ -51,7 +51,7 @@ class DoubanScrapperMixin:
                         error = error + 'IP banned'
                     content = None
                     last_error = 'network'
-                elif content.find('<title>页面不存在</title>') != -1:  # re.search('不存在[^<]+</title>', content, re.MULTILINE):
+                elif content.find('<title>页面不存在</title>') != -1 or content.find('呃... 你想访问的条目豆瓣不收录。') != -1:  # re.search('不存在[^<]+</title>', content, re.MULTILINE):
                     content = None
                     last_error = 'censorship'
                     error = error + 'Not found or hidden by Douban'
@@ -398,7 +398,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         actor_elem = content.xpath(
             "//div[@id='info']//span[text()='主演']/following-sibling::span[1]/a/text()")
-        actor = actor_elem[:200] if actor_elem else None
+        actor = list(map(lambda a: a[:200], actor_elem)) if actor_elem else None
 
         # construct genre translator
         genre_translator = {}
@@ -558,7 +558,7 @@ class DoubanAlbumScraper(DoubanScrapperMixin, AbstractScraper):
             raise ValueError("given url contains no album info")
 
         artists_elem = content.xpath("//div[@id='info']/span/span[@class='pl']/a/text()")
-        artist = None if not artists_elem else artists_elem[:200]
+        artist = None if not artists_elem else list(map(lambda a: a[:200], artists_elem))
 
         genre_elem = content.xpath(
             "//div[@id='info']//span[text()='流派:']/following::text()[1]")
