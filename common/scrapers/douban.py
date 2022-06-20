@@ -51,13 +51,13 @@ class DoubanScrapperMixin:
                         error = error + 'IP banned'
                     content = None
                     last_error = 'network'
-                elif re.search('不存在[^<]+</title>', content, re.MULTILINE):
+                elif content.find('<title>页面不存在</title>') != -1:  # re.search('不存在[^<]+</title>', content, re.MULTILINE):
                     content = None
                     last_error = 'censorship'
                     error = error + 'Not found or hidden by Douban'
             else:
                 last_error = 'network'
-                error = error + str(r.status_code)
+                error = error + str(r.status_code)  # logged in user may see 204 for cencered item
 
         def fix_wayback_links():
             nonlocal content
@@ -205,11 +205,11 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
 
         subtitle_elem = content.xpath(
             "//div[@id='info']//span[text()='副标题:']/following::text()")
-        subtitle = subtitle_elem[0].strip() if subtitle_elem else None
+        subtitle = subtitle_elem[0].strip()[:500] if subtitle_elem else None
 
         orig_title_elem = content.xpath(
             "//div[@id='info']//span[text()='原作名:']/following::text()")
-        orig_title = orig_title_elem[0].strip() if orig_title_elem else None
+        orig_title = orig_title_elem[0].strip()[:500] if orig_title_elem else None
 
         language_elem = content.xpath(
             "//div[@id='info']//span[text()='语言:']/following::text()")
@@ -291,7 +291,7 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
         if authors_elem:
             authors = []
             for author in authors_elem:
-                authors.append(RE_WHITESPACES.sub(' ', author.strip()))
+                authors.append(RE_WHITESPACES.sub(' ', author.strip())[:200])
         else:
             authors = None
 
@@ -398,7 +398,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         actor_elem = content.xpath(
             "//div[@id='info']//span[text()='主演']/following-sibling::span[1]/a/text()")
-        actor = actor_elem if actor_elem else None
+        actor = actor_elem[:200] if actor_elem else None
 
         # construct genre translator
         genre_translator = {}
@@ -443,7 +443,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         site_elem = content.xpath(
             "//div[@id='info']//span[text()='官方网站:']/following-sibling::a[1]/@href")
-        site = site_elem[0].strip() if site_elem else None
+        site = site_elem[0].strip()[:200] if site_elem else None
         try:
             validator = URLValidator()
             validator(site)
@@ -465,7 +465,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
             language = None
 
         year_elem = content.xpath("//span[@class='year']/text()")
-        year = int(year_elem[0][1:-1]) if year_elem else None
+        year = int(re.search(r'\d+', year_elem[0])[0]) if year_elem and re.search(r'\d+', year_elem[0]) else None
 
         duration_elem = content.xpath("//span[@property='v:runtime']/text()")
         other_duration_elem = content.xpath(
@@ -558,7 +558,7 @@ class DoubanAlbumScraper(DoubanScrapperMixin, AbstractScraper):
             raise ValueError("given url contains no album info")
 
         artists_elem = content.xpath("//div[@id='info']/span/span[@class='pl']/a/text()")
-        artist = None if not artists_elem else artists_elem
+        artist = None if not artists_elem else artists_elem[:200]
 
         genre_elem = content.xpath(
             "//div[@id='info']//span[text()='流派:']/following::text()[1]")
