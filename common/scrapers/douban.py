@@ -57,7 +57,7 @@ class DoubanScrapperMixin:
                     error = error + 'Not found or hidden by Douban'
             else:
                 last_error = 'network'
-                error = error + str(r.status_code)  # logged in user may see 204 for cencered item
+                error = error + str(r.status_code)
 
         def fix_wayback_links():
             nonlocal content
@@ -257,6 +257,8 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
         if pages is not None:
             pages = int(RE_NUMBERS.findall(pages)[
                         0]) if RE_NUMBERS.findall(pages) else None
+            if pages and (pages > 999999 or pages < 1):
+                pages = None
 
         brief_elem = content.xpath(
             "//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro'][not(ancestor::span[@class='short'])]/p/text()")
@@ -416,10 +418,10 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
                     g = '纪录片'
                 elif g == '鬼怪':
                     g = '惊悚'
-                elif g == 'News':
-                    g = '新闻'
                 if g in genre_translator:
                     genre.append(genre_translator[g])
+                elif g in genre_translator.values():
+                    genre.append(g)
                 else:
                     logger.error(f'unable to map genre {g}')
         else:
@@ -453,7 +455,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
         area_elem = content.xpath(
             "//div[@id='info']//span[text()='制片国家/地区:']/following-sibling::text()[1]")
         if area_elem:
-            area = [a.strip() for a in area_elem[0].split(' / ')]
+            area = [a.strip()[:100] for a in area_elem[0].split('/')]
         else:
             area = None
 
@@ -494,7 +496,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
         single_episode_length_elem = content.xpath(
             "//div[@id='info']//span[text()='单集片长:']/following-sibling::text()[1]")
         single_episode_length = single_episode_length_elem[0].strip(
-        ) if single_episode_length_elem else None
+        )[:100] if single_episode_length_elem else None
 
         # if has field `episodes` not none then must be series
         is_series = True if episodes else False
