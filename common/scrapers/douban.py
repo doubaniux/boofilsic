@@ -55,7 +55,12 @@ class DoubanScrapperMixin:
                     content = None
                     last_error = 'censorship'
                     error = error + 'Not found or hidden by Douban'
+            elif r.status_code == 204:
+                content = None
+                last_error = 'censorship'
+                error = error + 'Not found or hidden by Douban'
             else:
+                content = None
                 last_error = 'network'
                 error = error + str(r.status_code)
 
@@ -109,10 +114,7 @@ class DoubanScrapperMixin:
 
         def latest():
             nonlocal r, error, content
-            if settings.LOCAL_PROXY is not None:
-                error = error + '\nLocal: '
-                get(f'{settings.LOCAL_PROXY}?url={url}')
-            elif settings.SCRAPESTACK_KEY is not None:
+            if settings.SCRAPESTACK_KEY is not None:
                 error = error + '\nScrapeStack: '
                 get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}')
             elif settings.SCRAPERAPI_KEY is not None:
@@ -126,9 +128,13 @@ class DoubanScrapperMixin:
                 error = error + '\nProxyCrawl: '
                 get(f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}')
                 check_content()
+            if last_error == 'censorship' and settings.LOCAL_PROXY is not None:
+                error = error + '\nLocal: '
+                get(f'{settings.LOCAL_PROXY}?url={url}')
+                check_content()
 
         latest()
-        if content is None and settings.LOCAL_PROXY is None:
+        if content is None:
             wayback_cdx()
 
         if content is None:
