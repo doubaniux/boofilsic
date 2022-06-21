@@ -124,7 +124,7 @@ class DoubanScrapperMixin:
                 error = error + '\nDirect: '
                 get(url)
             check_content()
-            if last_error == 'network' and settings.LOCAL_PROXY is None and settings.PROXYCRAWL_KEY is not None:
+            if last_error == 'network' and settings.PROXYCRAWL_KEY is not None:
                 error = error + '\nProxyCrawl: '
                 get(f'https://api.proxycrawl.com/?token={settings.PROXYCRAWL_KEY}&url={url}')
                 check_content()
