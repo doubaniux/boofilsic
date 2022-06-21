@@ -197,11 +197,15 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
         headers['Host'] = self.host
         content = self.download_page(url, headers)
 
-        # parsing starts here
-        try:
-            title = content.xpath("/html/body//h1/span/text()")[0].strip()
-        except IndexError:
-            raise ValueError("given url contains no book info")
+        isbn_elem = content.xpath("//div[@id='info']//span[text()='ISBN:']/following::text()")
+        isbn = isbn_elem[0].strip() if isbn_elem else None
+        title_elem = content.xpath("/html/body//h1/span/text()")
+        title = title_elem[0].strip() if title_elem else None
+        if not title:
+            if isbn:
+                title = 'isbn: ' + isbn
+            else:
+                raise ValueError("given url contains no book title or isbn")
 
         subtitle_elem = content.xpath(
             "//div[@id='info']//span[text()='副标题:']/following::text()")
@@ -253,10 +257,6 @@ class DoubanBookScraper(DoubanScrapperMixin, AbstractScraper):
         if pages is not None:
             pages = int(RE_NUMBERS.findall(pages)[
                         0]) if RE_NUMBERS.findall(pages) else None
-
-        isbn_elem = content.xpath(
-            "//div[@id='info']//span[text()='ISBN:']/following::text()")
-        isbn = isbn_elem[0].strip() if isbn_elem else None
 
         brief_elem = content.xpath(
             "//h2/span[text()='内容简介']/../following-sibling::div[1]//div[@class='intro'][not(ancestor::span[@class='short'])]/p/text()")
@@ -394,7 +394,7 @@ class DoubanMovieScraper(DoubanScrapperMixin, AbstractScraper):
 
         playwright_elem = content.xpath(
             "//div[@id='info']//span[text()='编剧']/following-sibling::span[1]/a/text()")
-        playwright = playwright_elem if playwright_elem else None
+        playwright = list(map(lambda a: a[:200], playwright_elem)) if playwright_elem else None
 
         actor_elem = content.xpath(
             "//div[@id='info']//span[text()='主演']/following-sibling::span[1]/a/text()")
