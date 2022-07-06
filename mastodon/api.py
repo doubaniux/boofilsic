@@ -60,6 +60,8 @@ TWITTER_API_POST = 'https://api.twitter.com/2/tweets'
 
 TWITTER_API_TOKEN = 'https://api.twitter.com/2/oauth2/token'
 
+USER_AGENT = f"{settings.CLIENT_NAME}/1.0"
+
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
 post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
 
@@ -69,7 +71,7 @@ def get_relationships(site, id_list, token):  # no longer in use
     url = 'https://' + site + API_GET_RELATIONSHIPS
     payload = {'id[]': id_list}
     headers = {
-        'User-Agent': 'NeoDB/1.0',
+        'User-Agent': USER_AGENT,
         'Authorization': f'Bearer {token}'
     }
     response = get(url, headers=headers, params=payload)
@@ -78,7 +80,7 @@ def get_relationships(site, id_list, token):  # no longer in use
 
 def post_toot(site, content, visibility, token, local_only=False):
     headers = {
-        'User-Agent': 'NeoDB/1.0',
+        'User-Agent': USER_AGENT,
         'Authorization': f'Bearer {token}',
         'Idempotency-Key': random_string_generator(16)
     }
@@ -112,7 +114,7 @@ def get_instance_info(domain_name):
         return TWITTER_DOMAIN, ''
     try:
         url = f'https://{domain_name}/api/v1/instance'
-        response = get(url, headers={'User-Agent': 'NeoDB/1.0'})
+        response = get(url, headers={'User-Agent': USER_AGENT})
         j = response.json()
         return j['uri'].lower().split('//')[-1].split('/')[0], j['version']
     except Exception:
@@ -143,7 +145,7 @@ def create_app(domain_name):
         'website': settings.APP_WEBSITE
     }
 
-    response = post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
+    response = post(url, data=payload, headers={'User-Agent': USER_AGENT})
     return response
 
 
@@ -155,7 +157,7 @@ def get_site_id(username, user_site, target_site, token):
         'q': f"{username}@{user_site}"
     }
     headers = {
-        'User-Agent': 'NeoDB/1.0',
+        'User-Agent': USER_AGENT,
         'Authorization': f'Bearer {token}'
     }
     response = get(url, params=payload, headers=headers)
@@ -224,7 +226,7 @@ def verify_account(site, token):
     if site == TWITTER_DOMAIN:
         url = TWITTER_API_ME + '?user.fields=id,username,name,description,profile_image_url,created_at,protected'
         try:
-            response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
+            response = get(url, headers={'User-Agent': USER_AGENT, 'Authorization': f'Bearer {token}'})
             if response.status_code != 200:
                 logger.error(f"Error {url} {response.status_code}")
                 return response.status_code, None
@@ -240,7 +242,7 @@ def verify_account(site, token):
             return -1, None
     url = 'https://' + site + API_VERIFY_ACCOUNT
     try:
-        response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
+        response = get(url, headers={'User-Agent': USER_AGENT, 'Authorization': f'Bearer {token}'})
         return response.status_code, (response.json() if response.status_code == 200 else None)
     except Exception:
         return -1, None
@@ -252,7 +254,7 @@ def get_related_acct_list(site, token, api):
     url = 'https://' + site + api
     results = []
     while url:
-        response = get(url, headers={'User-Agent': 'NeoDB/1.0', 'Authorization': f'Bearer {token}'})
+        response = get(url, headers={'User-Agent': USER_AGENT, 'Authorization': f'Bearer {token}'})
         url = None
         if response.status_code == 200:
             results.extend(map(lambda u: (u['acct'] if u['acct'].find('@') != -1 else u['acct'] + '@' + site) if 'acct' in u else u, response.json()))
@@ -322,7 +324,7 @@ def obtain_token(site, request, code):
         'grant_type': 'authorization_code',
         'code': code
     }
-    headers = {'User-Agent': 'NeoDB/1.0'}
+    headers = {'User-Agent': USER_AGENT}
     auth = None
     if mast_app.is_proxy:
         url = 'https://' + mast_app.proxy_to + API_OBTAIN_TOKEN
@@ -356,7 +358,7 @@ def refresh_access_token(site, refresh_token):
         'refresh_token': refresh_token,
         'grant_type': 'refresh_token',
     }
-    headers = {'User-Agent': 'NeoDB/1.0'}
+    headers = {'User-Agent': USER_AGENT}
     auth = (mast_app.client_id, mast_app.client_secret)
     response = post(url, data=payload, headers=headers, auth=auth)
     if response.status_code != 200:
@@ -379,7 +381,7 @@ def revoke_token(site, token):
         url = 'https://' + mast_app.proxy_to + API_REVOKE_TOKEN
     else:
         url = 'https://' + site + API_REVOKE_TOKEN
-    post(url, data=payload, headers={'User-Agent': 'NeoDB/1.0'})
+    post(url, data=payload, headers={'User-Agent': USER_AGENT})
 
 
 def share_mark(mark):
