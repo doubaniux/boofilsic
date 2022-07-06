@@ -40,6 +40,8 @@ INTERNAL_IPS = [
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'hijack',
+    'hijack.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -47,6 +49,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.postgres',
+    'django_sass',
+    'django_rq',
     'markdownx',
     'management.apps.ManagementConfig',
     'mastodon.apps.MastodonConfig',
@@ -57,7 +61,10 @@ INSTALLED_APPS = [
     'music.apps.MusicConfig',
     'games.apps.GamesConfig',
     'sync.apps.SyncConfig',
+    'collection.apps.CollectionConfig',
     'easy_thumbnails',
+    'user_messages',
+    'django_slack',
 ]
 
 MIDDLEWARE = [
@@ -68,6 +75,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'hijack.middleware.HijackUserMiddleware',
 ]
 
 ROOT_URLCONF = 'boofilsic.urls'
@@ -82,7 +90,8 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                # 'django.contrib.messages.context_processors.messages',
+                "user_messages.context_processors.messages",
                 'boofilsic.context_processors.site_info',
             ],
         },
@@ -211,7 +220,10 @@ ALBUM_MEDIA_PATH_ROOT = 'album/'
 DEFAULT_ALBUM_IMAGE = os.path.join(ALBUM_MEDIA_PATH_ROOT, 'default.svg')
 GAME_MEDIA_PATH_ROOT = 'game/'
 DEFAULT_GAME_IMAGE = os.path.join(GAME_MEDIA_PATH_ROOT, 'default.svg')
+COLLECTION_MEDIA_PATH_ROOT = 'collection/'
+DEFAULT_COLLECTION_IMAGE = os.path.join(COLLECTION_MEDIA_PATH_ROOT, 'default.svg')
 SYNC_FILE_PATH_ROOT = 'sync/'
+EXPORT_FILE_PATH_ROOT = 'export/'
 
 # Allow user to login via any Mastodon/Pleroma sites
 MASTODON_ALLOW_ANY_SITE = False
@@ -222,6 +234,8 @@ MASTODON_TIMEOUT = 30
 MASTODON_CLIENT_SCOPE = 'read write follow'
 #use the following if it's a new site
 #MASTODON_CLIENT_SCOPE = 'read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media'
+
+MASTODON_LEGACY_CLIENT_SCOPE = 'read write follow'
 
 # Tags for toots posted from this site
 MASTODON_TAGS = '#NiceDB #NiceDB%(category)s #NiceDB%(category)s%(type)s'
@@ -245,6 +259,8 @@ ADMIN_URL = 'tertqX7256n7ej8nbv5cwvsegdse6w7ne5rHd'
 LUMINATI_USERNAME = 'lum-customer-hl_nw4tbv78-zone-static'
 LUMINATI_PASSWORD = 'nsb7te9bw0ney'
 
+SCRAPING_TIMEOUT = 90
+
 # ScraperAPI api key
 SCRAPERAPI_KEY = 'wnb3794v675b8w475h0e8hr7tyge'
 PROXYCRAWL_KEY = None
@@ -255,6 +271,13 @@ SPOTIFY_CREDENTIAL = "NzYzNkYTE6MGQ0ODY0NTY2Y2b3n645sdfgAyY2I1ljYjg3Nzc0MjIwODQ0
 
 # IMDb API service https://imdb-api.com/
 IMDB_API_KEY = "k23fwewff23"
+
+# The Movie Database (TMDB) API Keys
+TMDB_API3_KEY = "deadbeef"
+TMDB_API4_KEY = "deadbeef.deadbeef.deadbeef"
+
+# Google Books API Key
+GOOGLE_API_KEY = 'deadbeef-deadbeef-deadbeef'
 
 # Thumbnail setting
 # It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/
@@ -274,4 +297,44 @@ if DEBUG:
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment
 
-START_SYNC = True
+RQ_QUEUES = {
+    'mastodon': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': -1,
+    },
+    'export': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': -1,
+    },
+    'doufen': {
+        'HOST': 'localhost',
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': -1,
+    }
+}
+
+RQ_SHOW_ADMIN_LINK = True
+
+SEARCH_INDEX_NEW_ONLY = False
+
+SEARCH_BACKEND = None
+
+# SEARCH_BACKEND = 'MEILISEARCH'
+# MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
+# MEILISEARCH_KEY = 'deadbeef'
+
+# SEARCH_BACKEND = 'TYPESENSE'
+# TYPESENSE_CONNECTION = {
+#     'api_key': 'deadbeef',
+#     'nodes': [{
+#         'host': 'localhost',
+#         'port': '8108',
+#         'protocol': 'http'
+#     }],
+#     'connection_timeout_seconds': 2
+# }
