@@ -164,7 +164,7 @@ def retrieve(request, id):
             {
                 'collection': collection,
                 'form': form,
-                'editable': collection.is_editable_by(request.user),
+                'editable': request.user.is_authenticated and collection.is_editable_by(request.user),
                 'followers': followers,
                 'following': following,
             }
