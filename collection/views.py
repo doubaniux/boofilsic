@@ -192,7 +192,7 @@ def retrieve_entity_list(request, id):
         {
             'collection': collection,
             'form': form,
-            'editable': collection.is_editable_by(request.user),
+            'editable': request.user.is_authenticated and collection.is_editable_by(request.user),
             'followers': followers,
 
         }
@@ -360,7 +360,7 @@ def move_down_item(request, id, item_id):
 def show_item_comment(request, id, item_id):
     collection = get_object_or_404(Collection, pk=id)
     item = CollectionItem.objects.get(id=item_id)
-    editable = collection.is_editable_by(request.user)
+    editable = request.user.is_authenticated and collection.is_editable_by(request.user)
     return render(request, 'show_item_comment.html', {'collection': collection, 'collectionitem': item, 'editable': editable})
 
 
