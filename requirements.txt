@@ -20,3 +20,5 @@ opencc
 dnspython
 typesense
 markdownify
+sentry-sdk
+gitpython
