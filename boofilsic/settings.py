@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import psycopg2.extensions
+from git import Repo
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -200,7 +201,8 @@ AUTH_USER_MODEL = 'users.User'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
-SITE_INFO = {'site_name': 'NiceDB', 'support_link': 'https://github.com/doubaniux/boofilsic/issues'}
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
+SITE_INFO = {'site_name': 'NiceDB', 'support_link': 'https://github.com/doubaniux/boofilsic/issues', 'version_hash': current_commit_hash(PROJECT_ROOT)}
 
 # Mastodon configs
 CLIENT_NAME = 'NiceDB'
