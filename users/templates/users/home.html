@@ -16,7 +16,7 @@
     {% else %}
         <title>{{ site_name }} - {{user.display_name}}</title>
     {% endif %}
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{% static 'js/mastodon.js' %}"></script>
     <script src="{% static 'js/home.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
@@ -634,9 +634,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="layout">
                         </form>
-                        <script src="https://cdnjs.cloudflare.com/ajax/libs/html5sortable/0.10.0/html5sortable.min.js"
-                            integrity="sha512-tBlVMq89XaEC9iU5LyRjP2Vxs8SmVhEHGbv2Co6SbGa14Wsxy2qZN0jadrN+Xn5AifORaUbvZcG21/ExcNfWDA=="
-                            crossorigin="anonymous"></script>
+                        <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>
                         <script src="{% static 'js/sort_layout.js' %}"></script>
                         {% endif %}
                         <script>

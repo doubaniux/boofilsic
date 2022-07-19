@@ -12,7 +12,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{{ site_name }} - 数据管理</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{% static 'js/mastodon.js' %}"></script>
     <script src="{% static 'js/home.js' %}"></script>
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
@@ -40,10 +40,8 @@
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
                                     <h5 class="import-panel__label">{% trans '导入豆瓣标记和短评' %}</h5>
-                                    <span id="importHelp" class="import-panel__help">?</span>
                                     <div class="import-panel__body">
                                         <form action="{% url 'sync:douban' %}" method="POST" enctype="multipart/form-data" >
-
                                             {% csrf_token %}
                                             <input type="hidden" name="user" value="{{ request.user.id }}">
                                             <span>{% trans '导入：' %}</span>
@@ -67,20 +65,18 @@
                                             <span>{% trans '覆盖：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input type="checkbox" name="overwrite" id="overwrite">
-                                                <label for="overwrite">{% trans '覆盖原有标记' %}</label>
+                                                <label for="overwrite">{% trans '选中会覆盖现有标记' %}</label>
                                             </div>
-                                            <span id="overwriteHelp" class="import-panel__help">?</span>
                                             <div></div>
                                             <span>{% trans '可见性：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input type="checkbox" name="default_public" id="visibility" checked>
-                                                <label for="visibility">{% trans '公开' %}</label>
+                                                <label for="visibility">{% trans '选中后导入标记对其他用户可见；标记可见性在导入后也可更改。' %}</label>
                                             </div>
-                                            <span id="visibilityHelp" class="import-panel__help">?</span>
                                             <div></div>
                                             <div class="import-panel__file-input">
-                                                从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
-                                                <input type="file" name="file" id="excelFile" required accept=".xlsx">
+                                                从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件，<strong>请勿手动修改该文件</strong>:
+                                                <input type="file" name="file" id="excelFile" required accept=".xlsx"> 
                                             </div>
                                             <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn"
                                                 {% if not latest_task is None and not latest_task.is_finished %}
@@ -334,33 +330,6 @@
 
     <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
     <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/2.9.2/umd/popper.min.js"
-        integrity="sha512-2rNj2KJ+D8s1ceNasTIex6z4HWyOnEYLVC3FigGOmyQCZc2eBXKgOxQmo3oKLHyfcj53uz4QMsRCWNbLd32Q1g=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/tippy.js/6.3.1/tippy.umd.min.js"
-        integrity="sha512-Ns7w8bjVjVcBVa+k3XLt0ObfsG2LQfr573HoIYtC4wh8gUKLvCx+rlggxfvsHqup6jvMAEmBtYXmhcKHL+6R5A=="
-        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
-    <script>
-        tippy('#importHelp', {
-            content: "{% trans '上传导入由<a href=\"https://github.com/doufen-org/tofu\" target=\"_blank\">豆伴</a>（豆坟）导出的Excel文件，<strong>请勿手动修改该文件</strong>。部分条目由于需要登陆无法自动同步。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-        tippy('#overwriteHelp', {
-            content: "{% trans '在导入之前如果已经在本站标记了某一个条目，是否使用来自豆瓣的标记覆盖原有的。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-        tippy('#visibilityHelp', {
-            content: "{% trans '所同步的标记可见性是否为公开；对于已有的标记即便覆盖也不会改变可见性。' %}",
-            interactive: true,
-            allowHTML: true,
-            duration: 0,
-        });
-    </script>
 </body>
 
 
