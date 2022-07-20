@@ -285,6 +285,11 @@ def create_update_song_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            song_id = request.POST.get('song')
+            mark = SongMark.objects.filter(song_id=song_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(SongMark, pk=pk)
             if request.user != mark.owner:
@@ -828,6 +833,11 @@ def create_update_album_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            album_id = request.POST.get('album')
+            mark = AlbumMark.objects.filter(album_id=album_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(AlbumMark, pk=pk)
             if request.user != mark.owner:

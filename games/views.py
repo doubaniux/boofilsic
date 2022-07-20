@@ -267,6 +267,11 @@ def create_update_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            game_id = request.POST.get('game')
+            mark = GameMark.objects.filter(game_id=game_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(GameMark, pk=pk)
             if request.user != mark.owner:

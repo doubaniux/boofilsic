@@ -265,6 +265,11 @@ def create_update_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            book_id = request.POST.get('book')
+            mark = BookMark.objects.filter(book_id=book_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(BookMark, pk=pk)
             if request.user != mark.owner:

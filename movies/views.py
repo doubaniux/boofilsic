@@ -266,6 +266,11 @@ def create_update_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            movie_id = request.POST.get('movie')
+            mark = MovieMark.objects.filter(movie_id=movie_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(MovieMark, pk=pk)
             if request.user != mark.owner:
