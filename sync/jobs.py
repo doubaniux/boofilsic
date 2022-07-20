@@ -122,7 +122,7 @@ class DoufenParser:
                 cells = [cell for cell in row]
                 url = cells[self.URL_INDEX - 1]
                 tags = cells[self.TAG_INDEX - 1]
-                tags = list(set(tags.split(','))) if tags else None
+                tags = list(set(tags.lower().split(','))) if tags else None
                 time = cells[self.TIME_INDEX - 1]
                 if time:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
