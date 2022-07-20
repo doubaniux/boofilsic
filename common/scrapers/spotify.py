@@ -8,6 +8,7 @@ from django.conf import settings
 from common.scraper import *
 from threading import Thread
 from django.core.exceptions import ObjectDoesNotExist
+from django.utils import timezone
 
 
 spotify_token = None
