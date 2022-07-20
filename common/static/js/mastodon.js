@@ -59,12 +59,15 @@ async function getFollowers(id, mastodonURI, token, callback) {
     const response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
     const json = await response.json();
     let nextUrl = null;
-    response.headers.get('link').split(',').forEach(link => {
-        if (link.includes('next')) {
-            let regex = /<(.*?)>/;
-            nextUrl = link.match(regex)[1];
-        }
-    });
+    let links = response.headers.get('link');
+    if (links) {
+        links.split(',').forEach(link => {
+            if (link.includes('next')) {
+                let regex = /<(.*?)>/;
+                nextUrl = link.match(regex)[1];
+            }
+        });
+    }
     callback(json, nextUrl);
 }
 
@@ -73,12 +76,15 @@ async function getFollowing(id, mastodonURI, token, callback) {
     const response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
     const json = await response.json();
     let nextUrl = null;
-    response.headers.get('link').split(',').forEach(link => {
-        if (link.includes('next')) {
-            let regex = /<(.*?)>/;
-            nextUrl = link.match(regex)[1];
-        }
-    });
+    let links = response.headers.get('link');
+    if (links) {
+        links.split(',').forEach(link => {
+            if (link.includes('next')) {
+                let regex = /<(.*?)>/;
+                nextUrl = link.match(regex)[1];
+            }
+        });
+    }
     callback(json, nextUrl);
 }
 
