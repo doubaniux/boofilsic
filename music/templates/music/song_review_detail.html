@@ -103,7 +103,7 @@
                                         {% if song.artist|length > 5 %}
                                         <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
                                         <script>
-                                            $("#artistMore").click(function (e) {
+                                            $("#artistMore").on('click', function (e) {
                                                 $("span.artist:not(:visible)").each(function (e) {
                                                     $(this).parent().removeAttr('style');
                                                 });

@@ -83,7 +83,7 @@ $(document).ready( function() {
         id,
         mast_uri,
         token,
-        function(userList, request) {
+        function(userList, nextPage) {
             // aside
             let subUserList = null;
             if (userList.length == 0) {
@@ -140,12 +140,7 @@ $(document).ready( function() {
             });
 
             mainSpinner.hide();
-            request.getResponseHeader('link').split(',').forEach(link => {
-                if (link.includes('next')) {
-                    let regex = /<(.*?)>/;
-                    nextUrl = link.match(regex)[1];
-                }
-            });
+            nextUrl = nextPage;
         }
     );
 

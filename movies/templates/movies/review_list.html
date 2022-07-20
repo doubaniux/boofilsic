@@ -119,7 +119,7 @@
                                     {% if movie.director|length > 5 %}
                                     <a href="javascript:void(0);" id="directorMore">{% trans '更多' %}</a>
                                     <script>
-                                        $("#directorMore").click(function (e) {
+                                        $("#directorMore").on('click', function (e) {
                                             $("span.director:not(:visible)").each(function (e) {
                                                 $(this).parent().removeAttr('style');
                                             });

@@ -1,6 +1,6 @@
 $(document).ready( function() {
     
-    $(".submit").click(function(e) {
+    $(".submit").on('click', function(e) {
         e.preventDefault();
         let form = $("#scrapeForm form");
         if (form.data('submitted') === true) {

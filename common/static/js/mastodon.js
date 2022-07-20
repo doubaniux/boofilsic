@@ -54,38 +54,32 @@ const NUMBER_PER_REQUEST = 20
 //       "fields": []
 //     }
 //   ]
-function getFollowers(id, mastodonURI, token, callback) {
-    let url = mastodonURI + API_FOLLOWERS.replace(":id", id);
-    $.ajax({
-        url: url,
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        },
-        data: {
-            'limit': NUMBER_PER_REQUEST
-        },
-        success: function(data, status, request){
-            callback(data, request);
-        },
+async function getFollowers(id, mastodonURI, token, callback) {
+    const url = mastodonURI + API_FOLLOWERS.replace(":id", id);
+    const response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
+    const json = await response.json();
+    let nextUrl = null;
+    response.headers.get('link').split(',').forEach(link => {
+        if (link.includes('next')) {
+            let regex = /<(.*?)>/;
+            nextUrl = link.match(regex)[1];
+        }
     });
+    callback(json, nextUrl);
 }
 
-function getFollowing(id, mastodonURI, token, callback) {
-    let url = mastodonURI + API_FOLLOWING.replace(":id", id);
-    $.ajax({
-        url: url,
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        },        
-        data: {
-            'limit': NUMBER_PER_REQUEST
-        },
-        success: function(data, status, request){
-            callback(data, request);
-        },
+async function getFollowing(id, mastodonURI, token, callback) {
+    const url = mastodonURI + API_FOLLOWING.replace(":id", id);
+    const response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
+    const json = await response.json();
+    let nextUrl = null;
+    response.headers.get('link').split(',').forEach(link => {
+        if (link.includes('next')) {
+            let regex = /<(.*?)>/;
+            nextUrl = link.match(regex)[1];
+        }
     });
+    callback(json, nextUrl);
 }
 
 // {

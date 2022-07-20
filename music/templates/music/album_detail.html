@@ -23,14 +23,10 @@
 
     <title>{{ site_name }} - {% trans '音乐详情' %} | {{ album.title }}</title>
         
-    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="{% static 'lib/js/hyperscript-0.9.5.min.js' %}"></script>
-    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/htmx/1.8.0/htmx.min.js"></script>
+    {% include "partial/_common_libs.html" with jquery=1 %}
+
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
-    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
 </head>
 
 <body>
@@ -76,7 +72,7 @@
                                             {% if album.artist|length > 5 %}
                                             <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
                                             <script>
-                                                $("#artistMore").click(function (e) {
+                                                $("#artistMore").on('click', function (e) {
                                                     $("span.artist:not(:visible)").each(function (e) {
                                                         $(this).parent().removeAttr('style');
                                                     });
@@ -95,7 +91,7 @@
                                             {% if album.company|length > 5 %}
                                             <a href="javascript:void(0);" id="companyMore">{% trans '更多' %}</a>
                                             <script>
-                                                $("#companyMore").click(function (e) {
+                                                $("#companyMore").on('click', function (e) {
                                                     $("span.company:not(:visible)").each(function (e) {
                                                         $(this).parent().removeAttr('style');
                                                     });

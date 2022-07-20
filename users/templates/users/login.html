@@ -10,26 +10,13 @@
     <meta property="og:type" content="website">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
+    <title>{{ site_name }} - {% trans '登录' %}</title>
+    {% include "partial/_common_libs.html" %}
     <link rel="stylesheet" href="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.min.css">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
-    <script
-      src="https://browser.sentry-cdn.com/7.5.1/bundle.min.js"
-      integrity="sha384-hqfUBwcPJtjcyE8jgb0/5s4wee/hsu/uZckh1FWBsUXNpjPYhee9ohNwbZE6N9Xt"
-      crossorigin="anonymous"
-    ></script>
-    <script type="text/javascript">
-        Sentry.init({
-          dsn: "https://4114d1a8e46f465e9fd2ced88ad39455@o1312956.ingest.sentry.io/6562215",
-          release: "NeoDB@{{ version_hash }}",
-          tracesSampleRate: 1.0,
-        });
-    </script>
-    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/cash/8.1.1/cash.min.js"></script>
     <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
     <script> $(document).ready( function() { $('.delayed').remove(); $('#loginButton').prop("disabled", false); } ); </script>
-    <title>{{ site_name }} - {% trans '登录' %}</title>
-    <link rel="search"type="application/opensearchdescription+xml" title="{{ site_name }}" href="{% static 'opensearch.xml' %}">
     <style type="text/css">
         .delayed {
           animation: 10s fadeIn;
@@ -100,7 +87,7 @@
         {% else %}
         $("#sitesSelect").val($("#sitesSelect option:first").val());
         {% endif %}
-        $("button[name=login]").click(function(e) {
+        $("button[name=login]").on('click', function(e) {
             e.preventDefault();
             let selected =  $("#sitesSelect").find(":selected");
             let client_id = selected.data("client-id");

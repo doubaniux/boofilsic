@@ -16,26 +16,6 @@ $(document).ready( function() {
         $("#followers h5").after(followersSpinner);
         $(".mast-following-more").hide();
         $(".mast-followers-more").hide();
-        // getUserInfo(
-        //     id, 
-        //     mast_uri, 
-        //     token, 
-        //     function(userData) {
-        //         let userName;
-        //         if (userData.display_name) {
-        //             userName = translateEmojis(userData.display_name, userData.emojis, true);
-        //         } else {
-        //             userName = userData.username;
-        //         }
-        //         //$("#userInfoCard .mast-acct").text(userData.acct);
-        //         $("#userInfoCard .mast-acct").attr("href", userData.url);
-        //         $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
-        //         $("#userInfoCard .mast-displayname").html(userName);
-        //         $("#userInfoCard .mast-brief").text($("<div>"+userData.note.replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
-        //         $("#userInfoCard .mast-brief").html($("#userInfoCard .mast-brief").html().replace(/\n/g,'<br/>'));
-        //         $(userInfoSpinner).remove();
-        //     }
-        // );
 
         getFollowers(
             id,
@@ -122,7 +102,7 @@ $(document).ready( function() {
         button.children('.icon-arrow').toggleClass("icon-arrow--expand");
         button.siblings('.relation-dropdown__body').toggleClass("relation-dropdown__body--expand");
     }
-    $(".relation-dropdown__button").click(onClickDropdownButton)
+    $(".relation-dropdown__button").on('click', onClickDropdownButton);
 
     // close when click outside
     window.onclick = evt => {
@@ -133,7 +113,7 @@ $(document).ready( function() {
     };
 
     // import panel
-    $("#uploadBtn").click(e => {
+    $("#uploadBtn").on('click', e => {
         const btn = $("#uploadBtn")
         const form = $(".import-panel__body form")
 

@@ -7,7 +7,7 @@ $(document).ready( function() {
 
     // pop up new rating modal
     $("#addMarkPanel button").each(function() {
-        $(this).click(function(e) {
+        $(this).on('click', function(e) {
             e.preventDefault();
             let title = $(this).text().trim();
             $(".mark-modal__title").text(title);
@@ -29,7 +29,7 @@ $(document).ready( function() {
     })
 
     // pop up modify mark modal
-    $(".mark-panel a.edit").click(function(e) {
+    $(".mark-panel a.edit").on('click', function(e) {
         e.preventDefault();
         let title = $(".mark-panel__status").text().trim();
         $(".mark-modal__title").text(title);
@@ -79,7 +79,7 @@ $(document).ready( function() {
     if ($("#statusSelection input[type='radio']:checked").val() == WISH_CODE) {
         $(".mark-modal .rating-star-edit").hide();
     }
-    $("#statusSelection input[type='radio']").click(function() {
+    $("#statusSelection input[type='radio']").on('click', function() {
         if ($(this).val() == WISH_CODE) {
             $(".mark-modal .rating-star-edit").hide();
         } else {
@@ -89,14 +89,14 @@ $(document).ready( function() {
     });
 
     // show confirm modal
-    $(".mark-panel a.delete").click(function(e) {
+    $(".mark-panel a.delete").on('click', function(e) {
         e.preventDefault();
         $(".confirm-modal").show();
         $(".bg-mask").show();
     });
 
     // confirm modal
-    $(".confirm-modal input[type='submit']").click(function(e) {
+    $(".confirm-modal input[type='submit']").on('click', function(e) {
         e.preventDefault();
         $(".mark-panel form").submit();
     });
@@ -116,20 +116,20 @@ $(document).ready( function() {
     });
 
     // expand hidden long text
-    $(".entity-desc__unfold-button a").click(function() {
+    $(".entity-desc__unfold-button a").on('click', function() {
         $(this).parent().siblings(".entity-desc__content").removeClass('entity-desc__content--folded');
         $(this).parent(".entity-desc__unfold-button").remove();
     });
     
     // disable delete mark button after click
     const confirmDeleteMarkButton = $('.confirm-modal__confirm-button > input');
-    confirmDeleteMarkButton.click(function() {
+    confirmDeleteMarkButton.on('click', function() {
         confirmDeleteMarkButton.prop("disabled", true);
     });
 
     // disable sumbit button after click
     const confirmSumbitMarkButton = $('.mark-modal__confirm-button > input');
-    confirmSumbitMarkButton.click(function() {
+    confirmSumbitMarkButton.on('click', function() {
         confirmSumbitMarkButton.prop("disabled", true);
         confirmSumbitMarkButton.closest('form')[0].submit();
     });

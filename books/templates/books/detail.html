@@ -26,16 +26,13 @@
     {% if book.isbn %}
     <meta property="og:book:isbn" content="{{ book.isbn }}">
     {% endif %}
-    
+
     <title>{{ site_name }} - {% trans '书籍详情' %} | {{ book.title }}</title>
-    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="{% static 'lib/js/hyperscript-0.9.5.min.js' %}"></script>
-    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/htmx/1.8.0/htmx.min.js"></script>
+
+    {% include "partial/_common_libs.html" with jquery=1 %}
+    
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
-    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-    <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
 </head>
 
 <body>
