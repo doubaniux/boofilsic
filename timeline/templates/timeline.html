@@ -56,7 +56,7 @@
                                         我的时间轴
                                     </h5>
                                 </div> -->
-                                <ul class="entity-list__entities" hx-indicator=".htmx-indicator">
+                                <ul class="entity-list__entities">
                                     <div hx-get="{% url 'timeline:data' %}" hx-trigger="revealed" hx-swap="outerHTML"></div>
                                 </ul>
                             </div>
