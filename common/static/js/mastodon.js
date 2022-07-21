@@ -56,8 +56,9 @@ const NUMBER_PER_REQUEST = 20
 //   ]
 async function getFollowers(id, mastodonURI, token, callback) {
     const url = mastodonURI + API_FOLLOWERS.replace(":id", id);
+    var response;
     try {
-        const response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
+        response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
     } catch (e) {
         console.error('loading followers failed.');
         return;
@@ -78,8 +79,9 @@ async function getFollowers(id, mastodonURI, token, callback) {
 
 async function getFollowing(id, mastodonURI, token, callback) {
     const url = mastodonURI + API_FOLLOWING.replace(":id", id);
+    var response;
     try {
-        const response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
+        response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
     } catch (e) {
         console.error('loading following failed.');
         return;
