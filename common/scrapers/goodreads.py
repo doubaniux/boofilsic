@@ -22,12 +22,12 @@ class GoodreadsScraper(AbstractScraper):
     host = "www.goodreads.com"
     data_class = Book
     form_class = BookForm
-    regex = re.compile(r"https://www\.goodreads\.com/show/\d+")
+    regex = re.compile(r"https://www\.goodreads\.com/book/show/\d+")
 
     @classmethod
     def get_effective_url(cls, raw_url):
-        u = re.match(r"https://www\.goodreads\.com/book/show/\d+", raw_url)
-        return u[0] if u else None
+        u = re.match(r".+(/book/show/\d+)", raw_url)
+        return "https://www.goodreads.com" + u[1] if u else None
 
     def scrape(self, url, response=None):
         """
