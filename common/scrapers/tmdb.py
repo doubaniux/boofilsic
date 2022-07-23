@@ -64,9 +64,9 @@ class TmdbMovieScraper(AbstractScraper):
         if is_series:
             title = res_data['name']
             orig_title = res_data['original_name']
-            year = int(res_data['first_air_date'].split('-')[0])
+            year = int(res_data['first_air_date'].split('-')[0]) if res_data['first_air_date'] else None
             imdb_code = res_data['external_ids']['imdb_id']
-            showtime = [{res_data['first_air_date']: "首播日期"}]
+            showtime = [{res_data['first_air_date']: "首播日期"}] if res_data['first_air_date'] else None
             duration = None
         else:
             title = res_data['title']
