@@ -214,6 +214,8 @@ class Movie(Entity):
         qs = Q(imdb_code=imdb)
         if self.is_series:
             prefix = re.sub(r'\d+', '', re.sub(r'\s+第.+季', '', self.title))
+            if not prefix:
+                prefix = self.title
             qs = qs | Q(title__startswith=prefix)
         qs = qs & ~Q(id=self.id)
         return Movie.objects.filter(qs).order_by('season')
