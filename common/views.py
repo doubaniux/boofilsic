@@ -27,6 +27,7 @@ from management.models import Announcement
 from django.conf import settings
 from common.index import Indexer
 from django.http import JsonResponse
+from django.db.utils import IntegrityError
 
 
 logger = logging.getLogger(__name__)
@@ -413,6 +414,15 @@ def jump_or_scrape(request, url):
             try:
                 scraper.scrape(url)
                 form = scraper.save(request_user=request.user)
+            except IntegrityError as ie:  # duplicate key on source_url may be caused by user's double submission
+                try:
+                    entity = scraper.data_class.objects.get(source_url=effective_url)
+                    return redirect(entity)
+                except Exception as e:
+                    logger.error(f"Scrape Failed URL: {url}\n{e}")
+                    if settings.DEBUG:
+                        logger.error("Expections during saving scraped data:", exc_info=e)
+                    return render(request, 'common/error.html', {'msg': _("爬取数据失败😫")})
             except Exception as e:
                 logger.error(f"Scrape Failed URL: {url}\n{e}")
                 if settings.DEBUG:
