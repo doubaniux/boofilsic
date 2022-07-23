@@ -26,8 +26,10 @@ class GoodreadsScraper(AbstractScraper):
 
     @classmethod
     def get_effective_url(cls, raw_url):
-        u = re.match(r".+(/book/show/\d+)", raw_url)
-        return "https://www.goodreads.com" + u[1] if u else None
+        u = re.match(r".+/book/show/(\d+)", raw_url)
+        if not u:
+            u = re.match(r".+book/(\d+)", raw_url)
+        return "https://www.goodreads.com/book/show/" + u[1] if u else None
 
     def scrape(self, url, response=None):
         """
