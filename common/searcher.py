@@ -92,6 +92,8 @@ class GoogleBooks:
             j = requests.get(api_url).json()
             if 'items' in j:
                 for b in j['items']:
+                    if 'title' not in b['volumeInfo']:
+                        continue
                     title = b['volumeInfo']['title']
                     subtitle = ''
                     if 'publishedDate' in b['volumeInfo']:
