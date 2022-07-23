@@ -28,10 +28,16 @@ class GoogleBooksScraper(AbstractScraper):
 
     @classmethod
     def get_effective_url(cls, raw_url):
-        u = re.match(r"https://books\.google\.com/books\?id=[^&#]+", raw_url)
-        return u[0] if u else None
+        # https://books.google.com/books?id=wUHxzgEACAAJ
+        # https://books.google.com/books/about/%E7%8F%BE%E5%A0%B4%E6%AD%B7%E5%8F%B2.html?id=nvNoAAAAIAAJ
+        # https://www.google.com/books/edition/_/nvNoAAAAIAAJ?hl=en&gbpv=1
+        u = re.match(r"https://books\.google\.com/books.*id=([^&#]+)", raw_url)
+        if not u:
+            u = re.match(r"https://www\.google\.com/books/edition/[^/]+/([^&#?]+)", raw_url)
+        return 'https://books.google.com/books?id=' + u[1] if u else None
 
     def scrape(self, url, response=None):
+        url = self.get_effective_url(url)
         m = self.regex.match(url)
         if m:
             api_url = f'https://www.googleapis.com/books/v1/volumes/{m[1]}'
