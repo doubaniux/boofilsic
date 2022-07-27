@@ -419,23 +419,23 @@
                             <div class="pagination" >
                                 
                                 {% if items.pagination.has_prev %}
-                                    <a href="?page=1&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
-                                    <a href="?page={{ items.previous_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+                                    <a href="?page=1&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
+                                    <a href="?page={{ items.previous_page_number }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
                                 {% endif %}
                                     
                                 {% for page in items.pagination.page_range %}
                                     
                                     {% if page == items.pagination.current_page %}
-                                    <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
                                     {% else %}
-                                    <a href="?page={{ page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__page-link">{{ page }}</a>
+                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__page-link">{{ page }}</a>
                                     {% endif %}
                                         
                                 {% endfor %}
                                     
                                 {% if items.pagination.has_next %}
-                                    <a href="?page={{ items.next_page_number }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
-                                    <a href="?page={{ items.pagination.last_page }}&q={% if request.GET.q %}{{ request.GET.q }}{% endif %}" class="pagination__nav-link">&raquo;</a>
+                                    <a href="?page={{ items.next_page_number }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                    <a href="?page={{ items.pagination.last_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}" class="pagination__nav-link">&raquo;</a>
                                 {% endif %}           
                               
                             </div>            
