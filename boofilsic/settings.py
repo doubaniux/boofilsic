@@ -203,8 +203,9 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
 PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
 SITE_INFO = {
-    'site_name': 'NeoDB', 'support_link': 'https://mastodon.social/@neodb',
-    'version_hash': current_commit_hash(PROJECT_ROOT),
+    'site_name': 'NiceDB',
+    'support_link': 'https://github.com/doubaniux/boofilsic/issues',
+    'version_hash': None,
     'settings_module': os.getenv('DJANGO_SETTINGS_MODULE'),
     'sentry_dsn': None,
 }
