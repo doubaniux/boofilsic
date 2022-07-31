@@ -77,6 +77,10 @@ python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofi
 python3 manage.py collectstatic
 ```
 
+Add Cron Jobs
+-------------
+add `python manage.py refresh_mastodon` to crontab to run hourly, it will refresh cached users' follow/mute/block from mastodon
+
 Index and Search
 ----------------
 Install TypeSense or Meilisearch, change `SEARCH_BACKEND` and coniguration for search server in `settings.py`
