@@ -63,6 +63,7 @@ INSTALLED_APPS = [
     'games.apps.GamesConfig',
     'sync.apps.SyncConfig',
     'collection.apps.CollectionConfig',
+    'timeline.apps.TimelineConfig',
     'easy_thumbnails',
     'user_messages',
     'django_slack',
@@ -197,6 +198,11 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static/')
 STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
 
 AUTH_USER_MODEL = 'users.User'
+
+SILENCED_SYSTEM_CHECKS = [
+    "auth.W004",  # User.username is non-unique
+    "admin.E404"  # Required by django-user-messages
+]
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')

@@ -58,8 +58,9 @@
         <div>
             {% if user.is_authenticated %}
             <a href="{% url 'common:home' %}" class="button">{% trans '前往首页' %}</a>
-            {% elif allow_any_site %}
+            {% else %}
             <form action="/users/connect">
+            {% if allow_any_site %}
             <input type="search" name="domain" id="domain"
                 pattern="(([a-zA-Z0-9-])+\.)+([a-zA-Z0-9]{2,})"
                 title="实例域名(不含@和@之前的部分)，如mastodon.social"
@@ -67,38 +68,18 @@
                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <input type='submit' value="{% trans '授权登录' %}" id="loginButton" disabled />
             <br><a target="_blank" href="https://about.neodb.social/doc/howto/">{% trans '了解更多' %}</a>
-            </form>
             <script type="text/javascript">if (Cookies.get('mastodon_domain')) $('#domain').val(Cookies.get('mastodon_domain'));</script>
             {% else %}            
-            <select name="sites" id="sitesSelect" placeholder="test">
+            <select name="domain" placeholder="test">
                 {% for site in sites %}
                 <option value="{{ site.domain_name }}" data-client-id="{{ site.client_id }}">@{{ site.domain_name }}</option>
                 {% endfor %}
             </select>
-            <button name='login'>{% trans '授权登录' %}</button>
+            <input type='submit' value="{% trans '授权登录' %}" id="loginButton" />
+            {% endif %}
+            </form>
             {% endif %}
             <div class="delayed">网页加载超时，请检查网络（翻墙）设置。</div>
         </div>
-    </div>
-    {% if not user.is_authenticated and not allow_any_site %}
-    <script>
-        {% if selected_site %}
-        $("#sitesSelect").val("{{ selected_site }}");
-        {% else %}
-        $("#sitesSelect").val($("#sitesSelect option:first").val());
-        {% endif %}
-        $("button[name=login]").on('click', function(e) {
-            e.preventDefault();
-            let selected =  $("#sitesSelect").find(":selected");
-            let client_id = selected.data("client-id");
-            let domain = selected.val();
-
-            Cookies.set('mastodon_domain', domain);
-            location.href = "https://" + domain + "/oauth/authorize?client_id=" + client_id + 
-                "&scope={{ scope }}&redirect_uri={{ request.scheme }}://{{ request.get_host }}{% url 'users:OAuth2_login' %}" +
-                "&response_type=code";
-        });
-    </script>
-    {% endif %}
 </body>
 </html>

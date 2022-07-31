@@ -61,6 +61,7 @@ def preferences(request):
 @login_required
 def data(request):
     return render(request, 'users/data.html', {
+        'allow_any_site': settings.MASTODON_ALLOW_ANY_SITE,
         'latest_task': request.user.user_synctasks.order_by("-id").first(),
         'import_status': request.user.get_preference().import_status,
         'export_status': request.user.get_preference().export_status

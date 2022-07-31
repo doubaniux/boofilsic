@@ -77,6 +77,15 @@ python3 manage.py sass common/static/sass/boofilsic.sass common/static/css/boofi
 python3 manage.py collectstatic
 ```
 
+Index and Search
+----------------
+Install TypeSense or Meilisearch, change `SEARCH_BACKEND` and coniguration for search server in `settings.py`
+
+Build initial index, it may take a few minutes or hours
+```
+python3 manage.py init_index
+python3 manage.py reindex
+```
 
 Other maintenance tasks
 -----------------------

@@ -300,8 +300,12 @@ def get_mastodon_application(domain):
                 error_msg = "实例返回内容无法识别"
                 logger.error(f'Error creating app for {domain}: unable to parse response')
             else:
-                app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
+                if settings.MASTODON_ALLOW_ANY_SITE:
+                    app = MastodonApplication.objects.create(domain_name=domain, app_id=data['id'], client_id=data['client_id'],
                     client_secret=data['client_secret'], vapid_key=data['vapid_key'] if 'vapid_key' in data else '')
+                else:
+                    error_msg = "不支持其它实例登录"
+                    logger.error(f'Disallowed to create app for {domain}')
     return app, error_msg
 
 

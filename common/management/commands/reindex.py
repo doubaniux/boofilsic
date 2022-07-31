@@ -18,11 +18,11 @@ BATCH_SIZE = 1000
 class Command(BaseCommand):
     help = 'Regenerate the search index'
 
-    def add_arguments(self, parser):
-        parser.add_argument('hours', type=int, help='Re-index items modified in last N hours, 0 to reindex all')
+    # def add_arguments(self, parser):
+    #     parser.add_argument('hours', type=int, help='Re-index items modified in last N hours, 0 to reindex all')
 
     def handle(self, *args, **options):
-        h = int(options['hours'])
+        # h = int(options['hours'])
         print(f'Connecting to search server')
         if Indexer.busy():
             print('Please wait for previous updates')
@@ -30,7 +30,7 @@ class Command(BaseCommand):
         # self.stdout.write(self.style.SUCCESS('Index settings updated.'))
         for c in [Book, Song, Album, Game, Movie]:
             print(f'Re-indexing {c}')
-            qs = c.objects.all() if h == 0 else c.objects.filter(edited_time__gt=timezone.now() - timedelta(hours=h))
+            qs = c.objects.all()  # if h == 0 else c.objects.filter(edited_time__gt=timezone.now() - timedelta(hours=h))
             pg = Paginator(qs.order_by('id'), BATCH_SIZE)
             for p in tqdm(pg.page_range):
                 items = list(map(lambda o: Indexer.obj_to_dict(o), pg.get_page(p).object_list))

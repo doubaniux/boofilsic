@@ -1,5 +1,5 @@
 dateparser
-django~=3.2.15
+django~=3.2.14
 django-hstore
 django-markdownx @ git+https://github.com/alphatownsman/django-markdownx.git@e69480c64ad9c5d0499f4a8625da78cf2bb7691b
 django-sass
