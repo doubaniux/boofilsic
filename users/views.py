@@ -118,13 +118,7 @@ def home(request, id):
             reports = None
             unread_announcements = None
 
-            # cross site info for visiting other's home page
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.user.mastodon_token)
-
-            # make queries
-            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
-            if relation['blocked_by']:
+            if request.user.is_blocked_by(user) or request.user.is_blocking(user):
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
                     request,
@@ -133,16 +127,17 @@ def home(request, id):
                         'msg': msg,
                     }
                 )
-            book_marks = BookMark.get_available_by_user(user, relation['following'])
-            movie_marks = MovieMark.get_available_by_user(user, relation['following'])
-            song_marks = SongMark.get_available_by_user(user, relation['following'])
-            album_marks = AlbumMark.get_available_by_user(user, relation['following'])
-            game_marks = GameMark.get_available_by_user(user, relation['following'])
-            book_reviews = BookReview.get_available_by_user(user, relation['following'])
-            movie_reviews = MovieReview.get_available_by_user(user, relation['following'])
-            song_reviews = SongReview.get_available_by_user(user, relation['following'])
-            album_reviews = AlbumReview.get_available_by_user(user, relation['following'])
-            game_reviews = GameReview.get_available_by_user(user, relation['following'])
+            is_following = request.user.is_following(user)
+            book_marks = BookMark.get_available_by_user(user, is_following)
+            movie_marks = MovieMark.get_available_by_user(user, is_following)
+            song_marks = SongMark.get_available_by_user(user, is_following)
+            album_marks = AlbumMark.get_available_by_user(user, is_following)
+            game_marks = GameMark.get_available_by_user(user, is_following)
+            book_reviews = BookReview.get_available_by_user(user, is_following)
+            movie_reviews = MovieReview.get_available_by_user(user, is_following)
+            song_reviews = SongReview.get_available_by_user(user, is_following)
+            album_reviews = AlbumReview.get_available_by_user(user, is_following)
+            game_reviews = GameReview.get_available_by_user(user, is_following)
 
         collections = Collection.objects.filter(owner=user)
         marked_collections = Collection.objects.filter(pk__in=CollectionMark.objects.filter(owner=user).values_list('collection', flat=True))
@@ -277,22 +272,8 @@ def count_marks(querysets, type_name):
 def followers(request, id):
     if request.method == 'GET':
         user = User.get(id)
-        if user is None:
+        if user is None or user != request.user:
             return render_user_not_found(request)
-        # mastodon request
-        if not user == request.user:
-            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
-            if relation['blocked_by']:
-                msg = _("你没有访问TA主页的权限😥")
-                return render(
-                    request,
-                    'common/error.html',
-                    {
-                        'msg': msg,
-                    }
-                )
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.user.mastodon_token)
         return render(
             request,
             'users/relation_list.html',
@@ -310,22 +291,8 @@ def followers(request, id):
 def following(request, id):
     if request.method == 'GET':
         user = User.get(id)
-        if user is None:
+        if user is None or user != request.user:
             return render_user_not_found(request)
-        # mastodon request
-        if not user == request.user:
-            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
-            if relation['blocked_by']:
-                msg = _("你没有访问TA主页的权限😥")
-                return render(
-                    request,
-                    'common/error.html',
-                    {
-                        'msg': msg,
-                    }
-                )
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.user.mastodon_token)
         return render(
             request,
             'users/relation_list.html',
@@ -350,9 +317,7 @@ def book_list(request, id, status):
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
-            # mastodon request
-            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
-            if relation['blocked_by']:
+            if request.user.is_blocked_by(user) or request.user.is_blocking(user):
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
                     request,
@@ -361,15 +326,14 @@ def book_list(request, id, status):
                         'msg': msg,
                     }
                 )
+            is_following = request.user.is_following(user)
             if status == 'reviewed':
-                queryset = BookReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+                queryset = BookReview.get_available_by_user(user, is_following).order_by("-edited_time")
             elif status == 'tagged':
                 queryset = BookTag.find_by_user(tag, user, request.user).order_by("-mark__created_time")
             else:
-                queryset = BookMark.get_available_by_user(user, relation['following']).filter(
+                queryset = BookMark.get_available_by_user(user, is_following).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-created_time")
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.user.mastodon_token)
         else:
             if status == 'reviewed':
                 queryset = BookReview.objects.filter(owner=user).order_by("-edited_time")
@@ -417,9 +381,7 @@ def movie_list(request, id, status):
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
-            # mastodon request
-            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
-            if relation['blocked_by']:
+            if request.user.is_blocked_by(user) or request.user.is_blocking(user):
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
                     request,
@@ -428,14 +390,13 @@ def movie_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.user.mastodon_token)
+            is_following = request.user.is_following(user)
             if status == 'reviewed':
-                queryset = MovieReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+                queryset = MovieReview.get_available_by_user(user, is_following).order_by("-edited_time")
             elif status == 'tagged':
                 queryset = MovieTag.find_by_user(tag, user, request.user).order_by("-mark__created_time")
             else:
-                queryset = MovieMark.get_available_by_user(user, relation['following']).filter(
+                queryset = MovieMark.get_available_by_user(user, is_following).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-created_time")
         else:
             if status == 'reviewed':
@@ -484,9 +445,7 @@ def game_list(request, id, status):
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if user != request.user:
-            # mastodon request
-            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
-            if relation['blocked_by']:
+            if request.user.is_blocked_by(user) or request.user.is_blocking(user):
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
                     request,
@@ -495,14 +454,13 @@ def game_list(request, id, status):
                         'msg': msg,
                     }
                 )
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.user.mastodon_token)
+            is_following = request.user.is_following(user)
             if status == 'reviewed':
-                queryset = GameReview.get_available_by_user(user, relation['following']).order_by("-edited_time")
+                queryset = GameReview.get_available_by_user(user, is_following).order_by("-edited_time")
             elif status == 'tagged':
                 queryset = GameTag.find_by_user(tag, user, request.user).order_by("-mark__created_time")
             else:
-                queryset = GameMark.get_available_by_user(user, relation['following']).filter(
+                queryset = GameMark.get_available_by_user(user, is_following).filter(
                     status=MarkStatusEnum[status.upper()]).order_by("-created_time")
         else:
             if status == 'reviewed':
@@ -551,9 +509,7 @@ def music_list(request, id, status):
             return render_user_not_found(request)
         tag = request.GET.get('t', default='')
         if not user == request.user:
-            # mastodon request
-            relation = get_relationship(request.user, user, request.user.mastodon_token)[0]
-            if relation['blocked_by']:
+            if request.user.is_blocked_by(user) or request.user.is_blocking(user):
                 msg = _("你没有访问TA主页的权限😥")
                 return render(
                     request,
@@ -562,19 +518,17 @@ def music_list(request, id, status):
                         'msg': msg,
                     }
                 )
+            is_following = request.user.is_following(user)
             if status == 'reviewed':
-                queryset = list(AlbumReview.get_available_by_user(user, relation['following']).order_by("-edited_time")) + \
-                    list(SongReview.get_available_by_user(user, relation['following']).order_by("-edited_time"))
+                queryset = list(AlbumReview.get_available_by_user(user, is_following).order_by("-edited_time")) + \
+                    list(SongReview.get_available_by_user(user, is_following).order_by("-edited_time"))
             elif status == 'tagged':
                 queryset = list(AlbumTag.find_by_user(tag, user, request.user).order_by("-mark__created_time"))
             else:
-                queryset = list(AlbumMark.get_available_by_user(user, relation['following']).filter(
+                queryset = list(AlbumMark.get_available_by_user(user, is_following).filter(
                     status=MarkStatusEnum[status.upper()])) \
-                        + list(SongMark.get_available_by_user(user, relation['following']).filter(
+                        + list(SongMark.get_available_by_user(user, is_following).filter(
                         status=MarkStatusEnum[status.upper()]))
-
-            user.target_site_id = get_cross_site_id(
-                user, request.user.mastodon_site, request.user.mastodon_token)
         else:
             if status == 'reviewed':
                 queryset = list(AlbumReview.objects.filter(owner=user).order_by("-edited_time")) + \

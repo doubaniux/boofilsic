@@ -154,6 +154,7 @@ def get_site_id(username, user_site, target_site, token):
     payload = {
         'limit': 1,
         'type': 'accounts',
+        'resolve': True,
         'q': f"{username}@{user_site}"
     }
     headers = {

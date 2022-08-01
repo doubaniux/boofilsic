@@ -164,11 +164,7 @@
 {% if user == request.user %}
 <div id="oauth2Token" hidden="true">{{ request.user.mastodon_token }}</div>
 <div id="mastodonURI" hidden="true">{{ request.user.mastodon_site }}</div>
-{% if user == request.user %}
 <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-{% else %}
-<div id="userMastodonID" hidden="true">{{ user.target_site_id }}</div>
-{% endif %}
 <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
 
 <div id="spinner" hidden>
