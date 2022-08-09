@@ -63,7 +63,7 @@ class User(AbstractUser):
         return self.mastodon_username
 
     def get_preference(self):
-        pref = self.preference
+        pref = Preference.objects.filter(user=self).first()  # self.preference
         if not pref:
             pref = Preference.objects.create(user=self)
         return pref
