@@ -408,6 +408,11 @@ def jump_or_scrape(request, url):
             # raise ObjectDoesNotExist
             entity = scraper.data_class.objects.get(source_url=effective_url)
             # if exists then jump to detail page
+            if request.path.endswith('.json/'):
+                return JsonResponse({
+                    'num_pages': 1,
+                    'items': [entity.get_json()]
+                    })
             return redirect(entity)
         except ObjectDoesNotExist:
             # scrape if not exists
