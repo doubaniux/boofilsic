@@ -153,7 +153,7 @@ class DoubanImporter:
             return None
         v = self.entity_lookup[k]
         if len(v) > 1:
-            v.sort(key=lambda c: abs(timestamp - datetime.strptime(c[1], "%Y-%m-%d %H:%M:%S").replace(tzinfo=tz_sh)))
+            v.sort(key=lambda c: abs(timestamp - (datetime.strptime(c[1], "%Y-%m-%d %H:%M:%S") if type(c[1])==str else c[1]).replace(tzinfo=tz_sh)))
         return v[0][0]
         # for sheet in self.mark_data.values():
         #     for cells in sheet:
@@ -190,7 +190,9 @@ class DoubanImporter:
             content = cells[6]
             self.processed += 1
             if time:
-                time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S").replace(tzinfo=tz_sh)
+                if type(time) == str:
+                    time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
+                time = time.replace(tzinfo=tz_sh)
             else:
                 time = None
             if not content:

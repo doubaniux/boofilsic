@@ -117,6 +117,7 @@ class DoufenParser:
                 start_row_index = self.__progress_row
 
             # parse data
+            tz = pytz.timezone('Asia/Shanghai')
             i = start_row_index
             for row in ws.iter_rows(min_row=start_row_index, max_row=max_row, values_only=True):
                 cells = [cell for cell in row]
@@ -124,9 +125,10 @@ class DoufenParser:
                 tags = cells[self.TAG_INDEX - 1]
                 tags = list(set(tags.lower().split(','))) if tags else None
                 time = cells[self.TIME_INDEX - 1]
-                if time:
+                if time and type(time) == str:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
-                    tz = pytz.timezone('Asia/Shanghai')
+                    time = time.replace(tzinfo=tz)
+                elif time and type(time) == datetime:
                     time = time.replace(tzinfo=tz)
                 else:
                     time = None
@@ -150,8 +152,8 @@ class DoufenParser:
             is_first_sheet = False
 
     def __get_item_number(self):
-        assert not self.__wb is None, 'workbook not found'
-        assert not self.__mappings is None, 'mappings not found'
+        assert self.__wb is not None, 'workbook not found'
+        assert self.__mappings is not None, 'mappings not found'
 
         sheets = [mapping['sheet'] for mapping in self.__mappings]
         item_number = 0
