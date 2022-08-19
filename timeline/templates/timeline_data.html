@@ -35,7 +35,9 @@
             <a href="{% url 'users:home' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {{ activity.target.translated_status }}
         </span>
         <div class="entity-list__entity-title">
-            <a href="{{ activity.target.item.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.target.item.title }}</a>
+            <a href="{{ activity.target.item.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.target.item.title }}
+            {% if activity.target.item.year %}<small>({{ activity.target.item.year }})</small>{% endif %}
+            </a>
             {% if activity.target.item.source_url %}
             <a href="{{ activity.target.item.source_url }}">
                 <span class="source-label source-label__{{ activity.target.item.source_site }}" style="font-size:xx-small;">{{ activity.target.item.get_source_site_display }}</span>
