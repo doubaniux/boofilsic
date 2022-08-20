@@ -36,7 +36,7 @@
         </span>
         <div class="entity-list__entity-title">
             <a href="{{ activity.target.item.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.target.item.title }}
-            {% if activity.target.item.year %}<small>({{ activity.target.item.year }})</small>{% endif %}
+            {% if activity.target.item.year %}<small style="font-weight: lighter">({{ activity.target.item.year }})</small>{% endif %}
             </a>
             {% if activity.target.item.source_url %}
             <a href="{{ activity.target.item.source_url }}">
