@@ -188,6 +188,10 @@ class SongReview(Review):
     def url(self):
         return settings.APP_WEBSITE + reverse("music:retrieve_song_review", args=[self.id])
 
+    @property
+    def item(self):
+        return self.song
+
 
 class SongTag(Tag):
     song = models.ForeignKey(
@@ -234,6 +238,10 @@ class AlbumReview(Review):
     @property
     def url(self):
         return settings.APP_WEBSITE + reverse("music:retrieve_album_review", args=[self.id])
+
+    @property
+    def item(self):
+        return self.album
 
 
 class AlbumTag(Tag):

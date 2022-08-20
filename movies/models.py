@@ -260,6 +260,7 @@ class MovieMark(Mark):
 
 class MovieReview(Review):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='movie_reviews', null=True)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
@@ -269,6 +270,10 @@ class MovieReview(Review):
     @property
     def url(self):
         return settings.APP_WEBSITE + reverse("movies:retrieve_review", args=[self.id])
+
+    @property
+    def item(self):
+        return self.movie
 
 
 class MovieTag(Tag):

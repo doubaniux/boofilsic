@@ -160,6 +160,10 @@ class BookReview(Review):
     def url(self):
         return settings.APP_WEBSITE + reverse("books:retrieve_review", args=[self.id])
 
+    @property
+    def item(self):
+        return self.book
+
 
 class BookTag(Tag):
     book = models.ForeignKey(

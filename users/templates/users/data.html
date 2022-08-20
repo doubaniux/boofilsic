@@ -219,9 +219,9 @@
                                         <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
                                             {% if export_status.marks_pending %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '正在导出兼容豆伴(doufen)和NiceDB的标记和短评' %}" id="uploadBtn" disabled />
+                                            <input type="submit" class="import-panel__button" value="{% trans '正在导出兼容豆伴(doufen)和NiceDB的标记、短评和评论' %}" id="uploadBtn" disabled />
                                             {% else %}
-                                            <input type="submit" class="import-panel__button" value="{% trans '导出兼容豆伴(doufen)和NiceDB的标记和短评' %}" id="uploadBtn" />
+                                            <input type="submit" class="import-panel__button" value="{% trans '导出兼容豆伴(doufen)和NiceDB的标记、短评和评论' %}" id="uploadBtn" />
                                             {% endif %}
                                             {% if export_status.marks_file %}
                                             <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>

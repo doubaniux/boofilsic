@@ -122,6 +122,23 @@ def export_marks_task(user):
             line = [title, summary, world_rating, source_url, timestamp, my_rating, tags, text, url, '']
             ws.append(line)
 
+    review_heading = ['标题', '评论对象', '链接', '创建时间', '我的评分', '类型', '内容', '评论对象原始链接', '评论对象NeoDB链接']
+    for ReviewModel, label in [(MovieReview, '影评'), (BookReview, '书评'), (AlbumReview, '乐评'), (GameReview, '游戏评论')]:
+        ws = wb.create_sheet(title=label)
+        reviews = ReviewModel.objects.filter(owner=user).order_by("-edited_time")
+        ws.append(review_heading)
+        for review in reviews:
+            title = review.title
+            target = "《" + review.item.title + "》"
+            url = review.url
+            timestamp = review.edited_time.strftime('%Y-%m-%d %H:%M:%S')
+            my_rating = None  # (mark.rating / 2) if mark.rating else None
+            content = review.content
+            target_source_url = review.item.source_url
+            target_url = review.item.url
+            line = [title, target, url, timestamp, my_rating, label, content, target_source_url, target_url]
+            ws.append(line)
+
     wb.save(filename=filename)
     user.preference.export_status['marks_pending'] = False
     user.preference.export_status['marks_file'] = filename

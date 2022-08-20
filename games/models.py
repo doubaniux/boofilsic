@@ -144,6 +144,10 @@ class GameReview(Review):
     def url(self):
         return settings.APP_WEBSITE + reverse("games:retrieve_review", args=[self.id])
 
+    @property
+    def item(self):
+        return self.game
+
 
 class GameTag(Tag):
     game = models.ForeignKey(
