@@ -579,7 +579,7 @@ def set_layout(request):
         layout = json.loads(request.POST.get('layout'))
         request.user.preference.home_layout = layout
         request.user.preference.save()
-        return redirect(reverse("common:home"))
+        return redirect(reverse("users:home", args=[request.user.mastodon_username]))
     else:
         return HttpResponseBadRequest()
 

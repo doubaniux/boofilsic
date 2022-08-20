@@ -17,7 +17,7 @@
         <title>{{ site_name }} - {{user.display_name}}</title>
     {% endif %}
 
-    {% include "partial/_common_libs.html" %}
+    {% include "partial/_common_libs.html" with jquery=1 %}
 
     <script src="{% static 'js/mastodon.js' %}"></script>
     <script src="{% static 'js/home.js' %}"></script>
