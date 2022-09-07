@@ -293,6 +293,10 @@ TMDB_API4_KEY = "deadbeef.deadbeef.deadbeef"
 # Google Books API Key
 GOOGLE_API_KEY = 'deadbeef-deadbeef-deadbeef'
 
+# IGDB
+IGDB_CLIENT_ID = 'deadbeef'
+IGDB_ACCESS_TOKEN = 'deadbeef'
+
 # Thumbnail setting
 # It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/
 THUMBNAIL_ALIASES = {

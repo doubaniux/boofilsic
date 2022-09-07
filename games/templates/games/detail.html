@@ -111,7 +111,15 @@
                                             {% trans '发行日期：' %}{{ game.release_date }}
                                             {% endif %}
                                         </div>
-                             
+                                        
+                                        {% if game.other_info %}                                  
+                                        {% for k, v in game.other_info.items %}
+                                        <div>
+                                            {{ k }}：{{ v  | urlize }}
+                                        </div>
+                                        {% endfor %}
+                                        {% endif %}
+                                        
                                     </div>
                                     <div class="entity-detail__fields">
                                         
@@ -123,14 +131,7 @@
                                             {% endif %}
                                         </div>
 
-                                        {% if game.other_info %}                                  
-                                        {% for k, v in game.other_info.items %}
-                                        <div>
-                                            {{ k }}：{{ v  | urlize }}
-                                        </div>
-                                        {% endfor %}
-                                        {% endif %}
-                                        
+
                                     
                                         {% if game.last_editor %}
                                         <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' game.last_editor.mastodon_username %}">{{ game.last_editor | default:"" }}</a></div>

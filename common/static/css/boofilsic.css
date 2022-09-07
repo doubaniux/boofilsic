@@ -1146,6 +1146,13 @@ select::placeholder {
   font-weight: bold;
 }
 
+.source-label.source-label__igdb {
+  background-color: #323A44;
+  color: #DFE1E2;
+  border: none;
+  font-weight: bold;
+}
+
 .source-label.source-label__steam {
   background: linear-gradient(30deg, #1387b8, #111d2e);
   color: white;

@@ -28,6 +28,7 @@ class SourceSiteEnum(models.TextChoices):
     TMDB = "tmdb", _("The Movie Database")
     GOOGLEBOOKS = "googlebooks", _("Google Books")
     BANDCAMP = "bandcamp", _("BandCamp")
+    IGDB = "igdb", _("IGDB")
 
 
 class Entity(models.Model):

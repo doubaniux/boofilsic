@@ -232,6 +232,7 @@ from common.scrapers.google import GoogleBooksScraper
 from common.scrapers.tmdb import TmdbMovieScraper
 from common.scrapers.steam import SteamGameScraper
 from common.scrapers.imdb import ImdbMovieScraper
+from common.scrapers.igdb import IgdbGameScraper
 from common.scrapers.spotify import SpotifyAlbumScraper, SpotifyTrackScraper
 from common.scrapers.douban import DoubanAlbumScraper, DoubanBookScraper, DoubanGameScraper, DoubanMovieScraper
 from common.scrapers.bangumi import BangumiScraper

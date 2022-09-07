@@ -60,7 +60,7 @@ class Game(Entity):
     )
 
     genre = postgres.ArrayField(
-        models.CharField(blank=True, default='', max_length=50),
+        models.CharField(blank=True, default='', max_length=200),
         null=True,
         blank=True,
         default=list,
@@ -68,7 +68,7 @@ class Game(Entity):
     )
 
     platform = postgres.ArrayField(
-        models.CharField(blank=True, default='', max_length=50),
+        models.CharField(blank=True, default='', max_length=200),
         null=True,
         blank=True,
         default=list,
