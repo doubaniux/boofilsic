@@ -3,6 +3,7 @@ from common.models import SourceSiteEnum
 from games.models import Game
 from games.forms import GameForm
 from common.scraper import *
+from common.scrapers.igdb import IgdbGameScraper
 
 
 class SteamGameScraper(AbstractScraper):
@@ -11,9 +12,22 @@ class SteamGameScraper(AbstractScraper):
     data_class = Game
     form_class = GameForm
 
-    regex = re.compile(r"https://store\.steampowered\.com/app/\d+/{0,1}")
+    regex = re.compile(r"https://store\.steampowered\.com/app/\d+")
 
     def scrape(self, url):
+        m = self.regex.match(url)
+        if m:
+            effective_url = m[0]
+        else:
+            raise ValueError("not valid url")
+        s = IgdbGameScraper()
+        s.scrape_steam(effective_url)
+        self.raw_data = s.raw_data
+        self.raw_img = s.raw_img
+        self.img_ext = s.img_ext
+        self.raw_data['source_site'] = self.site_name
+        self.raw_data['source_url'] = effective_url
+        return self.raw_data, self.raw_img
         headers = DEFAULT_REQUEST_HEADERS.copy()
         headers['Host'] = self.host
         headers['Cookie'] = "wants_mature_content=1; birthtime=754700401;"
@@ -56,8 +70,16 @@ class SteamGameScraper(AbstractScraper):
             'brief': brief,
             'other_info': None,
             'source_site': self.site_name,
-            'source_url': self.get_effective_url(url),
+            'source_url': effective_url
         }
 
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
+
+    @classmethod
+    def get_effective_url(cls, raw_url):
+        m = cls.regex.match(raw_url)
+        if m:
+            return m[0]
+        else:
+            return None

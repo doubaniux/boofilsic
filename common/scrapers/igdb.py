@@ -20,6 +20,13 @@ class IgdbGameScraper(AbstractScraper):
     form_class = GameForm
     regex = re.compile(r"https://www\.igdb\.com/games/([a-zA-Z0-9\-_]+)")
 
+    def scrape_steam(self, steam_url):
+        r = json.loads(wrapper.api_request('websites', f'fields *, game.*; where url = "{steam_url}";'))
+        if not r:
+            raise ValueError("Cannot find steam url in IGDB")
+        r = sorted(r, key=lambda w: w['game']['id'])
+        return self.scrape(r[0]['game']['url'])
+
     def scrape(self, url):
         m = self.regex.match(url)
         if m:
@@ -30,7 +37,8 @@ class IgdbGameScraper(AbstractScraper):
         slug = m[1]
         fields = '*, cover.url, genres.name, platforms.name, involved_companies.*, involved_companies.company.name'
         r = json.loads(wrapper.api_request('games', f'fields {fields}; where url = "{effective_url}";'))[0]
-        raw_img, ext = self.download_image('https:' + r['cover']['url'].replace('t_thumb', 't_cover_big'), url)
+        brief = r['summary'] if 'summary' in r else ''
+        brief += "\n\n" + r['storyline'] if 'storyline' in r else ''
         developer = None
         publisher = None
         release_date = None
@@ -40,7 +48,8 @@ class IgdbGameScraper(AbstractScraper):
             developer = next(iter([c['company']['name'] for c in r['involved_companies'] if c['developer'] == True]), None)
             publisher = next(iter([c['company']['name'] for c in r['involved_companies'] if c['publisher'] == True]), None)
         if 'platforms' in r:
-            platform = [p['name'] for p in r['platforms']]
+            ps = sorted(r['platforms'], key=lambda p: p['id'])
+            platform = [(p['name'] if p['id'] != 6 else 'Windows') for p in ps]
         if 'first_release_date' in r:
             release_date = datetime.datetime.fromtimestamp(r['first_release_date'], datetime.timezone.utc)
         if 'genres' in r:
@@ -60,11 +69,12 @@ class IgdbGameScraper(AbstractScraper):
             'release_date': release_date,
             'genre': genre,
             'platform': platform,
-            'brief': r['storyline'],
+            'brief': brief,
             'other_info': other_info,
             'source_site': self.site_name,
             'source_url': self.get_effective_url(url),
         }
+        raw_img, ext = self.download_image('https:' + r['cover']['url'].replace('t_thumb', 't_cover_big'), url)
 
         self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
         return data, raw_img
@@ -72,7 +82,7 @@ class IgdbGameScraper(AbstractScraper):
     @classmethod
     def get_effective_url(cls, raw_url):
         m = cls.regex.match(raw_url)
-        if raw_url:
+        if m:
             return m[0]
         else:
             return None
