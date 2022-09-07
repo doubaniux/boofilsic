@@ -45,6 +45,18 @@ class TmdbMovieScraper(AbstractScraper):
         '音乐':             'Music',
     }
 
+    def scrape_imdb(self, imdb_code):
+        api_url = f"https://api.themoviedb.org/3/find/{imdb_code}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&external_source=imdb_id"
+        r = requests.get(api_url)
+        res_data = r.json()
+        if 'movie_results' in res_data and len(res_data['movie_results']) > 0:
+            url = f"https://www.themoviedb.org/movie/{res_data['movie_results'][0]['id']}"
+        elif 'tv_results' in res_data and len(res_data['tv_results']) > 0:
+            url = f"https://www.themoviedb.org/tv/{res_data['tv_results'][0]['id']}"
+        else:
+            raise ValueError("Cannot find IMDb ID in TMDB")
+        return self.scrape(url)
+
     def scrape(self, url):
         m = self.regex.match(url)
         if m:

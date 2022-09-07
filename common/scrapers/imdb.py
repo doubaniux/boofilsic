@@ -16,10 +16,18 @@ class ImdbMovieScraper(AbstractScraper):
     regex = re.compile(r"(?<=https://www\.imdb\.com/title/)[a-zA-Z0-9]+")
 
     def scrape(self, url):
-
         effective_url = self.get_effective_url(url)
         if effective_url is None:
             raise ValueError("not valid url")
+        code = self.regex.findall(effective_url)[0]
+        s = TmdbMovieScraper()
+        s.scrape_imdb(code)
+        self.raw_data = s.raw_data
+        self.raw_img = s.raw_img
+        self.img_ext = s.img_ext
+        self.raw_data['source_site'] = self.site_name
+        self.raw_data['source_url'] = effective_url
+        return self.raw_data, self.raw_img
 
         api_url = self.get_api_url(effective_url)
         r = requests.get(api_url)
