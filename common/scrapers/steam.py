@@ -20,14 +20,17 @@ class SteamGameScraper(AbstractScraper):
             effective_url = m[0]
         else:
             raise ValueError("not valid url")
-        s = IgdbGameScraper()
-        s.scrape_steam(effective_url)
-        self.raw_data = s.raw_data
-        self.raw_img = s.raw_img
-        self.img_ext = s.img_ext
-        self.raw_data['source_site'] = self.site_name
-        self.raw_data['source_url'] = effective_url
-        return self.raw_data, self.raw_img
+        try:
+            s = IgdbGameScraper()
+            s.scrape_steam(effective_url)
+            self.raw_data = s.raw_data
+            self.raw_img = s.raw_img
+            self.img_ext = s.img_ext
+            self.raw_data['source_site'] = self.site_name
+            self.raw_data['source_url'] = effective_url
+            return self.raw_data, self.raw_img
+        except:
+            pass
         headers = DEFAULT_REQUEST_HEADERS.copy()
         headers['Host'] = self.host
         headers['Cookie'] = "wants_mature_content=1; birthtime=754700401;"
