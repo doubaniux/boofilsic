@@ -8,6 +8,7 @@ from common.models import Entity, Mark, Review, Tag, SourceSiteEnum, MarkStatusE
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
+from simple_history.models import HistoricalRecords
 
 
 MusicMarkStatusTranslation = {
@@ -51,6 +52,8 @@ class Album(Entity):
         verbose_name=_("发行方")
     )
     track_list = models.TextField(_("曲目"), blank=True, default="")
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.title
@@ -120,6 +123,8 @@ class Song(Entity):
 
     album = models.ForeignKey(
         Album, models.SET_NULL, "album_songs", null=True, blank=True, verbose_name=_("所属专辑"))
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.title

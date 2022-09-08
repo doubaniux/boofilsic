@@ -218,6 +218,7 @@ class AbstractScraper:
         form = cls.form_class(cls.raw_data, entity_cover)
         if form.is_valid():
             form.instance.last_editor = request_user
+            form.instance._change_reason = 'scrape'
             form.save()
             cls.instance = form.instance
         else:

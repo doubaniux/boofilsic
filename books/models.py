@@ -6,6 +6,7 @@ from common.models import Entity, Mark, Review, Tag, MarkStatusEnum
 from common.utils import GenerateDateUUIDMediaFilePath
 from django.conf import settings
 from django.db.models import Q
+from simple_history.models import HistoricalRecords
 
 
 BookMarkStatusTranslation = {
@@ -60,6 +61,7 @@ class Book(Entity):
     cover = models.ImageField(_("cover picture"), upload_to=book_cover_path,
                               default=settings.DEFAULT_BOOK_IMAGE, blank=True)
     contents = models.TextField(blank=True, default="")
+    history = HistoricalRecords()
 
     class Meta:
         constraints = [

@@ -8,6 +8,7 @@ from common.models import Entity, Mark, Review, Tag, MarkStatusEnum
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
 from django.utils import timezone
 from django.conf import settings
+from simple_history.models import HistoricalRecords
 
 
 GameMarkStatusTranslation = {
@@ -76,6 +77,8 @@ class Game(Entity):
     )
 
     cover = models.ImageField(_("封面"), upload_to=game_cover_path, default=settings.DEFAULT_GAME_IMAGE, blank=True)
+
+    history = HistoricalRecords()
 
     def __str__(self):
         return self.title

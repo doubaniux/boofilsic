@@ -10,6 +10,7 @@ from django.utils import timezone
 from django.conf import settings
 from django.db.models import Q
 import re
+from simple_history.models import HistoricalRecords
 
 
 MovieMarkStatusTranslation = {
@@ -169,6 +170,8 @@ class Movie(Entity):
     # category identifier
     ############################################
     is_series = models.BooleanField(default=False)
+
+    history = HistoricalRecords()
 
     def __str__(self):
         if self.year:
