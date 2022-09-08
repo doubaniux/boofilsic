@@ -52,6 +52,7 @@ INSTALLED_APPS = [
     'django.contrib.postgres',
     'django_sass',
     'django_rq',
+    'simple_history',
     'markdownx',
     'management.apps.ManagementConfig',
     'mastodon.apps.MastodonConfig',
@@ -78,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'hijack.middleware.HijackUserMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'boofilsic.urls'
