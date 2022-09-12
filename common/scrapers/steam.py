@@ -28,9 +28,10 @@ class SteamGameScraper(AbstractScraper):
             self.img_ext = s.img_ext
             self.raw_data['source_site'] = self.site_name
             self.raw_data['source_url'] = effective_url
-            return self.raw_data, self.raw_img
+            # return self.raw_data, self.raw_img
         except:
-            pass
+            self.raw_img = None
+            self.raw_data = {}
         headers = DEFAULT_REQUEST_HEADERS.copy()
         headers['Host'] = self.host
         headers['Cookie'] = "wants_mature_content=1; birthtime=754700401;"
@@ -55,29 +56,32 @@ class SteamGameScraper(AbstractScraper):
         img_url = content.xpath(
             "//img[@class='game_header_image_full']/@src"
         )[0].replace("header.jpg", "library_600x900.jpg")
-        raw_img, ext = self.download_image(img_url, url)
+        raw_img, img_ext = self.download_image(img_url, url)
 
         # no 600x900 picture
         if raw_img is None:
             img_url = content.xpath("//img[@class='game_header_image_full']/@src")[0]
-            raw_img, ext = self.download_image(img_url, url)
+            raw_img, img_ext = self.download_image(img_url, url)
+
+        if raw_img is not None:
+            self.raw_img = raw_img
+            self.img_ext = img_ext
 
         data = {
-            'title': title,
+            'title': title if title else self.raw_data['title'],
             'other_title': None,
-            'developer': developer,
-            'publisher': publisher,
-            'release_date': release_date,
-            'genre': genre,
-            'platform': platform,
-            'brief': brief,
-            'other_info': None,
+            'developer': developer if 'developer' not in self.raw_data else self.raw_data['developer'],
+            'publisher': publisher if 'publisher' not in self.raw_data else self.raw_data['publisher'],
+            'release_date': release_date if 'release_date' not in self.raw_data else self.raw_data['release_date'],
+            'genre': genre if 'genre' not in self.raw_data else self.raw_data['genre'],
+            'platform': platform if 'platform' not in self.raw_data else self.raw_data['platform'],
+            'brief': brief if brief else self.raw_data['brief'],
+            'other_info': None if 'other_info' not in self.raw_data else self.raw_data['other_info'],
             'source_site': self.site_name,
             'source_url': effective_url
         }
-
-        self.raw_data, self.raw_img, self.img_ext = data, raw_img, ext
-        return data, raw_img
+        self.raw_data = data
+        return self.raw_data, self.raw_img
 
     @classmethod
     def get_effective_url(cls, raw_url):
