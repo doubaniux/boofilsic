@@ -97,3 +97,10 @@ Requeue failed jobs
 ```
 rq requeue --all --queue doufen
 ```
+
+Run in Docker
+```
+docker-compose build
+docker-compose up db && docker exec -it app_db_1 psql -U postgres postgres -c 'CREATE EXTENSION hstore WITH SCHEMA public;'  # first time only
+docker-compose up
+```

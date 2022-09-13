@@ -112,10 +112,10 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'test',
-            'USER': 'donotban',
-            'PASSWORD': 'donotbansilvousplait',
-            'HOST': '172.18.116.29',
+            'NAME': os.environ.get('DB_NAME', 'test'),
+            'USER': os.environ.get('DB_USER', 'donotban'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'donotbansilvousplait'),
+            'HOST': os.environ.get('DB_HOST', '172.18.116.29'),
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -219,9 +219,11 @@ SITE_INFO = {
 }
 
 # Mastodon configs
-CLIENT_NAME = 'NiceDB'
-APP_WEBSITE = 'https://nicedb.org'
-REDIRECT_URIS = "https://nicedb.org/users/OAuth2_login/\nhttps://www.nicedb.org/users/OAuth2_login/"
+CLIENT_NAME = os.environ.get('APP_NAME', 'NiceDB')
+SITE_INFO['site_name'] = os.environ.get('APP_NAME', 'NiceDB')
+APP_WEBSITE = os.environ.get('APP_URL', 'https://nicedb.org')
+REDIRECT_URIS = APP_WEBSITE + "/users/OAuth2_login/"
+
 
 # Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = 'report/'
@@ -317,21 +319,23 @@ if DEBUG:
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment
 
+REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
+
 RQ_QUEUES = {
     'mastodon': {
-        'HOST': 'localhost',
+        'HOST': REDIS_HOST,
         'PORT': 6379,
         'DB': 0,
         'DEFAULT_TIMEOUT': -1,
     },
     'export': {
-        'HOST': 'localhost',
+        'HOST': REDIS_HOST,
         'PORT': 6379,
         'DB': 0,
         'DEFAULT_TIMEOUT': -1,
     },
     'doufen': {
-        'HOST': 'localhost',
+        'HOST': REDIS_HOST,
         'PORT': 6379,
         'DB': 0,
         'DEFAULT_TIMEOUT': -1,
