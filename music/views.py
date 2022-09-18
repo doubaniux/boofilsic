@@ -18,6 +18,7 @@ from django.shortcuts import render, get_object_or_404, redirect, reverse
 import logging
 from django.shortcuts import render
 from collection.models import CollectionItem
+from common.scraper import get_scraper_by_url, get_normalized_url
 
 
 logger = logging.getLogger(__name__)
@@ -99,6 +100,7 @@ def update_song(request, id):
             'music/create_update_song.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': page_title,
                 'submit_url': reverse("music:update_song", args=[song.id]),
                 # provided for frontend js
@@ -128,6 +130,7 @@ def update_song(request, id):
                 'music/create_update_song.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': page_title,
                     'submit_url': reverse("music:update_song", args=[song.id]),
                     # provided for frontend js
@@ -638,6 +641,18 @@ def create_album(request):
 
 
 @login_required
+def rescrape(request, id):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    item = get_object_or_404(Album, pk=id)
+    url = get_normalized_url(item.source_url)
+    scraper = get_scraper_by_url(url)
+    scraper.scrape(url)
+    form = scraper.save(request_user=request.user, instance=item)
+    return redirect(reverse("music:retrieve_album", args=[form.instance.id]))
+
+
+@login_required
 def update_album(request, id):
     if request.method == 'GET':
         album = get_object_or_404(Album, pk=id)
@@ -648,6 +663,7 @@ def update_album(request, id):
             'music/create_update_album.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': page_title,
                 'submit_url': reverse("music:update_album", args=[album.id]),
                 # provided for frontend js
@@ -677,6 +693,7 @@ def update_album(request, id):
                 'music/create_update_album.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': page_title,
                     'submit_url': reverse("music:update_album", args=[album.id]),
                     # provided for frontend js

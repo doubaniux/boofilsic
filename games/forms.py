@@ -11,13 +11,14 @@ def GameMarkStatusTranslator(status):
 
 
 class GameForm(forms.ModelForm):
-    # id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
     other_info = JSONField(required=False, label=_("其他信息"))
 
     class Meta:
         model = Game
         fields = [
+            'id',
             'title',
             'source_site',
             'source_url',

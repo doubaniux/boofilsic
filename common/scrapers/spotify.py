@@ -181,16 +181,16 @@ class SpotifyAlbumScraper(AbstractScraper):
         else:
             return None
 
-    @classmethod
-    def save(cls, request_user):
-        form = super().save(request_user)
-        # task = Thread(
-        #     target=cls.add_tracks,
-        #     args=(form.instance, request_user),
-        #     daemon=True
-        # )
-        # task.start()
-        return form
+    # @classmethod
+    # def save(cls, request_user):
+    #     form = super().save(request_user)
+    #     task = Thread(
+    #         target=cls.add_tracks,
+    #         args=(form.instance, request_user),
+    #         daemon=True
+    #     )
+    #     task.start()
+    #     return form
 
     @classmethod
     def get_api_url(cls, url):

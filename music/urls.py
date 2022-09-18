@@ -25,6 +25,7 @@ urlpatterns = [
     path('album/<int:id>/', retrieve_album, name='retrieve_album'),
     path('album/update/<int:id>/', update_album, name='update_album'),
     path('album/delete/<int:id>/', delete_album, name='delete_album'),
+    path('rescrape/<int:id>/', rescrape, name='rescrape'),
     path('album/mark/', create_update_album_mark, name='create_update_album_mark'),
     path('album/wish/<int:id>/', wish_album, name='wish_album'),
     re_path('album/(?P<album_id>[0-9]+)/mark/list/(?:(?P<following_only>\\d+))?', retrieve_album_mark_list, name='retrieve_album_mark_list'),

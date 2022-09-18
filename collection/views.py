@@ -107,6 +107,7 @@ def update(request, id):
             'create_update.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': page_title,
                 'submit_url': reverse("collection:update", args=[collection.id]),
                 # provided for frontend js
@@ -130,6 +131,7 @@ def update(request, id):
                 'create_update.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': page_title,
                     'submit_url': reverse("collection:update", args=[collection.id]),
                     # provided for frontend js

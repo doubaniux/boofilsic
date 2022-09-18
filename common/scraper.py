@@ -211,11 +211,11 @@ class AbstractScraper:
         return raw_img, ext
 
     @classmethod
-    def save(cls, request_user):
+    def save(cls, request_user, instance=None):
         entity_cover = {
             'cover': SimpleUploadedFile('temp.' + cls.img_ext, cls.raw_img)
         } if cls.img_ext is not None else None
-        form = cls.form_class(cls.raw_data, entity_cover)
+        form = cls.form_class(data=cls.raw_data, files=entity_cover, instance=instance)
         if form.is_valid():
             form.instance.last_editor = request_user
             form.instance._change_reason = 'scrape'

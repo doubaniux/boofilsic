@@ -19,6 +19,7 @@ from .forms import *
 from .forms import BookMarkStatusTranslator
 from django.conf import settings
 from collection.models import CollectionItem
+from common.scraper import get_scraper_by_url, get_normalized_url
 
 
 logger = logging.getLogger(__name__)
@@ -90,6 +91,18 @@ def create(request):
 
 
 @login_required
+def rescrape(request, id):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    item = get_object_or_404(Book, pk=id)
+    url = get_normalized_url(item.source_url)
+    scraper = get_scraper_by_url(url)
+    scraper.scrape(url)
+    form = scraper.save(request_user=request.user, instance=item)
+    return redirect(reverse("books:retrieve", args=[form.instance.id]))
+
+
+@login_required
 def update(request, id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=id)
@@ -99,6 +112,7 @@ def update(request, id):
             'books/create_update.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': _('修改书籍'),
                 'submit_url': reverse("books:update", args=[book.id]),
                 # provided for frontend js
@@ -127,6 +141,7 @@ def update(request, id):
                 'books/create_update.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': _('修改书籍'),
                     'submit_url': reverse("books:update", args=[book.id]),
                     # provided for frontend js

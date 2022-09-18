@@ -18,6 +18,7 @@ from .models import *
 from .forms import *
 from django.conf import settings
 from collection.models import CollectionItem
+from common.scraper import get_scraper_by_url, get_normalized_url
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +90,18 @@ def create(request):
 
 
 @login_required
+def rescrape(request, id):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    item = get_object_or_404(Game, pk=id)
+    url = get_normalized_url(item.source_url)
+    scraper = get_scraper_by_url(url)
+    scraper.scrape(url)
+    form = scraper.save(request_user=request.user, instance=item)
+    return redirect(reverse("games:retrieve", args=[form.instance.id]))
+
+
+@login_required
 def update(request, id):
     if request.method == 'GET':
         game = get_object_or_404(Game, pk=id)
@@ -99,6 +112,7 @@ def update(request, id):
             'games/create_update.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': page_title,
                 'submit_url': reverse("games:update", args=[game.id]),
                 # provided for frontend js
@@ -128,6 +142,7 @@ def update(request, id):
                 'games/create_update.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': page_title,
                     'submit_url': reverse("games:update", args=[game.id]),
                     # provided for frontend js

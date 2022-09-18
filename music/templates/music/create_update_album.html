@@ -22,9 +22,24 @@
 
             <section id="content" class="container">
                 <div class="grid">
+                    {% if is_update and form.source_site.value != 'in-site' %}
+                    <div style="float:right;padding-left:16px">
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '源网站' %}: <a href="{{ form.source_url.value }}">{{ form.source_site.value }}</a></div>
+                                <div class="action-panel__button-group">
+                                    <form method="post" action="{% url 'music:rescrape' form.id.value %}">
+                                        {% csrf_token %}
+                                        <input class="button" type="submit" value="{% trans '从源网站重新抓取' %}">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="single-section-wrapper" id="main">
-                        <a href="{% url 'music:scrape_album' %}"
-                            class="single-section-wrapper__link single-section-wrapper__link--secondary">{% trans '>>> 试试一键剽取~ <<<' %}</a>
+                        {% comment %} <a href="{% url 'music:scrape_album' %}" class="single-section-wrapper__link single-section-wrapper__link--secondary">{% trans '>>> 试试一键剽取~ <<<' %}</a> {% endcomment %}
                         <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form.media }}

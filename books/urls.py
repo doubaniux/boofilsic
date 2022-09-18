@@ -8,6 +8,7 @@ urlpatterns = [
     path('<int:id>/', retrieve, name='retrieve'),
     path('update/<int:id>/', update, name='update'),
     path('delete/<int:id>/', delete, name='delete'),
+    path('rescrape/<int:id>/', rescrape, name='rescrape'),
     path('mark/', create_update_mark, name='create_update_mark'),
     path('wish/<int:id>/', wish, name='wish'),
     re_path('(?P<book_id>[0-9]+)/mark/list/(?:(?P<following_only>\\d+))?', retrieve_mark_list, name='retrieve_mark_list'),
