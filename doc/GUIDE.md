@@ -33,7 +33,7 @@ python3 manage.py check
 
 Initialize database
 ```
-python3 manage.py makemigrations users books movies games music sync mastodon management collection
+python3 manage.py makemigrations users books movies games music sync mastodon management collection timeline
 python3 manage.py migrate users
 python3 manage.py migrate
 ```

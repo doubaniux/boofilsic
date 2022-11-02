@@ -1,7 +1,7 @@
 # Boofilsic
 An application allows you to mark any books, movies and more things you love. 
 
-Depends on Mastodon.
+Works with Mastodon API and Twitter API.  
 
 ## Install
 Please see [doc/GUIDE.md](doc/GUIDE.md)
