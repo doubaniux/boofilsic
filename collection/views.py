@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
-from mastodon.api import post_toot, TootVisibilityEnum, share_collection
+from mastodon.api import share_collection
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.models import SourceSiteEnum
