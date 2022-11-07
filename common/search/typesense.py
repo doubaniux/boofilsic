@@ -16,7 +16,7 @@ INDEXABLE_FLOAT_TYPES = ['DecimalField']
 SORTING_ATTRIBUTE = None
 # NONINDEXABLE_TYPES = ['ForeignKey', 'FileField',]
 SEARCH_PAGE_SIZE = 20
-
+DEDUP_KEYS = ['isbn', 'imdb_code']
 
 logger = logging.getLogger(__name__)
 
@@ -173,6 +173,14 @@ class Indexer:
         except Exception as e:
             logger.error(f"delete item error: \n{e}")
 
+
+    @classmethod
+    def item_key(self, item):
+        for key_name in DEDUP_KEYS:
+            if key_name in item:
+                return item[key_name]
+
+
     @classmethod
     def search(self, q, page=1, category=None, tag=None, sort=None):
         f = []
@@ -199,10 +207,18 @@ class Indexer:
         # print(r)
         import types
         results = types.SimpleNamespace()
-        results.items = list([x for x in map(lambda i: self.item_to_obj(
-            i['document']), r['hits']) if x is not None])
-        results.num_pages = (
-            r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
+        keys = []
+        hits = []
+        for i in r['hits']:
+            key = self.item_key(i['document'])
+            if key is None:
+                hits.append(i)
+            elif key not in keys:
+                keys.append(key)
+                hits.append(i)
+        results.items = list([x for x in map(lambda i: self.item_to_obj(i['document']), hits) if x is not None])
+        results.num_pages = (r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
+        results.keys = keys
         # print(results)
         return results
 
