@@ -4,6 +4,7 @@ from books.models import BookReview
 from .models import User
 from markdown import markdown
 import operator
+import mimetypes
 
 
 MAX_ITEM_PER_TYPE = 10
@@ -14,13 +15,13 @@ class ReviewFeed(Feed):
         return User.get(id)
 
     def title(self, user):
-        return "%s 的评论" % user.display_name
+        return "%s的评论" % user.display_name
 
     def link(self, user):
         return user.url
 
     def description(self, user):
-        return "%s 的评论合集 - NeoDB" % user.display_name
+        return "%s的评论合集 - NeoDB" % user.display_name
 
     def items(self, user):
         if user is None:
@@ -47,3 +48,25 @@ class ReviewFeed(Feed):
     # item_link is only needed if NewsItem has no get_absolute_url method.
     def item_link(self, item):
         return item.url
+
+    def item_categories(self, item):
+        return [item.item.verbose_category_name]
+
+    def item_pubdate(self, item):
+        return item.created_time
+
+    def item_updateddate(self, item):
+        return item.edited_time
+
+    def item_enclosure_url(self, item):
+        return item.item.cover.url
+
+    def item_enclosure_mime_type(self, item):
+        t, _ = mimetypes.guess_type(item.item.cover.url)
+        return t
+
+    def item_enclosure_length(self, item):
+        return item.item.cover.file.size
+
+    def item_comments(self, item):
+        return item.shared_link
