@@ -1,5 +1,6 @@
 from django.urls import path
 from .views import *
+from .feeds import ReviewFeed
 
 app_name = 'users'
 urlpatterns = [
@@ -37,6 +38,7 @@ urlpatterns = [
     path('<str:id>/movie/<str:status>/', movie_list, name='movie_list'),
     path('<str:id>/music/<str:status>/', music_list, name='music_list'),
     path('<str:id>/game/<str:status>/', game_list, name='game_list'),
+    path('<str:id>/feed/reviews/', ReviewFeed(), name='review_feed'),
     path('report/', report, name='report'),
     path('manage_report/', manage_report, name='manage_report'),
 ]

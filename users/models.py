@@ -8,6 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from common.utils import GenerateDateUUIDMediaFilePath
 from django.conf import settings
 from mastodon.api import *
+from django.shortcuts import reverse
 
 
 def report_image_path(instance, filename):
@@ -58,6 +59,10 @@ class User(AbstractUser):
     @property
     def display_name(self):
         return self.mastodon_account['display_name'] if self.mastodon_account and 'display_name' in self.mastodon_account and self.mastodon_account['display_name'] else self.mastodon_username
+
+    @property
+    def url(self):
+        return reverse("users:home", args=[self.mastodon_username])
 
     def __str__(self):
         return self.mastodon_username
