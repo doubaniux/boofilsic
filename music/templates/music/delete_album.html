@@ -13,8 +13,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'NiceDB - 删除音乐' %}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>{{ site_name }} - {% trans '删除音乐' %}</title>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
@@ -55,7 +55,7 @@
                                 {% if album.last_editor %}
                                 <div>
                                     {% trans '最近编辑者：' %}
-                                    <a href="{% url 'users:home' album.last_editor.id %}">
+                                    <a href="{% url 'users:home' album.last_editor.mastodon_username %}">
                                         <span>{{ album.last_editor | default:"" }}</span>
                                     </a>
                                 </div>
@@ -89,12 +89,6 @@
     </div>
 
     
-    {% comment %}        
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <!--current user mastodon id--> 
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% endcomment %}
         
     <script>
 

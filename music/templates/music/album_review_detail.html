@@ -13,17 +13,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="NiceDB乐评 - {{ review.title }}">
+    <meta property="og:title" content="{{ site_name }}乐评 - {{ review.title }}">
     <meta property="og:type" content="article">
     <meta property="og:article:author" content="{{ review.owner.username }}">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
-    <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.svg' %}">
-    <title>{% trans 'NiceDB - 评论详情' %}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <meta property="og:image" content="{{ album.cover|thumb:'normal' }}">
+    <title>{{ site_name }}乐评 - {{ review.title }}</title>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
 </head>
 
 <body>
@@ -39,7 +40,7 @@
                                 <h5 class="review-head__title">
                                     {{ review.title }}
                                 </h5>
-                                {% if review.is_private %}
+                                {% if review.visibility > 0 %}
                                 <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
                                             <path
                                                 d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
@@ -48,7 +49,7 @@
                                 <div class="review-head__body">
                                     <div class="review-head__info">
 
-                                        <a href="{% url 'users:home' review.owner.id %}"
+                                        <a href="{% url 'users:home' review.owner.mastodon_username %}"
                                             class="review-head__owner-link">{{ review.owner.username }}</a>
 
                                         {% if mark %}
@@ -77,6 +78,7 @@
                                     {{ form.content }}
                                 </div>
                                 {{ form.media }}
+                                {% csrf_token %}
                             </div>
                         </div>
 
@@ -109,7 +111,7 @@
                                         {% if album.artist|length > 5 %}
                                         <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
                                         <script>
-                                            $("#artistMore").click(function (e) {
+                                            $("#artistMore").on('click', function (e) {
                                                 $("span.artist:not(:visible)").each(function (e) {
                                                     $(this).parent().removeAttr('style');
                                                 });
@@ -139,16 +141,8 @@
     </div>
 
 
-    {% comment %}
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon request.user.mastodon_site %}</div>
-    <!--current user mastodon id-->
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% endcomment %}
 
     <script>
-
-
         $(".markdownx textarea").hide();
     </script>
 </body>

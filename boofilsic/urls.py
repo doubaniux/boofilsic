@@ -27,10 +27,16 @@ urlpatterns = [
     path('movies/', include('movies.urls')),
     path('music/', include('music.urls')),
     path('games/', include('games.urls')),
+    path('collections/', include('collection.urls')),
+    path('timeline/', include('timeline.urls')),
     path('sync/', include('sync.urls')),
     path('announcement/', include('management.urls')),
+    path('hijack/', include('hijack.urls')),
     path('', include('common.urls')),
+]
 
+urlpatterns += [
+    path(settings.ADMIN_URL + '-rq/', include('django_rq.urls'))
 ]
 
 if settings.DEBUG:

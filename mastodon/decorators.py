@@ -16,7 +16,7 @@ def mastodon_request_included(func):
                 args[0],
                 'common/error.html',
                 {
-                    'msg': _("长毛象请求超时叻_(´ཀ`」 ∠)__ ")
+                    'msg': _("联邦网络请求超时叻_(´ཀ`」 ∠)__ ")
                 }
             )
     return wrapper

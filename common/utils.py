@@ -10,6 +10,8 @@ class PageLinksGenerator:
     def __init__(self, length, current_page, total_pages):
         current_page = int(current_page)
         self.current_page = current_page
+        self.previous_page = current_page - 1 if current_page > 1 else None
+        self.next_page = current_page + 1 if current_page < total_pages else None
         self.start_page = None
         self.end_page = None
         self.page_range = None

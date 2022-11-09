@@ -12,10 +12,13 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 
 import os
 import psycopg2.extensions
+from git import Repo
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+# https://docs.djangoproject.com/en/3.2/releases/3.2/#customizing-type-of-auto-created-primary-keys
+DEFAULT_AUTO_FIELD = 'django.db.models.AutoField'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/3.0/howto/deployment/checklist/
@@ -38,6 +41,8 @@ INTERNAL_IPS = [
 
 INSTALLED_APPS = [
     'django.contrib.admin',
+    'hijack',
+    'hijack.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
@@ -45,6 +50,9 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'django.contrib.humanize',
     'django.contrib.postgres',
+    'django_sass',
+    'django_rq',
+    'simple_history',
     'markdownx',
     'management.apps.ManagementConfig',
     'mastodon.apps.MastodonConfig',
@@ -54,7 +62,12 @@ INSTALLED_APPS = [
     'movies.apps.MoviesConfig',
     'music.apps.MusicConfig',
     'games.apps.GamesConfig',
+    'sync.apps.SyncConfig',
+    'collection.apps.CollectionConfig',
+    'timeline.apps.TimelineConfig',
     'easy_thumbnails',
+    'user_messages',
+    'django_slack',
 ]
 
 MIDDLEWARE = [
@@ -65,6 +78,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'hijack.middleware.HijackUserMiddleware',
+    'simple_history.middleware.HistoryRequestMiddleware',
 ]
 
 ROOT_URLCONF = 'boofilsic.urls'
@@ -79,7 +94,9 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.contrib.messages.context_processors.messages',
+                # 'django.contrib.messages.context_processors.messages',
+                "user_messages.context_processors.messages",
+                'boofilsic.context_processors.site_info',
             ],
         },
     },
@@ -95,10 +112,10 @@ if DEBUG:
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': 'test',
-            'USER': 'donotban',
-            'PASSWORD': 'donotbansilvousplait',
-            'HOST': '172.18.116.29',
+            'NAME': os.environ.get('DB_NAME', 'test'),
+            'USER': os.environ.get('DB_USER', 'donotban'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'donotbansilvousplait'),
+            'HOST': os.environ.get('DB_HOST', '172.18.116.29'),
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -184,13 +201,29 @@ STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesSto
 
 AUTH_USER_MODEL = 'users.User'
 
+SILENCED_SYSTEM_CHECKS = [
+    "auth.W004",  # User.username is non-unique
+    "admin.E404"  # Required by django-user-messages
+]
+
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media/')
 
+PROJECT_ROOT = os.path.abspath(os.path.dirname(__name__))
+SITE_INFO = {
+    'site_name': 'NiceDB',
+    'support_link': 'https://github.com/doubaniux/boofilsic/issues',
+    'version_hash': None,
+    'settings_module': os.getenv('DJANGO_SETTINGS_MODULE'),
+    'sentry_dsn': None,
+}
+
 # Mastodon configs
-CLIENT_NAME = 'NiceDB'
-APP_WEBSITE = 'https://nicedb.org'
-REDIRECT_URIS = "https://nicedb.org/users/OAuth2_login/\nhttps://www.nicedb.org/users/OAuth2_login/"
+CLIENT_NAME = os.environ.get('APP_NAME', 'NiceDB')
+SITE_INFO['site_name'] = os.environ.get('APP_NAME', 'NiceDB')
+APP_WEBSITE = os.environ.get('APP_URL', 'https://nicedb.org')
+REDIRECT_URIS = APP_WEBSITE + "/users/OAuth2_login/"
+
 
 # Path to save report related images, ends with slash
 REPORT_MEDIA_PATH_ROOT = 'report/'
@@ -205,9 +238,22 @@ ALBUM_MEDIA_PATH_ROOT = 'album/'
 DEFAULT_ALBUM_IMAGE = os.path.join(ALBUM_MEDIA_PATH_ROOT, 'default.svg')
 GAME_MEDIA_PATH_ROOT = 'game/'
 DEFAULT_GAME_IMAGE = os.path.join(GAME_MEDIA_PATH_ROOT, 'default.svg')
+COLLECTION_MEDIA_PATH_ROOT = 'collection/'
+DEFAULT_COLLECTION_IMAGE = os.path.join(COLLECTION_MEDIA_PATH_ROOT, 'default.svg')
+SYNC_FILE_PATH_ROOT = 'sync/'
+EXPORT_FILE_PATH_ROOT = 'export/'
+
+# Allow user to login via any Mastodon/Pleroma sites
+MASTODON_ALLOW_ANY_SITE = False
 
 # Timeout of requests to Mastodon, in seconds
 MASTODON_TIMEOUT = 30
+
+MASTODON_CLIENT_SCOPE = 'read write follow'
+#use the following if it's a new site
+#MASTODON_CLIENT_SCOPE = 'read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media'
+
+MASTODON_LEGACY_CLIENT_SCOPE = 'read write follow'
 
 # Tags for toots posted from this site
 MASTODON_TAGS = '#NiceDB #NiceDB%(category)s #NiceDB%(category)s%(type)s'
@@ -217,7 +263,7 @@ STAR_SOLID = ':star_solid:'
 STAR_HALF = ':star_half:'
 STAR_EMPTY = ':star_empty:'
 
-# Default password for each user. since assword is not used any way,
+# Default password for each user. since password is not used any way,
 # any string that is not empty is ok
 DEFAULT_PASSWORD = 'ab7nsm8didusbaqPgq'
 
@@ -231,14 +277,29 @@ ADMIN_URL = 'tertqX7256n7ej8nbv5cwvsegdse6w7ne5rHd'
 LUMINATI_USERNAME = 'lum-customer-hl_nw4tbv78-zone-static'
 LUMINATI_PASSWORD = 'nsb7te9bw0ney'
 
+SCRAPING_TIMEOUT = 90
+
 # ScraperAPI api key
 SCRAPERAPI_KEY = 'wnb3794v675b8w475h0e8hr7tyge'
+PROXYCRAWL_KEY = None
+SCRAPESTACK_KEY = None
 
 # Spotify credentials
 SPOTIFY_CREDENTIAL = "NzYzNkYTE6MGQ0ODY0NTY2Y2b3n645sdfgAyY2I1ljYjg3Nzc0MjIwODQ0ZWE="
 
 # IMDb API service https://imdb-api.com/
 IMDB_API_KEY = "k23fwewff23"
+
+# The Movie Database (TMDB) API Keys
+TMDB_API3_KEY = "deadbeef"
+TMDB_API4_KEY = "deadbeef.deadbeef.deadbeef"
+
+# Google Books API Key
+GOOGLE_API_KEY = 'deadbeef-deadbeef-deadbeef'
+
+# IGDB
+IGDB_CLIENT_ID = 'deadbeef'
+IGDB_ACCESS_TOKEN = 'deadbeef'
 
 # Thumbnail setting
 # It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/
@@ -257,3 +318,47 @@ if DEBUG:
 
 # https://django-debug-toolbar.readthedocs.io/en/latest/
 # maybe benchmarking before deployment
+
+REDIS_HOST = os.environ.get('REDIS_HOST', '127.0.0.1')
+
+RQ_QUEUES = {
+    'mastodon': {
+        'HOST': REDIS_HOST,
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': -1,
+    },
+    'export': {
+        'HOST': REDIS_HOST,
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': -1,
+    },
+    'doufen': {
+        'HOST': REDIS_HOST,
+        'PORT': 6379,
+        'DB': 0,
+        'DEFAULT_TIMEOUT': -1,
+    }
+}
+
+RQ_SHOW_ADMIN_LINK = True
+
+SEARCH_INDEX_NEW_ONLY = False
+
+SEARCH_BACKEND = None
+
+# SEARCH_BACKEND = 'MEILISEARCH'
+# MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
+# MEILISEARCH_KEY = 'deadbeef'
+
+# SEARCH_BACKEND = 'TYPESENSE'
+# TYPESENSE_CONNECTION = {
+#     'api_key': 'deadbeef',
+#     'nodes': [{
+#         'host': 'localhost',
+#         'port': '8108',
+#         'protocol': 'http'
+#     }],
+#     'connection_timeout_seconds': 2
+# }

@@ -8,7 +8,7 @@ $(() => {
             $(e).data("visibility", true);
         }
         let btn = $("#toggleDisplayButtonTemplate").clone().removeAttr("id");
-        btn.click(e => {
+        btn.on('click', e => {
             if ($(e.currentTarget).parent().data('visibility') === true) {                
                 // flip text
                 $(e.currentTarget).children("span.showText").show();
@@ -72,7 +72,7 @@ $(() => {
     });
 
     // activate sorting
-    $("#sortEditButton").click(evt => {
+    $("#sortEditButton").on('click', evt => {
         // test if edit mode is activated
         isActivated = $("#sortSaveIcon").is(":visible");
 
@@ -134,7 +134,7 @@ $(() => {
     });
     
     // exit edit mode
-    $("#sortExitButton").click(evt => {
+    $("#sortExitButton").on('click', evt => {
         initialLayoutData.forEach(elem => {
             // set visiblity
             $('#' + elem.id).data('visibility', elem.visibility);

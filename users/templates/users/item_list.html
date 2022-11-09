@@ -1,0 +1,94 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {{ user.mastodon_username }} {{ list_title }}</title>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/htmx/1.8.0/htmx.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <script src="{% static 'js/mastodon.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/neo.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+        
+            <section id="content" class="container">
+                <div class="grid grid--reverse-order">
+                    <div class="grid__main grid__main--reverse-order">
+                        <div class="main-section-wrapper">
+                            <div class="entity-list">
+
+                                <div class="set">
+                                    <h5 class="entity-list__title">
+                                        {{ user.mastodon_username }} {{ list_title }}
+                                    </h5>
+                                </div>
+                                <ul class="entity-list__entities">
+                                    {% for mark in marks %}
+                                    {% include "partial/list_item.html" with item=mark.item hide_category=True %}
+                                    {% empty %}
+                                    <div>{% trans '无结果' %}</div>
+                                    {% endfor %} 
+                                </ul>
+                            </div>
+                            <div class="pagination">
+                            
+                                {% if marks.pagination.has_prev %}
+                                <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page=1" class="pagination__nav-link pagination__nav-link">&laquo;</a>
+                                <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ marks.previous_page_number }}"
+                                    class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+                                {% endif %}
+                            
+                                {% for page in marks.pagination.page_range %}
+                            
+                                {% if page == marks.pagination.current_page %}
+                                <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ page }}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+                                {% else %}
+                                <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ page }}" class="pagination__page-link">{{ page }}</a>
+                                {% endif %}
+                            
+                                {% endfor %}
+                            
+                                {% if marks.pagination.has_next %}
+                                <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ marks.next_page_number }}"
+                                    class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                <a href="?{% if request.GET.t %}t={{ request.GET.t }}&{% endif %}page={{ marks.pagination.last_page }}" class="pagination__nav-link">&raquo;</a>
+                                {% endif %}
+                            
+                            </div>
+                        </div>
+                    </div>
+
+                    {% include "partial/_sidebar.html" %}
+                </div>
+            </section>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+    </script>
+</body>
+
+
+</html>

@@ -14,8 +14,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'NiceDB - ' %}{{ game.title }}{% trans '的评论' %}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>{{ site_name }} - {{ game.title }}{% trans '的评论' %}</title>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
@@ -41,8 +41,8 @@
                                         
                                     <li class="entity-reviews__review entity-reviews__review--wider">
                                         
-                                            <a href="{% url 'users:home' review.owner.id %}" class="entity-reviews__owner-link">{{ review.owner.username }}</a>
-                                            {% if review.is_private %}
+                                            <a href="{% url 'users:home' review.owner.mastodon_username %}" class="entity-reviews__owner-link">{{ review.owner.username }}</a>
+                                            {% if review.visibility > 0 %}
                                             <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                             {% endif %}
                                             <span class="entity-reviews__review-time">{{ review.edited_time }}</span>
@@ -137,12 +137,6 @@
     </div>
 
     
-    {% comment %}        
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <!--current user mastodon id--> 
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% endcomment %}
         
     <script>
 

@@ -1,12 +1,8 @@
 import logging
 import pytz
-import signal
-import sys
-import queue
-import threading
-import time
 from dataclasses import dataclass
 from datetime import datetime
+from django.conf import settings
 from django.utils import timezone
 from django.core.exceptions import ObjectDoesNotExist
 from openpyxl import load_workbook
@@ -18,69 +14,17 @@ from common.scraper import DoubanAlbumScraper, DoubanBookScraper, DoubanGameScra
 from common.models import MarkStatusEnum
 from .models import SyncTask
 
-__all__ = ['sync_task_manager']
 
 logger = logging.getLogger(__name__)
 
 
-class SyncTaskManger:
+def __import_should_stop():
+    # TODO: using queue.connection.set(job.key + b':should_stop', 1, ex=30) on the caller side and connection.get(job.key + b':should_stop') on the worker side.
+    pass
 
-    # in seconds
-    __CHECK_NEW_TASK_TIME_INTERVAL = 0.05
-    MAX_WORKERS = 256
 
-    def __init__(self):
-        self.__task_queue = queue.Queue(0)
-        self.__stop_event = threading.Event()
-        self.__worker_threads = []
-
-    def __listen_for_new_task(self):
-        while not self.__stop_event.is_set():
-            time.sleep(self.__CHECK_NEW_TASK_TIME_INTERVAL)
-            while not self.__task_queue.empty() and not self.is_full():
-                task = self.__task_queue.get_nowait()
-                self.__start_new_worker(task)
-
-    def __start_new_worker(self, task):
-        new_worker = threading.Thread(
-            target=sync_doufen_job, args=[task, self.is_stopped], daemon=True
-        )
-        self.__worker_threads.append(new_worker)
-        new_worker.start()
-
-    def __enqueue_existing_tasks(self):
-        for task in SyncTask.objects.filter(is_finished=False):
-            self.__task_queue.put_nowait(task)
-
-    def is_full(self):
-        return len(self.__worker_threads) >= self.MAX_WORKERS
-
-    def add_task(self, task):
-        self.__task_queue.put_nowait(task)
-
-    def stop(self, signum, frame):
-        print('rceived signal ', signum)
-        logger.info(f'rceived signal {signum}')
-
-        self.__stop_event.set()
-        # for worker_thread in self.__worker_threads:
-        #     worker_thread.join()
-
-        print("stopped")
-        logger.info(f'stopped')
-
-    def is_stopped(self):
-        return self.__stop_event.is_set()
-
-    def start(self):
-        self.__enqueue_existing_tasks()  # enqueue
-
-        listen_new_task_thread = threading.Thread(
-            target=self.__listen_for_new_task, daemon=True)
-
-        self.__worker_threads.append(listen_new_task_thread)
-
-        listen_new_task_thread.start()
+def import_doufen_task(synctask):
+    sync_doufen_job(synctask, __import_should_stop)
 
 
 class DoufenParser:
@@ -96,7 +40,7 @@ class DoufenParser:
         self.__file_path = task.file.path
         self.__progress_sheet, self.__progress_row = task.get_breakpoint()
         self.__is_new_task = True
-        if not self.__progress_sheet is None:
+        if self.__progress_sheet is not None:
             self.__is_new_task = False
         if self.__progress_row is None:
             self.__progress_row = 2
@@ -157,10 +101,14 @@ class DoufenParser:
 
         is_first_sheet = True
         for mapping in item_classes_mappings:
+            if mapping['sheet'] not in self.__wb:
+                print(f"Sheet not found: {mapping['sheet']}")
+                continue
             ws = self.__wb[mapping['sheet']]
 
+            max_row = ws.max_row
             # empty sheet
-            if ws.max_row <= 1:
+            if max_row <= 1:
                 continue
 
             # decide starting position
@@ -169,29 +117,26 @@ class DoufenParser:
                 start_row_index = self.__progress_row
 
             # parse data
-            for i in range(start_row_index, ws.max_row + 1):
-                # url definitely exists
-                url = ws.cell(row=i, column=self.URL_INDEX).value
-
-                tags = ws.cell(row=i, column=self.TAG_INDEX).value
-                tags = tags.split(',') if tags else None
-
-                time = ws.cell(row=i, column=self.TIME_INDEX).value
-                if time:
+            tz = pytz.timezone('Asia/Shanghai')
+            i = start_row_index
+            for row in ws.iter_rows(min_row=start_row_index, max_row=max_row, values_only=True):
+                cells = [cell for cell in row]
+                url = cells[self.URL_INDEX - 1]
+                tags = cells[self.TAG_INDEX - 1]
+                tags = list(set(tags.lower().split(','))) if tags else None
+                time = cells[self.TIME_INDEX - 1]
+                if time and type(time) == str:
                     time = datetime.strptime(time, "%Y-%m-%d %H:%M:%S")
-                    tz = pytz.timezone('Asia/Shanghai')
+                    time = time.replace(tzinfo=tz)
+                elif time and type(time) == datetime:
                     time = time.replace(tzinfo=tz)
                 else:
                     time = None
-
-                content = ws.cell(row=i, column=self.CONTENT_INDEX).value
+                content = cells[self.CONTENT_INDEX - 1]
                 if not content:
                     content = ""
-
-                rating = ws.cell(row=i, column=self.RATING_INDEX).value
+                rating = cells[self.RATING_INDEX - 1]
                 rating = int(rating) * 2 if rating else None
-
-                # store result
                 self.items.append({
                     'data': DoufenRowData(url, tags, time, content, rating),
                     'entity_class': mapping['entity_class'],
@@ -201,18 +146,20 @@ class DoufenParser:
                     'sheet': mapping['sheet'],
                     'row_index': i,
                 })
+                i = i + 1
 
             # set first sheet flag
             is_first_sheet = False
 
     def __get_item_number(self):
-        assert not self.__wb is None, 'workbook not found'
-        assert not self.__mappings is None, 'mappings not found'
+        assert self.__wb is not None, 'workbook not found'
+        assert self.__mappings is not None, 'mappings not found'
 
         sheets = [mapping['sheet'] for mapping in self.__mappings]
         item_number = 0
         for sheet in sheets:
-            item_number += self.__wb[sheet].max_row - 1
+            if sheet in self.__wb:
+                item_number += self.__wb[sheet].max_row - 1
 
         return item_number
 
@@ -229,13 +176,12 @@ class DoufenParser:
                 self.__update_total_items()
             self.__close_file()
             return self.items
-
         except Exception as e:
-            logger.error(e)
-            raise e
-
+            logger.error(f'Error parsing {self.__file_path} {e}')
+            self.task.is_failed = True
         finally:
             self.__close_file()
+        return []
 
 
 @dataclass
@@ -247,7 +193,7 @@ class DoufenRowData:
     rating: int
 
 
-def add_new_mark(data, user, entity, entity_class, mark_class, tag_class, sheet, is_private):
+def add_new_mark(data, user, entity, entity_class, mark_class, tag_class, sheet, default_public):
     params = {
         'owner': user,
         'created_time': data.time,
@@ -255,7 +201,7 @@ def add_new_mark(data, user, entity, entity_class, mark_class, tag_class, sheet,
         'rating': data.rating,
         'text': data.content,
         'status': translate_status(sheet),
-        'is_private': not is_private,
+        'visibility': 0 if default_public else 1,
         entity_class.__name__.lower(): entity,
     }
     mark = mark_class.objects.create(**params)
@@ -267,12 +213,15 @@ def add_new_mark(data, user, entity, entity_class, mark_class, tag_class, sheet,
                 entity_class.__name__.lower(): entity,
                 'mark': mark
             }
-            tag_class.objects.create(**params)
+            try:
+                tag_class.objects.create(**params)
+            except Exception as e:
+                logger.error(f'Error creating tag {tag} {mark}: {e}')
 
 
 def overwrite_mark(entity, entity_class, mark, mark_class, tag_class, data, sheet):
     old_rating = mark.rating
-    old_tags = getattr(mark, mark_class.__name__.lower()+'_tags').all()
+    old_tags = getattr(mark, mark_class.__name__.lower() + '_tags').all()
     # update mark logic
     mark.created_time = data.time
     mark.edited_time = data.time
@@ -291,7 +240,10 @@ def overwrite_mark(entity, entity_class, mark, mark_class, tag_class, data, shee
                 entity_class.__name__.lower(): entity,
                 'mark': mark
             }
-            tag_class.objects.create(**params)
+            try:
+                tag_class.objects.create(**params)
+            except Exception as e:
+                logger.error(f'Error creating tag {tag} {mark}: {e}')
 
 
 def sync_doufen_job(task, stop_check_func):
@@ -302,6 +254,7 @@ def sync_doufen_job(task, stop_check_func):
     if task.is_finished:
         return
 
+    print(f'Task {task.pk}: loading')
     parser = DoufenParser(task)
     items = parser.parse()
 
@@ -322,15 +275,17 @@ def sync_doufen_job(task, stop_check_func):
         # scrape the entity if not exists
         try:
             entity = entity_class.objects.get(source_url=data.url)
+            print(f'Task {task.pk}: {len(items)+1} remaining; matched {data.url}')
         except ObjectDoesNotExist:
             try:
+                print(f'Task {task.pk}: {len(items)+1} remaining; scraping {data.url}')
                 scraper.scrape(data.url)
                 form = scraper.save(request_user=task.user)
                 entity = form.instance
             except Exception as e:
-                logger.error(f"Scrape Failed URL: {data.url}")
-                logger.error(
-                    "Expections during scraping data:", exc_info=e)
+                logger.error(f"Task {task.pk}: scrape failed: {data.url} {e}")
+                if settings.DEBUG:
+                    logger.error("Expections during scraping data:", exc_info=e)
                 task.failed_urls.append(data.url)
                 task.finished_items += 1
                 task.save(update_fields=['failed_urls', 'finished_items'])
@@ -360,7 +315,7 @@ def sync_doufen_job(task, stop_check_func):
 
         except Exception as e:
             logger.error(
-                "Unknown exception when syncing marks", exc_info=e)
+                f"Task {task.pk}: error when syncing marks", exc_info=e)
             task.failed_urls.append(data.url)
             task.finished_items += 1
             task.save(update_fields=['failed_urls', 'finished_items'])
@@ -371,6 +326,7 @@ def sync_doufen_job(task, stop_check_func):
         task.save(update_fields=['success_items', 'finished_items'])
 
     # if task finish
+    print(f'Task {task.pk}: stopping')
     if len(items) == 0:
         task.is_finished = True
         task.clear_breakpoint()
@@ -386,13 +342,3 @@ def translate_status(sheet_name):
         return MarkStatusEnum.COLLECT
 
     raise ValueError("Not valid status")
-
-
-sync_task_manager = SyncTaskManger()
-
-# sync_task_manager.start()
-
-signal.signal(signal.SIGTERM, sync_task_manager.stop)
-if sys.platform.startswith('linux'):
-    signal.signal(signal.SIGHUP, sync_task_manager.stop)
-signal.signal(signal.SIGINT, sync_task_manager.stop)

@@ -7,10 +7,18 @@ $spotify-color-primary: #1ed760
 $spotify-color-secondary: black
 $imdb-color-primary: #F5C518
 $imdb-color-secondary: #121212
+$igdb-color-primary: #323A44
+$igdb-color-secondary: #DFE1E2
 $steam-color-primary: #1387b8
 $steam-color-secondary: #111d2e
 $bangumi-color-primary: #F09199
 $bangumi-color-secondary: #FCFCFC
+$goodreads-color-primary: #372213
+$goodreads-color-secondary: #F4F1EA
+$tmdb-color-primary: #91CCA3
+$tmdb-color-secondary: #1FB4E2
+$bandcamp-color-primary: #28A0C1
+$bandcamp-color-secondary: white
 
 .source-label
     display: inline
@@ -50,6 +58,11 @@ $bangumi-color-secondary: #FCFCFC
         color: $imdb-color-secondary
         border: none
         font-weight: bold
+    &.source-label__igdb
+        background-color: $igdb-color-primary
+        color: $igdb-color-secondary
+        border: none
+        font-weight: bold
     &.source-label__steam
         background: linear-gradient(30deg, $steam-color-primary, $steam-color-secondary)
         color: white
@@ -61,3 +74,26 @@ $bangumi-color-secondary: #FCFCFC
         color: $bangumi-color-primary
         font-style: italic
         font-weight: 600
+    &.source-label__goodreads
+        background: $goodreads-color-secondary
+        color: $goodreads-color-primary
+        font-weight: lighter
+    &.source-label__tmdb
+        background: linear-gradient(90deg, $tmdb-color-primary, $tmdb-color-secondary)
+        color: white
+        border: none
+        font-weight: lighter
+        padding-top: 2px
+    &.source-label__googlebooks
+        color: white
+        background-color: #4285F4
+        border-color: #4285F4
+    &.source-label__bandcamp
+        color: $bandcamp-color-secondary
+        background-color: $bandcamp-color-primary
+        // transform: skewX(-30deg)
+        display: inline-block
+    &.source-label__bandcamp span
+        // transform: skewX(30deg)
+        display: inline-block
+        margin: 0 4px

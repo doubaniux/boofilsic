@@ -1,0 +1,337 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - 数据管理</title>
+    {% include "partial/_common_libs.html" with jquery=1 %}
+    <script src="{% static 'js/mastodon.js' %}"></script>
+    <script src="{% static 'js/home.js' %}"></script>
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+
+            <section id="content">
+                <div class="grid grid--reverse-order">
+                    <div class="grid__main grid__main--reverse-order">
+                        <div class="main-section-wrapper">
+                            {% if messages %}
+                            <ul class="messages">
+                                {% for message in messages %}
+                                <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导入豆瓣标记和短评' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'sync:douban' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <input type="hidden" name="user" value="{{ request.user.id }}">
+                                            <span>{% trans '导入：' %}</span>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_book" id="syncBook" checked>
+                                                <label for="syncBook">{% trans '书' %}</label>
+                                            </div>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_movie" id="syncMovie" checked>
+                                                <label for="syncMovie">{% trans '电影' %}</label>
+                                            </div>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_music" id="syncMusic" checked>
+                                                <label for="syncMusic">{% trans '音乐' %}</label>
+                                            </div>
+                                            <div class="import-panel__checkbox">
+                                                <input type="checkbox" name="sync_game" id="syncGame" checked>
+                                                <label for="syncGame">{% trans '游戏' %}</label>
+                                            </div>
+                                            <div></div>
+                                            <span>{% trans '覆盖：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="overwrite" id="overwrite">
+                                                <label for="overwrite">{% trans '选中会覆盖现有标记' %}</label>
+                                            </div>
+                                            <div></div>
+                                            <span>{% trans '可见性：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="default_public" id="visibility" checked>
+                                                <label for="visibility">{% trans '选中后导入标记对其他用户可见；标记可见性在导入后也可更改。' %}</label>
+                                            </div>
+                                            <div></div>
+                                            <div class="import-panel__file-input">
+                                                从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件，<strong>请勿手动修改该文件</strong>:
+                                                <input type="file" name="file" id="excelFile" required accept=".xlsx"> 
+                                            </div>
+                                            <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn"
+                                                {% if not latest_task is None and not latest_task.is_finished %}
+                                                disabled
+                                                {% endif %}
+                                            >
+                                        </form>
+                                        <div class="import-panel__progress"
+                                            {% if latest_task.is_finished or latest_task is None %}
+                                            style="display: none;"
+                                            {% endif %}
+                                        >
+                                            <label for="importProgress">{% trans '进度' %}</label>
+                                            <progress id="importProgress" value="{{ latest_task.finished_items }}" max="{{ latest_task.total_items }}"></progress>
+                                            <span class="float-right" id="progressPercent">{{ latest_task.get_progress | floatformat:"0" }}%</span>
+                                            <span class="clearfix"></span>
+                                        </div>
+                                        <div class="import-panel__last-task"
+                                            {% if not latest_task.is_finished %}`
+                                            style="display: none;"
+                                            {% endif %}
+                                        >
+                                            {% trans '上次导入：' %}
+                                            <span class="index">{% trans '总数' %} <span id="lastTaskTotalItems">{{ latest_task.total_items }}</span></span>
+                                            <span class="index">{% trans '同步' %} <span id="lastTaskSuccessItems">{{ latest_task.success_items }}</span></span>
+                                            <span class="index">{% trans '状态' %} <span id="lastTaskStatus">{{ latest_task.get_status_emoji }}</span></span>
+                                            <div class="import-panel__fail-urls"
+                                            {% if not latest_task.failed_urls %}
+                                                style="display: none;"
+                                            {% endif %}
+                                            >
+                                                <span>
+                                                    {% trans '失败条目链接' %}
+                                                </span>
+                                                <a class="float-right" style="cursor: pointer;" id="failedUrlsBtn">
+                                                    ▶
+                                                </a>
+                                                <script>
+                                                    $("#failedUrlsBtn").data("collapse", true);
+                                                    $("#failedUrlsBtn").on('click', ()=>{
+                                                        const btn = $("#failedUrlsBtn");
+                                                        if(btn.data("collapse") == true) {
+                                                            btn.data("collapse", false);
+                                                            btn.text("▼");
+                                                            $("#failedUrls").show();
+                                                        } else {
+                                                            btn.data("collapse", true);
+                                                            btn.text("▶");
+                                                            $("#failedUrls").hide();
+                                                        }
+                                                    });
+                                                </script>
+                                                <span class="clearfix"></span>
+                                                <ul id="failedUrls" style="display: none;">
+                                                    {% for url in latest_task.failed_urls %}
+                                                    <li>{{ url }}</li>
+                                                    {% endfor %}
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导入豆瓣评论' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <div class="import-panel__checkbox">
+                                                <p>从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
+                                                    <input type="file" name="file" id="excel" required accept=".xlsx">
+                                                </p>
+                                                <p>可见性:
+                                                    <label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" checked>
+                                                     公开</label>
+                                                    <label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1">
+                                                     仅关注者</label>
+                                                    <label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2">
+                                                     仅自己</label>
+                                                </p>
+                                                {% if import_status.douban_pending %}
+                                                <input type="submit" class="import-panel__button" value="{% trans '备份文件已上传，请等待导入完成或刷新页面查看最新进度' %}" disabled />
+                                                {% else %}
+                                                <input type="submit" class="import-panel__button" value="{% trans '导入' %}"/>
+                                                {% endif %}
+
+                                                {% if import_status.douban_pending == 2 %}
+                                                正在等待
+                                                {% elif import_status.douban_pending == 1 %}
+                                                正在导入
+                                                    {% if import_status.douban_total %}
+                                                    共{{ import_status.douban_total }}篇，目前已处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
+                                                    {% endif %}
+                                                {% elif import_status.douban_file %}
+                                                    上次结果
+                                                    共计{{ import_status.douban_total }}篇，处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
+                                                {% endif %}
+                                            </div>
+                                            <div>
+                                                请务必在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」；已经存在的评论不会被覆盖。
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导入Goodreads帐号或书单' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:import_goodreads' %}" method="POST" >
+                                            {% csrf_token %}
+                                            <div class="import-panel__checkbox">输入Goodreads链接
+                                            <input type="url" name="url" value="" placeholder="例如 https://www.goodreads.com/user/show/12345-janedoe">
+                                            <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn" />
+                                            </div>
+                                            <div>
+                                                Goodreads用户主页链接形如 https://www.goodreads.com/user/show/12345-janedoe 将自动导入到当前用户的想读、在读、已读列表，每本书的评论导入为本站短评；
+                                                <br />
+                                                Goodreads书单链接形如 https://www.goodreads.com/review/list/12345-janedoe?shelf=name 或 https://www.goodreads.com/list/show/155086.Popular_Highlights 将自动导入成为收藏单，每本书的评论导入为收藏单条目备注。
+						<br />
+						欲导入的Goodreads用户需将Who Can View My Profile设置为anyone，导入后可改回原设置。
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '导出个人数据' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:export_marks' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            {% if export_status.marks_pending %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '正在导出兼容豆伴(doufen)和NiceDB的标记、短评和评论' %}" id="uploadBtn" disabled />
+                                            {% else %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '导出兼容豆伴(doufen)和NiceDB的标记、短评和评论' %}" id="uploadBtn" />
+                                            {% endif %}
+                                            {% if export_status.marks_file %}
+                                            <a href="{% url 'users:export_marks' %}" download>下载 {{ export_status.marks_date }} 的导出</a>
+                                            {% endif %}
+                                        </form>
+                                        <!-- <form action="{% url 'users:export_reviews' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '导出评论' %}" id="uploadBtn"
+                                            >
+                                        </form> -->
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '重置所有标记和短评可见性' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:reset_visibility' %}" method="POST" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '重置' %}" id="uploadBtn" />
+                                            <div class="import-panel__checkbox">
+                                            <input type="radio" name="visibility" id="visPublic" value="0" checked>
+                                            <label for="visPublic">{% trans '公开' %}</label>
+                                            <input type="radio" name="visibility" id="visFollower" value="1">
+                                            <label for="visFollower">{% trans '仅关注者' %}</label>
+                                            <input type="radio" name="visibility" id="visSelf" value="2">
+                                            <label for="visSelf">{% trans '仅自己' %}</label>
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '更新社交关系数据' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:sync_mastodon' %}" method="POST" enctype="multipart/form-data" >
+                                            {% csrf_token %}
+                                            <input type="submit" class="import-panel__button" value="{% trans '同步' %}" id="uploadBtn" /> 上次更新时间 {{ user.mastodon_last_refresh }}
+                                            <div>
+                                            为了正确高效的展示短评和评论，{{ site_name }}会缓存你在联邦网络的关注、屏蔽和静音列表。如果你刚刚更新过帐户的上锁状态、增减过关注、静音或屏蔽，希望立即生效，可以点击这里立刻更新；这类信息也会每天自动同步。
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {% if allow_any_site %}
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '替换社交账号' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:reconnect' %}" method="POST" >
+                                            {% csrf_token %}
+                                            <div class="import-panel__checkbox">输入新社交账号所在的实例域名
+                                            <input type="input" name="domain" value="" placeholder="例如mastodon.online">
+                                            <input type="submit" class="import-panel__button" value="{% trans '登录新账号' %}" id="uploadBtn" />
+                                            </div>
+                                            <div>
+                                            替换后可使用新的联邦网络身份来登录{{ site_name }}和控制数据可见性，已有的标记评论收藏单等数据不受影响。
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        <div class="main-section-wrapper">
+                            <div class="tools-section-wrapper">
+                                <div class="import-panel">
+                                    <h5 class="import-panel__label">{% trans '删除数据和帐号信息' %}</h5>
+                                    <div class="import-panel__body">
+                                        <form action="{% url 'users:clear_data' %}" method="POST" >
+                                            {% csrf_token %}
+                                            <div class="import-panel__checkbox">输入完整的 用户名@实例名 以确认删除
+                                            <input type="input" name="verification" value="" placeholder="user@mastodon.social">
+                                            <input type="submit" class="import-panel__button" value="{% trans '永久删除' %}" id="uploadBtn" />
+                                            </div>
+                                            <div>
+                                            删除将无法撤销
+                                            </div>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                    {% include "partial/_sidebar.html" %}
+                </div>
+            </section>
+
+        </div>
+
+        {% include "partial/_footer.html" %}
+    </div>
+
+    <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
+    <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
+</body>
+
+
+</html>
