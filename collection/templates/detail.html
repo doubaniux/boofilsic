@@ -92,6 +92,9 @@
                                             {{ collection.title }}
                                         </a>
                                     </h5>
+                                    {% if follower_count %}
+                                    被 {{ follower_count }} 人关注
+                                    {% endif %}
                                 </div>
                             </div>
                         </div>
