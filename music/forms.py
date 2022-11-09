@@ -7,12 +7,7 @@ from common.forms import *
 
 
 def MusicMarkStatusTranslator(status):
-    trans_dict = {
-        MarkStatusEnum.DO.value: _("在听"),
-        MarkStatusEnum.WISH.value: _("想听"),
-        MarkStatusEnum.COLLECT.value: _("听过")
-    }
-    return trans_dict[status]
+    return MusicMarkStatusTranslation[status]
 
 
 class SongForm(forms.ModelForm):
@@ -65,11 +60,8 @@ class SongMarkForm(MarkForm):
             'status',
             'rating',
             'text',
-            'is_private',
+            'visibility',
         ]
-        labels = {
-            'rating': _("评分"),
-        }
         widgets = {
             'song': forms.TextInput(attrs={"hidden": ""}),
         }
@@ -84,14 +76,8 @@ class SongReviewForm(ReviewForm):
             'song',
             'title',
             'content',
-            'is_private'
+            'visibility'
         ]
-        labels = {
-            'song': "",
-            'title': _("标题"),
-            'content': _("正文"),
-            'share_to_mastodon': _("分享到长毛象")
-        }
         widgets = {
             'song': forms.TextInput(attrs={"hidden": ""}),
         }
@@ -148,11 +134,8 @@ class AlbumMarkForm(MarkForm):
             'status',
             'rating',
             'text',
-            'is_private',
+            'visibility',
         ]
-        labels = {
-            'rating': _("评分"),
-        }
         widgets = {
             'album': forms.TextInput(attrs={"hidden": ""}),
         }
@@ -167,14 +150,8 @@ class AlbumReviewForm(ReviewForm):
             'album',
             'title',
             'content',
-            'is_private'
+            'visibility'
         ]
-        labels = {
-            'album': "",
-            'title': _("标题"),
-            'content': _("正文"),
-            'share_to_mastodon': _("分享到长毛象")
-        }
         widgets = {
             'album': forms.TextInput(attrs={"hidden": ""}),
         }

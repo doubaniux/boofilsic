@@ -25,3 +25,6 @@ migrations/
 # debug log file
 /log
 log
+
+# conf folder for neodb
+/neodb

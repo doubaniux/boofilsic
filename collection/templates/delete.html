@@ -1,0 +1,117 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta property="og:title" content="{{ site_name }} {% trans '收藏单' %} - {{ collection.title }}">
+    <meta property="og:description" content="{{ collection.description }}">
+    <meta property="og:type" content="article">
+    <meta property="og:article:author" content="{{ collection.owner.username }}">
+    <meta property="og:url" content="{{ request.build_absolute_uri }}">
+    <meta property="og:image" content="{{ collection.cover|thumb:'normal' }}">
+    <title>{{ site_name }} {% trans '收藏单' %} - {{ collection.title }}</title>
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/htmx/1.8.0/htmx.min.js"></script>
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include "partial/_navbar.html" %}
+        
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main" id="main">
+                        <div class="main-section-wrapper">
+                            <div class="review-head">
+                                <h5 class="review-head__title">
+                                    确认删除收藏单「{{ collection.title }}」吗？
+                                </h5>
+                                {% if collection.visibility > 0 %}
+                                <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                            <path
+                                                d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                                            </svg></span>
+                                {% endif %}
+                                <div class="review-head__body">
+                                    <div class="review-head__info">
+                                      
+                                            <a href="{% url 'users:home' collection.owner.mastodon_username %}" class="review-head__owner-link">{{ collection.owner.mastodon_username }}</a>
+                                            
+                                                
+                                            <span class="review-head__time">{{ collection.edited_time }}</span>
+                                            
+                                    </div>
+                                    <div class="review-head__actions">
+                                    </div>
+                                </div>
+                                <div id="rawContent">
+                                    {{ form.description }}
+                                </div>
+                                {{ form.media }}
+                                <div class="dividing-line"></div>
+                                <div class="clearfix">
+                                    <form action="{% url 'collection:delete' collection.id %}" method="post" class="float-right">
+                                        {% csrf_token %}
+                                        <input class="button" type="submit" value="{% trans '确认' %}">
+                                    </form>
+                                    <button onclick="history.back()" class="button button-clear float-right">{% trans '返回' %}</button>
+                                </div>
+                                <!-- <div class="dividing-line"></div> -->
+                                <!-- <div class="entity-card__img-wrapper" style="text-align: center;">
+                                    <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-card__img">
+                                </div> -->
+                            </div>
+                        </div>
+                    </div>
+                    <div class="grid__aside" id="aside">
+                        <div class="aside-section-wrapper">
+                            <div class="entity-card">
+                                <div class="entity-card__img-wrapper">
+                                    <a href="{% url 'collection:retrieve' collection.id %}">
+                                        <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-card__img">
+                                    </a>
+                                </div>
+                                <div class="entity-card__info-wrapper">
+                                    <h5 class="entity-card__title">
+                                        <a href="{% url 'collection:retrieve' collection.id %}">
+                                            {{ collection.title }}
+                                        </a>
+                                    </h5>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        {% include "partial/_footer.html" %}
+    </div>
+
+    
+    <script>
+        $(".markdownx textarea").hide();
+    </script>
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+    </script>
+</body>
+
+
+</html>

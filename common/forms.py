@@ -1,4 +1,5 @@
 from django import forms
+from markdownx.fields import MarkdownxFormField
 import django.contrib.postgres.forms as postgres
 from django.utils import formats
 from django.core.exceptions import ValidationError
@@ -45,7 +46,7 @@ class HstoreInput(forms.Widget):
         js = ('js/key_value_input.js',)
 
 
-class JSONField(postgres.JSONField):
+class JSONField(forms.fields.JSONField):
     widget = KeyValueInput
     def to_python(self, value):
         if not value:
@@ -88,7 +89,7 @@ class RatingValidator:
                 _('%(value)s is not an integer'),
                 params={'value': value},
             )
-        if not str(value) in [str(i) for i in range(1, 11)]:
+        if not str(value) in [str(i) for i in range(0, 11)]:
             raise ValidationError(
                 _('%(value)s is not an integer in range 1-10'),
                 params={'value': value},
@@ -154,9 +155,9 @@ class MultiSelect(forms.SelectMultiple):
 
     class Media:
         css = {
-            'all': ('lib/css/multiple-select.min.css',)
+            'all': ('https://cdn.jsdelivr.net/npm/multiple-select@1.5.2/dist/multiple-select.min.css',)
         }
-        js = ('lib/js/multiple-select.min.js',)
+        js = ('https://cdn.jsdelivr.net/npm/multiple-select@1.5.2/dist/multiple-select.min.js',)
 
 
 class HstoreField(forms.CharField):
@@ -223,22 +224,25 @@ class DurationField(forms.TimeField):
 #############################
 # Form
 #############################
+VISIBILITY_CHOICES = [
+    (0, _("公开")),
+    (1, _("仅关注者")),
+    (2, _("仅自己")),
+]
 
-class MarkForm(forms.ModelForm):
-    IS_PRIVATE_CHOICES = [
-        (True, _("仅关注者")),
-        (False, _("公开")),
-    ]
-    
+
+class MarkForm(forms.ModelForm):    
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     share_to_mastodon = forms.BooleanField(
-        label=_("分享到长毛象"), initial=True, required=False)
+        label=_("分享到联邦网络"), initial=True, required=False)
     rating = forms.IntegerField(
-        validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
-    is_private = RadioBooleanField(
+        label=_("评分"), validators=[RatingValidator()], widget=forms.HiddenInput(), required=False)
+    visibility = forms.TypedChoiceField(
         label=_("可见性"),
-        initial=True,
-        choices=IS_PRIVATE_CHOICES
+        initial=0,
+        coerce=int,
+        choices=VISIBILITY_CHOICES,
+        widget=forms.RadioSelect
     )
     tags = TagField(
         required=False,
@@ -259,15 +263,15 @@ class MarkForm(forms.ModelForm):
 
 
 class ReviewForm(forms.ModelForm):
-    IS_PRIVATE_CHOICES = [
-        (True, _("仅关注者")),
-        (False, _("公开")),
-    ]
+    title = forms.CharField(label=_("标题"))
+    content = MarkdownxFormField(label=_("正文 (Markdown)"))
     share_to_mastodon = forms.BooleanField(
-        label=_("分享到长毛象"), initial=True, required=False)
+        label=_("分享到联邦网络"), initial=True, required=False)
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
-    is_private = RadioBooleanField(
+    visibility = forms.TypedChoiceField(
         label=_("可见性"),
-        initial=True,
-        choices=IS_PRIVATE_CHOICES
+        initial=0,
+        coerce=int,
+        choices=VISIBILITY_CHOICES,
+        widget=forms.RadioSelect
     )

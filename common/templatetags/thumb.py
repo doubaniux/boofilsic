@@ -12,4 +12,7 @@ def thumb(source, alias):
     if source.url.endswith('.svg'):
         return source.url
     else:
-        return thumbnail_url(source, alias)
+        try:
+            return thumbnail_url(source, alias)
+        except Exception as e:
+            return ''

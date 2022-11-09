@@ -2,22 +2,24 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
-from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
-from mastodon.utils import rating_to_emoji
+from mastodon.models import MastodonApplication
+from mastodon.api import share_mark, share_review
 from common.utils import PageLinksGenerator
-from common.views import PAGE_LINK_NUMBER, jump_or_scrape
+from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
 from .forms import BookMarkStatusTranslator
-from boofilsic.settings import MASTODON_TAGS
+from django.conf import settings
+from collection.models import CollectionItem
+from common.scraper import get_scraper_by_url, get_normalized_url
 
 
 logger = logging.getLogger(__name__)
@@ -89,6 +91,18 @@ def create(request):
 
 
 @login_required
+def rescrape(request, id):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    item = get_object_or_404(Book, pk=id)
+    url = get_normalized_url(item.source_url)
+    scraper = get_scraper_by_url(url)
+    scraper.scrape(url)
+    form = scraper.save(request_user=request.user, instance=item)
+    return redirect(reverse("books:retrieve", args=[form.instance.id]))
+
+
+@login_required
 def update(request, id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=id)
@@ -98,6 +112,7 @@ def update(request, id):
             'books/create_update.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': _('修改书籍'),
                 'submit_url': reverse("books:update", args=[book.id]),
                 # provided for frontend js
@@ -126,6 +141,7 @@ def update(request, id):
                 'books/create_update.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': _('修改书籍'),
                     'submit_url': reverse("books:update", args=[book.id]),
                     # provided for frontend js
@@ -166,6 +182,7 @@ def retrieve(request, id):
         else:
             mark_form = BookMarkForm(initial={
                 'book': book,
+                'visibility': request.user.get_preference().default_visibility if request.user.is_authenticated else 0,
                 'tags': mark_tags
             })
 
@@ -184,10 +201,8 @@ def retrieve(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = BookMark.get_available(
-                book, request.user, request.session['oauth_token'])
-            review_list = BookReview.get_available(
-                book, request.user, request.session['oauth_token'])
+            mark_list = BookMark.get_available_for_identicals(book, request.user)
+            review_list = BookReview.get_available_for_identicals(book, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -195,6 +210,7 @@ def retrieve(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, CollectionItem.objects.filter(book=book)))
 
         # def strip_html_tags(text):
         #     import re
@@ -219,6 +235,7 @@ def retrieve(request, id):
                 'review_list_more': review_list_more,
                 'book_tag_list': book_tag_list,
                 'mark_tags': mark_tags,
+                'collection_list': collection_list,
             }
         )
     else:
@@ -263,12 +280,19 @@ def create_update_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            book_id = request.POST.get('book')
+            mark = BookMark.objects.filter(book_id=book_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(BookMark, pk=pk)
             if request.user != mark.owner:
                 return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.bookmark_tags.all()
+            if mark.status != request.POST.get('status'):
+                mark.created_time = timezone.now()
             # update
             form = BookMarkForm(request.POST, instance=mark)
         else:
@@ -276,13 +300,13 @@ def create_update_mark(request):
             form = BookMarkForm(request.POST)
 
         if form.is_valid():
-            if form.instance.status == MarkStatusEnum.WISH.value:
+            if form.instance.status == MarkStatusEnum.WISH.value or form.instance.rating == 0:
                 form.instance.rating = None
                 form.cleaned_data['rating'] = None
             form.instance.owner = request.user
             form.instance.edited_time = timezone.now()
             book = form.instance.book
-            
+
             try:
                 with transaction.atomic():
                     # update book rating
@@ -304,27 +328,10 @@ def create_update_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("books:retrieve",
-                                                                args=[book.id])
-                words = BookMarkStatusTranslator(form.cleaned_data['status']) +\
-                    f"《{book.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'])
-
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
-                tags = ''
-                content = words + '\n' + url + '\n' + \
-                    form.cleaned_data['text'] + '\n' + tags
-                response = post_toot(
-                    request.user.mastodon_site, content, visibility, request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_mark(form.instance):
+                    return go_relogin(request)
         else:
-            return HttpResponseBadRequest("invalid form data")
+            return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("books:retrieve", args=[form.instance.book.id]))
     else:
@@ -333,11 +340,30 @@ def create_update_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_mark_list(request, book_id):
+def wish(request, id):
+    if request.method == 'POST':
+        book = get_object_or_404(Book, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': 0,
+            'book': book,
+        }
+        try:
+            BookMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def retrieve_mark_list(request, book_id, following_only=False):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookMark.get_available(
-            book, request.user, request.session['oauth_token'])
+        queryset = BookMark.get_available_for_identicals(book, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -398,23 +424,8 @@ def create_review(request, book_id):
             form.instance.owner = request.user
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("books:retrieve_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(
-                    request.user.mastodon_site, content, visibility, request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -450,22 +461,8 @@ def update_review(request, id):
             form.instance.edited_time = timezone.now()
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("books:retrieve_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.book.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(
-                    request.user.mastodon_site, content, visibility, request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("books:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -500,11 +497,10 @@ def delete_review(request, id):
 
 
 @mastodon_request_included
-@login_required
 def retrieve_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(BookReview, pk=id)
-        if not check_visibility(review, request.session['oauth_token'], request.user):
+        if not review.is_visible_to(request.user):
             msg = _("你没有访问这个页面的权限😥")
             return render(
                 request,
@@ -539,8 +535,7 @@ def retrieve_review(request, id):
 def retrieve_review_list(request, book_id):
     if request.method == 'GET':
         book = get_object_or_404(Book, pk=book_id)
-        queryset = BookReview.get_available(
-            book, request.user, request.session['oauth_token'])
+        queryset = BookReview.get_available_for_identicals(book, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)

@@ -1,24 +1,24 @@
 {% load static %}
 {% load i18n %}
 {% load admin_url %}
+<form method="get" action="{% url 'common:search' %}">
 <section id="navbar">
     <nav class="navbar">
         <div class="grid">
             <div class="navbar__wrapper">
-
                 <a href="{% url 'common:home' %}" class="navbar__logo">
                     <img src="{% static 'img/logo.svg' %}" alt="" class="navbar__logo-img">
                 </a>
                 <div class="navbar__search-box">
                     <!-- <input type="search" class="" name="q" id="searchInput" required="true" value="{% for v in request.GET.values %}{{ v }}{% endfor %}" -->
                     <input type="search" class="" name="q" id="searchInput" required="true" value="{% if request.GET.q %}{{ request.GET.q }}{% endif %}"
-                        placeholder="搜索书影音">
-                    <select class="navbar__search-dropdown" id="searchCategory">
-                        <option value="all" {% if request.GET.c and request.GET.c != 'movie' and request.GET.c != 'book' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
-                        <option value="book" {% if request.GET.c and request.GET.c == 'book' %}selected{% endif %}>{% trans '书籍' %}</option>
-                        <option value="movie" {% if request.GET.c and request.GET.c == 'movie' %}selected{% endif %}>{% trans '电影' %}</option>
-                        <option value="music" {% if request.GET.c and request.GET.c == 'music' %}selected{% endif %}>{% trans '音乐' %}</option>
-                        <option value="game" {% if request.GET.c and request.GET.c == 'game' %}selected{% endif %}>{% trans '游戏' %}</option>
+                        placeholder="搜索书影音游戏，或输入站外条目链接如 https://movie.douban.com/subject/1297880/ 支持站点列表见页底公告栏">
+                    <select class="navbar__search-dropdown" id="searchCategory" name="c">
+                        <option value="all" {% if request.GET.c and request.GET.c == 'all' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
+                        <option value="book" {% if request.GET.c and request.GET.c == 'book' or '/books/' in request.path %}selected{% endif %}>{% trans '书籍' %}</option>
+                        <option value="movie" {% if request.GET.c and request.GET.c == 'movie' or '/movies/' in request.path  %}selected{% endif %}>{% trans '电影' %}</option>
+                        <option value="music" {% if request.GET.c and request.GET.c == 'music' or '/music/' in request.path  %}selected{% endif %}>{% trans '音乐' %}</option>
+                        <option value="game" {% if request.GET.c and request.GET.c == 'game' or '/games/' in request.path  %}selected{% endif %}>{% trans '游戏' %}</option>
                     </select>
                 </div>
                 <button class="navbar__dropdown-btn">• • •</button>
@@ -26,8 +26,11 @@
                     
                     {% if request.user.is_authenticated %}
          
+                        <a class="navbar__link" href="{% url 'users:home' request.user.mastodon_username %}">{% trans '主页' %}</a>
+                        <a class="navbar__link" href="{% url 'timeline:timeline' %}">{% trans '动态' %}</a>
+                        <a class="navbar__link" id="logoutLink" href="{% url 'users:data' %}">{% trans '数据' %}</a>
+                        <a class="navbar__link" id="logoutLink" href="{% url 'users:preferences' %}">{% trans '设置' %}</a>
                         <a class="navbar__link" id="logoutLink" href="{% url 'users:logout' %}">{% trans '登出' %}</a>
-                        <a class="navbar__link" href="{% url 'common:home' %}">{% trans '主页' %}</a>
                         {% if request.user.is_staff %}
                         <a class="navbar__link" href="{% admin_url %}">{% trans '后台' %}</a>
                         {% endif %}
@@ -36,23 +39,9 @@
                         <a class="navbar__link" href="{% url 'users:login' %}?next={{ request.path }}">{% trans '登录' %}</a>
                     {% endif %}
                 </ul>
-
             </div>
 
         </div>
     </nav>
-    <script>
-            $("#searchInput").on('keyup', function (e) {
-                // e.preventDefault();
-                if (e.keyCode === 13) {
-                    let q = $(this).val();
-                    let c = $("#searchCategory").val();
-                    if (q) {
-                        let new_location = "{% url 'common:search' %}" + "?c=" + c + "&q=" + q;
-                        setTimeout(function () { document.location.href = new_location; }, 150);
-                    }
-                }
-            });
-   
-    </script>
 </section>
+</form>

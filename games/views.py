@@ -2,21 +2,23 @@ import logging
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count
 from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
-from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
-from mastodon.utils import rating_to_emoji
+from mastodon.models import MastodonApplication
+from mastodon.api import share_mark, share_review
 from common.utils import PageLinksGenerator
-from common.views import PAGE_LINK_NUMBER, jump_or_scrape
+from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.models import SourceSiteEnum
 from .models import *
 from .forms import *
-from boofilsic.settings import MASTODON_TAGS
+from django.conf import settings
+from collection.models import CollectionItem
+from common.scraper import get_scraper_by_url, get_normalized_url
 
 
 logger = logging.getLogger(__name__)
@@ -88,6 +90,18 @@ def create(request):
 
 
 @login_required
+def rescrape(request, id):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    item = get_object_or_404(Game, pk=id)
+    url = get_normalized_url(item.source_url)
+    scraper = get_scraper_by_url(url)
+    scraper.scrape(url)
+    form = scraper.save(request_user=request.user, instance=item)
+    return redirect(reverse("games:retrieve", args=[form.instance.id]))
+
+
+@login_required
 def update(request, id):
     if request.method == 'GET':
         game = get_object_or_404(Game, pk=id)
@@ -98,6 +112,7 @@ def update(request, id):
             'games/create_update.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': page_title,
                 'submit_url': reverse("games:update", args=[game.id]),
                 # provided for frontend js
@@ -127,6 +142,7 @@ def update(request, id):
                 'games/create_update.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': page_title,
                     'submit_url': reverse("games:update", args=[game.id]),
                     # provided for frontend js
@@ -167,6 +183,7 @@ def retrieve(request, id):
         else:
             mark_form = GameMarkForm(initial={
                 'game': game,
+                'visibility': request.user.get_preference().default_visibility if request.user.is_authenticated else 0,
                 'tags': mark_tags
             })
 
@@ -186,10 +203,8 @@ def retrieve(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = GameMark.get_available(
-                game, request.user, request.session['oauth_token'])
-            review_list = GameReview.get_available(
-                game, request.user, request.session['oauth_token'])
+            mark_list = GameMark.get_available(game, request.user)
+            review_list = GameReview.get_available(game, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -197,6 +212,7 @@ def retrieve(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, CollectionItem.objects.filter(game=game)))
 
         # def strip_html_tags(text):
         #     import re
@@ -221,6 +237,7 @@ def retrieve(request, id):
                 'review_list_more': review_list_more,
                 'game_tag_list': game_tag_list,
                 'mark_tags': mark_tags,
+                'collection_list': collection_list,
             }
         )
     else:
@@ -265,12 +282,19 @@ def create_update_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            game_id = request.POST.get('game')
+            mark = GameMark.objects.filter(game_id=game_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(GameMark, pk=pk)
             if request.user != mark.owner:
                 return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.gamemark_tags.all()
+            if mark.status != request.POST.get('status'):
+                mark.created_time = timezone.now()
             # update
             form = GameMarkForm(request.POST, instance=mark)
         else:
@@ -278,7 +302,7 @@ def create_update_mark(request):
             form = GameMarkForm(request.POST)
 
         if form.is_valid():
-            if form.instance.status == MarkStatusEnum.WISH.value:
+            if form.instance.status == MarkStatusEnum.WISH.value or form.instance.rating == 0:
                 form.instance.rating = None
                 form.cleaned_data['rating'] = None
             form.instance.owner = request.user
@@ -306,28 +330,10 @@ def create_update_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("games:retrieve",
-                                                                args=[game.id])
-                words = GameMarkStatusTranslator(form.cleaned_data['status']) +\
-                    f"《{game.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'])
-
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
-                tags = ''
-                content = words + '\n' + url + '\n' + \
-                    form.cleaned_data['text'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_mark(form.instance):
+                    return go_relogin(request)
         else:
-            return HttpResponseBadRequest("invalid form data")
+            return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("games:retrieve", args=[form.instance.game.id]))
     else:
@@ -336,11 +342,30 @@ def create_update_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_mark_list(request, game_id):
+def wish(request, id):
+    if request.method == 'POST':
+        game = get_object_or_404(Game, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': 0,
+            'game': game,
+        }
+        try:
+            GameMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def retrieve_mark_list(request, game_id, following_only=False):
     if request.method == 'GET':
         game = get_object_or_404(Game, pk=game_id)
-        queryset = GameMark.get_available(
-            game, request.user, request.session['oauth_token'])
+        queryset = GameMark.get_available(game, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -401,23 +426,8 @@ def create_review(request, game_id):
             form.instance.owner = request.user
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("games:retrieve_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.game.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("games:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -453,23 +463,8 @@ def update_review(request, id):
             form.instance.edited_time = timezone.now()
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("games:retrieve_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.game.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("games:retrieve_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -504,11 +499,10 @@ def delete_review(request, id):
 
 
 @mastodon_request_included
-@login_required
 def retrieve_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(GameReview, pk=id)
-        if not check_visibility(review, request.session['oauth_token'], request.user):
+        if not review.is_visible_to(request.user):
             msg = _("你没有访问这个页面的权限😥")
             return render(
                 request,
@@ -543,8 +537,7 @@ def retrieve_review(request, id):
 def retrieve_review_list(request, game_id):
     if request.method == 'GET':
         game = get_object_or_404(Game, pk=game_id)
-        queryset = GameReview.get_available(
-            game, request.user, request.session['oauth_token'])
+        queryset = GameReview.get_available(game, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)

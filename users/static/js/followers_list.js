@@ -36,7 +36,8 @@ $(document).ready( function() {
             }
             $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
             $("#userInfoCard .mast-displayname").html(userName);
-            $("#userInfoCard .mast-brief").text($(userData.note).text());
+            $("#userInfoCard .mast-brief").text($("<div>"+userData.note.replace(/\<br/g,'\n<br').replace(/\<p/g,'\n<p')+"</div>").text());
+            $("#userInfoCard .mast-brief").html($("#userInfoCard .mast-brief").html().replace(/\n/g,'<br/>'));
             $(userInfoSpinner).remove();
         }
     );
@@ -45,7 +46,7 @@ $(document).ready( function() {
         id,
         mast_uri,
         token,
-        function(userList, request) {
+        function(userList, nextPage) {
             let subUserList = null;
             if (userList.length == 0) {
                 $(".mast-followers").hide();
@@ -101,12 +102,7 @@ $(document).ready( function() {
             });
 
             mainSpinner.hide();
-            request.getResponseHeader('link').split(',').forEach(link => {
-                if (link.includes('next')) {
-                    let regex = /<(.*?)>/;
-                    nextUrl = link.match(regex)[1];
-                }
-            });            
+            nextUrl = nextPage;
         }
     );
 
@@ -206,7 +202,12 @@ $(document).ready( function() {
                         } else {
                             temp.find(".mast-displayname").text(data.username);
                         }
-                        let url = $("#userPageURL").text().replace('0', data.id);
+                        let url;
+                        if (data.acct.includes('@')) {
+                            url = $("#userPageURL").text().replace('0', data.acct);
+                        } else {
+                            url = $("#userPageURL").text().replace('0', data.acct + '@' + mast_domain);
+                        }
                         temp.find("a").attr('href', url);
                         temp.find(".mast-brief").text(data.note.replace(/(<([^>]+)>)/ig, ""));
                         // console.log($(temp).html())
