@@ -272,7 +272,7 @@ class MovieReview(Review):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("movies:retrieve_review", args=[self.id])
+        return reverse("movies:retrieve_review", args=[self.id])
 
     @property
     def item(self):

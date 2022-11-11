@@ -17,6 +17,24 @@ $(document).ready( function() {
         $(".mast-following-more").hide();
         $(".mast-followers-more").hide();
 
+        getUserInfo(
+            id, 
+            mast_uri, 
+            token, 
+            function(userData) {
+                let userName;
+                if (userData.display_name) {
+                    userName = translateEmojis(userData.display_name, userData.emojis, true);
+                } else {
+                    userName = userData.username;
+                }
+                $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
+                $("#userInfoCard .mast-displayname").html(userName);
+                $("#userInfoCard .mast-brief").text($(userData.note).text());
+                $(userInfoSpinner).remove();
+            }
+        );
+
         getFollowers(
             id,
             mast_uri,

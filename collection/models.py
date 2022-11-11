@@ -64,7 +64,7 @@ class Collection(UserOwnedEntity):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("collection:retrieve", args=[self.id])
+        return reverse("collection:retrieve", args=[self.id])
 
     @property
     def wish_url(self):

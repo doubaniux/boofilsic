@@ -28,3 +28,6 @@ log
 
 # conf folder for neodb
 /neodb
+
+# typesense folder
+/typesense-data

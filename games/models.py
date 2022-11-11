@@ -145,7 +145,7 @@ class GameReview(Review):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("games:retrieve_review", args=[self.id])
+        return reverse("games:retrieve_review", args=[self.id])
 
     @property
     def item(self):

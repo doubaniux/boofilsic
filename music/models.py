@@ -191,7 +191,7 @@ class SongReview(Review):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("music:retrieve_song_review", args=[self.id])
+        return reverse("music:retrieve_song_review", args=[self.id])
 
     @property
     def item(self):
@@ -242,7 +242,7 @@ class AlbumReview(Review):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("music:retrieve_album_review", args=[self.id])
+        return reverse("music:retrieve_album_review", args=[self.id])
 
     @property
     def item(self):
