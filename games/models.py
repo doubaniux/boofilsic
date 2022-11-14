@@ -99,6 +99,10 @@ class Game(Entity):
         return reverse("games:retrieve", args=[self.id])
 
     @property
+    def year(self):
+        return self.release_date.year if self.release_date else None
+
+    @property
     def wish_url(self):
         return reverse("games:wish", args=[self.id])
 
