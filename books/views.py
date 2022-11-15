@@ -347,7 +347,7 @@ def wish(request, id):
         params = {
             'owner': request.user,
             'status': MarkStatusEnum.WISH,
-            'visibility': 0,
+            'visibility': request.user.preference.default_visibility,
             'book': book,
         }
         try:

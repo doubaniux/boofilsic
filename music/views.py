@@ -355,7 +355,7 @@ def wish_song(request, id):
         params = {
             'owner': request.user,
             'status': MarkStatusEnum.WISH,
-            'visibility': 0,
+            'visibility': request.user.preference.default_visibility,
             'song': song,
         }
         try:
@@ -918,7 +918,7 @@ def wish_album(request, id):
         params = {
             'owner': request.user,
             'status': MarkStatusEnum.WISH,
-            'visibility': 0,
+            'visibility': request.user.preference.default_visibility,
             'album': album,
         }
         try:
