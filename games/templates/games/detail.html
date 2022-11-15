@@ -133,7 +133,7 @@
 
 
                                     
-                                        {% if game.last_editor %}
+                                        {% if game.last_editor and user.is_staff %}
                                         <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' game.last_editor.mastodon_username %}">{{ game.last_editor | default:"" }}</a></div>
                                         {% endif %}
 
