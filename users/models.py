@@ -171,6 +171,7 @@ class Preference(models.Model):
     classic_homepage = models.BooleanField(null=False, default=False)
     mastodon_publish_public = models.BooleanField(null=False, default=False)
     mastodon_append_tag = models.CharField(max_length=2048, default='')
+    show_last_edit = models.PositiveSmallIntegerField(default=0)
 
     def get_serialized_home_layout(self):
         return str(self.home_layout).replace("\'", "\"")
