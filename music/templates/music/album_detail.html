@@ -125,7 +125,7 @@
                                         {% endif %}
                                         
                                     
-                                        {% if album.last_editor and user.is_staff %}
+                                        {% if album.last_editor and album.last_editor.preference.show_last_edit or user.is_staff %}
                                         <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' album.last_editor.mastodon_username %}">{{ album.last_editor | default:"" }}</a></div>
                                         {% endif %}
 

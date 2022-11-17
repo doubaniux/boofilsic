@@ -113,7 +113,7 @@
                                         {% endif %}
                                         
                                     
-                                        {% if song.last_editor and user.is_staff %}
+                                        {% if song.last_editor and song.last_editor.preference.show_last_edit or user.is_staff %}
                                         <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' song.last_editor.mastodon_username %}">{{ song.last_editor | default:"" }}</a></div>
                                         {% endif %}
 
