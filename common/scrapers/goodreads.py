@@ -42,7 +42,7 @@ class GoodreadsScraper(AbstractScraper):
             content = self.download_page(url, headers)
 
         try:
-            title = content.xpath("//h1[@id='bookTitle']/text()")[0].strip()
+            title = content.xpath("//h1/text()")[0].strip()
         except IndexError:
             raise ValueError("given url contains no book info")
 
