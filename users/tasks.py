@@ -135,7 +135,7 @@ def export_marks_task(user):
             my_rating = None  # (mark.rating / 2) if mark.rating else None
             content = review.content
             target_source_url = review.item.source_url
-            target_url = review.item.url
+            target_url = review.item.absolute_url
             line = [title, target, url, timestamp, my_rating, label, content, target_source_url, target_url]
             ws.append(line)
 

@@ -1,5 +1,7 @@
+import types
 import logging
 import typesense
+from typesense.exceptions import ObjectNotFound
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
 
@@ -194,14 +196,16 @@ class Indexer:
             # 'facetsDistribution': ['_class'],
             # 'sort_by': None,
         }
-        # print(q)
-        r = self.instance().collections[INDEX_NAME].documents.search(options)
-        # print(r)
-        import types
         results = types.SimpleNamespace()
-        results.items = list([x for x in map(lambda i: self.item_to_obj(i['document']), r['hits']) if x is not None])
-        results.num_pages = (r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
-        # print(results)
+
+        try:
+            r = self.instance().collections[INDEX_NAME].documents.search(options)
+            results.items = list([x for x in map(lambda i: self.item_to_obj(i['document']), r['hits']) if x is not None])
+            results.num_pages = (r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
+        except ObjectNotFound:
+            results.items = []
+            results.num_pages = 1
+
         return results
 
     @classmethod

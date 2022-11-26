@@ -410,7 +410,7 @@ def share_mark(mark):
         visibility = TootVisibilityEnum.UNLISTED
     tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', str(mark.item.verbose_category_name)) if user.get_preference().mastodon_append_tag else ''
     stars = rating_to_emoji(mark.rating, MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode)
-    content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.url}\n{mark.text}{tags}"
+    content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.absolute_url}\n{mark.text}{tags}"
     update_id = None
     if mark.shared_link:  # "https://mastodon.social/@username/1234567890"
         r = re.match(r'.+/(\w+)$', mark.shared_link)  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
@@ -469,7 +469,7 @@ def share_collection(collection, comment, user, visibility_no):
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', '收藏单') if user.get_preference().mastodon_append_tag else ''
-    content = f"分享收藏单《{collection.title}》\n{collection.url}\n{comment}{tags}"
+    content = f"分享收藏单《{collection.title}》\n{collection.absolute_url}\n{comment}{tags}"
     response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
     if response and response.status_code in [200, 201]:
         j = response.json()

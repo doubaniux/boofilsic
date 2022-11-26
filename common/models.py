@@ -64,6 +64,11 @@ class Entity(models.Model):
     def url(self):
         return self.get_absolute_url()
 
+    @property
+    def absolute_url(self):
+        """URL with host and protocol"""
+        return settings.APP_WEBSITE + self.url
+
     def get_json(self):
         return {
             'title': self.title,
