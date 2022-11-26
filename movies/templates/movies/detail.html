@@ -195,7 +195,7 @@
                                         {% endif %}
                                         
                                     
-                                        {% if movie.last_editor %}
+                                        {% if movie.last_editor and movie.last_editor.preference.show_last_edit or user.is_staff %}
                                         <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' movie.last_editor.mastodon_username %}">{{ movie.last_editor | default:"" }}</a></div>
                                         {% endif %}
 

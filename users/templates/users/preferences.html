@@ -44,8 +44,14 @@
                                             <br>
                                             <span>{% trans '登录后显示个人主页：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="classic_homepage" id="classic_homepage" {%if request.user.preference.classic_homepage %}checked{% endif %}>
+                                                <input type="checkbox" name="classic_homepage" id="classic_homepage" {%if request.user.preference.classic_homepage %}checked{% endif %} style="margin-bottom:1.5em">
                                                 <label for="classic_homepage">{% trans '默认登录后显示好友动态，如果希望登录后显示原版风格个人主页可选中此处' %}</label>
+                                            </div>
+                                            <br>
+                                            <span>{% trans '显示最近编辑者：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="show_last_edit" id="show_last_edit" {%if request.user.preference.show_last_edit %}checked{% endif %}>
+                                                <label for="show_last_edit">{% trans '默认不显示最近编辑条目的用户，除非该用户选中此选项。' %}</label>
                                             </div>
                                         </div>
                                     </div>

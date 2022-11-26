@@ -199,10 +199,8 @@ class Indexer:
         # print(r)
         import types
         results = types.SimpleNamespace()
-        results.items = list([x for x in map(lambda i: self.item_to_obj(
-            i['document']), r['hits']) if x is not None])
-        results.num_pages = (
-            r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
+        results.items = list([x for x in map(lambda i: self.item_to_obj(i['document']), r['hits']) if x is not None])
+        results.num_pages = (r['found'] + SEARCH_PAGE_SIZE - 1) // SEARCH_PAGE_SIZE
         # print(results)
         return results
 

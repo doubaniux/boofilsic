@@ -31,3 +31,6 @@ log
 
 # typesense folder
 /typesense-data
+
+# test coverage
+.coverage

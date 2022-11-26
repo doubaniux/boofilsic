@@ -121,6 +121,10 @@ class Book(Entity):
             return [self]  # Book.objects.filter(id=self.id)
 
     @property
+    def year(self):
+        return self.pub_year
+
+    @property
     def verbose_category_name(self):
         return _("书籍")
 

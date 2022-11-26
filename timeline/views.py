@@ -10,7 +10,6 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
-from mastodon.api import post_toot, TootVisibilityEnum
 from common.utils import PageLinksGenerator
 from .models import *
 from books.models import BookTag

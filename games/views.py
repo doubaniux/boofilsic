@@ -212,7 +212,8 @@ def retrieve(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
-        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, CollectionItem.objects.filter(game=game)))
+        all_collections = CollectionItem.objects.filter(game=game).annotate(num_marks=Count('collection__collection_marks')).order_by('-num_marks')[:20]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, all_collections))
 
         # def strip_html_tags(text):
         #     import re
@@ -348,7 +349,7 @@ def wish(request, id):
         params = {
             'owner': request.user,
             'status': MarkStatusEnum.WISH,
-            'visibility': 0,
+            'visibility': request.user.preference.default_visibility,
             'game': game,
         }
         try:

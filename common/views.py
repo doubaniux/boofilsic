@@ -48,11 +48,15 @@ def external_search(request):
         category = None
     keywords = request.GET.get("q", default='').strip()
     page_number = int(request.GET.get('page', default=1))
+    items = ExternalSources.search(category, keywords, page_number) if keywords else []
+    dedupe_urls = request.session.get('search_dedupe_urls', [])
+    items = [i for i in items if i.source_url not in dedupe_urls]
+
     return render(
         request,
         "common/external_search_result.html",
         {
-            "external_items": ExternalSources.search(category, keywords, page_number) if keywords else [],
+            "external_items": items,
         }
     )
 
@@ -85,18 +89,31 @@ def search(request):
             pass
     
     result = Indexer.search(keywords, page=page_number, category=category, tag=tag)
-    for item in result.items:
-        item.tag_list = item.all_tag_list[:TAG_NUMBER_ON_LIST]
+    keys = []
+    items = []
+    urls = []
+    for i in result.items:
+        key = i.isbn if hasattr(i, 'isbn') else (i.imdb_code if hasattr(i, 'imdb_code') else None)
+        if key is None:
+            items.append(i)
+        elif key not in keys:
+            keys.append(key)
+            items.append(i)
+        urls.append(i.source_url)
+        i.tag_list = i.all_tag_list[:TAG_NUMBER_ON_LIST]
+
     if request.path.endswith('.json/'):
         return JsonResponse({
             'num_pages': result.num_pages,
-            'items':list(map(lambda i:i.get_json(), result.items))
+            'items':list(map(lambda i:i.get_json(), items))
             })
+
+    request.session['search_dedupe_urls'] = urls
     return render(
         request,
         "common/search_result.html",
         {
-            "items": result.items,
+            "items": items,
             "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, page_number, result.num_pages),
             "categories": ['book', 'movie', 'music', 'game'],
         }

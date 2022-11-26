@@ -52,8 +52,9 @@ def preferences(request):
         preference.default_visibility = int(request.POST.get('default_visibility'))
         preference.classic_homepage = bool(request.POST.get('classic_homepage'))
         preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
+        preference.show_last_edit = bool(request.POST.get('show_last_edit'))
         preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
-        preference.save(update_fields=['default_visibility', 'classic_homepage', 'mastodon_publish_public', 'mastodon_append_tag'])
+        preference.save(update_fields=['default_visibility', 'classic_homepage', 'mastodon_publish_public', 'mastodon_append_tag', 'show_last_edit'])
     return render(request, 'users/preferences.html')
 
 

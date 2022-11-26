@@ -10,7 +10,7 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from mastodon import mastodon_request_included
 from mastodon.models import MastodonApplication
-from mastodon.api import post_toot, TootVisibilityEnum, share_collection
+from mastodon.api import share_collection
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.models import SourceSiteEnum
@@ -153,12 +153,8 @@ def retrieve(request, id):
             raise PermissionDenied()
         form = CollectionForm(instance=collection)
 
-        if request.user.is_authenticated:
-            following = True if CollectionMark.objects.filter(owner=request.user, collection=collection).first() is not None else False
-            followers = []
-        else:
-            following = False
-            followers = []
+        following = True if request.user.is_authenticated and CollectionMark.objects.filter(owner=request.user, collection=collection).first() is not None else False
+        follower_count = CollectionMark.objects.filter(collection=collection).count()
 
         return render(
             request,
@@ -167,7 +163,7 @@ def retrieve(request, id):
                 'collection': collection,
                 'form': form,
                 'editable': request.user.is_authenticated and collection.is_editable_by(request.user),
-                'followers': followers,
+                'follower_count': follower_count,
                 'following': following,
             }
         )
@@ -184,10 +180,6 @@ def retrieve_entity_list(request, id):
         raise PermissionDenied()
     form = CollectionForm(instance=collection)
 
-    followers = []
-    if request.user.is_authenticated:
-        followers = []
-
     return render(
         request,
         'entity_list.html',
@@ -195,8 +187,6 @@ def retrieve_entity_list(request, id):
             'collection': collection,
             'form': form,
             'editable': request.user.is_authenticated and collection.is_editable_by(request.user),
-            'followers': followers,
-
         }
     )
 

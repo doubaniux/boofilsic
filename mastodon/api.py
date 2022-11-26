@@ -9,6 +9,7 @@ from django.shortcuts import reverse
 from urllib.parse import quote
 from .models import CrossSiteUserInfo, MastodonApplication
 from mastodon.utils import rating_to_emoji
+import re
 
 
 logger = logging.getLogger(__name__)
@@ -63,6 +64,7 @@ TWITTER_API_TOKEN = 'https://api.twitter.com/2/oauth2/token'
 USER_AGENT = f"{settings.CLIENT_NAME}/1.0"
 
 get = functools.partial(requests.get, timeout=settings.MASTODON_TIMEOUT)
+put = functools.partial(requests.put, timeout=settings.MASTODON_TIMEOUT)
 post = functools.partial(requests.post, timeout=settings.MASTODON_TIMEOUT)
 
 
@@ -78,7 +80,7 @@ def get_relationships(site, id_list, token):  # no longer in use
     return response.json()
 
 
-def post_toot(site, content, visibility, token, local_only=False):
+def post_toot(site, content, visibility, token, local_only=False, update_id=None):
     headers = {
         'User-Agent': USER_AGENT,
         'Authorization': f'Bearer {token}',
@@ -90,6 +92,10 @@ def post_toot(site, content, visibility, token, local_only=False):
             'text': content if len(content) <= 150 else content[0:150] + '...'
         }
         response = post(url, headers=headers, json=payload)
+        if response.status_code == 201:
+            response.status_code = 200
+        if response.status_code != 200:
+            logger.error(f"Error {url} {response.status_code}")
     else:
         url = 'https://' + site + API_PUBLISH_TOOT
         payload = {
@@ -99,7 +105,10 @@ def post_toot(site, content, visibility, token, local_only=False):
         if local_only:
             payload['local_only'] = True
         try:
-            response = post(url, headers=headers, data=payload)
+            if update_id:
+                response = put(url + '/' + update_id, headers=headers, data=payload)
+            if update_id is None or response.status_code != 200:
+                response = post(url, headers=headers, data=payload)
             if response.status_code == 201:
                 response.status_code = 200
             if response.status_code != 200:
@@ -402,7 +411,11 @@ def share_mark(mark):
     tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', str(mark.item.verbose_category_name)) if user.get_preference().mastodon_append_tag else ''
     stars = rating_to_emoji(mark.rating, MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode)
     content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.url}\n{mark.text}{tags}"
-    response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
+    update_id = None
+    if mark.shared_link:  # "https://mastodon.social/@username/1234567890"
+        r = re.match(r'.+/(\w+)$', mark.shared_link)  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
+        update_id = r[1] if r else None
+    response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token, False, update_id)
     if response and response.status_code in [200, 201]:
         j = response.json()
         if 'url' in j:
@@ -428,7 +441,11 @@ def share_review(review):
         visibility = TootVisibilityEnum.UNLISTED
     tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', str(review.item.verbose_category_name)) if user.get_preference().mastodon_append_tag else ''
     content = f"发布了关于《{review.item.title}》的评论\n{review.url}\n{review.title}{tags}"
-    response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token)
+    update_id = None
+    if review.shared_link:  # "https://mastodon.social/@username/1234567890"
+        r = re.match(r'.+/(\w+)$', review.shared_link)  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit
+        update_id = r[1] if r else None
+    response = post_toot(user.mastodon_site, content, visibility, user.mastodon_token, False, update_id)
     if response and response.status_code in [200, 201]:
         j = response.json()
         if 'url' in j:

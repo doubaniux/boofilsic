@@ -55,6 +55,10 @@ class Album(Entity):
 
     history = HistoricalRecords()
 
+    @property
+    def year(self):
+        return self.release_date.year if self.release_date else None
+
     def __str__(self):
         return self.title
 

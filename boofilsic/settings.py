@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 """
 
 import os
+import requests
 import psycopg2.extensions
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
@@ -296,9 +297,9 @@ TMDB_API3_KEY = "***REMOVED***"
 GOOGLE_API_KEY = '***REMOVED***'
 
 # IGDB
-IGDB_CLIENT_ID = '***REMOVED***'
-IGDB_SECRET = "***REMOVED***"
-IGDB_ACCESS_TOKEN = '***REMOVED***'
+IGDB_CLIENT_ID = 'deadbeef'
+IGDB_CLIENT_SECRET = 'deadbeef'
+IGDB_ACCESS_TOKEN = requests.post(f'https://id.twitch.tv/oauth2/token?client_id={IGDB_CLIENT_ID}&client_secret={IGDB_CLIENT_SECRET}&grant_type=client_credentials').json()['access_token']
 
 # Thumbnail setting
 # It is possible to optimize the image size even more: https://easy-thumbnails.readthedocs.io/en/latest/ref/optimize/

@@ -70,7 +70,7 @@ class GoodreadsImporter:
                         'rating': book['rating'],
                         'text': book['review'],
                         'status': status,
-                        'visibility': 0,
+                        'visibility': user.preference.default_visibility,
                         'book': book['book'],
                     }
                     if book['last_updated']:

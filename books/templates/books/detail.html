@@ -99,7 +99,7 @@
                                         {% endif %}
                                         
                                     
-                                        {% if book.last_editor %}
+                                        {% if book.last_editor and book.last_editor.preference.show_last_edit or user.is_staff %}
                                         <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' book.last_editor.mastodon_username %}">{{ book.last_editor | default:"" }}</a></div>
                                         {% endif %}
                                             

@@ -33,7 +33,7 @@ python3 manage.py check
 
 Initialize database
 ```
-python3 manage.py makemigrations users books movies games music sync mastodon management collection
+python3 manage.py makemigrations users books movies games music sync mastodon management collection timeline
 python3 manage.py migrate users
 python3 manage.py migrate
 ```
@@ -104,3 +104,11 @@ docker-compose build
 docker-compose up db && docker exec -it app_db_1 psql -U postgres postgres -c 'CREATE EXTENSION hstore WITH SCHEMA public;'  # first time only
 docker-compose up
 ```
+
+Run Tests
+```
+psql template1 -c 'create extension hstore;'  # first time only
+coverage run --source='.' manage.py test
+coverage report
+```
+
