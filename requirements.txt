@@ -9,11 +9,13 @@ django-simple-history
 django-hijack
 django-user-messages
 django-slack
+#django-ninja
+#django-polymorphic
 meilisearch
 easy-thumbnails
 lxml
 openpyxl
-psycopg2
+psycopg2-binary
 requests
 filetype
 setproctitle
