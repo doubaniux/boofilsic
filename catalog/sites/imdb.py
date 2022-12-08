@@ -1,6 +1,5 @@
-from django.conf import settings
 from catalog.common import *
-from .douban import *
+from .tmdb import search_tmdb_by_imdb_id
 from catalog.movie.models import *
 from catalog.tv.models import *
 import logging
@@ -21,8 +20,7 @@ class IMDB(AbstractSite):
 
     def scrape(self):
         self.scraped = False
-        api_url = f"https://api.themoviedb.org/3/find/{self.id_value}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&external_source=imdb_id"
-        res_data = BasicDownloader(api_url).download().json()
+        res_data = search_tmdb_by_imdb_id(self.id_value)
         if 'movie_results' in res_data and len(res_data['movie_results']) > 0:
             url = f"https://www.themoviedb.org/movie/{res_data['movie_results'][0]['id']}"
         elif 'tv_results' in res_data and len(res_data['tv_results']) > 0:

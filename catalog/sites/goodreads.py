@@ -1,12 +1,12 @@
 import re
-from catalog.book.models import Edition
+from catalog.book.models import Edition, Work
 from catalog.common import *
 from lxml import html
 import json
 import logging
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class GoodreadsDownloader(RetryDownloader):
@@ -64,14 +64,15 @@ class Goodreads(AbstractSite):
             data['asin'] = asin
         data['pages'] = b['details'].get('numPages')
         data['cover_image_url'] = b['imageUrl']
-        data['work'] = {}
         w = next(filter(lambda x: x.get('details'), o['Work']), None)
         if w:
-            data['work']['lookup_id_type'] = IdType.Goodreads_Work
-            data['work']['lookup_id_value'] = str(w['legacyId'])
-            data['work']['title'] = w['details']['originalTitle']
-            data['work']['url'] = w['details']['webUrl']
-
+            data['required_pages'] = [{
+                'model': 'Work',
+                'id_type': IdType.Goodreads_Work, 
+                'id_value': str(w['legacyId']),
+                'title': w['details']['originalTitle'],
+                'url': w['editions']['webUrl'],
+            }]
         pd = PageData(metadata=data)
         pd.lookup_ids[IdType.ISBN] = data.get('isbn')
         pd.lookup_ids[IdType.ASIN] = data.get('asin')
@@ -81,5 +82,34 @@ class Goodreads(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {data["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {data["cover_image_url"]}')
+        return pd
+
+
+@SiteList.register
+class Goodreads_Work(AbstractSite):
+    ID_TYPE = IdType.Goodreads_Work
+    WIKI_PROPERTY_ID = ''
+    DEFAULT_MODEL = Work
+    URL_PATTERNS = [r".+goodreads.com/work/editions/(\d+)"]
+
+    @classmethod
+    def id_to_url(self, id_value):
+        return "https://www.goodreads.com/work/editions/" + id_value
+
+    def scrape(self, response=None):
+        content = html.fromstring(BasicDownloader(self.url).download().text.strip())
+        title_elem = content.xpath("//h1/a/text()")
+        title = title_elem[0].strip() if title_elem else None
+        if not title:
+            raise ParseError(self, 'title')
+        author_elem = content.xpath("//h2/a/text()")
+        author = author_elem[0].strip() if author_elem else None
+        first_published_elem = content.xpath("//h2/span/text()")
+        first_published = first_published_elem[0].strip() if first_published_elem else None
+        pd = PageData(metadata={
+            'title': title,
+            'author': author,
+            'first_published': first_published
+        })
         return pd

@@ -60,6 +60,8 @@ class TMDBTVSeasonTestCase(TestCase):
         self.assertEqual(site.page.item.primary_lookup_id_type, IdType.IMDB)
         self.assertEqual(site.page.item.__class__.__name__, 'TVSeason')
         self.assertEqual(site.page.item.imdb, 'tt1159991')
+        self.assertIsNotNone(site.page.item.show)
+        self.assertEqual(site.page.item.show.imdb, 'tt0436992')
 
 
 class DoubanMovieTVTestCase(TestCase):
@@ -68,6 +70,8 @@ class DoubanMovieTVTestCase(TestCase):
         url3 = 'https://movie.douban.com/subject/3627919/'
         p3 = SiteList.get_site_by_url(url3).get_page_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVSeason')
+        self.assertIsNotNone(p3.item.show)
+        self.assertEqual(p3.item.show.imdb, 'tt0436992')
 
     @use_local_response
     def test_scrape_singleseason(self):

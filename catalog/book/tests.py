@@ -78,8 +78,7 @@ class GoodreadsTestCase(TestCase):
         self.assertEqual(site.ready, True)
         self.assertEqual(site.page.metadata.get('title'), 'Hyperion')
         self.assertEqual(site.page.metadata.get('isbn'), isbn)
-        self.assertEqual(site.page.metadata['work']['lookup_id_value'], '1383900')
-        self.assertEqual(site.page.metadata['work']['title'], 'Hyperion')
+        self.assertEqual(site.page.required_pages[0]['id_value'], '1383900')
         edition = Edition.objects.get(primary_lookup_id_type=IdType.ISBN, primary_lookup_id_value=isbn)
         page = edition.external_pages.all().first()
         self.assertEqual(page.id_type, IdType.Goodreads)
@@ -105,19 +104,19 @@ class GoodreadsTestCase(TestCase):
 
     @use_local_response
     def test_work(self):
-        # url = 'https://www.goodreads.com/work/editions/153313'
+        url = 'https://www.goodreads.com/work/editions/153313'
+        p = SiteList.get_site_by_url(url).get_page_ready()
+        self.assertEqual(p.item.title, '1984')
         url1 = 'https://www.goodreads.com/book/show/3597767-rok-1984'
         url2 = 'https://www.goodreads.com/book/show/40961427-1984'
         p1 = SiteList.get_site_by_url(url1).get_page_ready()
         p2 = SiteList.get_site_by_url(url2).get_page_ready()
         w1 = p1.item.works.all().first()
         w2 = p2.item.works.all().first()
-        self.assertEqual(w1.title, 'Nineteen Eighty-Four')
-        self.assertEqual(w2.title, 'Nineteen Eighty-Four')
         self.assertEqual(w1, w2)
 
 
-class DoubanTestCase(TestCase):
+class DoubanBookTestCase(TestCase):
     def setUp(self):
         pass
 

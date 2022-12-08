@@ -108,16 +108,16 @@ class DoubanBook(AbstractSite, ScraperMixin):
             translators = None
         self.data['translators'] = translators
 
-        self.data['work'] = {}
         work_link = self.parse_str('//h2/span[text()="这本书的其他版本"]/following-sibling::span[@class="pl"]/a/@href')
         if work_link:
-            # TODO move logic to a differnet class
             r = re.match(r'\w+://book.douban.com/works/(\d+)', work_link)
-            self.data['work']['lookup_id_type'] = IdType.DoubanBook_Work
-            self.data['work']['lookup_id_value'] = r[1] if r else None
-            self.data['work']['title'] = self.data['title']
-            self.data['work']['url'] = work_link
-
+            self.data['required_pages'] = [{
+                'model': 'Work',
+                'id_type': IdType.DoubanBook_Work, 
+                'id_value': r[1] if r else None,
+                'title': self.data['title'],
+                'url': work_link,
+            }]
         pd = PageData(metadata=self.data)
         pd.lookup_ids[IdType.ISBN] = self.data.get('isbn')
         pd.lookup_ids[IdType.CUBN] = self.data.get('cubn')
@@ -128,4 +128,35 @@ class DoubanBook(AbstractSite, ScraperMixin):
                 pd.cover_image_extention = imgdl.extention
             except Exception:
                 logger.debug(f'failed to download cover for {self.url} from {self.data["cover_image_url"]}')
+        return pd
+
+
+@SiteList.register
+class DoubanBook_Work(AbstractSite):
+    ID_TYPE = IdType.DoubanBook_Work
+    URL_PATTERNS = [r"\w+://book\.douban\.com/works/(\d+)"]
+    WIKI_PROPERTY_ID = '?'
+    DEFAULT_MODEL = Work
+
+    @classmethod
+    def id_to_url(self, id_value):
+        return "https://book.douban.com/works/" + id_value + "/"
+
+    def bypass_scrape(self, data_from_link):
+        if not data_from_link:
+            return None
+        pd = PageData(metadata={
+            'title': data_from_link['title'],
+        })
+        return pd
+
+    def scrape(self):
+        content = html.fromstring(DoubanDownloader(self.url).download().text.strip())
+        title_elem = content.xpath("//h1/text()")
+        title = title_elem[0].split('全部版本(')[0].strip() if title_elem else None
+        if not title:
+            raise ParseError(self, 'title')
+        pd = PageData(metadata={
+            'title': title,
+        })
         return pd

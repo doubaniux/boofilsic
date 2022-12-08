@@ -14,6 +14,12 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+def search_tmdb_by_imdb_id(imdb_id):
+    tmdb_api_url = f"https://api.themoviedb.org/3/find/{imdb_id}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&external_source=imdb_id"
+    res_data = BasicDownloader(tmdb_api_url).download().json()
+    return res_data
+
+
 def _copy_dict(s, key_map):
     d = {}
     for src, dst in key_map.items():
@@ -61,7 +67,7 @@ class TMDB_Movie(AbstractSite):
 
     @classmethod
     def id_to_url(self, id_value):
-        return "https://www.themoviedb.org/movie/" + id_value
+        return f"https://www.themoviedb.org/movie/{id_value}"
 
     def scrape(self):
         is_series = False
@@ -162,7 +168,7 @@ class TMDB_TV(AbstractSite):
 
     @classmethod
     def id_to_url(self, id_value):
-        return "https://www.themoviedb.org/tv/" + id_value
+        return f"https://www.themoviedb.org/tv/{id_value}"
 
     def scrape(self):
         is_series = True
@@ -221,6 +227,12 @@ class TMDB_TV(AbstractSite):
         # TODO: use GET /configuration to get base url
         img_url = ('https://image.tmdb.org/t/p/original/' + res_data['poster_path']) if res_data['poster_path'] is not None else None
 
+        season_links = list(map(lambda s: {
+            'model': 'TVSeason',
+            'id_type': IdType.TMDB_TVSeason,
+            'id_value': f'{self.id_value}-{s["season_number"]}',
+            'title': s['name'],
+            'url': f'{self.url}/season/{s["season_number"]}'}, res_data['seasons']))
         pd = PageData(metadata={
             'title': title,
             'orig_title': orig_title,
@@ -241,9 +253,11 @@ class TMDB_TV(AbstractSite):
             'single_episode_length': None,
             'brief': brief,
             'cover_image_url': img_url,
+            'related_pages': season_links,
         })
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
+
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:
@@ -279,6 +293,13 @@ class TMDB_TVSeason(AbstractSite):
         if not d.get('id'):
             raise ParseError('id')
         pd = PageData(metadata=_copy_dict(d, {'name': 'title', 'overview': 'brief', 'air_date': 'air_date', 'season_number': 0, 'external_ids': 0}))
+        pd.metadata['required_pages'] = [{
+            'model': 'TVShow',
+            'id_type': IdType.TMDB_TV,
+            'id_value': v[0],
+            'title': f'TMDB TV Show {v[0]}',
+            'url': f"https://www.themoviedb.org/tv/{v[0]}",
+        }]
         pd.lookup_ids[IdType.IMDB] = d['external_ids'].get('imdb_id')
         pd.metadata['cover_image_url'] = ('https://image.tmdb.org/t/p/original/' + d['poster_path']) if d['poster_path'] else None
         pd.metadata['title'] = pd.metadata['title'] if pd.metadata['title'] else f'Season {d["season_number"]}'
@@ -295,7 +316,7 @@ class TMDB_TVSeason(AbstractSite):
         # get external id from 1st episode
         if pd.lookup_ids[IdType.IMDB]:
             logger.warning("Unexpected IMDB id for TMDB tv season")
-        elif len(pd.metadata['episode_number_list']) == 0: 
+        elif len(pd.metadata['episode_number_list']) == 0:
             logger.warning("Unable to lookup IMDB id for TMDB tv season with zero episodes")
         else:
             ep = pd.metadata['episode_number_list'][0]

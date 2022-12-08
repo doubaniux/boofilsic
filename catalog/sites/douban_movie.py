@@ -6,6 +6,7 @@ from catalog.tv.models import *
 import logging
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+from .tmdb import TMDB_TV, search_tmdb_by_imdb_id
 
 
 logger = logging.getLogger(__name__)
@@ -238,19 +239,33 @@ class DoubanMovie(AbstractSite):
         })
         pd.metadata['preferred_model'] = ('TVSeason' if season else 'TVShow') if is_series else 'Movie'
 
-        # tmdb_api_url = f"https://api.themoviedb.org/3/find/{self.imdb_code}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&external_source=imdb_id"
-        # res_data = BasicDownloader(tmdb_api_url).download().json()
-        # if 'movie_results' in res_data and len(res_data['movie_results']) > 0:
-        #     pd.metadata['preferred_model'] = 'Movie'
-        # elif 'tv_results' in res_data and len(res_data['tv_results']) > 0:
-        #     pd.metadata['preferred_model'] = 'TVShow'
-        # elif 'tv_season_results' in res_data and len(res_data['tv_season_results']) > 0:
-        #     pd.metadata['preferred_model'] = 'TVSeason'
-        # elif 'tv_episode_results' in res_data and len(res_data['tv_episode_results']) > 0:
-        #     pd.metadata['preferred_model'] = 'TVSeason'
-
         if imdb_code:
+            res_data = search_tmdb_by_imdb_id(imdb_code)
+            tmdb_show_id = None
+            if 'movie_results' in res_data and len(res_data['movie_results']) > 0:
+                pd.metadata['preferred_model'] = 'Movie'
+            elif 'tv_results' in res_data and len(res_data['tv_results']) > 0:
+                pd.metadata['preferred_model'] = 'TVShow'
+            elif 'tv_season_results' in res_data and len(res_data['tv_season_results']) > 0:
+                pd.metadata['preferred_model'] = 'TVSeason'
+                tmdb_show_id = res_data['tv_season_results'][0]['show_id']
+            elif 'tv_episode_results' in res_data and len(res_data['tv_episode_results']) > 0:
+                pd.metadata['preferred_model'] = 'TVSeason'
+                tmdb_show_id = res_data['tv_episode_results'][0]['show_id']
+                if res_data['tv_episode_results'][0]['episode_number'] != 1:
+                    logger.error(f'Douban Movie {self.url} mapping to unexpected imdb episode {imdb_code}')
+                    # TODO correct the IMDB id
             pd.lookup_ids[IdType.IMDB] = imdb_code
+            if tmdb_show_id:
+                pd.metadata['required_pages'] = [{
+                    'model': 'TVShow',
+                    'id_type': IdType.TMDB_TV,
+                    'id_value': tmdb_show_id,
+                    'title': title,
+                    'url': TMDB_TV.id_to_url(tmdb_show_id),
+                }]
+        # TODO parse sister seasons
+        # pd.metadata['related_pages'] = []
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:

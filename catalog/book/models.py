@@ -47,15 +47,14 @@ class Edition(Item):
 
     def update_linked_items_from_extenal_page(self, page):
         """add Work from page.metadata['work'] if not yet"""
-        w = page.metadata.get('work', None)
-        if w:
-            work = Work.objects.filter(primary_lookup_id_type=w['lookup_id_type'], primary_lookup_id_value=w['lookup_id_value']).first()
-            if work:
-                if any(edition == self for edition in work.editions.all()):
-                    return
-            else:
-                work = Work.objects.create(primary_lookup_id_type=w['lookup_id_type'], primary_lookup_id_value=w['lookup_id_value'], title=w['title'])
-            work.editions.add(self)
+        links = page.required_pages + page.related_pages
+        for w in links:
+            if w['model'] == 'Work':
+                work = Work.objects.filter(primary_lookup_id_type=w['id_type'], primary_lookup_id_value=w['id_value']).first()
+                if work and work not in self.works.all():
+                    self.works.add(work)
+                # if not work:
+                #     logger.info(f'Unable to find link for {w["url"]}')
 
 
 class Work(Item):

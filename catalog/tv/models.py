@@ -39,14 +39,23 @@ class TVSeason(Item):
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tvseason = PrimaryLookupIdDescriptor(IdType.TMDB_TVSeason)
-    series = models.ForeignKey(TVShow, null=True, on_delete=models.SET_NULL, related_name='seasons')
+    show = models.ForeignKey(TVShow, null=True, on_delete=models.SET_NULL, related_name='seasons')
     season_number = models.PositiveIntegerField()
     episode_count = jsondata.IntegerField(blank=True, default=None)
     METADATA_COPY_LIST = ['title', 'brief', 'season_number', 'episode_count']
 
+    def update_linked_items_from_extenal_page(self, page):
+        """add Work from page.metadata['work'] if not yet"""
+        links = page.required_pages + page.related_pages
+        for w in links:
+            if w['model'] == 'TVShow':
+                p = ExternalPage.objects.filter(id_type=w['id_type'], id_value=w['id_value']).first()
+                if p and p.item and self.show != p.item:
+                    self.show = p.item
+
 
 class TVEpisode(Item):
-    series = models.ForeignKey(TVShow, null=True, on_delete=models.SET_NULL, related_name='episodes')
+    show = models.ForeignKey(TVShow, null=True, on_delete=models.SET_NULL, related_name='episodes')
     season = models.ForeignKey(TVSeason, null=True, on_delete=models.SET_NULL, related_name='episodes')
     episode_number = models.PositiveIntegerField()
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)

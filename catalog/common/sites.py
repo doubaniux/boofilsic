@@ -2,6 +2,10 @@ from typing import *
 import re
 from .models import ExternalPage
 from dataclasses import dataclass, field
+import logging
+
+
+logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -50,6 +54,10 @@ class AbstractSite:
                 self.page = ExternalPage(id_type=self.ID_TYPE, id_value=self.id_value, url=self.url)
         return self.page
 
+    def bypass_scrape(self, data_from_link) -> PageData | None:
+        """subclass may implement this to use data from linked page and bypass actual scrape"""
+        return None
+
     def scrape(self) -> PageData:
         """subclass should implement this, return PageData object"""
         data = PageData()
@@ -76,7 +84,7 @@ class AbstractSite:
     def ready(self):
         return bool(self.page and self.page.ready)
 
-    def get_page_ready(self, auto_save=True, auto_create=True, auto_link=True):
+    def get_page_ready(self, auto_save=True, auto_create=True, auto_link=True, data_from_link=None):
         """return a page scraped, or scrape if not yet""" 
         if auto_link:
             auto_create = True
@@ -87,7 +95,9 @@ class AbstractSite:
         if not self.page:
             return None
         if not p.ready:
-            pagedata = self.scrape()
+            pagedata = self.bypass_scrape(data_from_link)
+            if not pagedata:
+                pagedata = self.scrape()
             p.update_content(pagedata)
         if not p.ready:
             logger.error(f'unable to get page {self.url} ready')
@@ -100,13 +110,15 @@ class AbstractSite:
                 p.item.merge_data_from_extenal_pages()
                 p.item.save()
         if auto_link:
-            # todo rewrite this
+            for linked_pages in p.required_pages:
+                linked_site = SiteList.get_site_by_url(linked_pages['url'])
+                if linked_site:
+                    linked_site.get_page_ready(auto_link=False)
+                else:
+                    logger.error(f'unable to get site for {linked_pages["url"]}')
             p.item.update_linked_items_from_extenal_page(p)
+            p.item.save()
         return p
-
-    def get_dependent_pages_ready(self, urls):
-        # set depth = 2 so in a case of douban season can find an IMDB episode then a TMDB Serie
-        pass
 
 
 class SiteList:

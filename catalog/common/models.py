@@ -1,5 +1,6 @@
 from polymorphic.models import PolymorphicModel
 from django.db import models
+from catalog.common import jsondata
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -220,6 +221,8 @@ class ExternalPage(models.Model):
     scraped_time = models.DateTimeField(null=True)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
+    required_pages = jsondata.ArrayField(null=False, blank=False, default=list)
+    related_pages = jsondata.ArrayField(null=False, blank=False, default=list)
 
     class Meta:
         unique_together = [['id_type', 'id_value']]
@@ -237,7 +240,7 @@ class ExternalPage(models.Model):
 
     @property
     def ready(self):
-        return bool(self.metadata)
+        return bool(self.metadata and self.scraped_time)
 
     def get_all_lookup_ids(self):
         d = self.other_lookup_ids.copy()
@@ -254,11 +257,3 @@ class ExternalPage(models.Model):
             else:
                 raise ValueError(f'preferred model {model} does not exist')
         return None
-
-    def get_dependent_urls(self):
-        ll = self.metadata.get('dependent_urls')
-        return ll if ll else []
-
-    def get_related_urls(self):
-        ll = self.metadata.get('related_urls')
-        return ll if ll else []
