@@ -1,0 +1,10 @@
+
+
+
+{
+ "resultCount":1,
+ "results": [
+{"wrapperType":"track", "kind":"podcast", "artistId":127981066, "collectionId":1050430296, "trackId":1050430296, "artistName":"WNYC Studios and The New Yorker", "collectionName":"The New Yorker Radio Hour", "trackName":"The New Yorker Radio Hour", "collectionCensoredName":"The New Yorker Radio Hour", "trackCensoredName":"The New Yorker Radio Hour", "artistViewUrl":"https://podcasts.apple.com/us/artist/wnyc/127981066?uo=4", "collectionViewUrl":"https://podcasts.apple.com/us/podcast/the-new-yorker-radio-hour/id1050430296?uo=4", "feedUrl":"http://feeds.feedburner.com/newyorkerradiohour", "trackViewUrl":"https://podcasts.apple.com/us/podcast/the-new-yorker-radio-hour/id1050430296?uo=4", "artworkUrl30":"https://is2-ssl.mzstatic.com/image/thumb/Podcasts115/v4/e3/83/42/e38342fa-712d-ec74-2f31-946601e04e27/mza_2714925949638887112.png/30x30bb.jpg", "artworkUrl60":"https://is2-ssl.mzstatic.com/image/thumb/Podcasts115/v4/e3/83/42/e38342fa-712d-ec74-2f31-946601e04e27/mza_2714925949638887112.png/60x60bb.jpg", "artworkUrl100":"https://is2-ssl.mzstatic.com/image/thumb/Podcasts115/v4/e3/83/42/e38342fa-712d-ec74-2f31-946601e04e27/mza_2714925949638887112.png/100x100bb.jpg", "collectionPrice":0.00, "trackPrice":0.00, "collectionHdPrice":0, "releaseDate":"2022-11-29T11:00:00Z", "collectionExplicitness":"notExplicit", "trackExplicitness":"cleaned", "trackCount":150, "trackTimeMillis":1097, "country":"USA", "currency":"USD", "primaryGenreName":"News Commentary", "contentAdvisoryRating":"Clean", "artworkUrl600":"https://is2-ssl.mzstatic.com/image/thumb/Podcasts115/v4/e3/83/42/e38342fa-712d-ec74-2f31-946601e04e27/mza_2714925949638887112.png/600x600bb.jpg", "genreIds":["1530", "26", "1489", "1527"], "genres":["News Commentary", "Podcasts", "News", "Politics"]}]
+}
+
+
