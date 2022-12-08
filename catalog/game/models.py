@@ -2,10 +2,7 @@ from catalog.common import *
 
 
 class Game(Item):
-    igdb = LookupIdDescriptor(IdType.IGDB)
-    steam = LookupIdDescriptor(IdType.Steam)
-    douban_game = LookupIdDescriptor(IdType.DoubanGame)
+    igdb = PrimaryLookupIdDescriptor(IdType.IGDB)
+    steam = PrimaryLookupIdDescriptor(IdType.Steam)
+    douban_game = PrimaryLookupIdDescriptor(IdType.DoubanGame)
     platforms = jsondata.ArrayField(default=list)
-
-    class Meta:
-        proxy = True

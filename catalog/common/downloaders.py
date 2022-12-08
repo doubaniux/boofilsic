@@ -42,6 +42,11 @@ def get_mock_mode():
     return _mock_mode
 
 
+def get_mock_file(url):
+    fn = re.sub(r'[^\w]', '_', url)
+    return re.sub(r'_key_[A-Za-z0-9]+', '_key_19890604', fn)
+
+
 class DownloadError(Exception):
     def __init__(self, downloader, msg=None):
         self.url = downloader.url
@@ -95,7 +100,7 @@ class BasicDownloader:
                 # TODO cache = get/set from redis
                 resp = requests.get(url, headers=self.headers, timeout=self.get_timeout())
                 if settings.DOWNLOADER_SAVEDIR:
-                    with open(settings.DOWNLOADER_SAVEDIR + '/' + re.sub(r'[^\w]', '_', url), 'w', encoding='utf-8') as fp:
+                    with open(settings.DOWNLOADER_SAVEDIR + '/' + get_mock_file(url), 'w', encoding='utf-8') as fp:
                         fp.write(resp.text)
             else:
                 resp = MockResponse(self.url)
@@ -191,7 +196,15 @@ class ImageDownloaderMixin:
 
 
 class BasicImageDownloader(ImageDownloaderMixin, BasicDownloader):
-    pass
+    @classmethod
+    def download_image(cls, image_url, page_url):
+        imgdl = cls(image_url, page_url)
+        try:
+            image = imgdl.download().content
+            image_extention = imgdl.extention
+            return image, image_extention
+        except Exception:
+            return None, None
 
 
 class ProxiedImageDownloader(ImageDownloaderMixin, ProxiedDownloader):
@@ -202,13 +215,9 @@ _local_response_path = str(Path(__file__).parent.parent.parent.absolute()) + '/t
 
 
 class MockResponse:
-    def get_mock_file(self, url):
-        fn = _local_response_path + re.sub(r'[^\w]', '_', url)
-        return re.sub(r'_key_[A-Za-z0-9]+', '_key_19890604', fn)
-
     def __init__(self, url):
         self.url = url
-        fn = self.get_mock_file(url)
+        fn = _local_response_path + get_mock_file(url)
         try:
             self.content = Path(fn).read_bytes()
             self.status_code = 200
