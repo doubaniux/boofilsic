@@ -166,7 +166,12 @@ class Item(PolymorphicModel):
     @classmethod
     def get_best_lookup_id(cls, lookup_ids):
         """ get best available lookup id, ideally commonly used """
-        best_id_types = [IdType.ISBN, IdType.CUBN, IdType.ASIN, IdType.IMDB, IdType.Feed, IdType.TMDB_TVSeason]
+        best_id_types = [
+            IdType.ISBN, IdType.CUBN, IdType.ASIN, 
+            IdType.GTIN, IdType.ISRC, IdType.MusicBrainz,
+            IdType.Feed, 
+            IdType.IMDB, IdType.TMDB_TVSeason
+        ]
         for t in best_id_types:
             if lookup_ids.get(t):
                 return t, lookup_ids[t]

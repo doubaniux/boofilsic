@@ -1,3 +1,11 @@
+"""
+Site and SiteList
+
+Site should inherite from AbstractSite
+a Site should map to a unique set of url patterns.
+a Site may scrape a url and store result in ResourceContent
+ResourceContent persists as an ExternalResource which may link to an Item
+"""
 from typing import *
 import re
 from .models import ExternalResource

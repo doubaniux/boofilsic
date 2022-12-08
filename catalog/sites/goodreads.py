@@ -1,4 +1,3 @@
-import re
 from catalog.book.models import Edition, Work
 from catalog.common import *
 from lxml import html

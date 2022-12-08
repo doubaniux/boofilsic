@@ -69,10 +69,9 @@ class Spotify(AbstractSite):
             gtin = res_data['external_ids'].get('upc')
         if res_data['external_ids'].get('ean'):
             gtin = res_data['external_ids'].get('ean')
-        # isrc = None
-        # if res_data['external_ids'].get('isrc'):
-        #     isrc = res_data['external_ids'].get('isrc')
-        #     _logger.error('isrc for album? this should not happen')
+        isrc = None
+        if res_data['external_ids'].get('isrc'):
+            isrc = res_data['external_ids'].get('isrc')
 
         pd = ResourceContent(metadata={
             'title': title,
@@ -87,6 +86,8 @@ class Spotify(AbstractSite):
         })
         if gtin:
             pd.lookup_ids[IdType.GTIN] = gtin
+        if isrc:
+            pd.lookup_ids[IdType.ISRC] = isrc
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:
