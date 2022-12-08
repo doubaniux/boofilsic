@@ -158,9 +158,10 @@ class DoubanBookTestCase(TestCase):
         self.assertEqual(w1.title, '黄金时代')
         self.assertEqual(w2.title, '黄金时代')
         self.assertEqual(w1, w2)
-        self.assertEqual(w1.editions.all().count(), 2)
-        self.assertEqual(w1.editions.all()[0].title, '黄金时代')
-        self.assertEqual(w1.editions.all()[1].title, 'Wang in Love and Bondage')
+        editions = w1.editions.all().order_by('title')
+        self.assertEqual(editions.count(), 2)
+        self.assertEqual(editions[0].title, 'Wang in Love and Bondage')
+        self.assertEqual(editions[1].title, '黄金时代')
 
 
 class MultiBookSitesTestCase(TestCase):
