@@ -16,7 +16,9 @@ class GoodreadsDownloader(RetryDownloader):
         elif response.status_code == 200:
             if response.text.find('__NEXT_DATA__') != -1:
                 return RESPONSE_OK
-            else:  # retry if return legacy version
+            else:
+                # Goodreads may return legacy version for a/b testing
+                # retry if so
                 return RESPONSE_NETWORK_ERROR
         else:
             return RESPONSE_INVALID_CONTENT
@@ -36,11 +38,10 @@ class Goodreads(AbstractSite):
     def scrape(self, response=None):
         data = {}
         if response is not None:
-            content = response.text
+            h = html.fromstring(response.text.strip())
         else:
             dl = GoodreadsDownloader(self.url)
-            content = dl.download().text
-        h = html.fromstring(content.strip())
+            h = dl.download().html()
         # Next.JS version of GoodReads
         # JSON.parse(document.getElementById('__NEXT_DATA__').innerHTML)['props']['pageProps']['apolloState']
         elem = h.xpath('//script[@id="__NEXT_DATA__"]/text()')
@@ -55,7 +56,8 @@ class Goodreads(AbstractSite):
                 o[t].append(v)
         b = next(filter(lambda x: x.get('title'), o['Book']), None)
         if not b:
-            raise ParseError(self, 'Book json')
+            # Goodreads may return empty page template when internal service timeouts
+            raise ParseError(self, 'Book in __NEXT_DATA__ json')
         data['title'] = b['title']
         data['brief'] = b['description']
         data['isbn'] = b['details'].get('isbn13')
@@ -68,7 +70,7 @@ class Goodreads(AbstractSite):
         if w:
             data['required_resources'] = [{
                 'model': 'Work',
-                'id_type': IdType.Goodreads_Work, 
+                'id_type': IdType.Goodreads_Work,
                 'id_value': str(w['legacyId']),
                 'title': w['details']['originalTitle'],
                 'url': w['editions']['webUrl'],
@@ -98,7 +100,7 @@ class Goodreads_Work(AbstractSite):
         return "https://www.goodreads.com/work/editions/" + id_value
 
     def scrape(self, response=None):
-        content = html.fromstring(BasicDownloader(self.url).download().text.strip())
+        content = BasicDownloader(self.url).download().html()
         title_elem = content.xpath("//h1/a/text()")
         title = title_elem[0].strip() if title_elem else None
         if not title:

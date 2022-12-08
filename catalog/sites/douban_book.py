@@ -1,4 +1,3 @@
-from lxml import html
 from catalog.common import *
 from .douban import *
 from catalog.book.models import *
@@ -6,7 +5,26 @@ from catalog.book.utils import *
 import logging
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
+
+
+class ScraperMixin:
+    def set_field(self, field, value=None):
+        self.data[field] = value
+
+    def parse_str(self, query):
+        elem = self.html.xpath(query)
+        return elem[0].strip() if elem else None
+
+    def parse_field(self, field, query, error_when_missing=False):
+        elem = self.html.xpath(query)
+        if elem:
+            self.data[field] = elem[0].strip()
+        elif error_when_missing:
+            raise ParseError(self, field)
+        else:
+            self.data[field] = None
+        return elem
 
 
 @SiteList.register
@@ -22,7 +40,7 @@ class DoubanBook(AbstractSite, ScraperMixin):
 
     def scrape(self):
         self.data = {}
-        self.html = html.fromstring(DoubanDownloader(self.url).download().text.strip())
+        self.html = DoubanDownloader(self.url).download().html()
         self.parse_field('title', "/html/body//h1/span/text()")
         self.parse_field('isbn', "//div[@id='info']//span[text()='ISBN:']/following::text()")
         # TODO does douban store ASIN as ISBN, need more cleanup if so
@@ -127,7 +145,7 @@ class DoubanBook(AbstractSite, ScraperMixin):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {self.data["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {self.data["cover_image_url"]}')
         return pd
 
 
@@ -151,7 +169,7 @@ class DoubanBook_Work(AbstractSite):
         return pd
 
     def scrape(self):
-        content = html.fromstring(DoubanDownloader(self.url).download().text.strip())
+        content = DoubanDownloader(self.url).download().html()
         title_elem = content.xpath("//h1/text()")
         title = title_elem[0].split('全部版本(')[0].strip() if title_elem else None
         if not title:

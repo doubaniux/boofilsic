@@ -11,7 +11,7 @@ from catalog.tv.models import *
 import logging
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 def search_tmdb_by_imdb_id(imdb_id):
@@ -155,7 +155,7 @@ class TMDB_Movie(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
         return pd
 
 
@@ -264,7 +264,7 @@ class TMDB_TV(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
         return pd
 
 
@@ -311,13 +311,13 @@ class TMDB_TVSeason(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
 
         # get external id from 1st episode
         if pd.lookup_ids[IdType.IMDB]:
-            logger.warning("Unexpected IMDB id for TMDB tv season")
+            _logger.warning("Unexpected IMDB id for TMDB tv season")
         elif len(pd.metadata['episode_number_list']) == 0:
-            logger.warning("Unable to lookup IMDB id for TMDB tv season with zero episodes")
+            _logger.warning("Unable to lookup IMDB id for TMDB tv season with zero episodes")
         else:
             ep = pd.metadata['episode_number_list'][0]
             api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"

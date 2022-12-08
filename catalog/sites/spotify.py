@@ -99,7 +99,7 @@ class Spotify(AbstractSite):
 
 def get_spotify_token():
     global spotify_token, spotify_token_expire_time
-    if getMockMode():
+    if get_mock_mode():
         return 'mocked'
     if spotify_token is None or is_spotify_token_expired():
         invoke_spotify_token()

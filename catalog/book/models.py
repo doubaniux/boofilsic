@@ -54,7 +54,7 @@ class Edition(Item):
                 if work and work not in self.works.all():
                     self.works.add(work)
                 # if not work:
-                #     logger.info(f'Unable to find link for {w["url"]}')
+                #     _logger.info(f'Unable to find link for {w["url"]}')
 
 
 class Work(Item):

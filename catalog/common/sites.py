@@ -5,7 +5,7 @@ from dataclasses import dataclass, field
 import logging
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 @dataclass
@@ -100,7 +100,7 @@ class AbstractSite:
                 resource_content = self.scrape()
             p.update_content(resource_content)
         if not p.ready:
-            logger.error(f'unable to get resource {self.url} ready')
+            _logger.error(f'unable to get resource {self.url} ready')
             return None
         if auto_create and p.item is None:
             self.get_item()
@@ -115,7 +115,7 @@ class AbstractSite:
                 if linked_site:
                     linked_site.get_resource_ready(auto_link=False)
                 else:
-                    logger.error(f'unable to get site for {linked_resources["url"]}')
+                    _logger.error(f'unable to get site for {linked_resources["url"]}')
             p.item.update_linked_items_from_external_resource(p)
             p.item.save()
         return p

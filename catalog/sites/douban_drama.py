@@ -1,11 +1,10 @@
-from lxml import html
 from catalog.common import *
-from ..performance.models import Performance
+from catalog.models import *
 from .douban import DoubanDownloader
 import logging
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 @SiteList.register
@@ -20,7 +19,7 @@ class DoubanDrama(AbstractSite):
         return "https://www.douban.com/location/drama/" + id_value + "/"
 
     def scrape(self):
-        h = html.fromstring(DoubanDownloader(self.url).download().text)
+        h = DoubanDownloader(self.url).download().html()
         data = {}
 
         title_elem = h.xpath("/html/body//h1/span/text()")
@@ -55,5 +54,5 @@ class DoubanDrama(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
         return pd

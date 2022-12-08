@@ -1,9 +1,9 @@
 from catalog.common import *
-from catalog.podcast.models import *
+from catalog.models import *
 import logging
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 @SiteList.register
@@ -36,5 +36,5 @@ class ApplePodcast(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
         return pd

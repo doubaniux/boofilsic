@@ -4,13 +4,16 @@ from PIL import Image
 from io import BytesIO
 from requests.exceptions import RequestException
 from django.conf import settings
-from .utils import MockResponse
+from pathlib import Path
+import json
+from io import StringIO
 import re
 import time
 import logging
+from lxml import html
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 RESPONSE_OK = 0  # response is ready for pasring
@@ -18,29 +21,29 @@ RESPONSE_INVALID_CONTENT = -1  # content not valid but no need to retry
 RESPONSE_NETWORK_ERROR = -2  # network error, retry next proxied url
 RESPONSE_CENSORSHIP = -3  # censored, try sth special if possible
 
-MockMode = False
+_mock_mode = False
 
 
 def use_local_response(func):
     def _func(args):
-        setMockMode(True)
+        set_mock_mode(True)
         func(args)
-        setMockMode(False)
+        set_mock_mode(False)
     return _func
 
 
-def setMockMode(enabled):
-    global MockMode
-    MockMode = enabled
+def set_mock_mode(enabled):
+    global _mock_mode
+    _mock_mode = enabled
 
 
-def getMockMode():
-    global MockMode
-    return MockMode
+def get_mock_mode():
+    global _mock_mode
+    return _mock_mode
 
 
 class DownloadError(Exception):
-    def __init__(self, downloader):
+    def __init__(self, downloader, msg=None):
         self.url = downloader.url
         self.logs = downloader.logs
         if downloader.response_type == RESPONSE_INVALID_CONTENT:
@@ -51,7 +54,7 @@ class DownloadError(Exception):
             error = "Censored Content"
         else:
             error = "Unknown Error"
-        self.message = f"Download Failed: {error}, url: {self.url}"
+        self.message = f"Download Failed: {error}{', ' + msg if msg else ''}, url: {self.url}"
         super().__init__(self.message)
 
 
@@ -88,7 +91,7 @@ class BasicDownloader:
 
     def _download(self, url):
         try:
-            if not MockMode:
+            if not _mock_mode:
                 # TODO cache = get/set from redis
                 resp = requests.get(url, headers=self.headers, timeout=self.get_timeout())
                 if settings.DOWNLOADER_SAVEDIR:
@@ -159,7 +162,9 @@ class RetryDownloader(BasicDownloader):
             elif self.response_type != RESPONSE_NETWORK_ERROR and retries == 0:
                 raise DownloadError(self)
             elif retries > 0:
+                _logger.debug('Retry ' + self.url)
                 time.sleep((settings.DOWNLOADER_RETRIES - retries) * 0.5)
+        raise DownloadError(self, 'max out of retries')
 
 
 class ImageDownloaderMixin:
@@ -191,3 +196,41 @@ class BasicImageDownloader(ImageDownloaderMixin, BasicDownloader):
 
 class ProxiedImageDownloader(ImageDownloaderMixin, ProxiedDownloader):
     pass
+
+
+_local_response_path = str(Path(__file__).parent.parent.parent.absolute()) + '/test_data/'
+
+
+class MockResponse:
+    def get_mock_file(self, url):
+        fn = _local_response_path + re.sub(r'[^\w]', '_', url)
+        return re.sub(r'_key_[A-Za-z0-9]+', '_key_19890604', fn)
+
+    def __init__(self, url):
+        self.url = url
+        fn = self.get_mock_file(url)
+        try:
+            self.content = Path(fn).read_bytes()
+            self.status_code = 200
+            _logger.debug(f"use local response for {url} from {fn}")
+        except Exception:
+            self.content = b'Error: response file not found'
+            self.status_code = 404
+            _logger.debug(f"local response not found for {url} at {fn}")
+
+    @property
+    def text(self):
+        return self.content.decode('utf-8')
+
+    def json(self):
+        return json.load(StringIO(self.text))
+
+    def html(self):
+        return html.fromstring(self.text)  # may throw exception unexpectedly due to OS bug
+
+    @property
+    def headers(self):
+        return {'Content-Type': 'image/jpeg' if self.url.endswith('jpg') else 'text/html'}
+
+
+requests.Response.html = MockResponse.html

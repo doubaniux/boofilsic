@@ -1,4 +1,3 @@
-from lxml import html
 from catalog.common import *
 from .douban import *
 from catalog.movie.models import *
@@ -9,7 +8,7 @@ from django.utils.translation import gettext_lazy as _
 from .tmdb import TMDB_TV, search_tmdb_by_imdb_id
 
 
-logger = logging.getLogger(__name__)
+_logger = logging.getLogger(__name__)
 
 
 class MovieGenreEnum(models.TextChoices):
@@ -67,7 +66,7 @@ class DoubanMovie(AbstractSite):
         return "https://movie.douban.com/subject/" + id_value + "/"
 
     def scrape(self):
-        content = html.fromstring(DoubanDownloader(self.url).download().text.strip())
+        content = DoubanDownloader(self.url).download().html()
 
         try:
             raw_title = content.xpath(
@@ -131,7 +130,7 @@ class DoubanMovie(AbstractSite):
                 elif g in genre_translator.values():
                     genre.append(g)
                 else:
-                    logger.error(f'unable to map genre {g}')
+                    _logger.error(f'unable to map genre {g}')
         else:
             genre = None
 
@@ -253,7 +252,7 @@ class DoubanMovie(AbstractSite):
                 pd.metadata['preferred_model'] = 'TVSeason'
                 tmdb_show_id = res_data['tv_episode_results'][0]['show_id']
                 if res_data['tv_episode_results'][0]['episode_number'] != 1:
-                    logger.error(f'Douban Movie {self.url} mapping to unexpected imdb episode {imdb_code}')
+                    _logger.error(f'Douban Movie {self.url} mapping to unexpected imdb episode {imdb_code}')
                     # TODO correct the IMDB id
             pd.lookup_ids[IdType.IMDB] = imdb_code
             if tmdb_show_id:
@@ -272,5 +271,5 @@ class DoubanMovie(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
+                _logger.debug(f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}')
         return pd
