@@ -1,6 +1,6 @@
 from typing import *
 import re
-from .models import ExternalPage
+from .models import ExternalResource
 from dataclasses import dataclass, field
 import logging
 
@@ -9,7 +9,7 @@ logger = logging.getLogger(__name__)
 
 
 @dataclass
-class PageData:
+class ResourceContent:
     lookup_ids: dict = field(default_factory=dict)
     metadata: dict = field(default_factory=dict)
     cover_image = None
@@ -45,28 +45,28 @@ class AbstractSite:
     def __init__(self, url=None):
         self.id_value = self.url_to_id(url) if url else None
         self.url = self.id_to_url(self.id_value) if url else None
-        self.page = None
+        self.resource = None
 
-    def get_page(self):
-        if not self.page:
-            self.page = ExternalPage.objects.filter(url=self.url).first()
-            if self.page is None:
-                self.page = ExternalPage(id_type=self.ID_TYPE, id_value=self.id_value, url=self.url)
-        return self.page
+    def get_resource(self):
+        if not self.resource:
+            self.resource = ExternalResource.objects.filter(url=self.url).first()
+            if self.resource is None:
+                self.resource = ExternalResource(id_type=self.ID_TYPE, id_value=self.id_value, url=self.url)
+        return self.resource
 
-    def bypass_scrape(self, data_from_link) -> PageData | None:
-        """subclass may implement this to use data from linked page and bypass actual scrape"""
+    def bypass_scrape(self, data_from_link) -> ResourceContent | None:
+        """subclass may implement this to use data from linked resource and bypass actual scrape"""
         return None
 
-    def scrape(self) -> PageData:
-        """subclass should implement this, return PageData object"""
-        data = PageData()
+    def scrape(self) -> ResourceContent:
+        """subclass should implement this, return ResourceContent object"""
+        data = ResourceContent()
         return data
 
     def get_item(self):
-        p = self.get_page()
+        p = self.get_resource()
         if not p:
-            raise ValueError(f'page not available for {self.url}')
+            raise ValueError(f'resource not available for {self.url}')
         model = p.get_preferred_model()
         if not model:
             model = self.DEFAULT_MODEL
@@ -82,41 +82,41 @@ class AbstractSite:
 
     @property
     def ready(self):
-        return bool(self.page and self.page.ready)
+        return bool(self.resource and self.resource.ready)
 
-    def get_page_ready(self, auto_save=True, auto_create=True, auto_link=True, data_from_link=None):
-        """return a page scraped, or scrape if not yet""" 
+    def get_resource_ready(self, auto_save=True, auto_create=True, auto_link=True, data_from_link=None):
+        """return a resource scraped, or scrape if not yet""" 
         if auto_link:
             auto_create = True
         if auto_create:
             auto_save = True
-        p = self.get_page()
-        pagedata = {}
-        if not self.page:
+        p = self.get_resource()
+        resource_content = {}
+        if not self.resource:
             return None
         if not p.ready:
-            pagedata = self.bypass_scrape(data_from_link)
-            if not pagedata:
-                pagedata = self.scrape()
-            p.update_content(pagedata)
+            resource_content = self.bypass_scrape(data_from_link)
+            if not resource_content:
+                resource_content = self.scrape()
+            p.update_content(resource_content)
         if not p.ready:
-            logger.error(f'unable to get page {self.url} ready')
+            logger.error(f'unable to get resource {self.url} ready')
             return None
         if auto_create and p.item is None:
             self.get_item()
         if auto_save:
             p.save()
             if p.item:
-                p.item.merge_data_from_extenal_pages()
+                p.item.merge_data_from_external_resources()
                 p.item.save()
         if auto_link:
-            for linked_pages in p.required_pages:
-                linked_site = SiteList.get_site_by_url(linked_pages['url'])
+            for linked_resources in p.required_resources:
+                linked_site = SiteList.get_site_by_url(linked_resources['url'])
                 if linked_site:
-                    linked_site.get_page_ready(auto_link=False)
+                    linked_site.get_resource_ready(auto_link=False)
                 else:
-                    logger.error(f'unable to get site for {linked_pages["url"]}')
-            p.item.update_linked_items_from_extenal_page(p)
+                    logger.error(f'unable to get site for {linked_resources["url"]}')
+            p.item.update_linked_items_from_external_resource(p)
             p.item.save()
         return p
 

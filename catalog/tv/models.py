@@ -44,12 +44,12 @@ class TVSeason(Item):
     episode_count = jsondata.IntegerField(blank=True, default=None)
     METADATA_COPY_LIST = ['title', 'brief', 'season_number', 'episode_count']
 
-    def update_linked_items_from_extenal_page(self, page):
-        """add Work from page.metadata['work'] if not yet"""
-        links = page.required_pages + page.related_pages
+    def update_linked_items_from_external_resource(self, resource):
+        """add Work from resource.metadata['work'] if not yet"""
+        links = resource.required_resources + resource.related_resources
         for w in links:
             if w['model'] == 'TVShow':
-                p = ExternalPage.objects.filter(id_type=w['id_type'], id_value=w['id_value']).first()
+                p = ExternalResource.objects.filter(id_type=w['id_type'], id_value=w['id_value']).first()
                 if p and p.item and self.show != p.item:
                     self.show = p.item
 

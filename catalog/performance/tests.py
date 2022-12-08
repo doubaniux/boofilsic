@@ -22,9 +22,9 @@ class DoubanDramaTestCase(TestCase):
         t_url = 'https://www.douban.com/location/drama/24849279/'
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
-        page = site.get_page_ready()
+        resource = site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(page.metadata['title'], '红花侠')
+        self.assertEqual(resource.metadata['title'], '红花侠')
         item = site.get_item()
         self.assertEqual(item.title, '红花侠')
 

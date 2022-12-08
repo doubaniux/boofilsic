@@ -74,7 +74,7 @@ class Spotify(AbstractSite):
         #     isrc = res_data['external_ids'].get('isrc')
         #     _logger.error('isrc for album? this should not happen')
 
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': title,
             'artist': artist,
             'genre': genre,

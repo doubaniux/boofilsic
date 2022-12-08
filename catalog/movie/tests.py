@@ -19,11 +19,11 @@ class DoubanMovieTestCase(TestCase):
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.id_value, '3541415')
-        site.get_page_ready()
-        self.assertEqual(site.page.metadata['title'], '盗梦空间')
-        self.assertEqual(site.page.item.primary_lookup_id_type, IdType.IMDB)
-        self.assertEqual(site.page.item.__class__.__name__, 'Movie')
-        self.assertEqual(site.page.item.imdb, 'tt1375666')
+        site.get_resource_ready()
+        self.assertEqual(site.resource.metadata['title'], '盗梦空间')
+        self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
+        self.assertEqual(site.resource.item.__class__.__name__, 'Movie')
+        self.assertEqual(site.resource.item.imdb, 'tt1375666')
 
 
 class TMDBMovieTestCase(TestCase):
@@ -45,11 +45,11 @@ class TMDBMovieTestCase(TestCase):
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.id_value, '293767')
-        site.get_page_ready()
-        self.assertEqual(site.page.metadata['title'], '比利·林恩的中场战事')
-        self.assertEqual(site.page.item.primary_lookup_id_type, IdType.IMDB)
-        self.assertEqual(site.page.item.__class__.__name__, 'Movie')
-        self.assertEqual(site.page.item.imdb, 'tt2513074')
+        site.get_resource_ready()
+        self.assertEqual(site.resource.metadata['title'], '比利·林恩的中场战事')
+        self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
+        self.assertEqual(site.resource.item.__class__.__name__, 'Movie')
+        self.assertEqual(site.resource.item.imdb, 'tt2513074')
 
 
 class IMDBMovieTestCase(TestCase):
@@ -71,10 +71,10 @@ class IMDBMovieTestCase(TestCase):
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.id_value, 'tt1375666')
-        site.get_page_ready()
-        self.assertEqual(site.page.metadata['title'], '盗梦空间')
-        self.assertEqual(site.page.item.primary_lookup_id_type, IdType.IMDB)
-        self.assertEqual(site.page.item.imdb, 'tt1375666')
+        site.get_resource_ready()
+        self.assertEqual(site.resource.metadata['title'], '盗梦空间')
+        self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
+        self.assertEqual(site.resource.item.imdb, 'tt1375666')
 
 
 class MultiMovieSitesTestCase(TestCase):
@@ -83,8 +83,8 @@ class MultiMovieSitesTestCase(TestCase):
         url1 = 'https://www.themoviedb.org/movie/27205-inception'
         url2 = 'https://movie.douban.com/subject/3541415/'
         url3 = 'https://www.imdb.com/title/tt1375666/'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
-        p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)
         self.assertEqual(p2.item.id, p3.item.id)

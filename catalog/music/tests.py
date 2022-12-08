@@ -20,8 +20,8 @@ class SpotifyTestCase(TestCase):
         t_url = 'https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP'
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
-        site.get_page_ready()
+        site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.page.metadata['title'], 'The Race For Space')
-        self.assertIsInstance(site.page.item, Album)
-        self.assertEqual(site.page.item.barcode, '3610159662676')
+        self.assertEqual(site.resource.metadata['title'], 'The Race For Space')
+        self.assertIsInstance(site.resource.item, Album)
+        self.assertEqual(site.resource.item.barcode, '3610159662676')

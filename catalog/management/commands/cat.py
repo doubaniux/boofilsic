@@ -5,7 +5,7 @@ from catalog.sites import *
 
 
 class Command(BaseCommand):
-    help = 'Scrape a catalog item from external page (but not save it)'
+    help = 'Scrape a catalog item from external resource (but not save it)'
 
     def add_arguments(self, parser):
         parser.add_argument('url', type=str, help='URL to scrape')
@@ -17,6 +17,6 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f'Unknown site for {url}'))
             return
         self.stdout.write(f'Fetching from {site}')
-        page = site.get_page_ready(auto_link=False, auto_save=False)
+        resource = site.get_resource_ready(auto_link=False, auto_save=False)
         self.stdout.write(self.style.SUCCESS(f'Done.'))
-        pprint.pp(page.metadata)
+        pprint.pp(resource.metadata)

@@ -22,7 +22,7 @@ class ApplePodcast(AbstractSite):
         dl = BasicDownloader(api_url)
         resp = dl.download()
         r = resp.json()['results'][0]
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': r['trackName'],
             'feed_url': r['feedUrl'],
             'hosts': [r['artistName']],

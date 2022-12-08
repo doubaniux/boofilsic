@@ -27,12 +27,12 @@ class TMDBTVTestCase(TestCase):
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.id_value, '57243')
-        site.get_page_ready()
+        site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.page.metadata['title'], '神秘博士')
-        self.assertEqual(site.page.item.primary_lookup_id_type, IdType.IMDB)
-        self.assertEqual(site.page.item.__class__.__name__, 'TVShow')
-        self.assertEqual(site.page.item.imdb, 'tt0436992')
+        self.assertEqual(site.resource.metadata['title'], '神秘博士')
+        self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
+        self.assertEqual(site.resource.item.__class__.__name__, 'TVShow')
+        self.assertEqual(site.resource.item.imdb, 'tt0436992')
 
 
 class TMDBTVSeasonTestCase(TestCase):
@@ -54,21 +54,21 @@ class TMDBTVSeasonTestCase(TestCase):
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.id_value, '57243-4')
-        site.get_page_ready()
+        site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.page.metadata['title'], '第 4 季')
-        self.assertEqual(site.page.item.primary_lookup_id_type, IdType.IMDB)
-        self.assertEqual(site.page.item.__class__.__name__, 'TVSeason')
-        self.assertEqual(site.page.item.imdb, 'tt1159991')
-        self.assertIsNotNone(site.page.item.show)
-        self.assertEqual(site.page.item.show.imdb, 'tt0436992')
+        self.assertEqual(site.resource.metadata['title'], '第 4 季')
+        self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
+        self.assertEqual(site.resource.item.__class__.__name__, 'TVSeason')
+        self.assertEqual(site.resource.item.imdb, 'tt1159991')
+        self.assertIsNotNone(site.resource.item.show)
+        self.assertEqual(site.resource.item.show.imdb, 'tt0436992')
 
 
 class DoubanMovieTVTestCase(TestCase):
     @use_local_response
     def test_scrape(self):
         url3 = 'https://movie.douban.com/subject/3627919/'
-        p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVSeason')
         self.assertIsNotNone(p3.item.show)
         self.assertEqual(p3.item.show.imdb, 'tt0436992')
@@ -76,7 +76,7 @@ class DoubanMovieTVTestCase(TestCase):
     @use_local_response
     def test_scrape_singleseason(self):
         url3 = 'https://movie.douban.com/subject/26895436/'
-        p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVShow')
 
 
@@ -86,9 +86,9 @@ class MultiTVSitesTestCase(TestCase):
         url1 = 'https://www.themoviedb.org/tv/57243-doctor-who'
         url2 = 'https://www.imdb.com/title/tt0436992/'
         # url3 = 'https://movie.douban.com/subject/3541415/'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
-        # p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
+        # p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)
         # self.assertEqual(p2.item.id, p3.item.id)
 
@@ -97,9 +97,9 @@ class MultiTVSitesTestCase(TestCase):
         url1 = 'https://www.themoviedb.org/tv/57243-doctor-who/season/4'
         url2 = 'https://www.imdb.com/title/tt1159991/'
         url3 = 'https://movie.douban.com/subject/3627919/'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
-        p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.imdb, p2.item.imdb)
         self.assertEqual(p2.item.imdb, p3.item.imdb)
         self.assertEqual(p1.item.id, p2.item.id)
@@ -109,8 +109,8 @@ class MultiTVSitesTestCase(TestCase):
     def test_miniseries(self):
         url1 = 'https://www.themoviedb.org/tv/86941-the-north-water'
         url3 = 'https://movie.douban.com/subject/26895436/'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVShow')
         self.assertEqual(p1.item.id, p3.item.id)
 
@@ -119,9 +119,9 @@ class MultiTVSitesTestCase(TestCase):
         url1 = 'https://www.themoviedb.org/movie/282758-doctor-who-the-runaway-bride'
         url2 = 'hhttps://www.imdb.com/title/tt0827573/'
         url3 = 'https://movie.douban.com/subject/4296866/'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
-        p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.imdb, p2.item.imdb)
         self.assertEqual(p2.item.imdb, p3.item.imdb)
         self.assertEqual(p1.item.id, p2.item.id)

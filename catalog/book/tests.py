@@ -71,19 +71,19 @@ class GoodreadsTestCase(TestCase):
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.url, t_url2)
-        site.get_page()
+        site.get_resource()
         self.assertEqual(site.ready, False)
-        self.assertIsNotNone(site.page)
-        site.get_page_ready()
+        self.assertIsNotNone(site.resource)
+        site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.page.metadata.get('title'), 'Hyperion')
-        self.assertEqual(site.page.metadata.get('isbn'), isbn)
-        self.assertEqual(site.page.required_pages[0]['id_value'], '1383900')
+        self.assertEqual(site.resource.metadata.get('title'), 'Hyperion')
+        self.assertEqual(site.resource.metadata.get('isbn'), isbn)
+        self.assertEqual(site.resource.required_resources[0]['id_value'], '1383900')
         edition = Edition.objects.get(primary_lookup_id_type=IdType.ISBN, primary_lookup_id_value=isbn)
-        page = edition.external_pages.all().first()
-        self.assertEqual(page.id_type, IdType.Goodreads)
-        self.assertEqual(page.id_value, '77566')
-        self.assertNotEqual(page.cover, '/media/item/default.svg')
+        resource = edition.external_resources.all().first()
+        self.assertEqual(resource.id_type, IdType.Goodreads)
+        self.assertEqual(resource.id_value, '77566')
+        self.assertNotEqual(resource.cover, '/media/item/default.svg')
         self.assertEqual(edition.isbn, '9780553283686')
         self.assertEqual(edition.title, 'Hyperion')
 
@@ -91,26 +91,26 @@ class GoodreadsTestCase(TestCase):
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.url, t_url2)
-        site.get_page()
-        self.assertEqual(site.ready, True, 'previous page should still exist with data')
+        site.get_resource()
+        self.assertEqual(site.ready, True, 'previous resource should still exist with data')
 
     @use_local_response
     def test_asin(self):
         t_url = 'https://www.goodreads.com/book/show/45064996-hyperion'
         site = SiteList.get_site_by_url(t_url)
-        site.get_page_ready()
-        self.assertEqual(site.page.item.title, 'Hyperion')
-        self.assertEqual(site.page.item.asin, 'B004G60EHS')
+        site.get_resource_ready()
+        self.assertEqual(site.resource.item.title, 'Hyperion')
+        self.assertEqual(site.resource.item.asin, 'B004G60EHS')
 
     @use_local_response
     def test_work(self):
         url = 'https://www.goodreads.com/work/editions/153313'
-        p = SiteList.get_site_by_url(url).get_page_ready()
+        p = SiteList.get_site_by_url(url).get_resource_ready()
         self.assertEqual(p.item.title, '1984')
         url1 = 'https://www.goodreads.com/book/show/3597767-rok-1984'
         url2 = 'https://www.goodreads.com/book/show/40961427-1984'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
         w1 = p1.item.works.all().first()
         w2 = p2.item.works.all().first()
         self.assertEqual(w1, w2)
@@ -137,22 +137,22 @@ class DoubanBookTestCase(TestCase):
         t_url = 'https://book.douban.com/subject/35902899/'
         site = SiteList.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
-        site.get_page_ready()
+        site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.page.metadata.get('title'), '1984 Nineteen Eighty-Four')
-        self.assertEqual(site.page.metadata.get('isbn'), '9781847498571')
-        self.assertEqual(site.page.id_type, IdType.DoubanBook)
-        self.assertEqual(site.page.id_value, '35902899')
-        self.assertEqual(site.page.item.isbn, '9781847498571')
-        self.assertEqual(site.page.item.title, '1984 Nineteen Eighty-Four')
+        self.assertEqual(site.resource.metadata.get('title'), '1984 Nineteen Eighty-Four')
+        self.assertEqual(site.resource.metadata.get('isbn'), '9781847498571')
+        self.assertEqual(site.resource.id_type, IdType.DoubanBook)
+        self.assertEqual(site.resource.id_value, '35902899')
+        self.assertEqual(site.resource.item.isbn, '9781847498571')
+        self.assertEqual(site.resource.item.title, '1984 Nineteen Eighty-Four')
 
     @use_local_response
     def test_work(self):
         # url = 'https://www.goodreads.com/work/editions/153313'
         url1 = 'https://book.douban.com/subject/1089243/'
         url2 = 'https://book.douban.com/subject/2037260/'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
         w1 = p1.item.works.all().first()
         w2 = p2.item.works.all().first()
         self.assertEqual(w1.title, '黄金时代')
@@ -169,8 +169,8 @@ class MultiBookSitesTestCase(TestCase):
         # isbn = '9781847498571'
         url1 = 'https://www.goodreads.com/book/show/56821625-1984'
         url2 = 'https://book.douban.com/subject/35902899/'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)
 
     @use_local_response
@@ -180,16 +180,16 @@ class MultiBookSitesTestCase(TestCase):
         url2 = 'https://book.douban.com/subject/2037260/'
         url3 = 'https://www.goodreads.com/book/show/59952545-golden-age'
         url4 = 'https://www.goodreads.com/book/show/11798823'
-        p1 = SiteList.get_site_by_url(url1).get_page_ready()  # lxml bug may break this
+        p1 = SiteList.get_site_by_url(url1).get_resource_ready()  # lxml bug may break this
         w1 = p1.item.works.all().first()
-        p2 = SiteList.get_site_by_url(url2).get_page_ready()
+        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
         w2 = p2.item.works.all().first()
         self.assertEqual(w1, w2)
         self.assertEqual(p1.item.works.all().count(), 1)
-        p3 = SiteList.get_site_by_url(url3).get_page_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         w3 = p3.item.works.all().first()
         self.assertNotEqual(w3, w2)
-        p4 = SiteList.get_site_by_url(url4).get_page_ready()
+        p4 = SiteList.get_site_by_url(url4).get_resource_ready()
         self.assertEqual(p4.item.works.all().count(), 2)
         self.assertEqual(p1.item.works.all().count(), 2)
         w2e = w2.editions.all().order_by('title')

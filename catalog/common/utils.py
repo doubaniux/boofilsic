@@ -14,9 +14,9 @@ logger = logging.getLogger(__name__)
 DEFAULT_ITEM_COVER = 'item/default.svg'
 
 
-def item_cover_path(page, filename):
+def item_cover_path(resource, filename):
     fn = timezone.now().strftime('%Y/%m/%d/') + str(uuid.uuid4()) + '.' + filename.split('.')[-1]
-    return 'items/' + page.id_type + '/' + fn
+    return 'items/' + resource.id_type + '/' + fn
 
 
 TestDataDir = str(Path(__file__).parent.parent.parent.absolute()) + '/test_data/'

@@ -179,16 +179,16 @@ class Item(PolymorphicModel):
         # print(ll)
         pass
 
-    METADATA_COPY_LIST = ['title', 'brief']  # list of metadata keys to copy from page to item
+    METADATA_COPY_LIST = ['title', 'brief']  # list of metadata keys to copy from resource to item
 
     @classmethod
     def copy_metadata(cls, metadata):
         return dict((k, v) for k, v in metadata.items() if k in cls.METADATA_COPY_LIST and v is not None)
 
-    def merge_data_from_extenal_pages(self):
+    def merge_data_from_external_resources(self):
         """Subclass may override this"""
         lookup_ids = []
-        for p in self.external_pages.all():
+        for p in self.external_resources.all():
             lookup_ids.append((p.id_type, p.id_value))
             lookup_ids += p.other_lookup_ids.items()
             for k in self.METADATA_COPY_LIST:
@@ -198,7 +198,7 @@ class Item(PolymorphicModel):
                 self.cover = p.cover
         self.update_lookup_ids(lookup_ids)
 
-    def update_linked_items_from_extenal_page(self, page):
+    def update_linked_items_from_external_resource(self, resource):
         """Subclass should override this"""
         pass
 
@@ -213,19 +213,19 @@ class ItemLookupId(models.Model):
         unique_together = [['id_type', 'id_value']]
 
 
-class ExternalPage(models.Model):
-    item = models.ForeignKey(Item, null=True, on_delete=models.SET_NULL, related_name='external_pages')
+class ExternalResource(models.Model):
+    item = models.ForeignKey(Item, null=True, on_delete=models.SET_NULL, related_name='external_resources')
     id_type = models.CharField(_("IdType of the source site"), blank=False, choices=IdType.choices, max_length=50)
     id_value = models.CharField(_("Primary Id on the source site"), blank=False, max_length=1000)
-    url = models.CharField(_("url to the page"), blank=False, max_length=1000, unique=True)
+    url = models.CharField(_("url to the resource"), blank=False, max_length=1000, unique=True)
     cover = models.ImageField(upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True)
     other_lookup_ids = models.JSONField(default=dict)
     metadata = models.JSONField(default=dict)
     scraped_time = models.DateTimeField(null=True)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
-    required_pages = jsondata.ArrayField(null=False, blank=False, default=list)
-    related_pages = jsondata.ArrayField(null=False, blank=False, default=list)
+    required_resources = jsondata.ArrayField(null=False, blank=False, default=list)
+    related_resources = jsondata.ArrayField(null=False, blank=False, default=list)
 
     class Meta:
         unique_together = [['id_type', 'id_value']]
@@ -233,11 +233,11 @@ class ExternalPage(models.Model):
     def __str__(self):
         return f"{self.id}{':' + self.id_type + ':' + self.id_value if self.id_value else ''} ({self.url})"
 
-    def update_content(self, page_data):
-        self.other_lookup_ids = page_data.lookup_ids
-        self.metadata = page_data.metadata
-        if page_data.cover_image and page_data.cover_image_extention:
-            self.cover = SimpleUploadedFile('temp.' + page_data.cover_image_extention, page_data.cover_image)
+    def update_content(self, resource_content):
+        self.other_lookup_ids = resource_content.lookup_ids
+        self.metadata = resource_content.metadata
+        if resource_content.cover_image and resource_content.cover_image_extention:
+            self.cover = SimpleUploadedFile('temp.' + resource_content.cover_image_extention, resource_content.cover_image)
         self.scraped_time = timezone.now()
         self.save()
 

@@ -66,14 +66,14 @@ class Goodreads(AbstractSite):
         data['cover_image_url'] = b['imageUrl']
         w = next(filter(lambda x: x.get('details'), o['Work']), None)
         if w:
-            data['required_pages'] = [{
+            data['required_resources'] = [{
                 'model': 'Work',
                 'id_type': IdType.Goodreads_Work, 
                 'id_value': str(w['legacyId']),
                 'title': w['details']['originalTitle'],
                 'url': w['editions']['webUrl'],
             }]
-        pd = PageData(metadata=data)
+        pd = ResourceContent(metadata=data)
         pd.lookup_ids[IdType.ISBN] = data.get('isbn')
         pd.lookup_ids[IdType.ASIN] = data.get('asin')
         if data["cover_image_url"]:
@@ -107,7 +107,7 @@ class Goodreads_Work(AbstractSite):
         author = author_elem[0].strip() if author_elem else None
         first_published_elem = content.xpath("//h2/span/text()")
         first_published = first_published_elem[0].strip() if first_published_elem else None
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': title,
             'author': author,
             'first_published': first_published

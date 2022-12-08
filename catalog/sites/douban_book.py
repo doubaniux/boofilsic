@@ -111,14 +111,14 @@ class DoubanBook(AbstractSite, ScraperMixin):
         work_link = self.parse_str('//h2/span[text()="这本书的其他版本"]/following-sibling::span[@class="pl"]/a/@href')
         if work_link:
             r = re.match(r'\w+://book.douban.com/works/(\d+)', work_link)
-            self.data['required_pages'] = [{
+            self.data['required_resources'] = [{
                 'model': 'Work',
                 'id_type': IdType.DoubanBook_Work, 
                 'id_value': r[1] if r else None,
                 'title': self.data['title'],
                 'url': work_link,
             }]
-        pd = PageData(metadata=self.data)
+        pd = ResourceContent(metadata=self.data)
         pd.lookup_ids[IdType.ISBN] = self.data.get('isbn')
         pd.lookup_ids[IdType.CUBN] = self.data.get('cubn')
         if self.data["cover_image_url"]:
@@ -145,7 +145,7 @@ class DoubanBook_Work(AbstractSite):
     def bypass_scrape(self, data_from_link):
         if not data_from_link:
             return None
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': data_from_link['title'],
         })
         return pd
@@ -156,7 +156,7 @@ class DoubanBook_Work(AbstractSite):
         title = title_elem[0].split('全部版本(')[0].strip() if title_elem else None
         if not title:
             raise ParseError(self, 'title')
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': title,
         })
         return pd

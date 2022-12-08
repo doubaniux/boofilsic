@@ -215,7 +215,7 @@ class DoubanMovie(AbstractSite):
         img_url_elem = content.xpath("//img[@rel='v:image']/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
 
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': title,
             'orig_title': orig_title,
             'other_title': other_title,
@@ -257,7 +257,7 @@ class DoubanMovie(AbstractSite):
                     # TODO correct the IMDB id
             pd.lookup_ids[IdType.IMDB] = imdb_code
             if tmdb_show_id:
-                pd.metadata['required_pages'] = [{
+                pd.metadata['required_resources'] = [{
                     'model': 'TVShow',
                     'id_type': IdType.TMDB_TV,
                     'id_value': tmdb_show_id,
@@ -265,7 +265,7 @@ class DoubanMovie(AbstractSite):
                     'url': TMDB_TV.id_to_url(tmdb_show_id),
                 }]
         # TODO parse sister seasons
-        # pd.metadata['related_pages'] = []
+        # pd.metadata['related_resources'] = []
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:

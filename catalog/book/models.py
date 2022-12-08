@@ -13,7 +13,7 @@ only has Edition level ("volume") data
 
 Douban:
 old editions has only CUBN(Chinese Unified Book Number)
-work data seems asymmetric (a book page links to a work page, but may not listed on that work page as one of the editions)
+work data seems asymmetric (a book links to a work, but may not listed in that work as one of its editions)
 
 """
 
@@ -45,9 +45,9 @@ class Edition(Item):
     def isbn10(self, value):
         self.isbn = isbn_10_to_13(value)
 
-    def update_linked_items_from_extenal_page(self, page):
-        """add Work from page.metadata['work'] if not yet"""
-        links = page.required_pages + page.related_pages
+    def update_linked_items_from_external_resource(self, resource):
+        """add Work from resource.metadata['work'] if not yet"""
+        links = resource.required_resources + resource.related_resources
         for w in links:
             if w['model'] == 'Work':
                 work = Work.objects.filter(primary_lookup_id_type=w['id_type'], primary_lookup_id_value=w['id_value']).first()

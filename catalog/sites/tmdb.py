@@ -126,7 +126,7 @@ class TMDB_Movie(AbstractSite):
         # TODO: use GET /configuration to get base url
         img_url = ('https://image.tmdb.org/t/p/original/' + res_data['poster_path']) if res_data['poster_path'] is not None else None
 
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': title,
             'orig_title': orig_title,
             'other_title': None,
@@ -233,7 +233,7 @@ class TMDB_TV(AbstractSite):
             'id_value': f'{self.id_value}-{s["season_number"]}',
             'title': s['name'],
             'url': f'{self.url}/season/{s["season_number"]}'}, res_data['seasons']))
-        pd = PageData(metadata={
+        pd = ResourceContent(metadata={
             'title': title,
             'orig_title': orig_title,
             'other_title': None,
@@ -253,7 +253,7 @@ class TMDB_TV(AbstractSite):
             'single_episode_length': None,
             'brief': brief,
             'cover_image_url': img_url,
-            'related_pages': season_links,
+            'related_resources': season_links,
         })
         if imdb_code:
             pd.lookup_ids[IdType.IMDB] = imdb_code
@@ -292,8 +292,8 @@ class TMDB_TVSeason(AbstractSite):
         d = BasicDownloader(api_url).download().json()
         if not d.get('id'):
             raise ParseError('id')
-        pd = PageData(metadata=_copy_dict(d, {'name': 'title', 'overview': 'brief', 'air_date': 'air_date', 'season_number': 0, 'external_ids': 0}))
-        pd.metadata['required_pages'] = [{
+        pd = ResourceContent(metadata=_copy_dict(d, {'name': 'title', 'overview': 'brief', 'air_date': 'air_date', 'season_number': 0, 'external_ids': 0}))
+        pd.metadata['required_resources'] = [{
             'model': 'TVShow',
             'id_type': IdType.TMDB_TV,
             'id_value': v[0],

@@ -48,7 +48,7 @@ class DoubanDrama(AbstractSite):
         img_url_elem = h.xpath("//img[@itemprop='image']/@src")
         data['cover_image_url'] = img_url_elem[0].strip() if img_url_elem else None
 
-        pd = PageData(metadata=data)
+        pd = ResourceContent(metadata=data)
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:
