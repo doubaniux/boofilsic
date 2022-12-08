@@ -34,6 +34,11 @@ def setMockMode(enabled):
     MockMode = enabled
 
 
+def getMockMode():
+    global MockMode
+    return MockMode
+
+
 class DownloadError(Exception):
     def __init__(self, downloader):
         self.url = downloader.url
@@ -63,10 +68,12 @@ class BasicDownloader:
         'Cache-Control': 'no-cache',
     }
 
-    def __init__(self, url):
+    def __init__(self, url, headers=None):
         self.url = url
         self.response_type = RESPONSE_OK
         self.logs = []
+        if headers:
+            self.headers = headers
 
     def get_timeout(self):
         return settings.SCRAPING_TIMEOUT

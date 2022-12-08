@@ -6,3 +6,4 @@ from .douban_drama import DoubanDrama
 from .goodreads import Goodreads
 from .tmdb import TMDB_Movie
 from .imdb import IMDB
+from .spotify import Spotify

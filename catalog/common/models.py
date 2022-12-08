@@ -18,7 +18,7 @@ class IdType(models.TextChoices):
     ISSN = 'issn', _('ISSN')
     CUBN = 'cubn', _('统一书号')
     ISRC = 'isrc', _('ISRC')  # only for songs
-    UPC = 'upc', _('GTIN UPC EAN码')
+    GTIN = 'gtin', _('GTIN UPC EAN码')  # ISBN is separate
     Feed = 'feed', _('Feed URL')
     IMDB = 'imdb', _('IMDb')
     TMDB_TV = 'tmdb_tv', _('TMDB剧集')
@@ -37,6 +37,9 @@ class IdType(models.TextChoices):
     Bandcamp = 'bandcamp', _('Bandcamp')
     Spotify_Album = 'spotify_album', _('Spotify专辑')
     Spotify_Show = 'spotify_show', _('Spotify播客')
+    Discogs_Release = 'discogs_release', ('Discogs Release')
+    Discogs_Master = 'discogs_master', ('Discogs Master')
+    MusicBrainz = 'musicbrainz', ('MusicBrainz ID')
     DoubanBook_Author = 'doubanbook_author', _('豆瓣读书作者')
     DoubanCelebrity = 'doubanmovie_celebrity', _('豆瓣电影影人')
     Goodreads_Author = 'goodreads_author', _('Goodreads作者')

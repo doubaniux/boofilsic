@@ -2,9 +2,9 @@ from catalog.common import *
 
 
 class Album(Item):
-    upc = LookupIdDescriptor(IdType.UPC)
-    douban_music = LookupIdDescriptor(IdType.DoubanMusic)
-    spotify_album = LookupIdDescriptor(IdType.Spotify_Album)
+    barcode = PrimaryLookupIdDescriptor(IdType.GTIN)
+    douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
+    spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)
 
     class Meta:
         proxy = True
