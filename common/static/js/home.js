@@ -224,7 +224,6 @@ $(document).ready( function() {
                     if (data.failed_urls.length > 0) {
                         $(".import-panel__fail-urls").show();
                         data.failed_urls.forEach((v, i) => {
-                            console.log(v)
                             $("#failedUrls").append($("<li>" + v + "</li>"));
                         });
                     }
