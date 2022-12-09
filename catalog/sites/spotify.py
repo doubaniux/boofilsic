@@ -62,7 +62,7 @@ class Spotify(AbstractSite):
                 track_list.append(str(track['track_number']) + '. ' + track['name'])
         track_list = '\n'.join(track_list)
 
-        release_date = parse_date(res_data['release_date']).strftime('%Y-%m-%d')
+        release_date = dateparser.parse(res_data['release_date']).strftime('%Y-%m-%d')
 
         gtin = None
         if res_data['external_ids'].get('upc'):
@@ -143,12 +143,3 @@ def invoke_spotify_token():
     # minus 2 for execution time error
     spotify_token_expire_time = int(data['expires_in']) + time.time() - 2
     spotify_token = data['access_token']
-
-
-def parse_date(raw_str):
-    return dateparser.parse(
-        raw_str,
-        settings={
-            "RELATIVE_BASE": datetime.datetime(1900, 1, 1)
-        }
-    )
