@@ -8,9 +8,22 @@ from common.scraper import *
 from igdb.wrapper import IGDBWrapper
 import json
 import datetime
+import logging
 
 
-wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, settings.IGDB_ACCESS_TOKEN)
+_logger = logging.getLogger(__name__)
+
+
+def _igdb_access_token():
+    try:
+        token = requests.post(f'https://id.twitch.tv/oauth2/token?client_id={settings.IGDB_CLIENT_ID}&client_secret={settings.IGDB_CLIENT_SECRET}&grant_type=client_credentials').json()['access_token']
+    except Exception:
+        _logger.error('unable to obtain IGDB token')
+        token = '<invalid>'
+    return token
+
+
+wrapper = IGDBWrapper(settings.IGDB_CLIENT_ID, _igdb_access_token())
 
 
 class IgdbGameScraper(AbstractScraper):
