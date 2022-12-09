@@ -47,6 +47,7 @@ class IdType(models.TextChoices):
     TMDB_Person = 'tmdb_person', _('TMDB影人')
     IGDB = 'igdb', _('IGDB游戏')
     Steam = 'steam', _('Steam游戏')
+    Bangumi = 'bangumi', _('Bangumi')
     ApplePodcast = 'apple_podcast', _('苹果播客')
 
 

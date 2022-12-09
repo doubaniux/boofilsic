@@ -89,6 +89,24 @@ class DoubanGameTestCase(TestCase):
         self.assertEqual(site.resource.item.douban_game, '10734307')
 
 
+class BangumiGameTestCase(TestCase):
+    def test_parse(self):
+        t_id_type = IdType.Bangumi
+        t_id_value = '15912'
+        t_url = 'https://bgm.tv/subject/15912'
+        site = SiteList.get_site_by_id_type(t_id_type)
+        self.assertIsNotNone(site)
+        self.assertEqual(site.validate_url(t_url), True)
+        site = SiteList.get_site_by_url(t_url)
+        self.assertEqual(site.url, t_url)
+        self.assertEqual(site.id_value, t_id_value)
+
+    @use_local_response
+    def test_scrape(self):
+        # TODO
+        pass
+
+
 class MultiGameSitesTestCase(TestCase):
     @use_local_response
     def test_games(self):

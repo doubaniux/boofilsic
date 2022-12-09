@@ -12,3 +12,4 @@ from .imdb import IMDB
 from .spotify import Spotify
 from .igdb import IGDB
 from .steam import Steam
+from .bangumi import Bangumi
