@@ -461,6 +461,11 @@ select::placeholder {
   color: #606c76;
 }
 
+.navbar .current {
+  color: #00a1cc;
+  font-weight: bold;
+}
+
 .navbar .navbar__search-box {
   margin: 0 12% 0 15px;
   display: inline-flex;
