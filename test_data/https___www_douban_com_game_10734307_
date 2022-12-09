@@ -1,0 +1,2044 @@
+<!DOCTYPE html>
+<html lang="zh-CN" class="ua-mac ua-webkit">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta name="renderer" content="webkit">
+    <meta name="referrer" content="always">
+    <meta name="google-site-verification" content="ok0wCgT20tBBgo9_zat2iAcimtN4Ftf5ccsh092Xeyw" />
+    <title>
+        传送门2 Portal 2 (豆瓣)
+</title>
+    
+
+    
+<meta name="keywords" content="传送门2, Portal 2, PC, Mac, PS3, Xbox 360, Linux, 第一人称射击游戏, 益智游戏, 射击游戏, 动作游戏, Valve Corporation, Valve Corporation, Electronic Arts, 2011-04-19, 游戏, 视频，攻略，评测，图片，评分，讨论"/>
+<meta name="description" content="Portal 2 传送门2的视频，攻略，评测，图片，评分，讨论, 帮助你判断是否好玩，发现更多相似好游戏及爱玩这些游戏的人"/>
+<meta name="mobile-agent" content="format=html5; url=https://m.douban.com/game/subject/10734307/"/>
+<script src="https://img1.doubanio.com/f/ilmen/643981b507e851701b0f8ef861a97a5442cde571/js/ilmen/lib/react16/react.production.min.js"></script>
+<script src="https://img1.doubanio.com/f/ilmen/922b1958f02a309130e631c909e4188c085f4c4b/js/ilmen/lib/react16/react-dom.production.min.js"></script>
+
+
+<script>
+    function set_cookie(t,e,o,n){var i,a,r=new Date;r.setTime(r.getTime()+24*(e||30)*60*60*1e3),i="; expires="+r.toGMTString();for(a in t)document.cookie=a+"="+t[a]+i+"; domain="+(o||"douban.com")+"; path="+(n||"/")}function get_cookie(t){var e,o,n=t+"=",i=document.cookie.split(";");for(e=0;e<i.length;e++){for(o=i[e];" "==o.charAt(0);)o=o.substring(1,o.length);if(0===o.indexOf(n))return o.substring(n.length,o.length).replace(/\"/g,"")}return null}window.Douban=window.Douban||{};var Do=function(){Do.actions.push([].slice.call(arguments))};Do.ready=function(){Do.actions.push([].slice.call(arguments))},Do.add=Do.define=function(t,e){Do.mods[t]=e},Do.global=function(){Do.global.mods=Array.prototype.concat(Do.global.mods,[].slice.call(arguments))},Do.global.mods=[],Do.mods={},Do.actions=[],Douban.init_show_login=function(t){Do("dialog",function(){var t="/j/misc/login_form";dui.Dialog({title:"登录",url:t,width:/device-mobile/i.test(document.documentElement.className)?.9*document.documentElement.offsetWidth:350,cache:!0,callback:function(t,e){e.node.addClass("dialog-login"),e.node.find("h2").css("display","none"),e.node.find(".hd h3").replaceWith(e.node.find(".bd h3")),e.node.find("form").css({border:"none",width:"auto",padding:"0"}),e.update()}}).open()})},Do(function(){function t(t,e){var o=["ref="+encodeURIComponent(location.pathname)];for(var n in e)e.hasOwnProperty(n)&&o.push(n+"="+e[n]);window._SPLITTEST&&o.push("splittest="+window._SPLITTEST),localStorage.setItem("report",(localStorage.getItem("report")||"")+"_moreurl_separator_"+o.join("&"))}!function(){"localStorage"in window||(window.localStorage=function(){var t=document;if(!t.documentElement.addBehavior)throw"don't support localstorage or userdata.";var e="_localstorage_ie",o=t.createElement("input");o.type="hidden";var n=function(n){return function(){t.body.appendChild(o),o.addBehavior("#default#userData");var i=new Date;i.setDate(i.getDate()+365),o.expires=i.toUTCString(),o.load(e);var a=n.apply(o,arguments);return t.body.removeChild(o),a}};return{getItem:n(function(t){return this.getAttribute(t)}),setItem:n(function(t,o){this.setAttribute(t,o),this.save(e)}),removeItem:n(function(t){this.removeAttribute(t),this.save(e)}),clear:n(function(){for(var t,o=this.XMLDocument.documentElement.attributes,n=0;t=o[n];n++)this.removeAttribute(t.name);this.save(e)})}}())}(),$(window).one("load",function(){var t=localStorage.getItem("report");if(t){t=t.split("_moreurl_separator_");var e=function(o){return""==o?void e(t.shift()):void $.get("undefined"==typeof _MOREURL_REQ?"/stat.html?"+o:_MOREURL_REQ+"?"+o,function(){return t.length?(e(t.shift()),void localStorage.setItem("report",t.join("_moreurl_separator_"))):void localStorage.removeItem("report")})};e(t.shift())}}),window.moreurl=t,$(document).click(function(e){var o=e.target,n=$(o).data("moreurl-dict");n&&t(o,n)}),$.ajax_withck=function(t){return"POST"==t.type&&(t.data=$.extend(t.data||{},{ck:get_cookie("ck")})),$.ajax(t)},$.postJSON_withck=function(t,e,o){return $.post_withck(t,e,o,"json")},$.post_withck=function(t,e,o,n){return $.isFunction(e)&&(n=o,o=e,e={}),$.ajax({type:"POST",url:t,data:$.extend(e,{ck:get_cookie("ck")}),success:o,dataType:n||"text"})},$("html").click(function(t){var e=$(t.target),o=e.attr("class");o&&$(o.match(/a_(\w+)/gi)).each($.proxy(function(e,o){var n=Douban[o.replace(/^a_/,"init_")];"function"==typeof n&&(t.preventDefault(),n.call(this,t))},e[0]))})});
+    ;(function() {
+        var USER_ID=0;
+window.Ilmen=window.Ilmen||{};var Ilmen=window.Ilmen;Ilmen.ui={},Ilmen.utils={},Ilmen.data={},Ilmen.user={id:USER_ID},Ilmen.requireLogin=function(n){Ilmen.user.id||(n.stopImmediatePropagation(),Douban.init_show_login())};
+    })();
+    Do.add('dialog', {path: 'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js', type: 'js', requires: ['https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css']});
+    Do.global('https://img1.doubanio.com/f/sns/b5793c2d7c298173d57ecf7d96708b5615336def/js/sns/fp/base.js', 'dialog');
+</script>
+<script type="text/javascript" src="https://img1.doubanio.com/f/shire/0495cb173e298c28593766009c7b0a953246c5b5/js/jquery-1.8.3.js"></script>
+<link rel="stylesheet" href="https://img1.doubanio.com/f/shire/32336a6003aedfb3aed372bf3ae0b51c92d12316/css/core/_init_.css">
+<link rel="stylesheet" href="https://img1.doubanio.com/f/ilmen/034c879366382fa78a55c15406399d6977db7adf/css/ilmen/common.css">
+<link rel="stylesheet" href="https://img1.doubanio.com/f/ilmen/75ba35fadc87ea9d052896f99e9de067746f9788/css/ilmen/init.css">
+<link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/2a657298919de22d.css">
+
+    <link rel="shortcut icon" href="https://img1.doubanio.com/favicon.ico" type="image/x-icon">
+</head>
+
+<body>
+  
+
+<script type="text/javascript">var _body_start = new Date();</script>
+
+    
+   
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-global-nav" class="global-nav">
+  <div class="bd">
+    
+<div class="top-nav-info">
+  <a href="https://accounts.douban.com/passport/login?source=main" class="nav-login" rel="nofollow">登录/注册</a>
+</div>
+
+
+    <div class="top-nav-doubanapp">
+  <a href="https://www.douban.com/doubanapp/app?channel=top-nav" class="lnk-doubanapp">下载豆瓣客户端</a>
+  <div id="doubanapp-tip">
+    <a href="https://www.douban.com/doubanapp/app?channel=qipao" class="tip-link">豆瓣 <span class="version">6.0</span> 全新发布</a>
+    <a href="javascript: void 0;" class="tip-close">×</a>
+  </div>
+  <div id="top-nav-appintro" class="more-items">
+    <p class="appintro-title">豆瓣</p>
+    <p class="qrcode">扫码直接下载</p>
+    <div class="download">
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=iOS">iPhone</a>
+      <span>·</span>
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=Android" class="download-android">Android</a>
+    </div>
+  </div>
+</div>
+
+    
+
+
+<div class="global-nav-items">
+  <ul>
+    <li class="on">
+      <a href="https://www.douban.com"  data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-main&quot;,&quot;uid&quot;:&quot;0&quot;}">豆瓣</a>
+    </li>
+    <li class="">
+      <a href="https://book.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-book&quot;,&quot;uid&quot;:&quot;0&quot;}">读书</a>
+    </li>
+    <li class="">
+      <a href="https://movie.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-movie&quot;,&quot;uid&quot;:&quot;0&quot;}">电影</a>
+    </li>
+    <li class="">
+      <a href="https://music.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-music&quot;,&quot;uid&quot;:&quot;0&quot;}">音乐</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/location" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-location&quot;,&quot;uid&quot;:&quot;0&quot;}">同城</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/group" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-group&quot;,&quot;uid&quot;:&quot;0&quot;}">小组</a>
+    </li>
+    <li class="">
+      <a href="https://read.douban.com&#47;?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
+    </li>
+    <li class="">
+      <a href="https://douban.fm&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+    </li>
+    <li class="">
+      <a href="https://time.douban.com&#47;?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
+    </li>
+    <li class="">
+      <a href="https://market.douban.com&#47;?utm_campaign=douban_top_nav&amp;utm_source=douban&amp;utm_medium=pc_web" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-market&quot;,&quot;uid&quot;:&quot;0&quot;}">豆品</a>
+    </li>
+  </ul>
+</div>
+
+  </div>
+</div>
+<script>
+  ;window._GLOBAL_NAV = {
+    DOUBAN_URL: "https://www.douban.com",
+    N_NEW_NOTIS: 0,
+    N_NEW_DOUMAIL: 0
+  };
+</script>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.js" defer="defer"></script>
+
+
+
+
+      
+    
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/sns/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-nav-sns" class="nav">
+  <div class="nav-wrap">
+    <div class="nav-primary">
+     
+      <div class="nav-logo">
+        <a href="https://www.douban.com">豆瓣社区</a>
+      </div>
+
+      <div class="nav-search">
+  <form action="https://www.douban.com/search" method="get">
+	<fieldset>
+      <legend>搜索：</legend>
+	  <label for="inp-query">搜索你感兴趣的内容和人...</label>
+	  <div class="inp">
+	    <input type="hidden" name="source" value="suggest">
+		<input id="inp-query" name="q" size="22" maxlength="60" autocomplete="off" value="">
+	  </div>
+	  <div class="inp-btn"><input type="submit" value="搜索"></div>
+	</fieldset>
+  </form>
+</div>
+
+      
+
+<div class="nav-items">
+  <ul>
+    <li><a href="https://www.douban.com">首页</a></li>
+      <li>
+        <a href="https://www.douban.com/explore">
+          浏览发现
+        </a>
+      </li>
+      <li>
+        <a href="https://www.douban.com/gallery">
+          话题广场
+          <img src="https://img3.doubanio.com/f/shire/e49eca1517424a941871a2667a8957fd6c72d632/pics/new_menu.gif" alt="new" style="position: absolute; top: -7px; right: -13px;" />
+        </a>
+      </li>
+  </ul>
+</div>
+
+    </div>
+  </div>
+</div>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/sns/bundle.js" defer="defer"></script>
+
+
+
+
+
+
+    
+
+<div id="wrapper">
+        
+
+        
+<div id="content">
+    
+    <h1>传送门2 Portal 2</h1>
+
+    <div class="grid-16-8 clearfix">
+        
+        
+        <div class="article">
+               
+    
+    
+<div class="mod item-subject">
+    <div class="item-subject-info">
+        <div class="pic">
+            <a href="https://img1.doubanio.com/lpic/s9090498.jpg"><img width="115" src="https://img1.doubanio.com/lpic/s9090498.jpg" alt="传送门2 Portal 2"></a>
+            <div class="th-modify">
+                <a href="https://www.douban.com/game/10734307/edit">补充完善游戏资料</a>
+            </div>
+        </div>
+            
+
+
+
+
+
+
+<dl class="game-attr">
+    <dt>类型:</dt>
+    <dd>
+        <a href="/game/explore" title="游戏">游戏</a>
+            / 
+    <a href="/game/explore?genres=32" title="第一人称射击">第一人称射击</a>
+ / 
+    <a href="/game/explore?genres=18" title="益智">益智</a>
+ / 
+    <a href="/game/explore?genres=11" title="射击">射击</a>
+ / 
+    <a href="/game/explore?genres=1" title="动作">动作</a>
+
+    </dd>
+        <dt>平台:</dt>
+        <dd>
+            
+    <a href="/game/explore?platforms=94" title="PC">PC</a>
+ / 
+    <a href="/game/explore?platforms=17" title="Mac">Mac</a>
+ / 
+    <a href="/game/explore?platforms=35" title="PS3">PS3</a>
+ / 
+    <a href="/game/explore?platforms=20" title="Xbox 360">Xbox 360</a>
+ / 
+    <a href="/game/explore?platforms=152" title="Linux">Linux</a>
+
+        </dd>
+        <dt>开发商:</dt>
+        <dd>
+            Valve Corporation
+        </dd>
+        <dt>发行商:</dt>
+        <dd>
+            Valve Corporation / Electronic Arts
+        </dd>
+        <dt>发行日期:</dt>
+        <dd>
+            2011-04-19
+        </dd>
+</dl>
+
+    </div>
+    <div class="item-subject-rating">
+            
+
+
+
+
+<div id="interest_sectl">
+    <div class="rating_wrap clearbox" rel="v:rating">
+        <div class="rating_logo">豆瓣评分</div>
+        <div class="rating_self clearfix" typeof="v:Rating">
+            <strong class="ll rating_num" property="v:average"> 9.5 </strong>
+            <span property="v:best" content="10.0"></span>
+            <div class="rating_right">
+                <div class="ll bigstar50"></div>
+                <div class="rating_sum">
+                        <a href="collections" class="rating_people"><span property="v:votes">6932</span>人评价</a>
+                </div>
+            </div>
+        </div>
+
+        
+        
+        
+<span class="stars5 starstop" title="力荐">
+    5星
+</span>
+
+        
+<div class="power" style="width:64px"></div>
+
+        <span class="rating_per">81.3%</span>
+        <br>
+        
+        
+<span class="stars4 starstop" title="推荐">
+    4星
+</span>
+
+        
+<div class="power" style="width:11px"></div>
+
+        <span class="rating_per">15.1%</span>
+        <br>
+        
+        
+<span class="stars3 starstop" title="还行">
+    3星
+</span>
+
+        
+<div class="power" style="width:2px"></div>
+
+        <span class="rating_per">3.0%</span>
+        <br>
+        
+        
+<span class="stars2 starstop" title="较差">
+    2星
+</span>
+
+        
+<div class="power" style="width:0px"></div>
+
+        <span class="rating_per">0.4%</span>
+        <br>
+        
+        
+<span class="stars1 starstop" title="很差">
+    1星
+</span>
+
+        
+<div class="power" style="width:0px"></div>
+
+        <span class="rating_per">0.2%</span>
+        <br>
+    </div>
+
+</div>
+
+            
+    </div>
+        
+
+
+
+
+
+
+    
+
+<div class="collection-section">
+    <div class="collection-buttons">
+    
+        <a href="https://www.douban.com/register?reason=collectwish&amp;ck="
+           rel="nofollow" class="j a_show_login "
+           data-id="10734307"
+           data-action="wish">
+            <span>想玩</span>
+        </a>
+        <a href="https://www.douban.com/register?reason=collectdo&amp;ck="
+           rel="nofollow" class="j a_show_login "
+           data-id="10734307"
+           data-action="do">
+            <span>在玩</span>
+        </a>
+        <a href="https://www.douban.com/register?reason=collectcollect&amp;ck="
+           rel="nofollow" class="j a_show_login "
+           data-id="10734307"
+           data-action="collect">
+            <span>玩过</span>
+        </a>
+    </div>
+
+        <div class="collection-rating-stars">
+            
+    
+    评价:
+    <span id="rating">
+        <span id="stars" data-solid="https://img1.doubanio.com/f/shire/5a2327c04c0c231bced131ddf3f4467eb80c1c86/pics/rating_icons/star_onmouseover.png" data-hollow="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" data-solid-2x="https://img1.doubanio.com/f/shire/7258904022439076d57303c3b06ad195bf1dc41a/pics/rating_icons/star_onmouseover@2x.png" data-hollow-2x="https://img1.doubanio.com/f/shire/95cc2fa733221bb8edd28ad56a7145a5ad33383e/pics/rating_icons/star_hollow_hover@2x.png">
+                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="1">
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star1" height="16" width="16" /></a>
+                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="2">
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star2" height="16" width="16" /></a>
+                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="3">
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star3" height="16" width="16" /></a>
+                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="4">
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star4" height="16" width="16" /></a>
+                <a href="https://www.douban.com/register?reason=rate" class="j a_show_login" data-id="10734307" data-rating="5">
+            <img src="https://img1.doubanio.com/f/shire/2520c01967207a1735171056ec588c8c1257e5f8/pics/rating_icons/star_hollow_hover.png" id="star5" height="16" width="16" /></a>
+        </span>
+        <span id="rateword" class="pl"></span>
+        <input id="n_rating" type="hidden" value="" />
+    </span>
+
+        </div>
+</div>
+
+
+
+        <script type="text/html" id="template-collect-popup">
+    <form action="/j/ilmen/thing/{id}/interest">
+                {interestTmpl}
+                {ratingTmpl}
+                {platformTmpl}
+        <div class="item item-tags">
+            <label for="tags">标签(多个标签用空格分隔): </label>
+            <input name="tags" type="text" class="inp-tags" value="{selected_tags}" />
+            <div id="mytags"></div>
+            <div id="populartags"></div>
+        </div>
+        <div class="item">
+            <label class="reason">简短评论</label>
+            <textarea name="comment">{comment}</textarea>
+            <span class="count">350</span>
+        </div>
+        <div class="submit-item">
+            <div class="item-share">
+                        分享到:
+                <label for="dlg-opt-share">
+                    <input type="checkbox" id="dlg-opt-share" name="share-shuo" value="1" {isShuoChecked} />我的广播
+                </label>
+            </div>
+            <span class="bn-flat">
+                <input type="submit" value="保存" />
+            </span>
+        </div>
+    </form>
+</script>
+    <div class="game-actions">
+        <a href="new_review" target="_blank" class="icon-pencil ">写文字</a>
+        <a href="new_review?rtype=G" target="_blank" class="icon-pencil ">写攻略</a>
+            
+            
+    
+    <span class="rec" id="游戏-10734307">
+    <a href= "#"
+        data-type="游戏"
+        data-url="https://www.douban.com/game/10734307/"
+        data-desc="游戏《传送门2 Portal 2》 (来自豆瓣) "
+        data-title="游戏《传送门2 Portal 2》 (来自豆瓣) "
+        data-pic="https://img1.doubanio.com/lpic/s9090498.jpg"
+        class="bn-sharing ">
+        分享
+    </a> &nbsp;&nbsp;
+    </span>
+
+    <script>
+        if (!window.DoubanShareMenuList) {
+            window.DoubanShareMenuList = [];
+        }
+        var __cache_url = __cache_url || {};
+
+        (function(u){
+            if(__cache_url[u]) return;
+            __cache_url[u] = true;
+            window.DoubanShareIcons = 'https://img1.doubanio.com/f/shire/d15ffd71f3f10a7210448fec5a68eaec66e7f7d0/pics/ic_shares.png';
+
+            var initShareButton = function() {
+                $.ajax({url:u,dataType:'script',cache:true});
+            };
+
+            if (typeof Do == 'function' && 'ready' in Do) {
+                Do(
+                    'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
+                    'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
+                    'https://img1.doubanio.com/f/ilmen/c4ab132ff4d3d64a83854c875ea79b8b541faf12/js/ilmen/lib/qrcode.min.js',
+                    initShareButton
+                );
+            } else if(typeof Douban == 'object' && 'loader' in Douban) {
+                Douban.loader.batch(
+                    'https://img1.doubanio.com/f/shire/8377b9498330a2e6f056d863987cc7a37eb4d486/css/ui/dialog.css',
+                    'https://img1.doubanio.com/f/shire/bc881a837a728ab82aa01d653b1c180190bb5a5d/js/ui/dialog.js',
+                    'https://img1.doubanio.com/f/ilmen/c4ab132ff4d3d64a83854c875ea79b8b541faf12/js/ilmen/lib/qrcode.min.js'
+                ).done(initShareButton);
+            }
+
+        })('https://img1.doubanio.com/f/ilmen/6bcadc5e88dbc9e2efdc373d21f589013d60fd88/js/ilmen/lib/sharebutton.js');
+    </script>
+
+
+            
+
+
+
+
+
+
+
+
+    <div class="rec-sec">
+
+    <span class="rec">
+
+<a data-user_id="0" href="https://www.douban.com/accounts/register?reason=collect" share-id="10734307" data-mode="plain" data-name="传送门2 Portal 2" data-type="" data-desc="开发者：Valve 
+发行时间：04/18/2011 
+平台：Macintosh, PlayStation 3, Windows, Xbox 360 
+类型：Action 
+视角：1st-Person Perspective, Platform 
+评分： IGN 9.5/10 GameSpot 9/1..." data-href="https://www.douban.com/game/10734307/" data-image="https://img1.doubanio.com/mpic/s9090498.jpg" data-properties="{}" data-redir="https://www.douban.com/static/dshare_proxy.html" data-text="" data-apikey="" data-curl="" data-count="10" data-object_kind="3114" data-object_id="10734307" data-target_type="rec" data-target_action="0" data-action_props="{&#34;th_url&#34;:&#34;https:\/\/www.douban.com\/game\/10734307\/&#34;,&#34;th_title&#34;:&#34;传送门2 Portal 2&#34;}" data-btn_text="推荐" data-heading="推荐到豆瓣" data-sanity_key="_c6410" class="j a_show_login lnk-sharing lnk-douban-sharing">推荐</a>
+</span>
+</div>
+
+
+    </div>
+</div>
+
+    
+
+
+
+
+<div class="mod" id="th-photos">
+    
+    <h2>
+        传送门2 的游戏视频
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                <a href="videos/" target="_self">全部 1 个</a>&nbsp;&middot;&nbsp;<a href="video/create" target="_self">添加视频</a>
+                ) </span>
+    </h2>
+
+    <div class="bd">
+        <div class="list">
+            <ul>
+                        <li class="video-mini">
+                            <a href="https://www.douban.com/game/10734307/video/985293/">
+                                <div class="arc-mask"></div>
+                                <img src="https://i1.hdslb.com/bfs/archive/f917f9f27a1efddc74e7cf77efeb9e5fb7f53411.jpg">
+                            </a>
+                            <a href="https://www.douban.com/game/10734307/video/985293/"> 联机实况【传送门2】黑桐谷歌&amp;Chimera君 P1 P2_哔哩哔哩 (゜-゜)つロ 干杯~-bilibili <span>试玩</span></a>
+                        </li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+<div class="mod" id="th-photos">
+    
+    <h2>
+        传送门2 的游戏图片
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                <a href="photos/" target="_self">全部82张</a>&nbsp;&middot;&nbsp;<a href="photos/upload" target="_self">添加图片</a>
+                ) </span>
+    </h2>
+
+    <div class="bd">
+        <div class="list">
+            <ul>
+                <li class="photos-upload">
+                    <a href="https://www.douban.com/game/10734307/photos/upload">上传游戏截图</a>
+                </li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2642900120/"><img width="110" height="110" src="https://img1.doubanio.com/view/photo/albumicon/public/p2642900120.jpg"></a></li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2642900118/"><img width="110" height="110" src="https://img1.doubanio.com/view/photo/albumicon/public/p2642900118.jpg"></a></li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2642900104/"><img width="110" height="110" src="https://img9.doubanio.com/view/photo/albumicon/public/p2642900104.jpg"></a></li>
+                        <li><a href="https://www.douban.com/game/10734307/photo/2642900100/"><img width="110" height="110" src="https://img1.doubanio.com/view/photo/albumicon/public/p2642900100.jpg"></a></li>
+            </ul>
+        </div>
+    </div>
+</div>
+
+
+    
+
+
+
+
+
+
+<div class="mod item-desc" id="link-report">
+    
+    <h2>
+        简介
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+    </h2>
+
+    <p>开发者：Valve <br />发行时间：04/18/2011 <br />平台：Macintosh, PlayStation 3, Windows, Xbox 360 <br />类型：Action <br />视角：1st-Person Perspective, Platform <br />评分： IGN 9.5/10 GameSpot 9/10 <br />奖项： <br />GameStar 2011 - #3 PC Action Game of the Year (Readers&amp;#8216; Vote) <br />PC Games Issue 01/2012 - Best Game in 2011 (Editor&amp;#8216;s Choice, together with Batman: Arkham City and The Elder Scrolls V: Skyrim Issue 01/2012 - #2 Best Action-Adventure in 2011 (Reader&amp;#8216;s Choice) <br />Xbox 360 Achievements 2011 - Best Story <br /><br />Portal 2 is the sequel to Portal and offers the same first-person puzzle-platform gameplay. Players continue the story taking the role of the young woman Chell, who defeated the artificial intelligence computer system GLaDOS in the first game. After the events of the first game, she was placed in stasis until eventually woken up again. The sequel still takes place at Aperture Science Labs, but it is now overrun by decay and nature. Much more than in the first game, Chell moves past the clean test chambers and explores the gloomy industrial setting of the laboratory. Just like in the first game, the gameplay is based around portals. By shooting a starting portal and ending portal at suitable surfaces, certain uncrossable gaps can be bridged. Just like in the first game, there are also many test chambers where puzzles need to be solved, using cubes, turrets, platforms and special portal tricks to gain a lot of speed. GLaDOS makes a return to tease Chell and she plots revenge for her destruction, but there are a large number of twists that make her role very different from in the first game. Chell receives help from Wheatley, a small robot who opens entrances for her and provides witty insights about the environment. New elements to the sequel&amp;#8216;s gameplay include light bridges, laser redirection and paint-like gels, incorporated through the work of the student project Tag: The Power of Paint. Gels provide extra speed, a jump or neutralize the effects. They can also be used with objects such as cubes or turrets. The game’s two-player cooperative mode is entirely new and features its own entirely separate campaign with a unique story, test chambers, and two new player characters (Atlas and P-body). The PlayStation 3 version incorporates some elements of the Steamworks toolset and allows for cross-platform games against PC players.</p>
+</div>
+
+
+<script>
+    Do(function() {
+        var maxHeight = 59;
+        var $desc = $('.item-desc'),
+        $text = $desc.find('p'),
+        tmpl_more = '<a href="javascript:;" class="action" data-action="expand">[展开]</a>',
+        tmpl_less = '<a href="javascript:;" class="action" data-action="contract">[收起]</a>';
+        if ($text.height() > maxHeight) {
+            $text.css('height', maxHeight)
+                 .after(tmpl_more);
+            $desc.delegate('a.action', 'click', function(e) {
+                e.preventDefault();
+                var css = $(this).attr('data-action') === 'expand' ? 'auto' : maxHeight,
+                tmpl = css === 'auto' ? tmpl_less : tmpl_more;
+                $text.css('height', css)
+                     .next().remove().end().after(tmpl);
+            });
+        }
+    });
+</script>
+
+
+    <div class="mod item-notes" id="comments">
+        <div class="note-create">
+            <a href="javascript:;" class="btn-create js-post-note "><span>我来说两句</span></a>
+        </div>
+            
+    <h2>
+        传送门2 的短评
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                    <a href="comments/" target="_self">全部2407条</a>
+                ) </span>
+    </h2>
+
+        <div class="bd">
+                
+
+
+
+
+
+
+<div class="tab-hd" data-url="/j/ilmen/thing/10734307/notes">
+    <a href="https://www.douban.com/game/10734307/comments" data-id="score" class="is-active">热门</a>&nbsp;/&nbsp;
+    <a href="https://www.douban.com/game/10734307/comments?sort=time" data-id="time">最新</a>&nbsp;/&nbsp;
+    <a href="https://www.douban.com/game/10734307/comments?sort=follow" data-id="follow" class="j a_show_login">我关注的</a>
+</div>
+<div class="tab-bd">
+    <div class="item-list notes-list is-active">
+        
+
+
+
+<ul class="comment-list" id="comments">
+        <li class="comment-item" data-cid="1704138" data-url="https://www.douban.com/game/10734307/?comment_id=1704138">
+            <div class="info" data-id="1704138">
+                
+
+
+<span class="digg">
+<span>172</span>
+    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/1704138/vote" data-id="1704138" data-num="172" title="有用">有用</a>
+</span>
+
+                <div class="user-info">
+                    <a href="https://www.douban.com/people/44988436/">风过初凉</a>
+                    <span class="pubtime">2018年2月14日</span>
+                    <span class="comment-location"></span>
+                        
+                            <span class="allstar50" title="力荐"></span>
+                                <span>PC</span>
+
+                </div>
+                <p>
+                    
+                        <span class="short">靠玩这个双人模式把了个妹。。</span>
+                </p>
+            </div>
+        </li>
+        <li class="comment-item" data-cid="2854018" data-url="https://www.douban.com/game/10734307/?comment_id=2854018">
+            <div class="info" data-id="2854018">
+                
+
+
+<span class="digg">
+<span>30</span>
+    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2854018/vote" data-id="2854018" data-num="30" title="有用">有用</a>
+</span>
+
+                <div class="user-info">
+                    <a href="https://www.douban.com/people/47277425/">不识字诗人</a>
+                    <span class="pubtime">1月4日</span>
+                    <span class="comment-location"></span>
+                        
+                            <span class="allstar50" title="力荐"></span>
+                                <span>PC</span>
+
+                </div>
+                <p>
+                    
+                        <span class="short">真实地被一款游戏震撼。每个关卡都经典到不行。对啊，我只剩下短暂而可悲的一生了。</span>
+                </p>
+            </div>
+        </li>
+        <li class="comment-item" data-cid="2129632" data-url="https://www.douban.com/game/10734307/?comment_id=2129632">
+            <div class="info" data-id="2129632">
+                
+
+
+<span class="digg">
+<span>77</span>
+    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2129632/vote" data-id="2129632" data-num="77" title="有用">有用</a>
+</span>
+
+                <div class="user-info">
+                    <a href="https://www.douban.com/people/186929751/">秋风里</a>
+                    <span class="pubtime">2020年1月7日</span>
+                    <span class="comment-location"></span>
+                        
+                            <span class="allstar50" title="力荐"></span>
+                                <span>PC</span>
+
+                </div>
+                <p>
+                    
+                        <span class="short">神作，真的是神作，这他妈就是游戏中的《2001太空漫游》。游戏性，沉浸感和场景配乐设计上的美学都达到了极致，玩过《传送门2》，你再也不用玩任何一款单机了</span>
+                </p>
+            </div>
+        </li>
+        <li class="comment-item" data-cid="2719448" data-url="https://www.douban.com/game/10734307/?comment_id=2719448">
+            <div class="info" data-id="2719448">
+                
+
+
+<span class="digg">
+<span>26</span>
+    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2719448/vote" data-id="2719448" data-num="26" title="有用">有用</a>
+</span>
+
+                <div class="user-info">
+                    <a href="https://www.douban.com/people/170710696/">晚渝秋</a>
+                    <span class="pubtime">2021年8月23日</span>
+                    <span class="comment-location"></span>
+
+                </div>
+                <p>
+                    
+                        <span class="short">论脑洞方面，v社真乱杀</span>
+                </p>
+            </div>
+        </li>
+        <li class="comment-item" data-cid="2908051" data-url="https://www.douban.com/game/10734307/?comment_id=2908051">
+            <div class="info" data-id="2908051">
+                
+
+
+<span class="digg">
+<span>14</span>
+    <a href="https://www.douban.com/j/ilmen/thing/10734307/note/2908051/vote" data-id="2908051" data-num="14" title="有用">有用</a>
+</span>
+
+                <div class="user-info">
+                    <a href="https://www.douban.com/people/33995101/">基本上无害</a>
+                    <span class="pubtime">2月13日</span>
+                    <span class="comment-location"></span>
+                        
+                            <span class="allstar50" title="力荐"></span>
+
+                </div>
+                <p>
+                    
+                        <span class="short">我被GLaDOS大妈pua了，她真可爱</span>
+                </p>
+            </div>
+        </li>
+
+    
+
+</ul>
+
+
+    </div>
+    <div class="item-list notes-list"></div>
+    <div class="item-list notes-list"></div>
+</div>
+
+    <a class="notes-list-more" href="https://www.douban.com/game/10734307/comments">&gt; 全部2407条</a>
+
+
+
+
+        </div>
+    </div>
+
+
+    
+
+
+    
+
+
+<link rel="stylesheet" href="https://img1.doubanio.com/misc/mixed_static/6078555e83c38f2.css">
+    <section class="reviews mod game-content">
+        <header>
+            <a href="new_review?rtype=G" rel="nofollow" class="btn-create rr">
+                <span>我要写攻略</span>
+            </a>
+            <h2>
+                传送门2 Portal 2的攻略 · · · · · ·
+                <span class="pl">(<a href="reviews?rtype=G">全部 1 条</a>)</span>
+            </h2>
+        </header>
+
+            
+
+
+
+<div class="review-list  ">
+        
+    
+
+            
+    
+    <div data-cid="8391101">
+        <div class="main review-item" id="8391101">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/140466959/" class="avator">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u140466959-2.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/140466959/" class="name">巨牙海民</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2017-03-01" class="main-meta">2017-03-01 17:57:56</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/8391101/">买</a></h2>
+
+                <div id="review_8391101_short" class="review-short" data-rid="8391101">
+                    <div class="short-content">
+
+                        没攻略我就写一个吧，这个游戏你唯一应该看攻略的地方就是:别犹豫了，买吧 这就像你小时候的某个幻想，然后有一群神帮你把它还原了。不是电影，是游戏，你可以参与其中的游戏。 如果你觉得纪念碑谷类的高分解密游戏其实在侮辱你的智商，那你一定要玩。 速度和加速度在门之间都...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-8391101-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_8391101_full" class="hidden">
+                    <div id="review_8391101_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="8391101" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-8391101">
+                                11
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="8391101" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-8391101">
+                                2
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/8391101/#comments" class="reply ">1回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    
+
+    
+
+    <script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/5a2ccc4318d75e65.js"></script>
+    <!-- COLLECTED CSS -->
+</div>
+
+
+
+
+
+
+
+
+    </section>
+
+    <section id="reviews-wrapper" class="reviews mod game-content">
+        <header>
+            
+                <a href="new_review" rel="nofollow" class="create-review btn-create rr "
+                    data-isverify="False"
+                    data-verify-url="https://www.douban.com/accounts/phone/verify?redir=http://www.douban.com/game/10734307/new_review">
+                    <span>我要写文字</span>
+                </a>
+            <h2>
+                    传送门2 Portal 2的文字 · · · · · ·
+
+                    <span class="pl">( <a href="reviews">全部 24 条</a> )</span>
+            </h2>
+        </header>
+
+            <div class="review_filter">
+                            <a href="javascript:;;" class="cur" data-sort="">热门</a> &#047;
+                            <a href="javascript:;;" data-sort="time">最新</a> &#047;
+                            <a href="javascript:;;" data-sort="follow">好友</a>
+            </div>
+            <script>
+                var cur_sort = '';
+                $('#reviews-wrapper .review_filter a').on('click', function () {
+                    var sort = $(this).data('sort');
+                    if(sort === cur_sort) return;
+
+                    if(sort === 'follow' && true){
+                        window.location.href = '//www.douban.com/accounts/login?source=movie';
+                        return;
+                    }
+
+                    if($('#reviews-wrapper .review_filter').data('doing')) return;
+                    $('#reviews-wrapper .review_filter').data('doing', true);
+
+                    cur_sort = sort;
+
+                    $('#reviews-wrapper .review_filter a').removeClass('cur');
+                    $(this).addClass('cur');
+
+                    $.getJSON('reviews', { sort: sort }, function(res) {
+                        $('#reviews-wrapper .review-list').remove();
+                        $('#reviews-wrapper [href="reviews?sort=follow"]').parent().remove();
+                        $('#reviews-wrapper .review_filter').after(res.html);
+                        $('#reviews-wrapper .review_filter').data('doing', false);
+                        $('#reviews-wrapper .review_filter').removeData('doing');
+
+                        if (res.count === 0) {
+                            $('#reviews-wrapper .review-list').html('<span class="no-review">你关注的人还没写过长评</span>');
+                        }
+                    });
+                });
+            </script>
+
+
+            
+
+
+
+<div class="review-list  ">
+        
+    
+
+            
+    
+    <div data-cid="14191868">
+        <div class="main review-item" id="14191868">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/k19940428/" class="avator">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u181372901-1.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/k19940428/" class="name">萨尔斯堡的树枝</a>
+
+            <span class="allstar40 main-title-rating" title="推荐"></span>
+
+        <span content="2022-02-04" class="main-meta">2022-02-04 21:19:01</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/14191868/">双人游戏的精髓不一定是爱情</a></h2>
+
+                <div id="review_14191868_short" class="review-short" data-rid="14191868">
+                    <div class="short-content">
+
+                        失眠的第12个小时 我在很久没出现过的游戏群里问， “最近有啥游戏比较好玩的吗？” 然后根本忘记我提过这个问题， 下一秒打开《黑客帝国》看了起来。 （每年都会重看一遍1-3，本人还是小学生的时候第一次看黑客帝国觉得灵魂都被撼动了，太好看了以至于我觉得我都不配给它写影...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-14191868-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_14191868_full" class="hidden">
+                    <div id="review_14191868_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="14191868" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-14191868">
+                                64
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="14191868" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-14191868">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/14191868/#comments" class="reply ">32回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="7450626">
+        <div class="main review-item" id="7450626">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/81414843/" class="avator">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u81414843-11.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/81414843/" class="name">留象鸣</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2015-04-21" class="main-meta">2015-04-21 22:01:21</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/7450626/">绝境逢生,《传送门2》</a></h2>
+
+                <div id="review_7450626_short" class="review-short" data-rid="7450626">
+                    <div class="short-content">
+
+                          “如果把《传送门2》比做是普通成年人难度，那么相比之下移动设备上的《纪念碑谷》简直就是婴儿难度。”   《一代宗师》中宫羽田在他的南方引退仪式上比的不是武功，是想法。  2011年4月Valve公司发行了《传送门》的续作《传送门2》。作为一款另类的射击游戏，《传送门》比的...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-7450626-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_7450626_full" class="hidden">
+                    <div id="review_7450626_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="7450626" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-7450626">
+                                36
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="7450626" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-7450626">
+                                9
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/7450626/#comments" class="reply ">4回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="7462714">
+        <div class="main review-item" id="7462714">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/ST_Vegeta/" class="avator">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u44186155-42.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/ST_Vegeta/" class="name">小彼</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2015-05-04" class="main-meta">2015-05-04 01:29:56</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/7462714/">送你的女票一份Portal 2</a></h2>
+
+                <div id="review_7462714_short" class="review-short" data-rid="7462714">
+                    <div class="short-content">
+
+                        正如Valve官方放出的某个宣传视频一样，这款游戏非常适合送给你的女票。当然，你要确保对方不晕3D，否则像这种上上下下飞来飞去的游戏要比普通的FPS更容易让人晕的。恋爱中的两人，尤其是对异地恋来说，没什么可一起做的事情，就一起玩游戏吧。 Portal 2支持双人coop，不多不少...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-7462714-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_7462714_full" class="hidden">
+                    <div id="review_7462714_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="7462714" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-7462714">
+                                26
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="7462714" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-7462714">
+                                5
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/7462714/#comments" class="reply ">21回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="7586444">
+        <div class="main review-item" id="7586444">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/thesharing/" class="avator">
+            <img width="24" height="24" src="https://img9.doubanio.com/icon/u60675031-5.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/thesharing/" class="name">Thesharing</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2015-08-31" class="main-meta">2015-08-31 00:09:13</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/7586444/">当我听到最后炮塔的共鸣时，之前19个小时的解谜都是值得的</a></h2>
+
+                <div id="review_7586444_short" class="review-short" data-rid="7586444">
+                    <div class="short-content">
+
+                        之前听室友说《传送门2》很好玩，在圣诞打折的时候入了正开始玩，玩到一半的时候实在为智商感到捉急，于是弃坑不玩。 寒假的时候闲着无事又捡起来玩，结果一口气通关，看到最后炮塔们共鸣齐响，感觉整个心都跟着它们一起动起来了。然后怒入《传送门》，把剧情补齐。   作为一个...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-7586444-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_7586444_full" class="hidden">
+                    <div id="review_7586444_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="7586444" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-7586444">
+                                16
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="7586444" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-7586444">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/7586444/#comments" class="reply ">4回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="10589423">
+        <div class="main review-item" id="10589423">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/Kensnow/" class="avator">
+            <img width="24" height="24" src="https://img9.doubanio.com/icon/u1106841-5.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/Kensnow/" class="name">Kensnow</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2019-10-21" class="main-meta">2019-10-21 12:57:09</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/10589423/">我终其一生都在寻找天空</a></h2>
+
+                <div id="review_10589423_short" class="review-short" data-rid="10589423">
+                    <div class="short-content">
+
+                        作为一个剧情狗，我向来比较少打解谜游戏，对科幻和废土朋克题材也不太感兴趣。之所以翻箱倒柜重新装好PS3玩传送门2的原因只有一个：它经常出现在某某游戏排行榜单的前几名，比如这次IGN TOP100中它又排在第3位，引发了我无尽的好奇心 在游戏的第一部分，我和所有萌新一样学习...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-10589423-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_10589423_full" class="hidden">
+                    <div id="review_10589423_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="10589423" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-10589423">
+                                10
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="10589423" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-10589423">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/10589423/#comments" class="reply ">2回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="7754627">
+        <div class="main review-item" id="7754627">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/67069203/" class="avator">
+            <img width="24" height="24" src="https://img1.doubanio.com/icon/u67069203-7.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/67069203/" class="name">vegue</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2016-01-30" class="main-meta">2016-01-30 11:09:45</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/7754627/">一个人挑战双人模式的传送门</a></h2>
+
+                <div id="review_7754627_short" class="review-short" data-rid="7754627">
+                    <div class="short-content">
+
+                            传送门2与第一版的一个比较大的区别是增加了双人模式，极大地丰富了游戏的体验。去年买了传送门2的XBox的正版碟，一番苦战后打完单人模式，觉得这游戏特别给力，脑洞够大，关卡设计合理，画面也还不错。而且我很喜欢GlaDOS, EVA这样有点阴谋论的东西。     后来玩双人模式...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-7754627-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_7754627_full" class="hidden">
+                    <div id="review_7754627_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="7754627" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-7754627">
+                                8
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="7754627" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-7754627">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/7754627/#comments" class="reply ">2回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="12295778">
+        <div class="main review-item" id="12295778">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/OIKK/" class="avator">
+            <img width="24" height="24" src="https://img9.doubanio.com/icon/u140213638-24.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/OIKK/" class="name">嘉术2015</a>
+
+            <span class="allstar40 main-title-rating" title="推荐"></span>
+
+        <span content="2020-02-24" class="main-meta">2020-02-24 17:52:31</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/12295778/">为防除了我之外也有人没看懂，解释一下glados的“悖论攻击”</a></h2>
+
+                <div id="review_12295778_short" class="review-short" data-rid="12295778">
+                    <div class="short-content">
+
+                        “这句是错的”前半句就是悖论本身，后半句“别想了，别想了”是glados对自己说的。” 这是很有名的“说谎悖论” “这句话是错的”如果是错的，那它表达的意思就是对的，如果是对的，就又和句子本身的意思相矛盾。 对于只能用逻辑和算法思考的ai，一直深入去想就只能是短路了，...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-12295778-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_12295778_full" class="hidden">
+                    <div id="review_12295778_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="12295778" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-12295778">
+                                5
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="12295778" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-12295778">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/12295778/#comments" class="reply ">1回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="12614247">
+        <div class="main review-item" id="12614247">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/INABACAT/" class="avator">
+            <img width="24" height="24" src="https://img1.doubanio.com/icon/u213186874-39.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/INABACAT/" class="name">❤INABA❤</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2020-05-23" class="main-meta">2020-05-23 14:46:10</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/12614247/">传送门的物理和视觉特性</a></h2>
+
+                <div id="review_12614247_short" class="review-short" data-rid="12614247">
+                    <div class="short-content">
+
+                        游戏的核心是玩家使用名为&#34;光圈科技手持传送门设备&#34;(Aperture Science Handheld Portal Device，简称&#34;传送门枪&#34;)，来通过各种难关。所有的关卡目的都很类似，那就是将一个具有重量的物体放在一个圆形的按钮(游戏内名称&#34;光圈科学超大型撞击按钮&#34;)上，通常这个物体是一个方块体(...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-12614247-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_12614247_full" class="hidden">
+                    <div id="review_12614247_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="12614247" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-12614247">
+                                3
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="12614247" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-12614247">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/12614247/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="9479170">
+        <div class="main review-item" id="9479170">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/liuhaogua/" class="avator">
+            <img width="24" height="24" src="https://img1.doubanio.com/icon/u27293490-8.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/liuhaogua/" class="name">┟西﹎;瓜╃</a>
+
+            <span class="allstar40 main-title-rating" title="推荐"></span>
+
+        <span content="2018-07-01" class="main-meta">2018-07-01 16:24:37</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/9479170/">传送门：小游戏策划的笔记</a></h2>
+
+                <div id="review_9479170_short" class="review-short" data-rid="9479170">
+                    <div class="short-content">
+
+                        每次玩PORTAL2都会被3D晕到恶心，每通过三四关就要关电脑躺下来，隔段时间才能继续。但是这是一个“通关就能说明我聪明”的游戏，作为一个喜欢向别人炫耀智商的人怎么可能不被通关的成就感吸引呢.... 于是忍着恶心打到了最后，原以为就是一个解谜通关的冰冷游戏但是却被结尾的...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-9479170-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_9479170_full" class="hidden">
+                    <div id="review_9479170_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="9479170" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-9479170">
+                                3
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="9479170" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-9479170">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/9479170/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+            
+    
+    <div data-cid="14048775">
+        <div class="main review-item" id="14048775">
+
+            
+    
+    <header class="main-hd">
+        <a href="https://www.douban.com/people/131852015/" class="avator">
+            <img width="24" height="24" src="https://img2.doubanio.com/icon/u131852015-3.jpg">
+        </a>
+
+        <a href="https://www.douban.com/people/131852015/" class="name">小坑坑</a>
+
+            <span class="allstar50 main-title-rating" title="力荐"></span>
+
+        <span content="2021-12-06" class="main-meta">2021-12-06 20:41:50</span>
+
+
+    </header>
+
+
+            <div class="main-bd">
+
+                <h2><a href="https://www.douban.com/review/14048775/">朴素的游戏设计理念与浪漫主义的基调</a></h2>
+
+                <div id="review_14048775_short" class="review-short" data-rid="14048775">
+                    <div class="short-content">
+
+                        通关传送门系列确实是一次非常独特的美妙的游戏旅程，从一个速通视频入坑，想要趁着秋促看看传送门系列是否打折，却发现其实已在库中。早在起源引擎的csgo里摸爬滚打了很久，却是第一款真正让我有些晕3D的游戏，这大概是不停旋转、重力方向更迭的游戏画面惹的祸吧。尽管如此，...
+
+                        &nbsp;(<a href="javascript:;" id="toggle-14048775-copy" class="unfold" title="展开">展开</a>)
+                    </div>
+                </div>
+
+                <div id="review_14048775_full" class="hidden">
+                    <div id="review_14048775_full_content" class="full-content"></div>
+                </div>
+
+                <div class="action">
+                    <a href="javascript:;" class="action-btn up" data-rid="14048775" title="有用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/536fd337139250b5fb3cf9e79cb65c6193f8b20b/pics/up.png" />
+                        <span id="r-useful_count-14048775">
+                                1
+                        </span>
+                    </a>
+                    <a href="javascript:;" class="action-btn down" data-rid="14048775" title="没用">
+                        <img src="https://img1.doubanio.com/f/zerkalo/68849027911140623cf338c9845893c4566db851/pics/down.png" />
+                        <span id="r-useless_count-14048775">
+                        </span>
+                    </a>
+                    <a href="https://www.douban.com/review/14048775/#comments" class="reply ">0回应</a>
+
+                    <a href="javascript:;;" class="fold hidden">收起</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    
+
+    
+
+    <!-- COLLECTED JS -->
+    <!-- COLLECTED CSS -->
+</div>
+
+
+
+
+
+
+
+
+                <p class="pl">
+                    &gt;
+                        <a href="reviews">
+                            更多文字
+                                24篇
+                        </a>
+                </p>
+    </section>
+<!-- COLLECTED JS -->
+
+
+
+
+        </div>
+        <div class="aside">
+                
+    
+
+
+
+
+    
+<script type="text/javascript">
+    (function (global) {
+        var newNode = global.document.createElement('script'),
+            existingNode = global.document.getElementsByTagName('script')[0],
+            adSource = '//erebor.douban.com/',
+            userId = '',
+            browserId = 'yVnXrKvJKRc',
+            criteria = '3:/game/10734307/',
+            preview = '',
+            debug = false,
+            adSlots = ['dale_subject_top_right', 'dale_game_subject_top_right'];
+
+        global.DoubanAdRequest = {src: adSource, uid: userId, bid: browserId, crtr: criteria, prv: preview, debug: debug};
+        global.DoubanAdSlots = (global.DoubanAdSlots || []).concat(adSlots);
+
+        newNode.setAttribute('type', 'text/javascript');
+        newNode.setAttribute('src', '//img1.doubanio.com/MnJwNGlleS9mL2FkanMvY2M1OGQyNTQ2N2I2YmQzOTlmNTliMGJiMjI4MWRhZTlkNTNjYTFkZC9hZC5yZWxlYXNlLmpz');
+        newNode.setAttribute('async', true);
+        existingNode.parentNode.insertBefore(newNode, existingNode);
+    })(this);
+</script>
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="mod side-nav">
+        &gt; <a href="/game/explore" title="发现更多喜欢的游戏">发现更多喜欢的游戏</a>
+    </div>
+
+    
+        <div class="mod mod-doulists">
+            <div class="hd">
+                
+    <h2>
+        以下豆列推荐
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                    <a href="https://www.douban.com/game/10734307/doulists" target="_self">全部</a>
+                ) </span>
+    </h2>
+
+            </div>
+            <div class="bd">
+                <ul>
+                    <ul class="bs"><li><a href="https://www.douban.com/doulist/1786470/">第九艺术</a>
+            <span class="pl">(簏眯矽汼)</span>
+                </li><li><a href="https://www.douban.com/doulist/2602718/">有生之年非玩不可的1001款游戏</a>
+            <span class="pl">(流星飞绊)</span>
+                </li><li><a href="https://www.douban.com/doulist/108618779/">推荐给手残文艺青年的游戏</a>
+            <span class="pl">(斯多亞)</span>
+                </li><li><a href="https://www.douban.com/doulist/40492058/">第九艺术之我见</a>
+            <span class="pl">(吉他与枪)</span>
+                </li><li><a href="https://www.douban.com/doulist/38843183/">【最佳推荐】豆瓣网豆友爱玩的游戏  网友众选的热门游戏排行榜Top100</a>
+            <span class="pl">(作家簽名💋)</span>
+                </li></ul>
+                </ul>
+            </div>
+        </div>
+        
+
+    <!-- douban ad begin -->
+    <div id="dale_game_subject_top_right"></div>
+    <!-- douban ad end -->
+
+    <div class="mod subject-others-interests">
+        <div class="hd">
+            
+    <h2>
+        谁玩这部游戏
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+    </h2>
+
+        </div>
+        <div class="bd">
+            
+
+
+
+
+<ul class="others-interests">
+        
+        <li>
+            <a href="https://www.douban.com/people/MaverickEthos/" class="others-interest-avatar">
+                <img src="https://img9.doubanio.com/icon/u245643268-14.jpg" alt="Geist">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/MaverickEthos/">Geist</a>
+                <div>
+                    今天凌晨
+                    想玩
+                    
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/shaunyoung/" class="others-interest-avatar">
+                <img src="https://img2.doubanio.com/icon/u84259532-2.jpg" alt="Shaun">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/shaunyoung/">Shaun</a>
+                <div>
+                    今天凌晨
+                    玩过
+                    <span class="allstar50" title="力荐"></span>
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/173750844/" class="others-interest-avatar">
+                <img src="https://img2.doubanio.com/icon/u173750844-1.jpg" alt="不逢林">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/173750844/">不逢林</a>
+                <div>
+                    今天凌晨
+                    玩过
+                    <span class="allstar50" title="力荐"></span>
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/72694107/" class="others-interest-avatar">
+                <img src="https://img1.doubanio.com/icon/u72694107-240.jpg" alt="Historia">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/72694107/">Historia</a>
+                <div>
+                    今天凌晨
+                    想玩
+                    
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/120710121/" class="others-interest-avatar">
+                <img src="https://img9.doubanio.com/icon/u120710121-15.jpg" alt="滑稽哥哥">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/120710121/">滑稽哥哥</a>
+                <div>
+                    昨天
+                    想玩
+                    
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/257120540/" class="others-interest-avatar">
+                <img src="https://img2.doubanio.com/icon/u257120540-1.jpg" alt="三点半村头集合">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/257120540/">三点半村头集合</a>
+                <div>
+                    昨天
+                    想玩
+                    
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/209971019/" class="others-interest-avatar">
+                <img src="https://img9.doubanio.com/icon/u209971019-4.jpg" alt="njh005">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/209971019/">njh005</a>
+                <div>
+                    昨天
+                    玩过
+                    <span class="allstar50" title="力荐"></span>
+                </div>
+            </div>
+        </li>
+        
+        <li>
+            <a href="https://www.douban.com/people/233543567/" class="others-interest-avatar">
+                <img src="https://img2.doubanio.com/icon/u233543567-2.jpg" alt="dreemurr">
+            </a>
+            <div class="others-interest-info">
+                <a href="https://www.douban.com/people/233543567/">dreemurr</a>
+                <div>
+                    昨天
+                    玩过
+                    <span class="allstar50" title="力荐"></span>
+                </div>
+            </div>
+        </li>
+</ul>
+<div class="other-interests-statistics">
+    <a href="collections">7407人玩过</a>&nbsp;/&nbsp;
+    <a href="wishes">3368人想玩</a>
+    &nbsp;/&nbsp;
+    <a href="doings">517人在玩</a>
+</div>
+
+        </div>
+    </div>
+
+    <div class="mod">
+        <div class="hd">
+            
+    <h2>
+        游戏资料贡献者
+            &nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;&nbsp;&middot;
+            <span class="pl">&nbsp;(
+                
+                    <a href="https://www.douban.com/game/10734307/contributors" target="_self">全部14人</a>
+                ) </span>
+    </h2>
+
+        </div>
+        <div class="bd">
+            
+
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/Dexter_Yy/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u1137591-14.jpg" alt="dexteryy" title="dexteryy">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/44326877/">
+                <img class="contributor-img" src="https://img2.doubanio.com/icon/u44326877-2.jpg" alt="ilmen" title="ilmen">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/solarlake/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u49005277-25.jpg" alt="Dylan" title="Dylan">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/85186406/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u85186406-5.jpg" alt="苇断江" title="苇断江">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/TimmyH/">
+                <img class="contributor-img" src="https://img2.doubanio.com/icon/u41653519-13.jpg" alt="TimmyThePunk" title="TimmyThePunk">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/lovebeans/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u58316171-26.jpg" alt="企鹅炒豆儿" title="企鹅炒豆儿">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/purplemath/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u29540189-4.jpg" alt="紫数" title="紫数">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/139015254/">
+                <img class="contributor-img" src="https://img1.doubanio.com/icon/u139015254-20.jpg" alt="颍原真吾" title="颍原真吾">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/130230882/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u130230882-6.jpg" alt="尼罗船长lcz" title="尼罗船长lcz">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/129604367/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u129604367-5.jpg" alt="酒碗爱子" title="酒碗爱子">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/JuvenileTalk/">
+                <img class="contributor-img" src="https://img1.doubanio.com/icon/u44751825-69.jpg" alt="一般社员" title="一般社员">
+            </a>
+        </li>
+    </ul>
+    <ul class="obu contributor-obu">
+        <li>
+            <a href="https://www.douban.com/people/Das-Schloss/">
+                <img class="contributor-img" src="https://img9.doubanio.com/icon/u84256817-6.jpg" alt="枯魚之肆" title="枯魚之肆">
+            </a>
+        </li>
+    </ul>
+
+        </div>
+    </div>
+
+    <div class="mod mod-game-sidelink">
+        &gt; <a href="distinct" title="重复条目投诉">重复条目投诉</a>
+    </div>
+    
+    <div class="mod mod-game-sidelink">
+        有好游戏要推荐？ &gt; <a href="/game/create" class="" title="创建游戏条目">创建游戏条目</a>
+    </div>
+
+        </div>
+        <div class="extra">
+            
+        </div>
+    </div>
+</div>
+
+        
+<div id="footer">
+    
+<span id="icp" class="fleft gray-link">
+    &copy; 2005－2022 douban.com, all rights reserved 北京豆网科技有限公司
+</span>
+
+<a href="https://www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
+
+<span class="fright">
+    <a href="https://www.douban.com/about">关于豆瓣</a>
+    · <a href="https://www.douban.com/jobs">在豆瓣工作</a>
+    · <a href="https://www.douban.com/about?topic=contactus">联系我们</a>
+    · <a href="https://www.douban.com/about/legal">法律声明</a>
+    
+    · <a href="https://help.douban.com/?app=main" target="_blank">帮助中心</a>
+    · <a href="https://www.douban.com/doubanapp/">移动应用</a>
+    · <a href="https://www.douban.com/partner/">豆瓣广告</a>
+</span>
+
+</div>
+
+</div>
+
+<script type="text/javascript" src="https://img1.doubanio.com/f/shire/df6a1d712d36db03e9bddb32cbd5fa080bfcddfc/js/core/do/_init_.js"></script>
+
+<script type="text/javascript" src="https://img1.doubanio.com/misc/mixed_static/5d986ca1118259fe.js"></script>
+
+    
+    
+
+    
+    
+
+
+
+
+
+
+
+
+
+<!-- Google Tag Manager -->
+<noscript><iframe src="//www.googletagmanager.com/ns.html?id=GTM-5WP579" height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+<script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src='//www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);})(window,document,'script','dataLayer','GTM-5WP579');</script>
+<!-- End Google Tag Manager -->
+
+
+<script type="text/javascript">
+var _paq = _paq || [];
+_paq.push(['trackPageView']);
+_paq.push(['enableLinkTracking']);
+(function() {
+    var p=(('https:' == document.location.protocol) ? 'https' : 'http'), u=p+'://fundin.douban.com/';
+    _paq.push(['setTrackerUrl', u+'piwik']);
+    _paq.push(['setSiteId', '100001']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
+    g.type='text/javascript';
+    g.defer=true;
+    g.async=true;
+    g.src=p+'://img3.doubanio.com/dae/fundin/piwik.js';
+    s.parentNode.insertBefore(g,s);
+})();
+</script>
+
+<script type="text/javascript">
+var _gaq = _gaq || [];
+_gaq.push(['_setAccount', 'UA-7019765-1']);
+_gaq.push(['_setCampNameKey', 'dcn']);
+_gaq.push(['_setCampSourceKey', 'dcs']);
+_gaq.push(['_setCampMediumKey', 'dcm']);
+_gaq.push(['_setCampTermKey', 'dct']);
+_gaq.push(['_setCampContentKey', 'dcc']);
+_gaq.push(['_addOrganic', 'baidu', 'word']);
+_gaq.push(['_addOrganic', 'soso', 'w']);
+_gaq.push(['_addOrganic', '3721', 'name']);
+_gaq.push(['_addOrganic', 'youdao', 'q']);
+_gaq.push(['_addOrganic', 'so.360.cn', 'q']);
+_gaq.push(['_addOrganic', 'vnet', 'kw']);
+_gaq.push(['_addOrganic', 'sogou', 'query']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣']);
+_gaq.push(['_addIgnoredOrganic', 'douban']);
+_gaq.push(['_addIgnoredOrganic', '豆瓣网']);
+_gaq.push(['_addIgnoredOrganic', 'www.douban.com']);
+_gaq.push(['_setDomainName', '.douban.com']);
+
+
+    _gaq.push(['_setCustomVar', 1, 'responsive_view_mode', 'desktop', 3]);
+
+_gaq.push(['_trackPageview']);
+_gaq.push(['_trackPageLoadTime']);
+
+window._ga_init = function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+};
+if (window.addEventListener) {
+    window.addEventListener('load', _ga_init, false);
+} else {
+    window.attachEvent('onload', _ga_init);
+}
+</script>
+
+
+
+
+
+
+
+<!-- dae-web-ilmen--default-964696955-bhcpw-->
+
+  <script>_SPLITTEST=''</script>
+</body>
+
+</html>
+
+

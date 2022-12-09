@@ -1,0 +1,2516 @@
+
+
+<!DOCTYPE html>
+<html lang="zh-cmn-Hans" class="ua-mac ua-webkit book-new-nav">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+  <title>
+  黄金时代 全部版本(31)
+</title>
+  
+<script>!function(e){var o=function(o,n,t){var c,i,r=new Date;n=n||30,t=t||"/",r.setTime(r.getTime()+24*n*60*60*1e3),c="; expires="+r.toGMTString();for(i in o)e.cookie=i+"="+o[i]+c+"; path="+t},n=function(o){var n,t,c,i=o+"=",r=e.cookie.split(";");for(t=0,c=r.length;t<c;t++)if(n=r[t].replace(/^\s+|\s+$/g,""),0==n.indexOf(i))return n.substring(i.length,n.length).replace(/\"/g,"");return null},t=e.write,c={"douban.com":1,"douban.fm":1,"google.com":1,"google.cn":1,"googleapis.com":1,"gmaptiles.co.kr":1,"gstatic.com":1,"gstatic.cn":1,"google-analytics.com":1,"googleadservices.com":1},i=function(e,o){var n=new Image;n.onload=function(){},n.src="https://www.douban.com/j/except_report?kind=ra022&reason="+encodeURIComponent(e)+"&environment="+encodeURIComponent(o)},r=function(o){try{t.call(e,o)}catch(e){t(o)}},a=/<script.*?src\=["']?([^"'\s>]+)/gi,g=/http:\/\/(.+?)\.([^\/]+).+/i;e.writeln=e.write=function(e){var t,l=a.exec(e);return l&&(t=g.exec(l[1]))?c[t[2]]?void r(e):void("tqs"!==n("hj")&&(i(l[1],location.href),o({hj:"tqs"},1),setTimeout(function(){location.replace(location.href)},50))):void r(e)}}(document);</script>
+
+  
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="Sun, 6 Mar 2005 01:00:00 GMT">
+  
+  <script>var _head_start = new Date();</script>
+  
+  <link href="https://img1.doubanio.com/f/book/8011541306494bc2ff483299d952d9c65753c43d/css/book/master.css" rel="stylesheet" type="text/css">
+
+  <link href="https://img1.doubanio.com/f/book/222a5c61e041638af8defc87cf97f4a863a77922/css/book/base/init.css" rel="stylesheet">
+  <style type="text/css"></style>
+  <script src="https://img1.doubanio.com/f/book/0495cb173e298c28593766009c7b0a953246c5b5/js/book/lib/jquery/jquery.js"></script>
+  <script src="https://img1.doubanio.com/f/shire/4888ee2fda6812f70a064a51c93b84fde8e4a3c2/js/douban.js"></script>
+  <script src="https://img1.doubanio.com/f/book/0322e3e810e475f1c82adb7d1c6ccfa1c0fa969c/js/book/master.js"></script>
+  
+
+  
+  <script>  </script>
+  <style type="text/css">
+    .bkstar { float:left; margin:4px 5px 4px 0; }
+    .bkbuy { width: auto }
+    .bkimg img { max-width: 70px; }
+  </style>
+
+  <link rel="shortcut icon" href="https://img1.doubanio.com/favicon.ico" type="image/x-icon">
+</head>
+<body>
+  
+    <script>var _body_start = new Date();</script>
+    
+  
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+<div id="db-global-nav" class="global-nav">
+  <div class="bd">
+    
+<div class="top-nav-info">
+  <a href="https://accounts.douban.com/passport/login?source=book" class="nav-login" rel="nofollow">登录/注册</a>
+</div>
+
+
+    <div class="top-nav-doubanapp">
+  <a href="https://www.douban.com/doubanapp/app?channel=top-nav" class="lnk-doubanapp">下载豆瓣客户端</a>
+  <div id="doubanapp-tip">
+    <a href="https://www.douban.com/doubanapp/app?channel=qipao" class="tip-link">豆瓣 <span class="version">6.0</span> 全新发布</a>
+    <a href="javascript: void 0;" class="tip-close">×</a>
+  </div>
+  <div id="top-nav-appintro" class="more-items">
+    <p class="appintro-title">豆瓣</p>
+    <p class="qrcode">扫码直接下载</p>
+    <div class="download">
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=iOS">iPhone</a>
+      <span>·</span>
+      <a href="https://www.douban.com/doubanapp/redirect?channel=top-nav&direct_dl=1&download=Android" class="download-android">Android</a>
+    </div>
+  </div>
+</div>
+
+    
+
+
+<div class="global-nav-items">
+  <ul>
+    <li class="">
+      <a href="https://www.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-main&quot;,&quot;uid&quot;:&quot;0&quot;}">豆瓣</a>
+    </li>
+    <li class="on">
+      <a href="https://book.douban.com"  data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-book&quot;,&quot;uid&quot;:&quot;0&quot;}">读书</a>
+    </li>
+    <li class="">
+      <a href="https://movie.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-movie&quot;,&quot;uid&quot;:&quot;0&quot;}">电影</a>
+    </li>
+    <li class="">
+      <a href="https://music.douban.com" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-music&quot;,&quot;uid&quot;:&quot;0&quot;}">音乐</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/location" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-location&quot;,&quot;uid&quot;:&quot;0&quot;}">同城</a>
+    </li>
+    <li class="">
+      <a href="https://www.douban.com/group" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-group&quot;,&quot;uid&quot;:&quot;0&quot;}">小组</a>
+    </li>
+    <li class="">
+      <a href="https://read.douban.com&#47;?dcs=top-nav&amp;dcm=douban" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-read&quot;,&quot;uid&quot;:&quot;0&quot;}">阅读</a>
+    </li>
+    <li class="">
+      <a href="https://douban.fm&#47;?from_=shire_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-fm&quot;,&quot;uid&quot;:&quot;0&quot;}">FM</a>
+    </li>
+    <li class="">
+      <a href="https://time.douban.com&#47;?dt_time_source=douban-web_top_nav" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-time&quot;,&quot;uid&quot;:&quot;0&quot;}">时间</a>
+    </li>
+    <li class="">
+      <a href="https://market.douban.com&#47;?utm_campaign=douban_top_nav&amp;utm_source=douban&amp;utm_medium=pc_web" target="_blank" data-moreurl-dict="{&quot;from&quot;:&quot;top-nav-click-market&quot;,&quot;uid&quot;:&quot;0&quot;}">豆品</a>
+    </li>
+  </ul>
+</div>
+
+  </div>
+</div>
+<script>
+  ;window._GLOBAL_NAV = {
+    DOUBAN_URL: "https://www.douban.com",
+    N_NEW_NOTIS: 0,
+    N_NEW_DOUMAIL: 0
+  };
+</script>
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/shire/bundle.js" defer="defer"></script>
+
+
+
+
+  
+
+
+
+    <link href="//img3.doubanio.com/dae/accounts/resources/3e96b44/book/bundle.css" rel="stylesheet" type="text/css">
+
+
+
+
+<div id="db-nav-book" class="nav">
+  <div class="nav-wrap">
+  <div class="nav-primary">
+    <div class="nav-logo">
+      <a href="https:&#47;&#47;book.douban.com">豆瓣读书</a>
+    </div>
+    <div class="nav-search">
+      <form action="https:&#47;&#47;search.douban.com&#47;book/subject_search" method="get">
+        <fieldset>
+          <legend>搜索：</legend>
+          <label for="inp-query">
+          </label>
+          <div class="inp"><input id="inp-query" name="search_text" size="22" maxlength="60" placeholder="书名、作者、ISBN" value=""></div>
+          <div class="inp-btn"><input type="submit" value="搜索"></div>
+          <input type="hidden" name="cat" value="1001" />
+        </fieldset>
+      </form>
+    </div>
+  </div>
+  </div>
+  <div class="nav-secondary">
+    
+
+<div class="nav-items">
+  <ul>
+    <li    ><a href="https://book.douban.com/cart/"
+     >购书单</a>
+    </li>
+    <li    ><a href="https://read.douban.com/ebooks/?dcs=book-nav&dcm=douban"
+            target="_blank"
+     >电子图书</a>
+    </li>
+    <li    ><a href="https://market.douban.com/book?utm_campaign=book_nav_freyr&utm_source=douban&utm_medium=pc_web"
+     >豆瓣书店</a>
+    </li>
+    <li    ><a href="https://book.douban.com/annual/2021?source=navigation"
+            target="_blank"
+     >2021年度榜单</a>
+    </li>
+    <li    ><a href="https://www.douban.com/standbyme/2021?fullscreen=true&hidenav=true&autorotate=false&source=book_navigation"
+            target="_blank"
+     >2021书影音报告</a>
+    </li>
+    <li          class=" book-cart"
+    ><a href="https://market.douban.com/cart/?biz_type=book&utm_campaign=book_nav_cart&utm_source=douban&utm_medium=pc_web"
+            target="_blank"
+     >购物车</a>
+    </li>
+  </ul>
+</div>
+
+    <a href="https://book.douban.com/annual/2021?source=book_navigation" class="bookannual"></a>
+  </div>
+</div>
+
+<script id="suggResult" type="text/x-jquery-tmpl">
+  <li data-link="{{= url}}">
+            <a href="{{= url}}" onclick="moreurl(this, {from:'book_search_sugg', query:'{{= keyword }}', subject_id:'{{= id}}', i: '{{= index}}', type: '{{= type}}'})">
+            <img src="{{= pic}}" width="40" />
+            <div>
+                <em>{{= title}}</em>
+                {{if year}}
+                    <span>{{= year}}</span>
+                {{/if}}
+                <p>
+                {{if type == "b"}}
+                    {{= author_name}}
+                {{else type == "a" }}
+                    {{if en_name}}
+                        {{= en_name}}
+                    {{/if}}
+                {{/if}}
+                 </p>
+            </div>
+        </a>
+        </li>
+  </script>
+
+
+
+
+    <script src="//img3.doubanio.com/dae/accounts/resources/3e96b44/book/bundle.js" defer="defer"></script>
+
+
+
+
+
+    <div id="wrapper">
+        
+        
+  <div id="content">
+    
+    <h1>黄金时代 全部版本(31)</h1>
+
+    <div class="grid-16-8 clearfix">
+      
+      <div class="article">
+  
+
+  <div class="clearfix">
+    <span class="pl rr" >
+        按收藏人数排序  /
+        <a href="https://book.douban.com/works/1008677?order=time">
+          按出版时间先后排序
+        </a>
+    </span>
+  </div>
+
+  
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANEJK1olXgAKVllVCU8XBV8IGloXWg4BXVZYD04RBV9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAm0PE1gcVQMFUVhbFxJSXzI4XhBKJHRLBAU9SDEJWBIBG1hFQ0VLAlJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gNHFwcVQALXVdYAHsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEA2wIEgkXM1sDDVcACQxAbWkBHFMXWAYFZFxcCUkVMw&amp;type=buy&amp;vendor=jingdong&amp;subject=1089243"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/1089243/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANEJK1olXgAKVllVCU8XBV8IGloXWg4BXVZYD04RBV9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAm0PE1gcVQMFUVhbFxJSXzI4XhBKJHRLBAU9SDEJWBIBG1hFQ0VLAlJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gNHFwcVQALXVdYAHsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEA2wIEgkXM1sDDVcACQxAbWkBHFMXWAYFZFxcCUkVMw&amp;type=buy&amp;vendor=jingdong&amp;subject=1089243">99.20元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/1089243/">
+          <img src="https://img2.doubanio.com/view/subject/s/public/s1076372.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/1089243/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              花城出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              1999-3<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  112518人想读
+
+                  /
+
+                  243284人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.9</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgAKVllVCU8XBV8IGloSWgcFV1ldAUIRAl9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmgPGlwWWgYLXVhcFxJSXzI4BQRVQ11eUio_fEwTVxBxTBlJVVp2ElJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gPE1ISXQYLUFlaDXsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEBW0JSAwUM1tRUQhUUUhfbWkKGloVXAcEZFxcCUkVM18&amp;type=buy&amp;vendor=jingdong&amp;subject=1082406"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/1082406/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgAKVllVCU8XBV8IGloSWgcFV1ldAUIRAl9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmgPGlwWWgYLXVhcFxJSXzI4BQRVQ11eUio_fEwTVxBxTBlJVVp2ElJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gPE1ISXQYLUFlaDXsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEBW0JSAwUM1tRUQhUUUhfbWkKGloVXAcEZFxcCUkVM18&amp;type=buy&amp;vendor=jingdong&amp;subject=1082406">28.80元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/1082406/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s4083149.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/1082406/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              陕西师范大学出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2009-07-01<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  13627人想读
+
+                  /
+
+                  50872人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.9</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=http%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DAyIOZR5aEQISA1AYUyUCEQdSHVgdASJDCkMFSjJLQhBaUAscSkIBR0ROVw1VC0dFFQESAFMYUxYdS0IJRmtFWEZyJWUGC2JmfTdgIENHFEQFWRh1Dh43Uh5cEwUbBFIrWxEDFgNlK1sUMkBpja3tzaejG4Gx1MCKhTdUK1sQChEGXRNYFAUSBFErXCXbkrCDucnMnJjS3YxrJTIi%26t%3DW1dCFBBFC1pXUwkEAEAdQFkJBVsWAhUBVhNYCltXWwg%253D&amp;type=buy&amp;vendor=jingdong&amp;subject=27013741"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/27013741/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=http%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DAyIOZR5aEQISA1AYUyUCEQdSHVgdASJDCkMFSjJLQhBaUAscSkIBR0ROVw1VC0dFFQESAFMYUxYdS0IJRmtFWEZyJWUGC2JmfTdgIENHFEQFWRh1Dh43Uh5cEwUbBFIrWxEDFgNlK1sUMkBpja3tzaejG4Gx1MCKhTdUK1sQChEGXRNYFAUSBFErXCXbkrCDucnMnJjS3YxrJTIi%26t%3DW1dCFBBFC1pXUwkEAEAdQFkJBVsWAhUBVhNYCltXWwg%253D&amp;type=buy&amp;vendor=jingdong&amp;subject=27013741">27.30元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/27013741/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s29419096.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/27013741/">
+          黄金时代
+        </a>
+
+          &nbsp;
+          <img src="/pics/read.gif" alt="可试读" title="可试读"/>
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              北京十月文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2017-4<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  11603人想读
+
+                  /
+
+                  44936人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.8</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8AANADIgZlGFwXBxEPVR5dEjISBlQYUhALEwZTHVITBiJDCkMFSjJLQhBaGR4cDF8QTwcKWUcYB0UHCwITBlYSXhwDEwFTEl0RHUtCCUZrFXt1R1B_PgtnUR0MBUFMUBVzSxpadQ4eN1IeXBMFGwRSK1sRAxYDZStbFDJTaVUaWhcBGwVQK1olAhUEVRlTEgsVBFAaXyUCGgNlwtui1LCVjIXRwIqFN2UrWCUyIgdlGGtLbBNUVRldEgJCaQ9FH1xHV04FdVgWBBACUxhYJQATBlcZ&amp;type=buy&amp;vendor=jingdong&amp;subject=1883992"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/1883992/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8AANADIgZlGFwXBxEPVR5dEjISBlQYUhALEwZTHVITBiJDCkMFSjJLQhBaGR4cDF8QTwcKWUcYB0UHCwITBlYSXhwDEwFTEl0RHUtCCUZrFXt1R1B_PgtnUR0MBUFMUBVzSxpadQ4eN1IeXBMFGwRSK1sRAxYDZStbFDJTaVUaWhcBGwVQK1olAhUEVRlTEgsVBFAaXyUCGgNlwtui1LCVjIXRwIqFN2UrWCUyIgdlGGtLbBNUVRldEgJCaQ9FH1xHV04FdVgWBBACUxhYJQATBlcZ&amp;type=buy&amp;vendor=jingdong&amp;subject=1883992">37.80元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/1883992/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s5745604.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/1883992/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              长江文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2006-8<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  7372人想读
+
+                  /
+
+                  10621人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.0</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/3071688/">
+          <img src="https://img2.doubanio.com/view/subject/s/public/s3129681.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/3071688/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              上海锦绣文章出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2008-5<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  949人想读
+
+                  /
+
+                  5307人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.7</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DAyIHZRtYFAcXBFIZWR0yEgZcHFMTARE3EUQDS10iXhBeGlcJDBkNXg9JHUlSSkkFSRwSBlwcUxMBERgMXgdIMgxuNlAFFFFGYipLMmVDdk8RZwhPUWILWStcEAUUAFwYXCUCFgZRH2slAhM3B3WDo7TKouQHj7%252BNx4%252FCK1olAhYAVhxcFgYSBlEcWiUFIt7VrI23kMuZ387TgjIiN2UraxUyETcKXwZIMhM%253D%26t%3DW1dCFFlQCxxKQgFHRE5XDVULR0UVAxsAXR1YFh1LQglG&amp;type=buy&amp;vendor=jingdong&amp;subject=6902318"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/6902318/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DAyIHZRtYFAcXBFIZWR0yEgZcHFMTARE3EUQDS10iXhBeGlcJDBkNXg9JHUlSSkkFSRwSBlwcUxMBERgMXgdIMgxuNlAFFFFGYipLMmVDdk8RZwhPUWILWStcEAUUAFwYXCUCFgZRH2slAhM3B3WDo7TKouQHj7%252BNx4%252FCK1olAhYAVhxcFgYSBlEcWiUFIt7VrI23kMuZ387TgjIiN2UraxUyETcKXwZIMhM%253D%26t%3DW1dCFFlQCxxKQgFHRE5XDVULR0UVAxsAXR1YFh1LQglG&amp;type=buy&amp;vendor=jingdong&amp;subject=6902318">25.00元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/6902318/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s8482629.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/6902318/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              北京十月文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2011-10<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  496人想读
+
+                  /
+
+                  4052人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.8</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BAMUJK1olVQAFVV9UDEsQM28JGF0cXw4EVlptTBRPXTA4Qh5QHEQJSkAFTR9LHDRdBAlLARgCVV1bAUkfBW0MBAJQAVsySgMtTEtBYDdtHx9-BlMYXB4pXCtLc2MEK1wQWgAFXV1aOEsTAmsMK2sVXDZDOltcAEwSM244G1wXWQMDXVpaC0MeB18IE18lhIa1gvzP0dWd1uefK2slXjYyZF5tC3tJbW5bHF4RXAADOgQaWBUXBT8AdVsWWAIKU1ZZOEkWAm0KKw&amp;type=buy&amp;vendor=jingdong&amp;subject=10199132"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/10199132/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BAMUJK1olVQAFVV9UDEsQM28JGF0cXw4EVlptTBRPXTA4Qh5QHEQJSkAFTR9LHDRdBAlLARgCVV1bAUkfBW0MBAJQAVsySgMtTEtBYDdtHx9-BlMYXB4pXCtLc2MEK1wQWgAFXV1aOEsTAmsMK2sVXDZDOltcAEwSM244G1wXWQMDXVpaC0MeB18IE18lhIa1gvzP0dWd1uefK2slXjYyZF5tC3tJbW5bHF4RXAADOgQaWBUXBT8AdVsWWAIKU1ZZOEkWAm0KKw&amp;type=buy&amp;vendor=jingdong&amp;subject=10199132">34.80元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/10199132/">
+          <img src="https://img2.doubanio.com/view/subject/s/public/s11329662.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/10199132/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              译林出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2012-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  676人想读
+
+                  /
+
+                  3189人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.1</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8AANADIgZlGFwXBxEPVR5dEjISBlQYXR0CFAVXEl4QAiJDCkMFSjJLQhBaGR4cDF8QTwcKWUcYB0UHCwITBlYdUxUEEAVcHl4VHUtCCUZrFgtlQA0bC3diFQBRHz0XdUdFNkYjUw4eN1IeXBMFGwRSK1sRAxYDZStbFDJTaVUaWhcBGwVQK1olAhUEVRlTEAYXAlMcUyUCGgNlwtui1LCVjIXRwIqFN2UrWCUyIgdlGGtLbBNUVRMPHVcWaQ9FH1NUFlsOdVgWBRIAVRpZJQATBlcZ&amp;type=buy&amp;vendor=jingdong&amp;subject=2015357"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/2015357/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8AANADIgZlGFwXBxEPVR5dEjISBlQYXR0CFAVXEl4QAiJDCkMFSjJLQhBaGR4cDF8QTwcKWUcYB0UHCwITBlYdUxUEEAVcHl4VHUtCCUZrFgtlQA0bC3diFQBRHz0XdUdFNkYjUw4eN1IeXBMFGwRSK1sRAxYDZStbFDJTaVUaWhcBGwVQK1olAhUEVRlTEAYXAlMcUyUCGgNlwtui1LCVjIXRwIqFN2UrWCUyIgdlGGtLbBNUVRMPHVcWaQ9FH1NUFlsOdVgWBRIAVRpZJQATBlcZ&amp;type=buy&amp;vendor=jingdong&amp;subject=2015357">87.00元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/2015357/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s10170134.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/2015357/">
+          王小波全集（第六卷）
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              云南人民出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2007-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  4207人想读
+
+                  /
+
+                  4473人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.1</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANAJK1olXQEGUVZUD0kUBl8IGloWVAUGU19VDE4TBl9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmwBGF8SXA4GUVpYFxJSXzI4aygXPX9qLwc-SxsUBm9WWQZPAVwEJFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXAQBXVxYOEonA2gLHVMWXAUDUVpdCnsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpHUzhcS1tGM1xBEBsCVg1KbWwOGVwSWQ8CZFxcCUkV&amp;type=buy&amp;vendor=jingdong&amp;subject=20435468"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/20435468/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANAJK1olXQEGUVZUD0kUBl8IGloWVAUGU19VDE4TBl9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmwBGF8SXA4GUVpYFxJSXzI4aygXPX9qLwc-SxsUBm9WWQZPAVwEJFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXAQBXVxYOEonA2gLHVMWXAUDUVpdCnsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpHUzhcS1tGM1xBEBsCVg1KbWwOGVwSWQ8CZFxcCUkV&amp;type=buy&amp;vendor=jingdong&amp;subject=20435468">37.80元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/20435468/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s27290876.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/20435468/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              上海三联书店<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2013-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  277人想读
+
+                  /
+
+                  2494人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.8</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8AAL0DIgZlGmsVABAHVRhbHDJWWA1FBCVbV0IUWVALHEpCAUdETlcNVQtHRRUAEAdVGFscHUtCCUZrdgZPXQAdOGZiFH0tZSddUGhgAUwOQw4eN1IeXBMFGwRSK1sRAxYDZStbFDJEaVUaWhQDEwNWEl0lAyIHUhheFAcWAFYeWBUGIgddH2vMgqXR94mCi4jHj8IrayUBIjdlG2sWMkxpVEsLQlZCBwZ1AVUBUkIeR1l7ARoOUBhTHAsiBVQaWRc&amp;type=buy&amp;vendor=jingdong&amp;subject=34947576"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/34947576/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8AAL0DIgZlGmsVABAHVRhbHDJWWA1FBCVbV0IUWVALHEpCAUdETlcNVQtHRRUAEAdVGFscHUtCCUZrdgZPXQAdOGZiFH0tZSddUGhgAUwOQw4eN1IeXBMFGwRSK1sRAxYDZStbFDJEaVUaWhQDEwNWEl0lAyIHUhheFAcWAFYeWBUGIgddH2vMgqXR94mCi4jHj8IrayUBIjdlG2sWMkxpVEsLQlZCBwZ1AVUBUkIeR1l7ARoOUBhTHAsiBVQaWRc&amp;type=buy&amp;vendor=jingdong&amp;subject=34947576">40.70元</a>)
+            </div>
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=http%3A%2F%2Funion.dangdang.com%2Ftransfer.php%3Ffrom%3DP-306226-0-s34947576%26backurl%3Dhttp%3A%2F%2Fproduct.dangdang.com%2Fproduct.aspx%3Fproduct_id%3D29255747&amp;type=buy&amp;vendor=dangdang&amp;subject=34947576"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/34947576/buylink/{bi.vendor_id}']);">
+                当当网
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=http%3A%2F%2Funion.dangdang.com%2Ftransfer.php%3Ffrom%3DP-306226-0-s34947576%26backurl%3Dhttp%3A%2F%2Fproduct.dangdang.com%2Fproduct.aspx%3Fproduct_id%3D29255747&amp;type=buy&amp;vendor=dangdang&amp;subject=34947576">40.70元</a>)
+            </div>
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=http%3A%2F%2Fwww.bookschina.com%2Funion%2Fubook.asp%3Fadservice%3D354872%26tourl%3Dhttp%3A%2F%2Fwww.bookschina.com%2F8699267.htm&amp;type=buy&amp;subject=34947576&amp;vendor=bookschina&amp;link2key=63a27faeec"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/34947576/buylink/{bi.vendor_id}']);">
+                中图网
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=http%3A%2F%2Fwww.bookschina.com%2Funion%2Fubook.asp%3Fadservice%3D354872%26tourl%3Dhttp%3A%2F%2Fwww.bookschina.com%2F8699267.htm&amp;type=buy&amp;subject=34947576&amp;vendor=bookschina&amp;link2key=63a27faeec">41.30元</a>)
+            </div>
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=http%3A%2F%2Fcitic.cmread.com%2FzxHtml%2Fhtml%2FpaperBookDetailShare.html%3FpaperBookId%3D100000000000849026%26btype%3D2%26cm%3DZ0050017%26useName%3Dzx_citicwap_Z0050017%26uid%3Dzs_2_100000000000849026%26channel%3Ddouban&amp;type=buy&amp;subject=34947576&amp;vendor=migu_zhongxin&amp;link2key=63a27faeec"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/34947576/buylink/{bi.vendor_id}']);">
+                咪咕云书店
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=http%3A%2F%2Fcitic.cmread.com%2FzxHtml%2Fhtml%2FpaperBookDetailShare.html%3FpaperBookId%3D100000000000849026%26btype%3D2%26cm%3DZ0050017%26useName%3Dzx_citicwap_Z0050017%26uid%3Dzs_2_100000000000849026%26channel%3Ddouban&amp;type=buy&amp;subject=34947576&amp;vendor=migu_zhongxin&amp;link2key=63a27faeec">48.00元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/34947576/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s33919730.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/34947576/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              北京十月文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2021-6<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  1380人想读
+
+                  /
+
+                  2372人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.1</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/4894345/">
+          <img src="https://img2.doubanio.com/view/subject/s/public/s4463612.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/4894345/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              长江文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2010-7-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  265人想读
+
+                  /
+
+                  2425人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.7</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/24716172/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s29114417.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/24716172/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              长江文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2016-10<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  276人想读
+
+                  /
+
+                  1951人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.9</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/26820586/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s29061179.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/26820586/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              湖南文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2016-1-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  249人想读
+
+                  /
+
+                  1982人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.8</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/3016270/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s2997766.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/3016270/">
+          黄金时代
+        </a>
+
+          &nbsp;
+          <img src="/pics/read.gif" alt="可试读" title="可试读"/>
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              上海三联书店<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2008-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  506人想读
+
+                  /
+
+                  1695人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.0</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/4039903/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s6071115.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/4039903/">
+          王小波全集（第六卷 中篇小说）
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              北京理工大学出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2009-9<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  25671人想读
+
+                  /
+
+                  12093人读过
+              </span>
+                <span class="bkstar allstar50"></span>
+                <span class="avgr hideif50is0">9.2</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/19986376/">
+          <img src="https://img2.doubanio.com/view/subject/s/public/s24445793.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/19986376/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              北京工业大学出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2012-10<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  102人想读
+
+                  /
+
+                  1273人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.8</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANEJK1olXgAAV1dfAE8XBV8IGloWXgYFXV1YDEMfB19MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmwLG1wcXgMGXFZZFxJSXzI4fzh2X257HQs4ckxzc2pUBV1BCntwNFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXwABUlZYOEonA2gMGlMUWg4HVFZUCnsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEBW0IGFIXM1sBABUIAEgUbW0BGVgTWwAGZFxcCUkVMw&amp;type=buy&amp;vendor=jingdong&amp;subject=26968988"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/26968988/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANEJK1olXgAAV1dfAE8XBV8IGloWXgYFXV1YDEMfB19MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmwLG1wcXgMGXFZZFxJSXzI4fzh2X257HQs4ckxzc2pUBV1BCntwNFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXwABUlZYOEonA2gMGlMUWg4HVFZUCnsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEBW0IGFIXM1sBABUIAEgUbW0BGVgTWwAGZFxcCUkVMw&amp;type=buy&amp;vendor=jingdong&amp;subject=26968988">50.50元</a>)
+            </div>
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=http%3A%2F%2Fwww.bookschina.com%2Funion%2Fubook.asp%3Fadservice%3D354872%26tourl%3Dhttp%3A%2F%2Fwww.bookschina.com%2F7302671.htm&amp;type=buy&amp;subject=26968988&amp;vendor=bookschina&amp;link2key=63a27faeec"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/26968988/buylink/{bi.vendor_id}']);">
+                中图网
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=http%3A%2F%2Fwww.bookschina.com%2Funion%2Fubook.asp%3Fadservice%3D354872%26tourl%3Dhttp%3A%2F%2Fwww.bookschina.com%2F7302671.htm&amp;type=buy&amp;subject=26968988&amp;vendor=bookschina&amp;link2key=63a27faeec">26.60元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/26968988/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s29329168.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/26968988/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              北京联合出版公司<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2016-5-20<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  242人想读
+
+                  /
+
+                  864人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.7</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/26691608/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s28366947.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/26691608/">
+          黄金时代
+        </a>
+
+          &nbsp;
+          <img src="/pics/read.gif" alt="可试读" title="可试读"/>
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              中信出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2015-8-30<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  101人想读
+
+                  /
+
+                  799人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.0</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/1419037/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s2988116.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/1419037/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              华夏出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              1994年9月<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  141人想读
+
+                  /
+
+                  836人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.8</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/27121851/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s29524548.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/27121851/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              作家出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2016-7-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  135人想读
+
+                  /
+
+                  672人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.1</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgAKVllVCU8XBV8IGloSWgYGVV5fC0MSAV9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmgPG18UXQQBXFtfFxJSXzI4BTJlPVJQXFs_ckhWARhSTgVNX3YDNFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gPE10TXwcAV11ZCHsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEBGoAGlJGM1tRVxUeCB1fbWgLElMSWA4GZFxcCUkVM18&amp;type=buy&amp;vendor=jingdong&amp;subject=25938920"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/25938920/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgAKVllVCU8XBV8IGloSWgYGVV5fC0MSAV9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmgPG18UXQQBXFtfFxJSXzI4BTJlPVJQXFs_ckhWARhSTgVNX3YDNFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gPE10TXwcAV11ZCHsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEBGoAGlJGM1tRVxUeCB1fbWgLElMSWA4GZFxcCUkVM18&amp;type=buy&amp;vendor=jingdong&amp;subject=25938920">31.00元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/25938920/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s27349654.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/25938920/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              长江文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2014-7<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  321人想读
+
+                  /
+
+                  1304人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.9</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgcLVVpeCk4TBV8IGloQXwIEUVlbAU0SB19MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmoKH10QWgALUltZFxJSXzI4SAVSNVpXViI-WB9nWiRvfyZFWGZ0NFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXwIAVFxcOEonA2gNGFodXAUHUl1VCnsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEA29cTA4XM1xKAVlYTw1HbWwJGl8VWwABXW5fCUoVAV8&amp;type=buy&amp;vendor=jingdong&amp;subject=3757981"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/3757981/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgcLVVpeCk4TBV8IGloQXwIEUVlbAU0SB19MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmoKH10QWgALUltZFxJSXzI4SAVSNVpXViI-WB9nWiRvfyZFWGZ0NFJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXwIAVFxcOEonA2gNGFodXAUHUl1VCnsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEA29cTA4XM1xKAVlYTw1HbWwJGl8VWwABXW5fCUoVAV8&amp;type=buy&amp;vendor=jingdong&amp;subject=3757981">96.34元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/3757981/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s6024947.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/3757981/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              重庆出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2009年4月1日<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  81人想读
+
+                  /
+
+                  465人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">9.1</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/26220577/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s27902718.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/26220577/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              群言出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2014-12-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  26人想读
+
+                  /
+
+                  349人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.8</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgAKVllVCU8XBV8IGloSWgYCV19VCksfAF9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmgPG1sWXA4AVFZeFxJSXzI4RlpICW8BXVs_ew8UXzxYHiFJNX1BAlJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gPE1ISWQMCVllbDXsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEC28OGAsdM1tRUQYeChxJbWYMG1gXXwEBZFxcCUkVM18&amp;type=buy&amp;vendor=jingdong&amp;subject=10443510"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/10443510/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=https%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DJF8BANIJK1olXgAKVllVCU8XBV8IGloSWgYCV19VCksfAF9MRANLAjZbERscSkAJHTdNTwcKBlMdBgABFksWAmgPG1sWXA4AVFZeFxJSXzI4RlpICW8BXVs_ew8UXzxYHiFJNX1BAlJROEwSBGkPElgSbQYGVVpZOHsXAl9JdVsUXw8CUFdUOEonA2gPE1ISWQMCVllbDXsXC2s4wtuii6SQjcDX3cOAM184GGslbQYyV24DZkpEC28OGAsdM1tRUQYeChxJbWYMG1gXXwEBZFxcCUkVM18&amp;type=buy&amp;vendor=jingdong&amp;subject=10443510">167.40元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/10443510/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s9055878.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/10443510/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              上海文化出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2012-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  67人想读
+
+                  /
+
+                  381人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.7</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/27037152/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s29445287.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/27037152/">
+          黄金时代（珍藏版）
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              译林出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2017-2<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  145人想读
+
+                  /
+
+                  309人读过
+              </span>
+                <span class="bkstar allstar50"></span>
+                <span class="avgr hideif50is0">9.5</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/26707368/">
+          <img src="https://img2.doubanio.com/view/subject/s/public/s28385371.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/26707368/">
+          黄金时代（精装珍藏版）
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              浙江文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2016-2<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  99人想读
+
+                  /
+
+                  251人读过
+              </span>
+                <span class="bkstar allstar50"></span>
+                <span class="avgr hideif50is0">9.3</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/26812957/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s28794139.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/26812957/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              译林出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2015-8<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  19人想读
+
+                  /
+
+                  107人读过
+              </span>
+                <span class="bkstar allstar50"></span>
+                <span class="avgr hideif50is0">9.3</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+        <div class="bkbuy">
+            
+            <div>
+              <a target="_blank" href="https://www.douban.com/link2/?url=http%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DAyIOZR5aEQISA1AYUyUCEgNTGVMcByJDCkMFSjJLQhBaUAscSkIBR0ROVw1VC0dFFQIWAVcTUhAdS0IJRmscd2FkJRowXGdJeQBIHlZgVHMeaAJlDh43Uh5cEwUbBFIrWxEDFgNlK1sUMkBpja3tzaejG4Gx1MCKhTdUK1sQCxsAVhldFAIbAlwrXCXbkrCDucnMnJjS3YxrJTIi%26t%3DW1dCFBBFC1pXUwkEAEAdQFkJBVsVBhQFXRJeCltXWwg%253D&amp;type=buy&amp;vendor=jingdong&amp;subject=26703510"
+                onclick="_gaq.push(['_trackPageview', 'https://book.douban.com/subject/26703510/buylink/{bi.vendor_id}']);">
+                京东商城
+              </a>
+              (<a target=_blank href="https://www.douban.com/link2/?url=http%3A%2F%2Funion-click.jd.com%2Fjdc%3Fe%3D%26p%3DAyIOZR5aEQISA1AYUyUCEgNTGVMcByJDCkMFSjJLQhBaUAscSkIBR0ROVw1VC0dFFQIWAVcTUhAdS0IJRmscd2FkJRowXGdJeQBIHlZgVHMeaAJlDh43Uh5cEwUbBFIrWxEDFgNlK1sUMkBpja3tzaejG4Gx1MCKhTdUK1sQCxsAVhldFAIbAlwrXCXbkrCDucnMnJjS3YxrJTIi%26t%3DW1dCFBBFC1pXUwkEAEAdQFkJBVsVBhQFXRJeCltXWwg%253D&amp;type=buy&amp;vendor=jingdong&amp;subject=26703510">21.00元</a>)
+            </div>
+        </div>
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/26703510/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s28378329.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/26703510/">
+          黄金时代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              北京十月文艺出版社<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2014-11<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  7人想读
+
+                  /
+
+                  66人读过
+              </span>
+                <span class="bkstar allstar45"></span>
+                <span class="avgr hideif45is0">8.2</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/20275820/">
+          <img src="https://img1.doubanio.com/view/subject/s/public/s23122958.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/20275820/">
+          黃金時代
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              王小波<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              自由之丘<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2012-11-10<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  38人想读
+
+                  /
+
+                  55人读过
+              </span>
+                <span class="bkstar allstar50"></span>
+                <span class="avgr hideif50is0">9.6</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/2037260/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s17771855.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/2037260/">
+          Wang in Love and Bondage
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+              <span class="pl">
+                译者: 
+              </span>
+              Hongling Zhang<br/>
+            
+              <span class="pl">
+                作者: 
+              </span>
+              Wang Xiaobo<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              State University of New York Press<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2007-3-8<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  107人想读
+
+                  /
+
+                  35人读过
+              </span>
+                <span class="bkstar allstar40"></span>
+                <span class="avgr hideif40is0">8.1</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+    <div class="bkses clearfix">
+      
+
+      <div class="bkimg">
+        <a href="https://book.douban.com/subject/3717560/">
+          <img src="https://img9.doubanio.com/view/subject/s/public/s3769706.jpg"/>
+        </a>
+      </div>
+
+      <div class="bkdesc">
+        <a class="pl2" href="https://book.douban.com/subject/3717560/">
+          L&#39;Age d&#39;or
+        </a>
+
+
+        <br/>
+        <div>
+          
+            
+            
+              <span class="pl">
+                作者: 
+              </span>
+              Wang Xiaobo<br/>
+            
+              <span class="pl">
+                出版社: 
+              </span>
+              Éditions du Sorgho<br/>
+            
+              <span class="pl">
+                出版年: 
+              </span>
+              2001-7-1<br/>
+        </div>
+            <div class="about">
+              <span class="pl ll mr10">
+                  2人想读
+
+                  /
+
+                  2人读过
+              </span>
+                <span class="pl ll">评价人数不足</span>
+            </div>
+
+        
+
+<span class="rr">
+
+
+      <a class="j ll colbutt add2cart a_show_login" href="https://www.douban.com/accounts/passport/login?source=book" rel="nofollow"><span><em>加入购书单</em></span></a>
+  <span class="hidden">已在<a href="https://book.douban.com/cart">购书单</a></span>
+</span><br class="clearfix" />
+
+      </div>
+    </div>
+</div>
+      <div class="aside">
+        
+  <p class="pl2">
+    &gt;
+    <a href="https://book.douban.com/subject/1089243/new_version" title="我来补充">
+      我来补充
+    </a>
+  </p>
+
+  <p class="pl2">
+    &gt;
+    <a href="remove?id=1008677" title="删除">
+      删除
+    </a>
+  </p>
+
+  <p class="pl2">
+    &gt;
+    <a href="report?id=1008677" title="报错">
+      报错
+    </a>
+  </p>
+
+    <p>
+      贡献者：
+        <a href="https://www.douban.com/people/iznausctsu/">
+          [已注销]
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/aurelianoren/">
+          村下秋树
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/73747535/">
+          怪力乱貓
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/laceless/">
+          騅
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/lxgend/">
+          尼大果
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/DukeMexican/">
+          墓岛GRAVELAND
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/74904322/">
+          小欣不文艺
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/cpnandajie/">
+          晚安，本杰明
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/78958264/">
+          贾志新
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/foye3/">
+          foye
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/71185340/">
+          悟空&amp;憨豆
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/yurixyz/">
+          溪奔
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/50788541/">
+          dy
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/44458306/">
+          朱鸰
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/69211159/">
+          浦原店长
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/76368072/">
+          木晨
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/3059050/">
+          生存在海拔四米
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/linkenzoo/">
+          linkenzoo
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/owen0205/">
+          大饼呆呆
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/65024837/">
+          怒眠
+        </a>
+        &nbsp;
+        <a href="https://www.douban.com/people/crystaltime/">
+          此木
+        </a>
+        &nbsp;
+    </p>
+
+  <br/>
+  <h2>什么是同一作品的不同版本？</h2>
+  同一作品的不同版本都是一个作者所著，图书内容大体相同。不同的可能是语言、译者、出版社、出版年代、装帧、定价等。
+  <br/><br/>
+  例如花城出版社的王小波《黄金时代》和陕西师范大学出版社的王小波《黄金时代》是同一作品的不同版本。
+  <br/><br/>
+  欢迎大家根据以上定义为豆瓣添加图书版本信息。
+
+      </div>
+      <div class="extra">
+        
+      </div>
+    </div>
+  </div>
+
+        
+  <div id="footer">
+    
+<span id="icp" class="fleft gray-link">
+    &copy; 2005－2022 douban.com, all rights reserved 北京豆网科技有限公司
+</span>
+
+<a href="https://www.douban.com/hnypt/variformcyst.py" style="display: none;"></a>
+
+<span class="fright">
+    <a href="https://www.douban.com/about">关于豆瓣</a>
+    · <a href="https://www.douban.com/jobs">在豆瓣工作</a>
+    · <a href="https://www.douban.com/about?topic=contactus">联系我们</a>
+    · <a href="https://www.douban.com/about/legal">法律声明</a>
+    
+    · <a href="https://help.douban.com/?app=book" target="_blank">帮助中心</a>
+    · <a href="https://book.douban.com/library_invitation">图书馆合作</a>
+    · <a href="https://www.douban.com/doubanapp/">移动应用</a>
+    · <a href="https://www.douban.com/partner/">豆瓣广告</a>
+</span>
+
+  </div>
+
+    </div>
+      
+
+    <!-- COLLECTED JS -->
+    <!-- mako -->
+    
+    
+  
+
+<script type="text/javascript">
+  var _paq = _paq || [];
+  _paq.push(['trackPageView']);
+  _paq.push(['enableLinkTracking']);
+  (function() {
+    var p=(('https:' == document.location.protocol) ? 'https' : 'http'), u=p+'://fundin.douban.com/';
+    _paq.push(['setTrackerUrl', u+'piwik']);
+    _paq.push(['setSiteId', '100001']);
+    var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0]; 
+    g.type='text/javascript';
+    g.defer=true; 
+    g.async=true; 
+    g.src=p+'://s.doubanio.com/dae/fundin/piwik.js';
+    s.parentNode.insertBefore(g,s);
+  })();
+</script>
+
+<script type="text/javascript">
+var setMethodWithNs = function(namespace) {
+  var ns = namespace ? namespace + '.' : ''
+    , fn = function(string) {
+        if(!ns) {return string}
+        return ns + string
+      }
+  return fn
+}
+
+var gaWithNamespace = function(fn, namespace) {
+  var method = setMethodWithNs(namespace)
+  fn.call(this, method)
+}
+
+var _gaq = _gaq || []
+  , accounts = [
+      { id: 'UA-7019765-1', namespace: 'douban' }
+    , { id: 'UA-7019765-16', namespace: '' }
+    ]
+  , gaInit = function(account) {
+      gaWithNamespace(function(method) {
+        gaInitFn.call(this, method, account)
+      }, account.namespace)
+    }
+  , gaInitFn = function(method, account) {
+      _gaq.push([method('_setAccount'), account.id])
+
+      
+  _gaq.push([method('_addOrganic'), 'google', 'q'])
+  _gaq.push([method('_addOrganic'), 'baidu', 'wd'])
+  _gaq.push([method('_addOrganic'), 'soso', 'w'])
+  _gaq.push([method('_addOrganic'), 'youdao', 'q'])
+  _gaq.push([method('_addOrganic'), 'so.360.cn', 'q'])
+  _gaq.push([method('_addOrganic'), 'sogou', 'query'])
+  if (account.namespace) {
+    _gaq.push([method('_addIgnoredOrganic'), '豆瓣'])
+    _gaq.push([method('_addIgnoredOrganic'), 'douban'])
+    _gaq.push([method('_addIgnoredOrganic'), '豆瓣网'])
+    _gaq.push([method('_addIgnoredOrganic'), 'www.douban.com'])
+  }
+
+      if (account.namespace === 'douban') {
+        _gaq.push([method('_setDomainName'), '.douban.com'])
+      }
+
+        _gaq.push([method('_setCustomVar'), 1, 'responsive_view_mode', 'desktop', 3])
+
+        _gaq.push([method('_setCustomVar'), 2, 'login_status', '0', 2]);
+
+      _gaq.push([method('_trackPageview')])
+    }
+
+for(var i = 0, l = accounts.length; i < l; i++) {
+  var account = accounts[i]
+  gaInit(account)
+}
+
+
+;(function() {
+    var ga = document.createElement('script');
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    ga.setAttribute('async', 'true');
+    document.documentElement.firstChild.appendChild(ga);
+})()
+</script>
+
+
+
+
+
+
+
+
+    <!-- dae-web-book--default-77f6d56884-vz4dn-->
+
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -1,0 +1,75 @@
+{
+  "kind": "books#volume",
+  "id": "hV--zQEACAAJ",
+  "etag": "lwbqGlV/h5s",
+  "selfLink": "https://www.googleapis.com/books/v1/volumes/hV--zQEACAAJ",
+  "volumeInfo": {
+    "title": "1984 Nineteen Eighty-Four",
+    "authors": [
+      "George Orwell"
+    ],
+    "publisher": "Alma Classics",
+    "publishedDate": "2021-01-07",
+    "description": "In 1984, London is a grim city in the totalitarian state of Oceania where Big Brother is always watching you and the Thought Police can practically read your mind. Winston Smith is a man in grave danger for the simple reason that his memory still functions. Drawn into a forbidden love affair, Winston finds the courage to join a secret revolutionary organization called The Brotherhood, dedicated to the destruction of the Party. Together with his beloved Julia, he hazards his life in a deadly match against the powers that be.Lionel Trilling said of Orwell's masterpiece \" 1984 is a profound, terrifying, and wholly fascinating book. It is a fantasy of the political future, and like any such fantasy, serves its author as a magnifying device for an examination of the present.\" Though the year 1984 now exists in the past, Orwell's novel remains an urgent call for the individual willing to speak truth to power.\"",
+    "industryIdentifiers": [
+      {
+        "type": "ISBN_10",
+        "identifier": "1847498574"
+      },
+      {
+        "type": "ISBN_13",
+        "identifier": "9781847498571"
+      }
+    ],
+    "readingModes": {
+      "text": false,
+      "image": false
+    },
+    "pageCount": 400,
+    "printedPageCount": 400,
+    "dimensions": {
+      "height": "19.90 cm",
+      "width": "13.10 cm",
+      "thickness": "2.20 cm"
+    },
+    "printType": "BOOK",
+    "averageRating": 4,
+    "ratingsCount": 564,
+    "maturityRating": "NOT_MATURE",
+    "allowAnonLogging": false,
+    "contentVersion": "preview-1.0.0",
+    "panelizationSummary": {
+      "containsEpubBubbles": false,
+      "containsImageBubbles": false
+    },
+    "imageLinks": {
+      "smallThumbnail": "http://books.google.com/books/content?id=hV--zQEACAAJ&printsec=frontcover&img=1&zoom=5&imgtk=AFLRE72QQ6bzD4LfhArQGJHoUdX5wex-wfg5FVAKOo2MbmCbFSF_HbDUwhZ-gAvmSKiEBTyoRkC3Kvbo9k1jB0uiOyOXcvgAc2643MV091Ny8TySRaV2HSVXtch-MYK2qfzNvUKwGEhx&source=gbs_api",
+      "thumbnail": "http://books.google.com/books/content?id=hV--zQEACAAJ&printsec=frontcover&img=1&zoom=1&imgtk=AFLRE70UTuB9rf2_mqyGrJGsI2XbzpjV2vGQP9Oyjc441rCvvRiGMhMGYXsgTMbAUZ3rHtxarPvPIqaT-RGH9JzzFEbrXs3cp7f2jaHVh3M-fyPcEkg0eao_AuYUePhckBN-PtHZNyy-&source=gbs_api"
+    },
+    "language": "en",
+    "previewLink": "http://books.google.com/books?id=hV--zQEACAAJ&hl=&source=gbs_api",
+    "infoLink": "https://play.google.com/store/books/details?id=hV--zQEACAAJ&source=gbs_api",
+    "canonicalVolumeLink": "https://play.google.com/store/books/details?id=hV--zQEACAAJ"
+  },
+  "saleInfo": {
+    "country": "US",
+    "saleability": "NOT_FOR_SALE",
+    "isEbook": false
+  },
+  "accessInfo": {
+    "country": "US",
+    "viewability": "NO_PAGES",
+    "embeddable": false,
+    "publicDomain": false,
+    "textToSpeechPermission": "ALLOWED",
+    "epub": {
+      "isAvailable": false
+    },
+    "pdf": {
+      "isAvailable": false
+    },
+    "webReaderLink": "http://play.google.com/books/reader?id=hV--zQEACAAJ&hl=&source=gbs_api",
+    "accessViewStatus": "NONE",
+    "quoteSharingAllowed": false
+  }
+}
