@@ -27,7 +27,7 @@ class IdType(models.TextChoices):
     TMDB_Movie = 'tmdb_movie', _('TMDB电影')
     Goodreads = 'goodreads', _('Goodreads')
     Goodreads_Work = 'goodreads_work', _('Goodreads著作')
-    GoogleBook = 'googlebook', _('谷歌图书')
+    GoogleBooks = 'googlebooks', _('谷歌图书')
     DoubanBook = 'doubanbook', _('豆瓣读书')
     DoubanBook_Work = 'doubanbook_work', _('豆瓣读书著作')
     DoubanMovie = 'doubanmovie', _('豆瓣电影')

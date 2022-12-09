@@ -6,6 +6,7 @@ from .douban_music import DoubanMusic
 from .douban_game import DoubanGame
 from .douban_drama import DoubanDrama
 from .goodreads import Goodreads
+from .google_books import GoogleBooks
 from .tmdb import TMDB_Movie
 from .imdb import IMDB
 from .spotify import Spotify

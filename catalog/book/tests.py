@@ -116,6 +116,35 @@ class GoodreadsTestCase(TestCase):
         self.assertEqual(w1, w2)
 
 
+class GoogleBooksTestCase(TestCase):
+    def test_parse(self):
+        t_type = IdType.GoogleBooks
+        t_id = 'hV--zQEACAAJ'
+        t_url = 'https://books.google.com.bn/books?id=hV--zQEACAAJ&hl=ms'
+        t_url2 = 'https://books.google.com/books?id=hV--zQEACAAJ'
+        p1 = SiteList.get_site_by_url(t_url)
+        p2 = SiteList.get_site_by_url(t_url2)
+        self.assertIsNotNone(p1)
+        self.assertEqual(p1.url, t_url2)
+        self.assertEqual(p1.ID_TYPE, t_type)
+        self.assertEqual(p1.id_value, t_id)
+        self.assertEqual(p2.url, t_url2)
+
+    @use_local_response
+    def test_scrape(self):
+        t_url = 'https://books.google.com.bn/books?id=hV--zQEACAAJ'
+        site = SiteList.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.metadata.get('title'), '1984 Nineteen Eighty-Four')
+        self.assertEqual(site.resource.metadata.get('isbn'), '9781847498571')
+        self.assertEqual(site.resource.id_type, IdType.GoogleBooks)
+        self.assertEqual(site.resource.id_value, 'hV--zQEACAAJ')
+        self.assertEqual(site.resource.item.isbn, '9781847498571')
+        self.assertEqual(site.resource.item.title, '1984 Nineteen Eighty-Four')
+
+
 class DoubanBookTestCase(TestCase):
     def setUp(self):
         pass
@@ -170,9 +199,12 @@ class MultiBookSitesTestCase(TestCase):
         # isbn = '9781847498571'
         url1 = 'https://www.goodreads.com/book/show/56821625-1984'
         url2 = 'https://book.douban.com/subject/35902899/'
+        url3 = 'https://books.google.com/books?id=hV--zQEACAAJ'
         p1 = SiteList.get_site_by_url(url1).get_resource_ready()
         p2 = SiteList.get_site_by_url(url2).get_resource_ready()
+        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)
+        self.assertEqual(p2.item.id, p3.item.id)
 
     @use_local_response
     def test_works(self):

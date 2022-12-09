@@ -20,7 +20,7 @@ _logger = logging.getLogger(__name__)
 class ResourceContent:
     lookup_ids: dict = field(default_factory=dict)
     metadata: dict = field(default_factory=dict)
-    cover_image = None
+    cover_image: bytes = None
     cover_image_extention: str = None
 
 
