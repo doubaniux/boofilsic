@@ -1,4 +1,5 @@
 from django.db import models
+from markdown import markdown
 from common.models import UserOwnedEntity
 from movies.models import Movie
 from books.models import Book
@@ -8,6 +9,7 @@ from markdownx.models import MarkdownxField
 from django.utils.translation import gettext_lazy as _
 from django.conf import settings
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
+from common.models import RE_HTML_TAG
 from django.shortcuts import reverse
 
 
@@ -64,7 +66,7 @@ class Collection(UserOwnedEntity):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("collection:retrieve", args=[self.id])
+        return reverse("collection:retrieve", args=[self.id])
 
     @property
     def wish_url(self):

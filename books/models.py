@@ -164,7 +164,7 @@ class BookReview(Review):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + reverse("books:retrieve_review", args=[self.id])
+        return reverse("books:retrieve_review", args=[self.id])
 
     @property
     def item(self):

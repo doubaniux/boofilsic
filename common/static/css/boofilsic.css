@@ -2425,6 +2425,19 @@ select::placeholder {
   list-style: circle inside;
 }
 
+.markdownx-preview h1 {
+  font-size: 2.5em;
+}
+
+.markdownx-preview h2 {
+  font-size: 2.0em;
+}
+
+.markdownx-preview blockquote {
+  border-left: lightgray solid 0.4em;
+  padding-left: 0.4em;
+}
+
 .rating-star .jq-star {
   cursor: unset !important;
 }

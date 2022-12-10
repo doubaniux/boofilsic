@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
 
     <title>{{ site_name }} - {% trans '公告栏' %}</title>
@@ -111,7 +111,6 @@
         });
         // strip html tags
         document.querySelectorAll(".markdownx-preview").forEach(e => {
-            console.log($(e).text())
             $(e).html($(e).text());
         });
     </script>

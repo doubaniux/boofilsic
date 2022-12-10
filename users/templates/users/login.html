@@ -12,10 +12,10 @@
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
     <title>{{ site_name }} - {% trans '登录' %}</title>
     {% include "partial/_common_libs.html" %}
-    <link rel="stylesheet" href="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/milligram/1.4.1/milligram.min.css">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/milligram/1.4.1/milligram.min.css">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
-    <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/js-cookie/3.0.1/js.cookie.min.js"></script>
+    <script src="https://cdn.staticfile.org/js-cookie/3.0.1/js.cookie.min.js"></script>
     <script> $(document).ready( function() { $('.delayed').remove(); $('#loginButton').prop("disabled", false); } ); </script>
     <style type="text/css">
         .delayed {
@@ -67,7 +67,6 @@
                 placeholder="实例域名(不含@和@之前的部分)，如mastodon.social"
                 autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" />
             <input type='submit' value="{% trans '授权登录' %}" id="loginButton" disabled />
-            <br><a target="_blank" href="https://about.neodb.social/doc/howto/">{% trans '了解更多' %}</a>
             <script type="text/javascript">if (Cookies.get('mastodon_domain')) $('#domain').val(Cookies.get('mastodon_domain'));</script>
             {% else %}            
             <select name="domain" placeholder="test">

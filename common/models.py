@@ -62,7 +62,12 @@ class Entity(models.Model):
 
     @property
     def url(self):
-        return settings.APP_WEBSITE + self.get_absolute_url()
+        return self.get_absolute_url()
+
+    @property
+    def absolute_url(self):
+        """URL with host and protocol"""
+        return settings.APP_WEBSITE + self.url
 
     def get_json(self):
         return {
@@ -70,7 +75,7 @@ class Entity(models.Model):
             'brief': self.brief,
             'rating': self.rating,
             'url': self.url,
-            'cover_url': settings.APP_WEBSITE + self.cover.url,
+            'cover_url': self.cover.url,
             'top_tags': self.tags[:5],
             'category_name': self.verbose_category_name,
             'other_info': self.other_info,

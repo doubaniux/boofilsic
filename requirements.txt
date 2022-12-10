@@ -24,6 +24,4 @@ opencc
 dnspython
 typesense
 markdownify
-sentry-sdk
-gitpython
 igdb-api-v4

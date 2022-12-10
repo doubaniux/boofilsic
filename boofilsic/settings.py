@@ -13,7 +13,6 @@ https://docs.djangoproject.com/en/3.0/ref/settings/
 import os
 import requests
 import psycopg2.extensions
-from git import Repo
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -68,7 +67,6 @@ INSTALLED_APPS = [
     'timeline.apps.TimelineConfig',
     'easy_thumbnails',
     'user_messages',
-    'django_slack',
 ]
 
 MIDDLEWARE = [
@@ -114,9 +112,9 @@ if DEBUG:
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
             'NAME': os.environ.get('DB_NAME', 'test'),
-            'USER': os.environ.get('DB_USER', 'donotban'),
-            'PASSWORD': os.environ.get('DB_PASSWORD', 'donotbansilvousplait'),
-            'HOST': os.environ.get('DB_HOST', '172.18.116.29'),
+            'USER': os.environ.get('DB_USER', 'postgres'),
+            'PASSWORD': os.environ.get('DB_PASSWORD', 'admin123'),
+            'HOST': os.environ.get('DB_HOST', '127.0.0.1'),
             'OPTIONS': {
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
@@ -281,22 +279,22 @@ LUMINATI_PASSWORD = 'nsb7te9bw0ney'
 SCRAPING_TIMEOUT = 90
 
 # ScraperAPI api key
-SCRAPERAPI_KEY = 'wnb3794v675b8w475h0e8hr7tyge'
+SCRAPERAPI_KEY = '***REMOVED***'
 PROXYCRAWL_KEY = None
 SCRAPESTACK_KEY = None
 
 # Spotify credentials
-SPOTIFY_CREDENTIAL = "NzYzNkYTE6MGQ0ODY0NTY2Y2b3n645sdfgAyY2I1ljYjg3Nzc0MjIwODQ0ZWE="
+SPOTIFY_CREDENTIAL = "***REMOVED***"
 
 # IMDb API service https://imdb-api.com/
-IMDB_API_KEY = "k23fwewff23"
+IMDB_API_KEY = "***REMOVED***"
 
 # The Movie Database (TMDB) API Keys
-TMDB_API3_KEY = "deadbeef"
-TMDB_API4_KEY = "deadbeef.deadbeef.deadbeef"
+TMDB_API3_KEY = "***REMOVED***"
+# TMDB_API4_KEY = "deadbeef.deadbeef.deadbeef"
 
 # Google Books API Key
-GOOGLE_API_KEY = 'deadbeef-deadbeef-deadbeef'
+GOOGLE_API_KEY = '***REMOVED***'
 
 # IGDB
 IGDB_CLIENT_ID = 'deadbeef'
@@ -348,19 +346,18 @@ RQ_SHOW_ADMIN_LINK = True
 
 SEARCH_INDEX_NEW_ONLY = False
 
-SEARCH_BACKEND = None
 
 # SEARCH_BACKEND = 'MEILISEARCH'
 # MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
 # MEILISEARCH_KEY = 'deadbeef'
 
-# SEARCH_BACKEND = 'TYPESENSE'
-# TYPESENSE_CONNECTION = {
-#     'api_key': 'deadbeef',
-#     'nodes': [{
-#         'host': 'localhost',
-#         'port': '8108',
-#         'protocol': 'http'
-#     }],
-#     'connection_timeout_seconds': 2
-# }
+SEARCH_BACKEND = 'TYPESENSE'
+TYPESENSE_CONNECTION = {
+    'api_key': 'xyz',
+    'nodes': [{
+        'host': 'localhost',
+        'port': '8108',
+        'protocol': 'http'
+    }],
+    'connection_timeout_seconds': 2
+}

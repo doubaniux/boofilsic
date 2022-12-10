@@ -6,7 +6,7 @@
 {% load oauth_token %}
 {% load truncate %}
 {% load thumb %}
-{% load neo %}
+{% load prettydate %}
 
 {% for activity in activities %}
 {% current_user_marked_item activity.target.item as marked %}

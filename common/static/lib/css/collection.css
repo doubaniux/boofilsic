@@ -1,20 +1,3 @@
-.markdownx-preview h1 {
-    font-size: 2.5em;
-}
-
-.markdownx-preview h2 {
-    font-size: 2.0em;
-}
-
-.markdownx-preview h3 {
-    font-size: 1.6em;
-}
-
-.markdownx-preview blockquote {
-    border-left: lightgray solid 0.4em;
-    padding-left: 0.4em;
-}
-
 .collection-item-position-edit {
     float: right;
 }

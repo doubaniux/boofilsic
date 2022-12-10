@@ -17,9 +17,9 @@ name: Pysa
 on:
   workflow_dispatch:
   push:
-    branches: [ "neo" ]
+    branches: [ "master" ]
   pull_request:
-    branches: [ "neo" ]
+    branches: [ "master" ]
   schedule:
     - cron: '45 12 * * 4'
 

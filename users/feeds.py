@@ -41,7 +41,7 @@ class ReviewFeed(Feed):
         return f"{item.title} - 评论《{item.item.title}》"
 
     def item_description(self, item):
-        target_html = f'<p><a href="{item.item.url}">{item.item.title}</a></p>\n' 
+        target_html = f'<p><a href="{item.item.absolute_url}">{item.item.title}</a></p>\n' 
         html = markdown(item.content)
         return target_html + html
 

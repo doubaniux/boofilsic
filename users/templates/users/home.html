@@ -20,8 +20,8 @@
 
     {% include "partial/_common_libs.html" with jquery=1 %}
 
-    <script src="{% static 'js/mastodon.js' %}"></script>
-    <script src="{% static 'js/home.js' %}"></script>
+    <script src="{% static 'js/mastodon.js' %}" defer></script>
+    <script src="{% static 'js/home.js' %}" defer></script>
 </head>
 
 <body>
@@ -635,7 +635,7 @@
                             {% csrf_token %}
                             <input type="hidden" name="layout">
                         </form>
-                        <script src="https://static.neodb.social/cdnjs.cloudflare.com/ajax/libs/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>
+                        <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>
                         <script src="{% static 'js/sort_layout.js' %}"></script>
                         {% endif %}
                         <script>
