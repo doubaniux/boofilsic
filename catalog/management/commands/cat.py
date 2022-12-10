@@ -17,6 +17,7 @@ class Command(BaseCommand):
             self.stdout.write(self.style.ERROR(f'Unknown site for {url}'))
             return
         self.stdout.write(f'Fetching from {site}')
-        resource = site.get_resource_ready(auto_link=False, auto_save=False)
+        resource = site.scrape()
         self.stdout.write(self.style.SUCCESS(f'Done.'))
         pprint.pp(resource.metadata)
+        pprint.pp(resource.lookup_ids)
