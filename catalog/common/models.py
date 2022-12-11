@@ -5,6 +5,8 @@ from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
 from django.core.files.uploadedfile import SimpleUploadedFile
 from django.contrib.contenttypes.models import ContentType
+from django.utils.baseconv import base62
+from simple_history.models import HistoricalRecords
 import uuid
 from .utils import DEFAULT_ITEM_COVER, item_cover_path
 # from django.conf import settings
@@ -57,6 +59,19 @@ class ItemType(models.TextChoices):
     TVSeason = 'tvseason', _('剧集分季')
     TVEpisode = 'tvepisode', _('剧集分集')
     Movie = 'movie', _('电影')
+    Music = 'music', _('音乐')
+    Game = 'game', _('游戏')
+    Boardgame = 'boardgame', _('桌游')
+    Podcast = 'podcast', _('播客')
+    FanFic = 'fanfic', _('网文')
+    Performance = 'performance', _('演出')
+    Exhibition = 'exhibition', _('展览')
+
+
+class ItemCategory(models.TextChoices):
+    Book = 'book', _('书')
+    Movie = 'movie', _('电影')
+    TV = 'tv', _('剧集')
     Music = 'music', _('音乐')
     Game = 'game', _('游戏')
     Boardgame = 'boardgame', _('桌游')
@@ -139,7 +154,9 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 
 
 class Item(PolymorphicModel):
-    uid = models.UUIDField(default=uuid.uuid4, editable=False)
+    URL_PATH = None  # subclass must specify this
+    category = None  # subclass must specify this
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     # item_type = models.CharField(_("类型"), choices=ItemType.choices, blank=False, max_length=50)
     title = models.CharField(_("title in primary language"), max_length=1000, default="")
     # title_ml = models.JSONField(_("title in different languages {['lang':'zh-cn', 'text':'', primary:True], ...}"), null=True, blank=True, default=list)
@@ -152,6 +169,9 @@ class Item(PolymorphicModel):
     cover = models.ImageField(upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+    history = HistoricalRecords()
+    merged_to_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, default=None, related_name="merged_from_items")
     # parent_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, related_name='child_items')
     # identical_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, related_name='identical_items')
     # def get_lookup_id(self, id_type: str) -> str:
@@ -161,6 +181,15 @@ class Item(PolymorphicModel):
     class Meta:
         unique_together = [['polymorphic_ctype_id', 'primary_lookup_id_type', 'primary_lookup_id_value']]
 
+    def delete(self, using=None, soft=True, *args, **kwargs):
+        if soft:
+            self.primary_lookup_id_value = None
+            self.primary_lookup_id_type = None
+            self.is_deleted = True
+            self.save(using=using)
+        else:
+            return super().delete(using=using, *args, **kwargs)
+
     def __str__(self):
         return f"{self.id}{' ' + self.primary_lookup_id_type + ':' + self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
 
@@ -168,15 +197,34 @@ class Item(PolymorphicModel):
     def get_best_lookup_id(cls, lookup_ids):
         """ get best available lookup id, ideally commonly used """
         best_id_types = [
-            IdType.ISBN, IdType.CUBN, IdType.ASIN, 
+            IdType.ISBN, IdType.CUBN, IdType.ASIN,
             IdType.GTIN, IdType.ISRC, IdType.MusicBrainz,
-            IdType.Feed, 
+            IdType.Feed,
             IdType.IMDB, IdType.TMDB_TVSeason
         ]
         for t in best_id_types:
             if lookup_ids.get(t):
                 return t, lookup_ids[t]
         return list(lookup_ids.items())[0]
+
+    def merge(self, to_item):
+        if to_item is None:
+            raise(ValueError('cannot merge to an empty item'))
+        elif to_item.merged_to_item is not None:
+            raise(ValueError('cannot merge with an item aleady merged'))
+        elif to_item.__class__ != self.__class__:
+            raise(ValueError('cannot merge with an item in different class'))
+        else:
+            self.merged_to_item = to_item
+
+    @property
+    def url(self):
+        return f'/{self.URL_PATH}/{base62.encode(self.uid.int)}'
+
+    @classmethod
+    def get_by_url(cls, url_or_b62):
+        b62 = url_or_b62.split('/')[-1]
+        return cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
 
     def update_lookup_ids(self, lookup_ids):
         # TODO

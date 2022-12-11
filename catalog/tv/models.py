@@ -29,6 +29,7 @@ from django.db import models
 
 
 class TVShow(Item):
+    category = ItemCategory.TV
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tv = PrimaryLookupIdDescriptor(IdType.TMDB_TV)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
@@ -36,6 +37,7 @@ class TVShow(Item):
 
 
 class TVSeason(Item):
+    category = ItemCategory.TV
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tvseason = PrimaryLookupIdDescriptor(IdType.TMDB_TVSeason)
@@ -55,6 +57,7 @@ class TVSeason(Item):
 
 
 class TVEpisode(Item):
+    category = ItemCategory.TV
     show = models.ForeignKey(TVShow, null=True, on_delete=models.SET_NULL, related_name='episodes')
     season = models.ForeignKey(TVSeason, null=True, on_delete=models.SET_NULL, related_name='episodes')
     episode_number = models.PositiveIntegerField()

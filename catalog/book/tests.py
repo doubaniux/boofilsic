@@ -11,6 +11,11 @@ class BookTestCase(TestCase):
         hyperion.save()
         # hyperion.isbn10 = '0553283685'
 
+    def test_url(self):
+        hyperion = Edition.objects.get(title="Hyperion")
+        hyperion2 = Edition.get_by_url(hyperion.url)
+        self.assertEqual(hyperion, hyperion2)
+
     def test_properties(self):
         hyperion = Edition.objects.get(title="Hyperion")
         self.assertEqual(hyperion.title, "Hyperion")

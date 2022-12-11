@@ -24,6 +24,7 @@ from .utils import *
 
 
 class Edition(Item):
+    category = ItemCategory.Book
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
     asin = PrimaryLookupIdDescriptor(IdType.ASIN)
     cubn = PrimaryLookupIdDescriptor(IdType.CUBN)
@@ -58,18 +59,14 @@ class Edition(Item):
 
 
 class Work(Item):
-    # douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
-    # goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
-    editions = models.ManyToManyField(Edition, related_name='works')  # , through='WorkEdition'
-
-    # def __str__(self):
-    #     return self.title
-
-    # class Meta:
-    #     proxy = True
+    category = ItemCategory.Book
+    douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
+    goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
+    editions = models.ManyToManyField(Edition, related_name='works')
 
 
 class Series(Item):
+    category = ItemCategory.Book
     # douban_serie = LookupIdDescriptor(IdType.DoubanBook_Serie)
     # goodreads_serie = LookupIdDescriptor(IdType.Goodreads_Serie)
 

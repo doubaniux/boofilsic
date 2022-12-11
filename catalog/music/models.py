@@ -2,6 +2,7 @@ from catalog.common import *
 
 
 class Album(Item):
+    category = ItemCategory.Music
     barcode = PrimaryLookupIdDescriptor(IdType.GTIN)
     douban_music = PrimaryLookupIdDescriptor(IdType.DoubanMusic)
     spotify_album = PrimaryLookupIdDescriptor(IdType.Spotify_Album)
