@@ -5,6 +5,7 @@ from .music.models import Album
 from .game.models import Game
 from .podcast.models import Podcast
 from .performance.models import Performance
+from .collection.models import Collection as CatalogCollection
 
 
 # class Exhibition(Item):

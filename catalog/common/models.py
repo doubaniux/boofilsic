@@ -66,6 +66,7 @@ class ItemType(models.TextChoices):
     FanFic = 'fanfic', _('网文')
     Performance = 'performance', _('演出')
     Exhibition = 'exhibition', _('展览')
+    Collection = 'collection', _('收藏单')
 
 
 class ItemCategory(models.TextChoices):
@@ -79,6 +80,7 @@ class ItemCategory(models.TextChoices):
     FanFic = 'fanfic', _('网文')
     Performance = 'performance', _('演出')
     Exhibition = 'exhibition', _('展览')
+    Collection = 'collection', _('收藏单')
 
 
 class SubItemType(models.TextChoices):

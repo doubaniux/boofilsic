@@ -13,6 +13,8 @@ class CollectionTest(TestCase):
 
     def test_collection(self):
         collection = Collection.objects.create(title="test", owner=self.user)
+        collection = Collection.objects.filter(title="test", owner=self.user).first()
+        self.assertEqual(collection.catalog_item.title, "test")
         collection.append_item(self.book1)
         collection.append_item(self.book2)
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
@@ -30,7 +32,7 @@ class QueueTest(TestCase):
         user = User.objects.create(mastodon_site="site", username="name")
         queue_manager = QueueManager(user=user)
         queue_manager.initialize()
-        self.assertEqual(user.queues.all().count(), 30)
+        self.assertEqual(user.queue_set.all().count(), 30)
         book1 = Edition.objects.create(title="Hyperion")
         book2 = Edition.objects.create(title="Andymion")
         q1 = queue_manager.get_queue(ItemCategory.Book, QueueType.WISHED)
@@ -63,3 +65,35 @@ class QueueTest(TestCase):
         queue_manager.update_for_item(book1, QueueType.STARTED, metadata={'progress': 100})
         log = queue_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 5)
+
+
+class TagTest(TestCase):
+    def setUp(self):
+        self.book1 = Edition.objects.create(title="Hyperion")
+        self.book2 = Edition.objects.create(title="Andymion")
+        self.movie1 = Edition.objects.create(title="Hyperion, The Movie")
+        self.user1 = User.objects.create(mastodon_site="site", username="name")
+        self.user2 = User.objects.create(mastodon_site="site2", username="name2")
+        self.user3 = User.objects.create(mastodon_site="site2", username="name3")
+        pass
+
+    def test_tag(self):
+        t1 = 'sci-fi'
+        t2 = 'private'
+        t3 = 'public'
+        Tag.add_tag_by_user(self.book1, t3, self.user2)
+        Tag.add_tag_by_user(self.book1, t1, self.user1)
+        Tag.add_tag_by_user(self.book1, t1, self.user2)
+        Tag.add_tag_by_user(self.book1, t2, self.user1, default_visibility=2)
+        self.assertEqual(self.book1.tags, [t1, t3])
+        Tag.add_tag_by_user(self.book1, t3, self.user1)
+        Tag.add_tag_by_user(self.book1, t3, self.user3)
+        self.assertEqual(self.book1.tags, [t3, t1])
+        Tag.add_tag_by_user(self.book1, t3, self.user3)
+        Tag.add_tag_by_user(self.book1, t3, self.user3)
+        self.assertEqual(Tag.objects.count(), 6)
+        Tag.add_tag_by_user(self.book2, t1, self.user2)
+        self.assertEqual(self.user2.tags, [t1, t3])
+        Tag.add_tag_by_user(self.book2, t3, self.user2)
+        Tag.add_tag_by_user(self.movie1, t3, self.user2)
+        self.assertEqual(self.user2.tags, [t3, t1])

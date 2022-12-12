@@ -25,6 +25,7 @@ from .utils import *
 
 class Edition(Item):
     category = ItemCategory.Book
+    url_path = 'book'
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
     asin = PrimaryLookupIdDescriptor(IdType.ASIN)
     cubn = PrimaryLookupIdDescriptor(IdType.CUBN)
@@ -60,6 +61,7 @@ class Edition(Item):
 
 class Work(Item):
     category = ItemCategory.Book
+    url_path = 'book/work'
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
     editions = models.ManyToManyField(Edition, related_name='works')
@@ -67,6 +69,7 @@ class Work(Item):
 
 class Series(Item):
     category = ItemCategory.Book
+    url_path = 'book/series'
     # douban_serie = LookupIdDescriptor(IdType.DoubanBook_Serie)
     # goodreads_serie = LookupIdDescriptor(IdType.Goodreads_Serie)
 

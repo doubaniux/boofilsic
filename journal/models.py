@@ -2,6 +2,7 @@ from django.db import models
 from polymorphic.models import PolymorphicModel
 from users.models import User
 from catalog.common.models import Item, ItemCategory
+from catalog.collection.models import Collection as CatalogCollection
 from decimal import *
 from enum import Enum
 from markdownx.models import MarkdownxField
@@ -11,17 +12,27 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from functools import cached_property
+from django.db.models import Count
 
 
-class UserOwnedEntity(PolymorphicModel):
-    class Meta:
-        abstract = True
-
-    owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name='%(class)ss')
+class Piece(PolymorphicModel):
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
     metadata = models.JSONField(default=dict)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+
+    def clear(self):
+        pass
+
+    def delete(self, using=None, soft=True, *args, **kwargs):
+        if soft:
+            self.clear()
+            self.is_deleted = True
+            self.save(using=using)
+        else:
+            return super().delete(using=using, *args, **kwargs)
 
     def is_visible_to(self, viewer):
         if not viewer.is_authenticated:
@@ -52,7 +63,7 @@ class UserOwnedEntity(PolymorphicModel):
         return visible_entities
 
 
-class Content(UserOwnedEntity):
+class Content(Piece):
     target: models.ForeignKey(Item, on_delete=models.PROTECT)
 
     def __str__(self):
@@ -71,7 +82,7 @@ class Review(Content):
 
 
 class Rating(Content):
-    grade = models.IntegerField(default=1, validators=[MaxValueValidator(10), MinValueValidator(0)])
+    grade = models.IntegerField(default=0, validators=[MaxValueValidator(10), MinValueValidator(0)])
 
 
 class Reply(Content):
@@ -86,9 +97,15 @@ List (abstract class)
 """
 
 
-class List(UserOwnedEntity):
+class List(Piece):
     class Meta:
         abstract = True
+
+    _owner = models.ForeignKey(User, on_delete=models.PROTECT)  # duplicated owner field to make unique key possible for subclasses
+
+    def save(self, *args, **kwargs):
+        self._owner = self.owner
+        super().save(*args, **kwargs)
 
     MEMBER_CLASS = None  # subclass must override this
     # subclass must add this:
@@ -100,7 +117,7 @@ class List(UserOwnedEntity):
 
     @property
     def ordered_items(self):
-        return self.items.all().order_by('collectionmember__position')
+        return self.items.all().order_by(self.MEMBER_CLASS.__name__.lower() + '__position')
 
     def has_item(self, item):
         return self.members.filter(item=item).count() > 0
@@ -151,7 +168,7 @@ class ListMember(models.Model):
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     position = models.PositiveIntegerField()
     metadata = models.JSONField(default=dict)
-    comment = models.ForeignKey(Review, on_delete=models.SET_NULL, null=True)
+    comment = models.ForeignKey(Review, on_delete=models.PROTECT, null=True)
 
     class Meta:
         abstract = True
@@ -195,10 +212,10 @@ class QueueMember(ListMember):
 
 class Queue(List):
     class Meta:
-        unique_together = [['owner', 'item_category', 'queue_type']]
+        unique_together = [['_owner', 'item_category', 'queue_type']]
 
     MEMBER_CLASS = QueueMember
-    items = models.ManyToManyField(Item, through='QueueMember', related_name=None)
+    items = models.ManyToManyField(Item, through='QueueMember', related_name="+")
     item_category = models.CharField(choices=ItemCategory.choices, max_length=100, null=False, blank=False)
     queue_type = models.CharField(choices=QueueType.choices, max_length=100, null=False, blank=False)
 
@@ -216,7 +233,7 @@ class Queue(List):
 
 
 class QueueLogEntry(models.Model):
-    owner = models.ForeignKey(User, on_delete=models.PROTECT, related_name='%(class)ss')
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
     queue = models.ForeignKey(Queue, on_delete=models.PROTECT, related_name='entries', null=True)  # None means removed from any queue
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     metadata = models.JSONField(default=dict)
@@ -241,16 +258,17 @@ class QueueManager:
 
     def initialize(self):
         for ic in ItemCategory:
-            for qt in QueueType:
-                Queue.objects.create(owner=self.owner, item_category=ic, queue_type=qt)
+            if ic != ItemCategory.Collection:
+                for qt in QueueType:
+                    Queue.objects.create(owner=self.owner, item_category=ic, queue_type=qt)
 
     def _queue_member_for_item(self, item):
-        return QueueMember.objects.filter(item=item, queue__in=self.owner.queues.all()).first()
+        return QueueMember.objects.filter(item=item, queue__in=self.owner.queue_set.all()).first()
 
     def _queue_for_item_and_type(item, queue_type):
         if not item or not queue_type:
             return None
-        return self.owner.queues.all().filter(item_category=item.category, queue_type=queue_type)
+        return self.owner.queue_set.all().filter(item_category=item.category, queue_type=queue_type)
 
     def update_for_item(self, item, queue_type, metadata=None):
         # None means no change for metadata, comment
@@ -281,7 +299,7 @@ class QueueManager:
         return QueueLogEntry.objects.filter(owner=self.owner, item=item)
 
     def get_queue(self, item_category, queue_type):
-        return self.owner.queues.all().filter(item_category=item_category, queue_type=queue_type).first()
+        return self.owner.queue_set.all().filter(item_category=item_category, queue_type=queue_type).first()
 
 
 """
@@ -293,8 +311,11 @@ class CollectionMember(ListMember):
     collection = models.ForeignKey('Collection', related_name='members', on_delete=models.CASCADE)
 
 
-class Collection(Item, List):
+class Collection(List):
     MEMBER_CLASS = CollectionMember
+    catalog_item = models.OneToOneField(CatalogCollection, on_delete=models.PROTECT)
+    title = models.CharField(_("title in primary language"), max_length=1000, default="")
+    brief = models.TextField(_("简介"), blank=True, default="")
     items = models.ManyToManyField(Item, through='CollectionMember', related_name="collections")
     collaborative = models.PositiveSmallIntegerField(default=0)  # 0: Editable by owner only / 1: Editable by bi-direction followers
 
@@ -302,6 +323,15 @@ class Collection(Item, List):
     def plain_description(self):
         html = markdown(self.description)
         return RE_HTML_TAG.sub(' ', html)
+
+    def save(self, *args, **kwargs):
+        if getattr(self, 'catalog_item', None) is None:
+            self.catalog_item = CatalogCollection()
+        if self.catalog_item.title != self.title or self.catalog_item.brief != self.brief:
+            self.catalog_item.title = self.title
+            self.catalog_item.brief = self.brief
+            self.catalog_item.save()
+        super().save(*args, **kwargs)
 
 
 """
@@ -317,10 +347,37 @@ TagValidators = [RegexValidator(regex=r'\s+', inverse_match=True)]
 
 
 class Tag(List):
-    MEMBER_CLASS = CollectionMember
+    MEMBER_CLASS = TagMember
+    items = models.ManyToManyField(Item, through='TagMember')
     title = models.CharField(max_length=100, null=False, blank=False, validators=TagValidators)
     # TODO case convert and space removal on save
     # TODO check on save
 
     class Meta:
-        unique_together = [['owner', 'title']]
+        unique_together = [['_owner', 'title']]
+
+    @staticmethod
+    def cleanup_title(title):
+        return title.strip().lower()
+
+    @staticmethod
+    def public_tags_for_item(item):
+        tags = item.tag_set.all().filter(visibility=0).values('title').annotate(frequency=Count('owner')).order_by('-frequency')
+        return list(map(lambda t: t['title'], tags))
+
+    @staticmethod
+    def all_tags_for_user(user):
+        tags = user.tag_set.all().values('title').annotate(frequency=Count('members')).order_by('-frequency')
+        return list(map(lambda t: t['title'], tags))
+
+    @staticmethod
+    def add_tag_by_user(item, tag_title, user, default_visibility=0):
+        title = Tag.cleanup_title(tag_title)
+        tag = Tag.objects.filter(owner=user, title=title).first()
+        if not tag:
+            tag = Tag.objects.create(owner=user, title=title, visibility=default_visibility)
+        tag.append_item(item)
+
+
+Item.tags = property(Tag.public_tags_for_item)
+User.tags = property(Tag.all_tags_for_user)
