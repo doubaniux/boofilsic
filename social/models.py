@@ -43,6 +43,7 @@ class ActivityManager:
 
     def get_viewable_activities(self, before_time=None):
         q = Q(owner_id__in=self.owner.following, visibility__lt=2) | Q(owner=self.owner)
+        q = q & Q(is_viewable=True)
         if before_time:
             q = q & Q(created_time__lt=before_time)
         return Activity.objects.filter(q)
@@ -72,16 +73,20 @@ class Activity(models.Model, UserOwnedObjectMixin):
     def action_class(self):
         return self.action_object.__class__.__name__
 
+    def __str__(self):
+        return f'{self.id}:{self.action_type}:{self.action_object}:{self.is_viewable}'
+
 
 class DefaultSignalProcessor():
     def __init__(self, action_object):
         self.action_object = action_object
 
     def activity_viewable(self, action_type):
-        return action_type == ActionType.Create and bool(getattr(self.action_object, 'attached_to', None))
+        return action_type == ActionType.Create and bool(getattr(self.action_object, 'attached_to', None) is None)
 
     def created(self):
-        return Activity.objects.create(owner=self.action_object.owner, visibility=self.action_object.visibility, action_object=self.action_object, action_type=ActionType.Create, is_viewable=self.activity_viewable(ActionType.Create))
+        activity = Activity.objects.create(owner=self.action_object.owner, visibility=self.action_object.visibility, action_object=self.action_object, action_type=ActionType.Create, is_viewable=self.activity_viewable(ActionType.Create))
+        return activity
 
     def updated(self):
         create_activity = Activity.objects.filter(owner=self.action_object.owner, action_object=self.action_object, action_type=ActionType.Create).first()
@@ -92,8 +97,10 @@ class DefaultSignalProcessor():
     def deleted(self):
         create_activity = Activity.objects.filter(owner=self.action_object.owner, action_object=self.action_object, action_type=ActionType.Create).first()
         if create_activity:
-            create_activity.viewable = False
+            create_activity.is_viewable = False
             create_activity.save()
+        else:
+            _logger.warning(f'unable to find create activity for {self.action_object}')
         # FIXME action_object=self.action_object causing issues in test when hard delete, the bare minimum is to save id of the actual object that ActivityPub requires
         return Activity.objects.create(owner=self.action_object.owner, visibility=self.action_object.visibility, action_object=None, action_type=ActionType.Delete, is_viewable=self.activity_viewable(ActionType.Delete))
 
@@ -147,7 +154,7 @@ class DataSignalManager:
 
 @DataSignalManager.register
 class MarkProcessor(DefaultSignalProcessor):
-    model = QueueMember
+    model = ShelfMember
 
 
 # @DataSignalManager.register

@@ -118,7 +118,7 @@ if DEBUG:
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
             }
-        }    
+        }
     }
 else:
     DATABASES = {
@@ -132,7 +132,7 @@ else:
                 'client_encoding': 'UTF8',
                 # 'isolation_level': psycopg2.extensions.ISOLATION_LEVEL_DEFAULT,
             }
-        }    
+        }
     }
 
 # Customized auth backend, glue OAuth2 and Django User model together
@@ -173,7 +173,7 @@ if not DEBUG:
                 'format': '{levelname} {asctime} {name}:{lineno} {message}',
                 'style': '{',
             },
-        },    
+        },
         'handlers': {
             'file': {
                 'level': 'INFO',
@@ -248,7 +248,7 @@ MASTODON_ALLOW_ANY_SITE = False
 MASTODON_TIMEOUT = 30
 
 MASTODON_CLIENT_SCOPE = 'read write follow'
-#use the following if it's a new site
+# use the following if it's a new site
 #MASTODON_CLIENT_SCOPE = 'read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media'
 
 MASTODON_LEGACY_CLIENT_SCOPE = 'read write follow'
@@ -366,3 +366,5 @@ ENABLE_NEW_MODEL = os.getenv('new_data_model')
 if ENABLE_NEW_MODEL:
     INSTALLED_APPS.append('polymorphic')
     INSTALLED_APPS.append('catalog.apps.CatalogConfig')
+    INSTALLED_APPS.append('journal.apps.JournalConfig')
+    INSTALLED_APPS.append('social.apps.SocialConfig')

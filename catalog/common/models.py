@@ -9,6 +9,7 @@ from django.utils.baseconv import base62
 from simple_history.models import HistoricalRecords
 import uuid
 from .utils import DEFAULT_ITEM_COVER, item_cover_path
+from .mixins import SoftDeleteMixin
 # from django.conf import settings
 
 
@@ -153,31 +154,6 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 #     if len(s) < 2:
 #         return False
 #     return sid[0] in IdType.values()
-
-
-class SoftDeleteMixin:
-    """
-    SoftDeleteMixin
-
-    Model must add this:
-    is_deleted = models.BooleanField(default=False, db_index=True)
-
-    Model may override this:
-    def clear(self):
-        pass
-    """
-
-    def clear(self):
-        pass
-
-    def delete(self, using=None, soft=True, *args, **kwargs):
-        print('SOFT')
-        if soft:
-            self.clear()
-            self.is_deleted = True
-            self.save(using=using)
-        else:
-            return super().delete(using=using, *args, **kwargs)
 
 
 class Item(PolymorphicModel, SoftDeleteMixin):

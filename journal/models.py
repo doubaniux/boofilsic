@@ -1,7 +1,9 @@
 from django.db import models
 from polymorphic.models import PolymorphicModel
 from users.models import User
-from catalog.common.models import Item, ItemCategory, SoftDeleteMixin
+from catalog.common.models import Item, ItemCategory
+from catalog.common.mixins import SoftDeleteMixin
+from .mixins import UserOwnedObjectMixin
 from catalog.collection.models import Collection as CatalogCollection
 from decimal import *
 from enum import Enum
@@ -13,44 +15,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from functools import cached_property
 from django.db.models import Count
-
-
-class UserOwnedObjectMixin:
-    """
-    UserOwnedObjectMixin
-
-    Models must add these:
-    owner = models.ForeignKey(User, on_delete=models.PROTECT)
-    visibility = models.PositiveSmallIntegerField(default=0)
-    """
-
-    def is_visible_to(self, viewer):
-        if not viewer.is_authenticated:
-            return self.visibility == 0
-        owner = self.owner
-        if owner == viewer:
-            return True
-        if not owner.is_active:
-            return False
-        if self.visibility == 2:
-            return False
-        if viewer.is_blocking(owner) or owner.is_blocking(viewer) or viewer.is_muting(owner):
-            return False
-        if self.visibility == 1:
-            return viewer.is_following(owner)
-        else:
-            return True
-
-    def is_editable_by(self, viewer):
-        return True if viewer.is_staff or viewer.is_superuser or viewer == self.owner else False
-
-    @classmethod
-    def get_available(cls, entity, request_user, following_only=False):
-        # e.g. SongMark.get_available(song, request.user)
-        query_kwargs = {entity.__class__.__name__.lower(): entity}
-        all_entities = cls.objects.filter(**query_kwargs).order_by("-created_time")  # get all marks for song
-        visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user) and (_entity.owner.mastodon_username in request_user.mastodon_following if following_only else True), all_entities))
-        return visible_entities
+import django.dispatch
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
@@ -96,6 +61,9 @@ class Reply(Content):
 List (abstract class)
 """
 
+list_add = django.dispatch.Signal()
+list_remove = django.dispatch.Signal()
+
 
 class List(Piece):
     class Meta:
@@ -129,11 +97,13 @@ class List(Piece):
             ml = self.ordered_members
             p = {'_' + self.__class__.__name__.lower(): self}
             p.update(params)
-            i = self.MEMBER_CLASS.objects.create(owner=self.owner, position=ml.last().position + 1 if ml.count() else 1, item=item, **p)
-            return i
+            member = self.MEMBER_CLASS.objects.create(owner=self.owner, position=ml.last().position + 1 if ml.count() else 1, item=item, **p)
+            list_add.send(sender=self.__class__, instance=self, item=item, member=member)
+            return member
 
     def remove_item(self, item):
         member = self.members.all().filter(item=item).first()
+        list_remove.send(sender=self.__class__, instance=self, item=item, member=member)
         if member:
             member.delete()
 
@@ -178,85 +148,88 @@ class ListMember(Piece):
     class Meta:
         abstract = True
 
+    def __str__(self):
+        return f'{self.id}:{self.position} ({self.item})'
+
 
 """
-Queue
+Shelf
 """
 
 
-class QueueType(models.TextChoices):
+class ShelfType(models.TextChoices):
     WISHED = ('wished', '未开始')
     STARTED = ('started', '进行中')
     DONE = ('done', '完成')
     # DISCARDED = ('discarded', '放弃')
 
 
-QueueTypeNames = [
-    [ItemCategory.Book, QueueType.WISHED, _('想读')],
-    [ItemCategory.Book, QueueType.STARTED, _('在读')],
-    [ItemCategory.Book, QueueType.DONE, _('读过')],
-    [ItemCategory.Movie, QueueType.WISHED, _('想看')],
-    [ItemCategory.Movie, QueueType.STARTED, _('在看')],
-    [ItemCategory.Movie, QueueType.DONE, _('看过')],
-    [ItemCategory.TV, QueueType.WISHED, _('想看')],
-    [ItemCategory.TV, QueueType.STARTED, _('在看')],
-    [ItemCategory.TV, QueueType.DONE, _('看过')],
-    [ItemCategory.Music, QueueType.WISHED, _('想听')],
-    [ItemCategory.Music, QueueType.STARTED, _('在听')],
-    [ItemCategory.Music, QueueType.DONE, _('听过')],
-    [ItemCategory.Game, QueueType.WISHED, _('想玩')],
-    [ItemCategory.Game, QueueType.STARTED, _('在玩')],
-    [ItemCategory.Game, QueueType.DONE, _('玩过')],
-    [ItemCategory.Collection, QueueType.WISHED, _('关注')],
+ShelfTypeNames = [
+    [ItemCategory.Book, ShelfType.WISHED, _('想读')],
+    [ItemCategory.Book, ShelfType.STARTED, _('在读')],
+    [ItemCategory.Book, ShelfType.DONE, _('读过')],
+    [ItemCategory.Movie, ShelfType.WISHED, _('想看')],
+    [ItemCategory.Movie, ShelfType.STARTED, _('在看')],
+    [ItemCategory.Movie, ShelfType.DONE, _('看过')],
+    [ItemCategory.TV, ShelfType.WISHED, _('想看')],
+    [ItemCategory.TV, ShelfType.STARTED, _('在看')],
+    [ItemCategory.TV, ShelfType.DONE, _('看过')],
+    [ItemCategory.Music, ShelfType.WISHED, _('想听')],
+    [ItemCategory.Music, ShelfType.STARTED, _('在听')],
+    [ItemCategory.Music, ShelfType.DONE, _('听过')],
+    [ItemCategory.Game, ShelfType.WISHED, _('想玩')],
+    [ItemCategory.Game, ShelfType.STARTED, _('在玩')],
+    [ItemCategory.Game, ShelfType.DONE, _('玩过')],
+    [ItemCategory.Collection, ShelfType.WISHED, _('关注')],
     # TODO add more combinations
 ]
 
 
-class QueueMember(ListMember):
-    _queue = models.ForeignKey('Queue', related_name='members', on_delete=models.CASCADE)
+class ShelfMember(ListMember):
+    _shelf = models.ForeignKey('Shelf', related_name='members', on_delete=models.CASCADE)
 
 
-class Queue(List):
+class Shelf(List):
     class Meta:
-        unique_together = [['_owner', 'item_category', 'queue_type']]
+        unique_together = [['_owner', 'item_category', 'shelf_type']]
 
-    MEMBER_CLASS = QueueMember
-    items = models.ManyToManyField(Item, through='QueueMember', related_name="+")
+    MEMBER_CLASS = ShelfMember
+    items = models.ManyToManyField(Item, through='ShelfMember', related_name="+")
     item_category = models.CharField(choices=ItemCategory.choices, max_length=100, null=False, blank=False)
-    queue_type = models.CharField(choices=QueueType.choices, max_length=100, null=False, blank=False)
+    shelf_type = models.CharField(choices=ShelfType.choices, max_length=100, null=False, blank=False)
 
     def __str__(self):
         return f'{self.id} {self.title}'
 
     @cached_property
-    def queue_type_name(self):
-        return next(iter([n[2] for n in iter(QueueTypeNames) if n[0] == self.item_category and n[1] == self.queue_type]), self.queue_type)
+    def shelf_type_name(self):
+        return next(iter([n[2] for n in iter(ShelfTypeNames) if n[0] == self.item_category and n[1] == self.shelf_type]), self.shelf_type)
 
     @cached_property
     def title(self):
-        q = _("{item_category} {queue_type_name} list").format(queue_type_name=self.queue_type_name, item_category=self.item_category)
-        return _("{user}'s {queue_name}").format(user=self.owner.mastodon_username, queue_name=q)
+        q = _("{item_category} {shelf_type_name} list").format(shelf_type_name=self.shelf_type_name, item_category=self.item_category)
+        return _("{user}'s {shelf_name}").format(user=self.owner.mastodon_username, shelf_name=q)
 
 
-class QueueLogEntry(models.Model):
+class ShelfLogEntry(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
-    queue = models.ForeignKey(Queue, on_delete=models.PROTECT, related_name='entries', null=True)  # None means removed from any queue
+    shelf = models.ForeignKey(Shelf, on_delete=models.PROTECT, related_name='entries', null=True)  # None means removed from any shelf
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
+    timestamp = models.DateTimeField(default=timezone.now)  # this may later be changed by user
     metadata = models.JSONField(default=dict)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
-    queued_time = models.DateTimeField(default=timezone.now)
 
     def __str__(self):
-        return f'{self.owner}:{self.queue}:{self.item}:{self.metadata}'
+        return f'{self.owner}:{self.shelf}:{self.item}:{self.metadata}'
 
 
-class QueueManager:
+class ShelfManager:
     """
-    QueueManager
+    ShelfManager
 
-    all queue operations should go thru this class so that QueueLogEntry can be properly populated
-    QueueLogEntry can later be modified if user wish to change history
+    all shelf operations should go thru this class so that ShelfLogEntry can be properly populated
+    ShelfLogEntry can later be modified if user wish to change history
     """
 
     def __init__(self, user):
@@ -264,55 +237,56 @@ class QueueManager:
 
     def initialize(self):
         for ic in ItemCategory:
-            for qt in QueueType:
-                Queue.objects.create(owner=self.owner, item_category=ic, queue_type=qt)
+            for qt in ShelfType:
+                Shelf.objects.create(owner=self.owner, item_category=ic, shelf_type=qt)
 
-    def _queue_member_for_item(self, item):
-        return QueueMember.objects.filter(item=item, _queue__in=self.owner.queue_set.all()).first()
+    def _shelf_member_for_item(self, item):
+        return ShelfMember.objects.filter(item=item, _shelf__in=self.owner.shelf_set.all()).first()
 
-    def _queue_for_item_and_type(item, queue_type):
-        if not item or not queue_type:
+    def _shelf_for_item_and_type(item, shelf_type):
+        if not item or not shelf_type:
             return None
-        return self.owner.queue_set.all().filter(item_category=item.category, queue_type=queue_type)
+        return self.owner.shelf_set.all().filter(item_category=item.category, shelf_type=shelf_type)
 
-    def update_for_item(self, item, queue_type, metadata=None):
-        # None means no change for metadata, comment
+    def move_item(self, item, shelf_type, visibility=0, metadata=None):
+        # shelf_type=None means remove from current shelf
+        # metadata=None means no change
         if not item:
             raise ValueError('empty item')
-        lastqm = self._queue_member_for_item(item)
+        lastqm = self._shelf_member_for_item(item)
         lastqmm = lastqm.metadata if lastqm else None
-        lastq = lastqm._queue if lastqm else None
-        lastqt = lastq.queue_type if lastq else None
-        queue = self.get_queue(item.category, queue_type) if queue_type else None
-        if lastq != queue:
+        lastq = lastqm._shelf if lastqm else None
+        lastqt = lastq.shelf_type if lastq else None
+        shelf = self.get_shelf(item.category, shelf_type) if shelf_type else None
+        if lastq != shelf:
             if lastq:
                 lastq.remove_item(item)
-            if queue:
-                queue.append_item(item, metadata=metadata or {})
+            if shelf:
+                shelf.append_item(item, visibility=visibility, metadata=metadata or {})
         elif metadata is not None:
             lastqm.metadata = metadata
             lastqm.save()
         elif lastqm:
             metadata = lastqm.metadata
-        if lastqt != queue_type or (lastqt and metadata != lastqmm):
-            QueueLogEntry.objects.create(owner=self.owner, queue=queue, item=item, metadata=metadata or {})
+        if lastqt != shelf_type or (lastqt and metadata != lastqmm):
+            ShelfLogEntry.objects.create(owner=self.owner, shelf=shelf, item=item, metadata=metadata or {})
 
     def get_log(self):
-        return QueueLogEntry.objects.filter(owner=self.owner)
+        return ShelfLogEntry.objects.filter(owner=self.owner).order_by('timestamp')
 
     def get_log_for_item(self, item):
-        return QueueLogEntry.objects.filter(owner=self.owner, item=item)
+        return ShelfLogEntry.objects.filter(owner=self.owner, item=item).order_by('timestamp')
 
-    def get_queue(self, item_category, queue_type):
-        return self.owner.queue_set.all().filter(item_category=item_category, queue_type=queue_type).first()
+    def get_shelf(self, item_category, shelf_type):
+        return self.owner.shelf_set.all().filter(item_category=item_category, shelf_type=shelf_type).first()
 
     @staticmethod
     def get_manager_for_user(user):
-        return QueueManager(user)
+        return ShelfManager(user)
 
 
-User.queue_manager = cached_property(QueueManager.get_manager_for_user)
-User.queue_manager.__set_name__(User, 'queue_manager')
+User.shelf_manager = cached_property(ShelfManager.get_manager_for_user)
+User.shelf_manager.__set_name__(User, 'shelf_manager')
 
 
 """
