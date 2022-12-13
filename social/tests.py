@@ -35,7 +35,7 @@ class SocialTest(TestCase):
         timeline = self.alice.activity_manager.get_viewable_activities()
         self.assertEqual(len(timeline), 2)
 
-        # bon see 0 activity in timeline in the beginning
+        # bob see 0 activity in timeline in the beginning
         timeline2 = self.bob.activity_manager.get_viewable_activities()
         self.assertEqual(len(timeline2), 0)
 

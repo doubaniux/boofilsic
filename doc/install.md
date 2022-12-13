@@ -20,6 +20,7 @@ Create and edit your own configuration file (optional but very much recommended)
 mkdir mysite && cp boofilsic/settings.py mysite/
 export DJANGO_SETTINGS_MODULE=mysite.settings
 ```
+More details on `settings.py` in [configuration.md](configuration.md)
 
 Create and use `venv` as you normally would, then install packages 
 ```

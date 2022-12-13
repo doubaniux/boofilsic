@@ -3,9 +3,9 @@
 
 [ -f manage.py ] || exit $1
 
-echo "\033[0;31mWARNING"
+echo "\033[0;31mWARNING: this script will destroy all neodb databases and migrations"
 while true; do
-    read -p "Do you wish to continue destroy all databases and migrations? (yes/no) " yn
+    read -p "Do you wish to continue? (yes/no) " yn
     case $yn in
         [Yy]* ) break;;
         [Nn]* ) exit;;
@@ -22,7 +22,7 @@ psql $* neodb -c "CREATE EXTENSION hstore WITH SCHEMA public;" || exit $?
 
 find -type d -name migrations | xargs rm -rf
 
-python3 manage.py makemigrations mastodon users books movies games music sync management collection catalog journal social || exit $?
+python3 manage.py makemigrations mastodon users books movies games music sync management collection common sync management catalog journal social || exit $?
 
 python3 manage.py migrate || exit $?
 

@@ -23,6 +23,8 @@ class ActionType(models.TextChoices):
     Create = 'create'
     Delete = 'delete'
     Update = 'update'
+    Add = 'add'
+    Remove = 'remove'
     Like = 'like'
     Undo_Like = 'undo_like'
     Announce = 'announce'
