@@ -100,4 +100,8 @@ Add a new site
 
     see existing files in `catalog/sites/` for more examples
  - add an import in `catalog/sites/__init__.py`
-
+ - add some tests
+     + add `DOWNLOADER_SAVEDIR = '/tmp'` to settings can save all response to /tmp
+     + move captured response file to `test_data/`, except large/images files. Or if have to, use a smallest version (e.g. 1x1 pixel / 1s audio)
+     + add `@use_local_response` decorator to test methods that should pick up these responses
+ - run all the tests and make sure they pass
