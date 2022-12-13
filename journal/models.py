@@ -1,7 +1,7 @@
 from django.db import models
 from polymorphic.models import PolymorphicModel
 from users.models import User
-from catalog.common.models import Item, ItemCategory
+from catalog.common.models import Item, ItemCategory, SoftDeleteMixin
 from catalog.collection.models import Collection as CatalogCollection
 from decimal import *
 from enum import Enum
@@ -15,24 +15,14 @@ from functools import cached_property
 from django.db.models import Count
 
 
-class Piece(PolymorphicModel):
+class UserOwnedObjectMixin:
+    """
+    UserOwnedObjectMixin
+
+    Models must add these:
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
-    visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
-    metadata = models.JSONField(default=dict)
-    created_time = models.DateTimeField(auto_now_add=True)
-    edited_time = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False, db_index=True)
-
-    def clear(self):
-        pass
-
-    def delete(self, using=None, soft=True, *args, **kwargs):
-        if soft:
-            self.clear()
-            self.is_deleted = True
-            self.save(using=using)
-        else:
-            return super().delete(using=using, *args, **kwargs)
+    visibility = models.PositiveSmallIntegerField(default=0)
+    """
 
     def is_visible_to(self, viewer):
         if not viewer.is_authenticated:
@@ -63,11 +53,21 @@ class Piece(PolymorphicModel):
         return visible_entities
 
 
-class Content(Piece):
-    target: models.ForeignKey(Item, on_delete=models.PROTECT)
+class Piece(PolymorphicModel, UserOwnedObjectMixin):
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
+    created_time = models.DateTimeField(auto_now_add=True)
+    edited_time = models.DateTimeField(auto_now=True)
+    is_deleted = models.BooleanField(default=False, db_index=True)
+    metadata = models.JSONField(default=dict)
+    attached_to = models.ForeignKey(User, null=True, default=None, on_delete=models.SET_NULL, related_name="attached_with")
+
+
+class Content(SoftDeleteMixin, Piece):
+    item: models.ForeignKey(Item, on_delete=models.PROTECT)
 
     def __str__(self):
-        return f"{self.id}({self.target})"
+        return f"{self.id}({self.item})"
 
 
 class Note(Content):
@@ -107,7 +107,7 @@ class List(Piece):
         self._owner = self.owner
         super().save(*args, **kwargs)
 
-    MEMBER_CLASS = None  # subclass must override this
+    # MEMBER_CLASS = None  # subclass must override this
     # subclass must add this:
     # items = models.ManyToManyField(Item, through='ListMember')
 
@@ -127,9 +127,9 @@ class List(Piece):
             return None
         else:
             ml = self.ordered_members
-            p = {self.__class__.__name__.lower(): self}
+            p = {'_' + self.__class__.__name__.lower(): self}
             p.update(params)
-            i = self.MEMBER_CLASS.objects.create(position=ml.last().position + 1 if ml.count() else 1, item=item, **p)
+            i = self.MEMBER_CLASS.objects.create(owner=self.owner, position=ml.last().position + 1 if ml.count() else 1, item=item, **p)
             return i
 
     def remove_item(self, item):
@@ -162,13 +162,18 @@ class List(Piece):
                 member.save()
 
 
-class ListMember(models.Model):
-    # subclass must add this:
-    # list = models.ForeignKey('ListClass', related_name='members', on_delete=models.CASCADE)
+class ListMember(Piece):
+    """
+    ListMember - List class's member class
+    It's an abstract class, subclass must add this:
+
+    _list = models.ForeignKey('ListClass', related_name='members', on_delete=models.CASCADE)
+
+    it starts with _ bc Django internally created OneToOne Field on Piece
+    https://docs.djangoproject.com/en/3.2/topics/db/models/#specifying-the-parent-link-field
+    """
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     position = models.PositiveIntegerField()
-    metadata = models.JSONField(default=dict)
-    comment = models.ForeignKey(Review, on_delete=models.PROTECT, null=True)
 
     class Meta:
         abstract = True
@@ -202,12 +207,13 @@ QueueTypeNames = [
     [ItemCategory.Game, QueueType.WISHED, _('想玩')],
     [ItemCategory.Game, QueueType.STARTED, _('在玩')],
     [ItemCategory.Game, QueueType.DONE, _('玩过')],
+    [ItemCategory.Collection, QueueType.WISHED, _('关注')],
     # TODO add more combinations
 ]
 
 
 class QueueMember(ListMember):
-    queue = models.ForeignKey('Queue', related_name='members', on_delete=models.CASCADE)
+    _queue = models.ForeignKey('Queue', related_name='members', on_delete=models.CASCADE)
 
 
 class Queue(List):
@@ -258,12 +264,11 @@ class QueueManager:
 
     def initialize(self):
         for ic in ItemCategory:
-            if ic != ItemCategory.Collection:
-                for qt in QueueType:
-                    Queue.objects.create(owner=self.owner, item_category=ic, queue_type=qt)
+            for qt in QueueType:
+                Queue.objects.create(owner=self.owner, item_category=ic, queue_type=qt)
 
     def _queue_member_for_item(self, item):
-        return QueueMember.objects.filter(item=item, queue__in=self.owner.queue_set.all()).first()
+        return QueueMember.objects.filter(item=item, _queue__in=self.owner.queue_set.all()).first()
 
     def _queue_for_item_and_type(item, queue_type):
         if not item or not queue_type:
@@ -276,7 +281,7 @@ class QueueManager:
             raise ValueError('empty item')
         lastqm = self._queue_member_for_item(item)
         lastqmm = lastqm.metadata if lastqm else None
-        lastq = lastqm.queue if lastqm else None
+        lastq = lastqm._queue if lastqm else None
         lastqt = lastq.queue_type if lastq else None
         queue = self.get_queue(item.category, queue_type) if queue_type else None
         if lastq != queue:
@@ -301,6 +306,14 @@ class QueueManager:
     def get_queue(self, item_category, queue_type):
         return self.owner.queue_set.all().filter(item_category=item_category, queue_type=queue_type).first()
 
+    @staticmethod
+    def get_manager_for_user(user):
+        return QueueManager(user)
+
+
+User.queue_manager = cached_property(QueueManager.get_manager_for_user)
+User.queue_manager.__set_name__(User, 'queue_manager')
+
 
 """
 Collection
@@ -308,7 +321,7 @@ Collection
 
 
 class CollectionMember(ListMember):
-    collection = models.ForeignKey('Collection', related_name='members', on_delete=models.CASCADE)
+    _collection = models.ForeignKey('Collection', related_name='members', on_delete=models.CASCADE)
 
 
 class Collection(List):
@@ -340,7 +353,7 @@ Tag
 
 
 class TagMember(ListMember):
-    tag = models.ForeignKey('Tag', related_name='members', on_delete=models.CASCADE)
+    _tag = models.ForeignKey('Tag', related_name='members', on_delete=models.CASCADE)
 
 
 TagValidators = [RegexValidator(regex=r'\s+', inverse_match=True)]

@@ -155,8 +155,33 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 #     return sid[0] in IdType.values()
 
 
-class Item(PolymorphicModel):
-    URL_PATH = None  # subclass must specify this
+class SoftDeleteMixin:
+    """
+    SoftDeleteMixin
+
+    Model must add this:
+    is_deleted = models.BooleanField(default=False, db_index=True)
+
+    Model may override this:
+    def clear(self):
+        pass
+    """
+
+    def clear(self):
+        pass
+
+    def delete(self, using=None, soft=True, *args, **kwargs):
+        print('SOFT')
+        if soft:
+            self.clear()
+            self.is_deleted = True
+            self.save(using=using)
+        else:
+            return super().delete(using=using, *args, **kwargs)
+
+
+class Item(PolymorphicModel, SoftDeleteMixin):
+    url_path = None  # subclass must specify this
     category = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     # item_type = models.CharField(_("类型"), choices=ItemType.choices, blank=False, max_length=50)
@@ -174,23 +199,13 @@ class Item(PolymorphicModel):
     is_deleted = models.BooleanField(default=False, db_index=True)
     history = HistoricalRecords()
     merged_to_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, default=None, related_name="merged_from_items")
-    # parent_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, related_name='child_items')
-    # identical_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, related_name='identical_items')
-    # def get_lookup_id(self, id_type: str) -> str:
-    #     prefix = id_type.strip().lower() + ':'
-    #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)
 
     class Meta:
         unique_together = [['polymorphic_ctype_id', 'primary_lookup_id_type', 'primary_lookup_id_value']]
 
-    def delete(self, using=None, soft=True, *args, **kwargs):
-        if soft:
-            self.primary_lookup_id_value = None
-            self.primary_lookup_id_type = None
-            self.is_deleted = True
-            self.save(using=using)
-        else:
-            return super().delete(using=using, *args, **kwargs)
+    def clear(self):
+        self.primary_lookup_id_value = None
+        self.primary_lookup_id_type = None
 
     def __str__(self):
         return f"{self.id}{' ' + self.primary_lookup_id_type + ':' + self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
@@ -221,12 +236,16 @@ class Item(PolymorphicModel):
 
     @property
     def url(self):
-        return f'/{self.URL_PATH}/{base62.encode(self.uid.int)}'
+        return f'/{self.url_path}/{base62.encode(self.uid.int)}'
 
     @classmethod
     def get_by_url(cls, url_or_b62):
         b62 = url_or_b62.split('/')[-1]
         return cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
+
+    # def get_lookup_id(self, id_type: str) -> str:
+    #     prefix = id_type.strip().lower() + ':'
+    #     return next((x[len(prefix):] for x in self.lookup_ids if x.startswith(prefix)), None)
 
     def update_lookup_ids(self, lookup_ids):
         # TODO

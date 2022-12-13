@@ -32,7 +32,7 @@ class QueueTest(TestCase):
         user = User.objects.create(mastodon_site="site", username="name")
         queue_manager = QueueManager(user=user)
         queue_manager.initialize()
-        self.assertEqual(user.queue_set.all().count(), 30)
+        self.assertEqual(user.queue_set.all().count(), 33)
         book1 = Edition.objects.create(title="Hyperion")
         book2 = Edition.objects.create(title="Andymion")
         q1 = queue_manager.get_queue(ItemCategory.Book, QueueType.WISHED)
