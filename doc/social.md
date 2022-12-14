@@ -40,9 +40,9 @@ However, 2 is currently implemented separately via `ShelfLogManager` in `journal
 
 These are list of activities should be either shown in the site or delivered as ActivityStreams or both:
 
- - `Add` / `Remove` an *Item* to/from a *List*:
+ - `Add` / `Remove` an *Item* to / from a *List*:
      + add / remove *Item* to / from a user *Collection*
-     + mark *Item* as wished / started / done, which are essentially add to/remove from user's predefined *Collection*
+     + mark *Item* as wished / started / done, which are essentially add to / remove from user's predefined *Collection*
  - `Create` / `Update` / `Delete` a user *Collection*
  - `Create` / `Update` / `Delete` a *Content* with an `Object Link` to *Item*
      + `Create` / `Update` / `Delete` a *Comment* or *Review*
@@ -57,19 +57,19 @@ These are list of activities should be either shown in the site or delivered as 
 Supporting these activities above will be essential to a reasonable ActivityPub server implementation.
 
 There are additional activities not made into ActivityPub MVP but technically possible to support in future:
-      + `Create` / `Update` / `Delete` a *Content*  in different flavors, without link to *Item*
-          * `Note` or `Article` without link to *Item*
-          * DM (`Note`)
-          * `Question`
-          * `Article`
-          * `Page`
-          * `Image`
-          * `Audio`
-          * `Video`
-          * `Event`
-      + `Add` `Content` to / `Remove` `Content` from a user *Collection*
-          * *Pin* / *Unpin*
-      + `Move`/`Delete` account
+  - `Create` / `Update` / `Delete` a *Content*  in different flavors, without link to *Item*
+      * `Note` or `Article` without link to *Item*
+      * DM (`Note`)
+      * `Question`
+      * `Article`
+      * `Page`
+      * `Image`
+      * `Audio`
+      * `Video`
+      * `Event`
+  - `Add` `Content` to / `Remove` `Content` from a user *Collection*
+      * *Pin* / *Unpin*
+  - `Move`/`Delete` account
 
 ActivityPub
 -----------
