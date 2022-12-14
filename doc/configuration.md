@@ -4,7 +4,7 @@ Configuration
 
 Settings you may want to change
 -------------------------------
-most settings resides in `settings.py`, a few critical ones:
+most settings resides in `settings.py`, a few notable ones:
 
  - `SECRET_KEY` back it up well somewhere
  - `SITE_INFO['site_name']` change by you need
