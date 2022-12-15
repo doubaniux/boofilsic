@@ -235,7 +235,7 @@ class MockResponse:
         return json.load(StringIO(self.text))
 
     def html(self):
-        return html.fromstring(self.text)  # may throw exception unexpectedly due to OS bug
+        return html.fromstring(self.text)  # may throw exception unexpectedly due to OS bug, see https://github.com/neodb-social/neodb/issues/5
 
     @property
     def headers(self):

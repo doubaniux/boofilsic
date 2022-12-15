@@ -14,8 +14,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from functools import cached_property
-from django.db.models import Count
+from django.db.models import Count, Avg
 import django.dispatch
+import math
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
@@ -29,7 +30,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
 
 class Content(SoftDeleteMixin, Piece):
-    item: models.ForeignKey(Item, on_delete=models.PROTECT)
+    item = models.ForeignKey(Item, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.id}({self.item})"
@@ -48,6 +49,22 @@ class Review(Content):
 
 class Rating(Content):
     grade = models.IntegerField(default=0, validators=[MaxValueValidator(10), MinValueValidator(0)])
+
+
+class RatingManager:
+    @staticmethod
+    def get_rating_for_item(item):
+        stat = Rating.objects.filter(item=item).aggregate(average=Avg('grade'), count=Count('item'))
+        return math.ceil(stat['average']) if stat['count'] >= 5 else 0
+
+    @staticmethod
+    def get_rating_count_for_item(item):
+        stat = Rating.objects.filter(item=item).aggregate(count=Count('item'))
+        return stat['count']
+
+
+Item.rating = property(RatingManager.get_rating_for_item)
+Item.rating_count = property(RatingManager.get_rating_count_for_item)
 
 
 class Reply(Content):

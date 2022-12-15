@@ -31,13 +31,40 @@ class Edition(Item):
     cubn = PrimaryLookupIdDescriptor(IdType.CUBN)
     # douban_book = LookupIdDescriptor(IdType.DoubanBook)
     # goodreads = LookupIdDescriptor(IdType.Goodreads)
-    languages = jsondata.ArrayField(_("语言"), null=True, blank=True, default=list)
-    publish_year = jsondata.IntegerField(_("发表年份"), null=True, blank=True)
-    publish_month = jsondata.IntegerField(_("发表月份"), null=True, blank=True)
+
+    METADATA_COPY_LIST = [
+        'title',
+        'brief',
+        # legacy fields
+        'subtitle',
+        'orig_title',
+        'author',
+        'translator',
+        'language',
+        'pub_house',
+        'pub_year',
+        'pub_month',
+        'binding',
+        'price',
+        'pages',
+        'contents',
+        'series',
+        'producer',
+    ]
+    subtitle = jsondata.CharField(null=True, blank=True, default=None)
+    orig_title = jsondata.CharField(null=True, blank=True, default=None)
+    author = jsondata.ArrayField(_('作者'), null=False, blank=False, default=list)
+    translator = jsondata.ArrayField(_('译者'), null=True, blank=True, default=list)
+    language = jsondata.ArrayField(_("语言"), null=True, blank=True, default=list)
+    pub_house = jsondata.ArrayField(_('出版方'), null=True, blank=True, default=list)
+    pub_year = jsondata.IntegerField(_("发表年份"), null=True, blank=True)
+    pub_month = jsondata.IntegerField(_("发表月份"), null=True, blank=True)
+    binding = jsondata.CharField(null=True, blank=True, default=None)
     pages = jsondata.IntegerField(blank=True, default=None)
-    authors = jsondata.ArrayField(_('作者'), null=False, blank=False, default=list)
-    translaters = jsondata.ArrayField(_('译者'), null=True, blank=True, default=list)
-    publishers = jsondata.ArrayField(_('出版方'), null=True, blank=True, default=list)
+    series = jsondata.CharField(null=True, blank=True, default=None)
+    contents = jsondata.CharField(null=True, blank=True, default=None)
+    price = jsondata.FloatField(_("发表月份"), null=True, blank=True)
+    producer = jsondata.FloatField(_("发表月份"), null=True, blank=True)
 
     @property
     def isbn10(self):

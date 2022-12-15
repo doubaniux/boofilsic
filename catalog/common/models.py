@@ -184,7 +184,7 @@ class Item(PolymorphicModel, SoftDeleteMixin):
         self.primary_lookup_id_type = None
 
     def __str__(self):
-        return f"{self.id}{' ' + self.primary_lookup_id_type + ':' + self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
+        return f"{self.id}|{self.url_id}{' ' + self.primary_lookup_id_type + ':' + self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
 
     @classmethod
     def get_best_lookup_id(cls, lookup_ids):
@@ -211,8 +211,12 @@ class Item(PolymorphicModel, SoftDeleteMixin):
             self.merged_to_item = to_item
 
     @property
+    def url_id(self):
+        return base62.encode(self.uid.int)
+
+    @property
     def url(self):
-        return f'/{self.url_path}/{base62.encode(self.uid.int)}'
+        return f'/{self.url_path}/{self.url_id}'
 
     @classmethod
     def get_by_url(cls, url_or_b62):
@@ -236,6 +240,9 @@ class Item(PolymorphicModel, SoftDeleteMixin):
     def copy_metadata(cls, metadata):
         return dict((k, v) for k, v in metadata.items() if k in cls.METADATA_COPY_LIST and v is not None)
 
+    def has_cover(self):
+        return self.cover and self.cover != DEFAULT_ITEM_COVER
+
     def merge_data_from_external_resources(self):
         """Subclass may override this"""
         lookup_ids = []
@@ -245,7 +252,7 @@ class Item(PolymorphicModel, SoftDeleteMixin):
             for k in self.METADATA_COPY_LIST:
                 if not getattr(self, k) and p.metadata.get(k):
                     setattr(self, k, p.metadata.get(k))
-            if not self.cover and p.cover:
+            if not self.has_cover() and p.cover:
                 self.cover = p.cover
         self.update_lookup_ids(lookup_ids)
 
@@ -283,6 +290,10 @@ class ExternalResource(models.Model):
 
     def __str__(self):
         return f"{self.id}{':' + self.id_type + ':' + self.id_value if self.id_value else ''} ({self.url})"
+
+    @property
+    def site_name(self):
+        return self.id_type  # TODO change to localized name
 
     def update_content(self, resource_content):
         self.other_lookup_ids = resource_content.lookup_ids
