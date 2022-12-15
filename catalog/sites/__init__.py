@@ -1,4 +1,4 @@
-from ..common.sites import SiteList
+from ..common.sites import SiteManager
 from .apple_podcast import ApplePodcast
 from .douban_book import DoubanBook
 from .douban_movie import DoubanMovie

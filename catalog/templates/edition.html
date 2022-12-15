@@ -1,0 +1,98 @@
+{% extends "item_base.html" %}
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load strip_scheme %}
+{% load thumb %}
+
+{% block details %}
+<div class="entity-detail__fields">
+	<div class="entity-detail__rating">
+		{% if item.rating %}
+		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:"0" }}"></span>
+		<span class="entity-detail__rating-score"> {{ item.rating }} </span>
+		<small>({{ item.rating_count }}人评分)</small>
+		{% else %}
+		<span> {% trans '评分：评分人数不足' %}</span>
+		{% endif %}
+	</div>
+	<div>{% if item.isbn %}{% trans 'ISBN：' %}{{ item.isbn }}{% endif %}</div>
+	<div>{% if item.authors %}{% trans '作者：' %}
+		{% for author in item.authors %}
+		<span>{{ author }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+	{% endif %}</div>
+	<div>{% if item.pub_house %}{% trans '出版社：' %}{{ item.pub_house }}{% endif %}</div>
+	<div>{% if item.subtitle %}{% trans '副标题：' %}{{ item.subtitle }}{% endif %}</div>
+	<div>{% if item.translator %}{% trans '译者：' %}
+		{% for translator in item.translator %}
+		<span>{{ translator }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %} 
+	{% endif %}</div>                                
+	<div>{% if item.orig_title %}{% trans '原作名：' %}{{ item.orig_title }}{% endif %}</div>
+	<div>{% if item.language %}{% trans '语言：' %}{{ item.language }}{% endif %}</div>
+	<div>{%if item.pub_year %}{% trans '出版时间：' %}{{ item.pub_year }}{% trans '年' %}{% if item.pub_month %}{{ item.pub_month }}{% trans '月' %}{% endif %}{% endif %}</div>
+</div>
+<div class="entity-detail__fields">
+
+	<div>{% if item.binding %}{% trans '装帧：' %}{{ item.binding }}{% endif %}</div>
+	<div>{% if item.price %}{% trans '定价：' %}{{ item.price }}{% endif %}</div>
+	<div>{% if item.pages %}{% trans '页数：' %}{{ item.pages }}{% endif %}</div>
+	{% if item.other_info %}                                  
+	{% for k, v in item.other_info.items %}
+	<div>
+		{{ k }}：{{ v  | urlize }}
+	</div>
+	{% endfor %}
+	{% endif %}
+
+
+	{% if item.last_editor and item.last_editor.preference.show_last_edit or user.is_staff %}
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
+	{% endif %}
+
+	<div>
+		<a href="{% url 'books:update' item.id %}">{% trans '编辑这本书' %}</a>
+		{% if user.is_staff %}
+		/<a href="{% url 'books:delete' item.id %}"> {% trans '删除' %}</a>
+		{% endif %}
+	</div>
+</div>
+{% endblock %}
+
+
+{% block sidebar %}
+{% if item.get_related_books.count > 0 %}
+<div class="aside-section-wrapper">
+	<div class="action-panel">
+		<div class="action-panel__label">{% trans '相关书目' %}</div>
+		<div >
+			{% for b in item.get_related_books %}
+			<p>
+				<a href="{% url 'books:retrieve' b.id %}">{{ b.title }}</a>
+				<small>({{ b.pub_house }} {{ b.pub_year }})</small>
+				<span class="source-label source-label__{{ b.source_site }}">{{ b.get_source_site_display }}</span>
+			</p>
+			{% endfor %}
+		</div>
+	</div>
+</div>
+{% endif %}
+
+{% if item.isbn %}
+<div class="aside-section-wrapper">
+	<div class="action-panel">
+		<div class="action-panel__label">{% trans '借阅或购买' %}</div>
+		<div class="action-panel__button-group">
+			<a class="action-panel__button" target="_blank" href="https://www.worldcat.org/isbn/{{ item.isbn }}">{% trans 'WorldCat' %}</a>
+			<a class="action-panel__button" target="_blank" href="https://openlibrary.org/search?isbn={{ item.isbn }}">{% trans 'Open Library' %}</a>
+		</div>
+	</div>
+</div>
+{% endif %}
+{% endblock %}

@@ -81,19 +81,55 @@ class TagTest(TestCase):
         t1 = 'sci-fi'
         t2 = 'private'
         t3 = 'public'
-        Tag.add_tag_by_user(self.book1, t3, self.user2)
-        Tag.add_tag_by_user(self.book1, t1, self.user1)
-        Tag.add_tag_by_user(self.book1, t1, self.user2)
-        Tag.add_tag_by_user(self.book1, t2, self.user1, default_visibility=2)
+        TagManager.add_tag_by_user(self.book1, t3, self.user2)
+        TagManager.add_tag_by_user(self.book1, t1, self.user1)
+        TagManager.add_tag_by_user(self.book1, t1, self.user2)
+        TagManager.add_tag_by_user(self.book1, t2, self.user1, default_visibility=2)
         self.assertEqual(self.book1.tags, [t1, t3])
-        Tag.add_tag_by_user(self.book1, t3, self.user1)
-        Tag.add_tag_by_user(self.book1, t3, self.user3)
+        TagManager.add_tag_by_user(self.book1, t3, self.user1)
+        TagManager.add_tag_by_user(self.book1, t3, self.user3)
         self.assertEqual(self.book1.tags, [t3, t1])
-        Tag.add_tag_by_user(self.book1, t3, self.user3)
-        Tag.add_tag_by_user(self.book1, t3, self.user3)
+        TagManager.add_tag_by_user(self.book1, t3, self.user3)
+        TagManager.add_tag_by_user(self.book1, t3, self.user3)
         self.assertEqual(Tag.objects.count(), 6)
-        Tag.add_tag_by_user(self.book2, t1, self.user2)
+        TagManager.add_tag_by_user(self.book2, t1, self.user2)
         self.assertEqual(self.user2.tags, [t1, t3])
-        Tag.add_tag_by_user(self.book2, t3, self.user2)
-        Tag.add_tag_by_user(self.movie1, t3, self.user2)
+        TagManager.add_tag_by_user(self.book2, t3, self.user2)
+        TagManager.add_tag_by_user(self.movie1, t3, self.user2)
         self.assertEqual(self.user2.tags, [t3, t1])
+
+
+class MarkTest(TestCase):
+    def setUp(self):
+        self.book1 = Edition.objects.create(title="Hyperion")
+        self.user1 = User.objects.create(mastodon_site="site", username="name")
+        self.user1.shelf_manager.initialize()
+        pass
+
+    def test_mark(self):
+        mark = Mark(self.user1, self.book1)
+        self.assertEqual(mark.shelf_type, None)
+        self.assertEqual(mark.shelf_label, None)
+        self.assertEqual(mark.text, None)
+        self.assertEqual(mark.rating, None)
+        self.assertEqual(mark.visibility, None)
+        self.assertEqual(mark.review, None)
+        self.assertEqual(mark.tags, [])
+        mark.update(ShelfType.WISHED, 'a gentle comment', 9, 1)
+
+        mark = Mark(self.user1, self.book1)
+        self.assertEqual(mark.shelf_type, ShelfType.WISHED)
+        self.assertEqual(mark.shelf_label, '想读')
+        self.assertEqual(mark.text, 'a gentle comment')
+        self.assertEqual(mark.rating, 9)
+        self.assertEqual(mark.visibility, 1)
+        self.assertEqual(mark.review, None)
+        self.assertEqual(mark.tags, [])
+
+        review = Review.review_item_by_user(self.book1, self.user1, 'Critic', 'Review')
+        mark = Mark(self.user1, self.book1)
+        self.assertEqual(mark.review, review)
+
+        self.user1.tag_manager.add_item_tags(self.book1, [' Sci-Fi ', ' fic '])
+        mark = Mark(self.user1, self.book1)
+        self.assertEqual(mark.tags, ['sci-fi', 'fic'])

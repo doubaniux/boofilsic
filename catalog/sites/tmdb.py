@@ -58,7 +58,7 @@ genre_map = {
 }
 
 
-@SiteList.register
+@SiteManager.register
 class TMDB_Movie(AbstractSite):
     ID_TYPE = IdType.TMDB_Movie
     URL_PATTERNS = [r'\w+://www.themoviedb.org/movie/(\d+)']
@@ -159,7 +159,7 @@ class TMDB_Movie(AbstractSite):
         return pd
 
 
-@SiteList.register
+@SiteManager.register
 class TMDB_TV(AbstractSite):
     ID_TYPE = IdType.TMDB_TV
     URL_PATTERNS = [r'\w+://www.themoviedb.org/tv/(\d+)[^/]*$', r'\w+://www.themoviedb.org/tv/(\d+)[^/]*/seasons']
@@ -268,7 +268,7 @@ class TMDB_TV(AbstractSite):
         return pd
 
 
-@SiteList.register
+@SiteManager.register
 class TMDB_TVSeason(AbstractSite):
     ID_TYPE = IdType.TMDB_TVSeason
     URL_PATTERNS = [r'\w+://www.themoviedb.org/tv/(\d+)[^/]*/season/(\d+)[^/]*$']

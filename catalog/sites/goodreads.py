@@ -23,8 +23,9 @@ class GoodreadsDownloader(RetryDownloader):
             return RESPONSE_INVALID_CONTENT
 
 
-@SiteList.register
+@SiteManager.register
 class Goodreads(AbstractSite):
+    SITE_NAME = SiteName.Goodreads
     ID_TYPE = IdType.Goodreads
     WIKI_PROPERTY_ID = 'P2968'
     DEFAULT_MODEL = Edition
@@ -87,8 +88,9 @@ class Goodreads(AbstractSite):
         return pd
 
 
-@SiteList.register
+@SiteManager.register
 class Goodreads_Work(AbstractSite):
+    SITE_NAME = SiteName.Goodreads
     ID_TYPE = IdType.Goodreads_Work
     WIKI_PROPERTY_ID = ''
     DEFAULT_MODEL = Work

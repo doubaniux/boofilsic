@@ -9,22 +9,22 @@ class TMDBTVTestCase(TestCase):
         t_url = 'https://www.themoviedb.org/tv/57243-doctor-who'
         t_url1 = 'https://www.themoviedb.org/tv/57243-doctor-who/seasons'
         t_url2 = 'https://www.themoviedb.org/tv/57243'
-        p1 = SiteList.get_site_by_id_type(IdType.TMDB_TV)
+        p1 = SiteManager.get_site_by_id_type(IdType.TMDB_TV)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.validate_url(t_url), True)
         self.assertEqual(p1.validate_url(t_url1), True)
         self.assertEqual(p1.validate_url(t_url2), True)
-        p2 = SiteList.get_site_by_url(t_url)
+        p2 = SiteManager.get_site_by_url(t_url)
         self.assertEqual(p1.id_to_url(t_id), t_url2)
         self.assertEqual(p2.url_to_id(t_url), t_id)
         wrong_url = 'https://www.themoviedb.org/tv/57243-doctor-who/season/13'
-        s1 = SiteList.get_site_by_url(wrong_url)
+        s1 = SiteManager.get_site_by_url(wrong_url)
         self.assertNotIsInstance(s1, TVShow)
 
     @use_local_response
     def test_scrape(self):
         t_url = 'https://www.themoviedb.org/tv/57243-doctor-who'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.id_value, '57243')
         site.get_resource_ready()
@@ -40,18 +40,18 @@ class TMDBTVSeasonTestCase(TestCase):
         t_id = '57243-11'
         t_url = 'https://www.themoviedb.org/tv/57243-doctor-who/season/11'
         t_url_unique = 'https://www.themoviedb.org/tv/57243/season/11'
-        p1 = SiteList.get_site_by_id_type(IdType.TMDB_TVSeason)
+        p1 = SiteManager.get_site_by_id_type(IdType.TMDB_TVSeason)
         self.assertIsNotNone(p1)
         self.assertEqual(p1.validate_url(t_url), True)
         self.assertEqual(p1.validate_url(t_url_unique), True)
-        p2 = SiteList.get_site_by_url(t_url)
+        p2 = SiteManager.get_site_by_url(t_url)
         self.assertEqual(p1.id_to_url(t_id), t_url_unique)
         self.assertEqual(p2.url_to_id(t_url), t_id)
 
     @use_local_response
     def test_scrape(self):
         t_url = 'https://www.themoviedb.org/tv/57243-doctor-who/season/4'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         self.assertEqual(site.id_value, '57243-4')
         site.get_resource_ready()
@@ -68,7 +68,7 @@ class DoubanMovieTVTestCase(TestCase):
     @use_local_response
     def test_scrape(self):
         url3 = 'https://movie.douban.com/subject/3627919/'
-        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
+        p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVSeason')
         self.assertIsNotNone(p3.item.show)
         self.assertEqual(p3.item.show.imdb, 'tt0436992')
@@ -76,7 +76,7 @@ class DoubanMovieTVTestCase(TestCase):
     @use_local_response
     def test_scrape_singleseason(self):
         url3 = 'https://movie.douban.com/subject/26895436/'
-        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
+        p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVShow')
 
 
@@ -86,9 +86,9 @@ class MultiTVSitesTestCase(TestCase):
         url1 = 'https://www.themoviedb.org/tv/57243-doctor-who'
         url2 = 'https://www.imdb.com/title/tt0436992/'
         # url3 = 'https://movie.douban.com/subject/3541415/'
-        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
-        # p3 = SiteList.get_site_by_url(url3).get_resource_ready()
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        # p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)
         # self.assertEqual(p2.item.id, p3.item.id)
 
@@ -97,9 +97,9 @@ class MultiTVSitesTestCase(TestCase):
         url1 = 'https://www.themoviedb.org/tv/57243-doctor-who/season/4'
         url2 = 'https://www.imdb.com/title/tt1159991/'
         url3 = 'https://movie.douban.com/subject/3627919/'
-        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
-        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.imdb, p2.item.imdb)
         self.assertEqual(p2.item.imdb, p3.item.imdb)
         self.assertEqual(p1.item.id, p2.item.id)
@@ -109,8 +109,8 @@ class MultiTVSitesTestCase(TestCase):
     def test_miniseries(self):
         url1 = 'https://www.themoviedb.org/tv/86941-the-north-water'
         url3 = 'https://movie.douban.com/subject/26895436/'
-        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
-        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVShow')
         self.assertEqual(p1.item.id, p3.item.id)
 
@@ -119,9 +119,9 @@ class MultiTVSitesTestCase(TestCase):
         url1 = 'https://www.themoviedb.org/movie/282758-doctor-who-the-runaway-bride'
         url2 = 'hhttps://www.imdb.com/title/tt0827573/'
         url3 = 'https://movie.douban.com/subject/4296866/'
-        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
-        p3 = SiteList.get_site_by_url(url3).get_resource_ready()
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
+        p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p1.item.imdb, p2.item.imdb)
         self.assertEqual(p2.item.imdb, p3.item.imdb)
         self.assertEqual(p1.item.id, p2.item.id)

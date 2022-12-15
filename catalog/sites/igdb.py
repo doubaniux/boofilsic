@@ -37,7 +37,7 @@ def search_igdb_by_3p_url(steam_url):
     return IGDB(url=r[0]['game']['url'])
 
 
-@SiteList.register
+@SiteManager.register
 class IGDB(AbstractSite):
     ID_TYPE = IdType.IGDB
     URL_PATTERNS = [r"\w+://www\.igdb\.com/games/([a-zA-Z0-9\-_]+)"]
@@ -102,7 +102,7 @@ class IGDB(AbstractSite):
             'cover_image_url': 'https:' + r['cover']['url'].replace('t_thumb', 't_cover_big'),
         })
         if steam_url:
-            pd.lookup_ids[IdType.Steam] = SiteList.get_site_by_id_type(IdType.Steam).url_to_id(steam_url)
+            pd.lookup_ids[IdType.Steam] = SiteManager.get_site_by_id_type(IdType.Steam).url_to_id(steam_url)
         if pd.metadata["cover_image_url"]:
             imgdl = BasicImageDownloader(pd.metadata["cover_image_url"], self.url)
             try:

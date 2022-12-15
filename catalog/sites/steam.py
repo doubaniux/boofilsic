@@ -8,7 +8,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@SiteList.register
+@SiteManager.register
 class Steam(AbstractSite):
     ID_TYPE = IdType.Steam
     URL_PATTERNS = [r"\w+://store\.steampowered\.com/app/(\d+)"]

@@ -2,7 +2,6 @@ from django.db import models
 from polymorphic.models import PolymorphicModel
 from users.models import User
 from catalog.common.models import Item, ItemCategory
-from catalog.common.mixins import SoftDeleteMixin
 from .mixins import UserOwnedObjectMixin
 from catalog.collection.models import Collection as CatalogCollection
 from decimal import *
@@ -24,51 +23,105 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
-    is_deleted = models.BooleanField(default=False, db_index=True)
     metadata = models.JSONField(default=dict)
     attached_to = models.ForeignKey(User, null=True, default=None, on_delete=models.SET_NULL, related_name="attached_with")
 
 
-class Content(SoftDeleteMixin, Piece):
+class Content(Piece):
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
 
     def __str__(self):
         return f"{self.id}({self.item})"
+
+    class Meta:
+        abstract = True
 
 
 class Note(Content):
     pass
 
 
+class Comment(Content):
+    text = models.TextField(blank=False, null=False)
+
+    @staticmethod
+    def comment_item_by_user(item, user, text, visibility=0):
+        comment = Comment.objects.filter(owner=user, item=item).first()
+        if text is None:
+            if comment is not None:
+                comment.delete()
+                comment = None
+        elif comment is None:
+            comment = Comment.objects.create(owner=user, item=item, text=text, visibility=visibility)
+        else:
+            comment.text = text
+            comment.visibility = visibility
+            comment.save()
+        return comment
+
+
 class Review(Content):
-    warning = models.BooleanField(default=False)
-    title = models.CharField(max_length=500, blank=False, null=True)
+    title = models.CharField(max_length=500, blank=False, null=False)
     body = MarkdownxField()
-    pass
+
+    @staticmethod
+    def review_item_by_user(item, user, title, body, visibility=0):
+        # allow multiple reviews per item per user.
+        review = Review.objects.create(owner=user, item=item, title=title, body=body, visibility=visibility)
+        """
+        review = Review.objects.filter(owner=user, item=item).first()
+        if title is None:
+            if review is not None:
+                review.delete()
+                review = None
+        elif review is None:
+            review = Review.objects.create(owner=user, item=item, title=title, body=body, visibility=visibility)
+        else:
+            review.title = title
+            review.body = body
+            review.visibility = visibility
+            review.save()
+        """
+        return review
 
 
 class Rating(Content):
-    grade = models.IntegerField(default=0, validators=[MaxValueValidator(10), MinValueValidator(0)])
+    grade = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True)
 
-
-class RatingManager:
     @staticmethod
     def get_rating_for_item(item):
-        stat = Rating.objects.filter(item=item).aggregate(average=Avg('grade'), count=Count('item'))
-        return math.ceil(stat['average']) if stat['count'] >= 5 else 0
+        stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(average=Avg('grade'), count=Count('item'))
+        return math.ceil(stat['average']) if stat['count'] >= 5 else None
 
     @staticmethod
     def get_rating_count_for_item(item):
-        stat = Rating.objects.filter(item=item).aggregate(count=Count('item'))
+        stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(count=Count('item'))
         return stat['count']
 
+    @staticmethod
+    def set_item_rating_by_user(item, rating_grade, user, visibility=0):
+        if rating_grade is not None and (rating_grade < 1 or rating_grade > 10):
+            raise ValueError(f'Invalid rating grade: {rating_grade}')
+        rating = Rating.objects.filter(owner=user, item=item).first()
+        if not rating:
+            rating = Rating.objects.create(owner=user, item=item, grade=rating_grade, visibility=visibility)
+        else:
+            rating.visibility = visibility
+            rating.grade = rating_grade
+            rating.save()
 
-Item.rating = property(RatingManager.get_rating_for_item)
-Item.rating_count = property(RatingManager.get_rating_count_for_item)
+    @staticmethod
+    def get_item_rating_by_user(item, user):
+        rating = Rating.objects.filter(owner=user, item=item).first()
+        return rating.grade if rating else None
+
+
+Item.rating = property(Rating.get_rating_for_item)
+Item.rating_count = property(Rating.get_rating_count_for_item)
 
 
 class Reply(Content):
-    reply_to_content = models.ForeignKey(Content, on_delete=models.PROTECT, related_name='replies')
+    reply_to_content = models.ForeignKey(Piece, on_delete=models.PROTECT, related_name='replies')
     title = models.CharField(max_length=500, null=True)
     body = MarkdownxField()
     pass
@@ -219,12 +272,12 @@ class Shelf(List):
         return f'{self.id} {self.title}'
 
     @cached_property
-    def shelf_type_name(self):
+    def shelf_label(self):
         return next(iter([n[2] for n in iter(ShelfTypeNames) if n[0] == self.item_category and n[1] == self.shelf_type]), self.shelf_type)
 
     @cached_property
     def title(self):
-        q = _("{item_category} {shelf_type_name} list").format(shelf_type_name=self.shelf_type_name, item_category=self.item_category)
+        q = _("{item_category} {shelf_label} list").format(shelf_label=self.shelf_label, item_category=self.item_category)
         return _("{user}'s {shelf_name}").format(user=self.owner.mastodon_username, shelf_name=q)
 
 
@@ -264,6 +317,10 @@ class ShelfManager:
         if not item or not shelf_type:
             return None
         return self.owner.shelf_set.all().filter(item_category=item.category, shelf_type=shelf_type)
+
+    def locate_item(self, item):
+        member = ShelfMember.objects.filter(owner=self.owner, item=item).first()
+        return member  # ._shelf if member else None
 
     def move_item(self, item, shelf_type, visibility=0, metadata=None):
         # shelf_type=None means remove from current shelf
@@ -364,6 +421,8 @@ class Tag(List):
     def cleanup_title(title):
         return title.strip().lower()
 
+
+class TagManager:
     @staticmethod
     def public_tags_for_item(item):
         tags = item.tag_set.all().filter(visibility=0).values('title').annotate(frequency=Count('owner')).order_by('-frequency')
@@ -382,6 +441,83 @@ class Tag(List):
             tag = Tag.objects.create(owner=user, title=title, visibility=default_visibility)
         tag.append_item(item)
 
+    @staticmethod
+    def get_manager_for_user(user):
+        return TagManager(user)
 
-Item.tags = property(Tag.public_tags_for_item)
-User.tags = property(Tag.all_tags_for_user)
+    def __init__(self, user):
+        self.owner = user
+
+    def all_tags(self):
+        return TagManager.all_tags_for_user(self.owner)
+
+    def add_item_tags(self, item, tags, visibility=0):
+        for tag in tags:
+            TagManager.add_tag_by_user(item, tag, self.owner, visibility)
+
+    def get_item_tags(self, item):
+        return [m['_tag__title'] for m in TagMember.objects.filter(_tag__owner=self.owner, item=item).values('_tag__title')]
+
+
+Item.tags = property(TagManager.public_tags_for_item)
+User.tags = property(TagManager.all_tags_for_user)
+User.tag_manager = cached_property(TagManager.get_manager_for_user)
+User.tag_manager.__set_name__(User, 'tag_manager')
+
+
+class Mark:
+    """ this mimics previous mark behaviour """
+
+    def __init__(self, user, item):
+        self.owner = user
+        self.item = item
+
+    @cached_property
+    def shelfmember(self):
+        return self.owner.shelf_manager.locate_item(self.item)
+
+    @property
+    def id(self):
+        return self.item.id if self.shelfmember else None
+
+    @property
+    def shelf_type(self):
+        return self.shelfmember._shelf.shelf_type if self.shelfmember else None
+
+    @property
+    def shelf_label(self):
+        return self.shelfmember._shelf.shelf_label if self.shelfmember else None
+
+    @property
+    def visibility(self):
+        return self.shelfmember.visibility if self.shelfmember else None
+
+    @cached_property
+    def tags(self):
+        return self.owner.tag_manager.get_item_tags(self.item)
+
+    @cached_property
+    def rating(self):
+        return Rating.get_item_rating_by_user(self.item, self.owner)
+
+    @cached_property
+    def comment(self):
+        return Comment.objects.filter(owner=self.owner, item=self.item).first()
+
+    @property
+    def text(self):
+        return self.comment.text if self.comment else None
+
+    @cached_property
+    def review(self):
+        return Review.objects.filter(owner=self.owner, item=self.item).first()
+
+    def update(self, shelf_type, comment_text, rating_grade, visibility):
+        if shelf_type != self.shelf_type or visibility != self.visibility:
+            self.owner.shelf_manager.move_item(self.item, shelf_type, visibility=visibility)
+            del self.shelfmember
+        if comment_text != self.text or visibility != self.visibility:
+            self.comment = Comment.comment_item_by_user(self.item, self.owner, comment_text, visibility)
+        if rating_grade != self.rating or visibility != self.visibility:
+            Rating.set_item_rating_by_user(self.item, rating_grade, self.owner, visibility)
+            self.rating = rating_grade

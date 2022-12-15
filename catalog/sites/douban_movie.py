@@ -54,7 +54,7 @@ class MovieGenreEnum(models.TextChoices):
 # MovieGenreTranslator = ChoicesDictGenerator(MovieGenreEnum)
 
 
-@SiteList.register
+@SiteManager.register
 class DoubanMovie(AbstractSite):
     ID_TYPE = IdType.DoubanMovie
     URL_PATTERNS = [r"\w+://movie\.douban\.com/subject/(\d+)/{0,1}", r"\w+://m.douban.com/movie/subject/(\d+)/{0,1}"]

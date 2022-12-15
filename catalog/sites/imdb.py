@@ -8,7 +8,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@SiteList.register
+@SiteManager.register
 class IMDB(AbstractSite):
     ID_TYPE = IdType.IMDB
     URL_PATTERNS = [r'\w+://www.imdb.com/title/(tt\d+)']
@@ -42,7 +42,7 @@ class IMDB(AbstractSite):
                 raise ParseError(self, "IMDB id matching TMDB but not first episode, this is not supported")
         else:
             raise ParseError(self, "IMDB id not found in TMDB")
-        tmdb = SiteList.get_site_by_url(url)
+        tmdb = SiteManager.get_site_by_url(url)
         pd = tmdb.scrape()
         pd.metadata['preferred_model'] = tmdb.DEFAULT_MODEL.__name__
         return pd

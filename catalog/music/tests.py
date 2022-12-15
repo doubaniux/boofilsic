@@ -8,17 +8,17 @@ class SpotifyTestCase(TestCase):
         t_id_type = IdType.Spotify_Album
         t_id_value = '65KwtzkJXw7oT819NFWmEP'
         t_url = 'https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP'
-        site = SiteList.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url)
         self.assertEqual(site.id_value, t_id_value)
 
     @use_local_response
     def test_scrape(self):
         t_url = 'https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
@@ -32,17 +32,17 @@ class DoubanMusicTestCase(TestCase):
         t_id_type = IdType.DoubanMusic
         t_id_value = '33551231'
         t_url = 'https://music.douban.com/subject/33551231/'
-        site = SiteList.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url)
         self.assertEqual(site.id_value, t_id_value)
 
     @use_local_response
     def test_scrape(self):
         t_url = 'https://music.douban.com/subject/33551231/'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
@@ -56,6 +56,6 @@ class MultiMusicSitesTestCase(TestCase):
     def test_albums(self):
         url1 = 'https://music.douban.com/subject/33551231/'
         url2 = 'https://open.spotify.com/album/65KwtzkJXw7oT819NFWmEP'
-        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)

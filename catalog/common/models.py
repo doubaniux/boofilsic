@@ -13,6 +13,20 @@ from .mixins import SoftDeleteMixin
 # from django.conf import settings
 
 
+class SiteName(models.TextChoices):
+    Douban = 'douban', _('豆瓣')
+    Goodreads = 'goodreads', _('Goodreads')
+    GoogleBooks = 'googlebooks', _('谷歌图书')
+    IMDB = 'imdb', _('IMDB')
+    TMDB = 'tmdb', _('The Movie Database')
+    Bandcamp = 'bandcamp', _('Bandcamp')
+    Spotify_Album = 'spotify', _('Spotify')
+    IGDB = 'igdb', _('IGDB')
+    Steam = 'steam', _('Steam')
+    Bangumi = 'bangumi', _('Bangumi')
+    ApplePodcast = 'apple_podcast', _('苹果播客')
+
+
 class IdType(models.TextChoices):
     WikiData = 'wikidata', _('维基数据')
     ISBN10 = 'isbn10', _('ISBN10')
@@ -156,9 +170,10 @@ class LookupIdDescriptor(object):  # TODO make it mixin of Field
 #     return sid[0] in IdType.values()
 
 
-class Item(PolymorphicModel, SoftDeleteMixin):
+class Item(SoftDeleteMixin, PolymorphicModel):
     url_path = None  # subclass must specify this
     category = None  # subclass must specify this
+    demonstrative = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     # item_type = models.CharField(_("类型"), choices=ItemType.choices, blank=False, max_length=50)
     title = models.CharField(_("title in primary language"), max_length=1000, default="")
@@ -217,6 +232,10 @@ class Item(PolymorphicModel, SoftDeleteMixin):
     @property
     def url(self):
         return f'/{self.url_path}/{self.url_id}'
+
+    @property
+    def class_name(self):
+        return self.__class__.__name__.lower()
 
     @classmethod
     def get_by_url(cls, url_or_b62):
@@ -293,7 +312,7 @@ class ExternalResource(models.Model):
 
     @property
     def site_name(self):
-        return self.id_type  # TODO change to localized name
+        return self.get_site().SITE_NAME
 
     def update_content(self, resource_content):
         self.other_lookup_ids = resource_content.lookup_ids

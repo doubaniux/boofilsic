@@ -19,7 +19,7 @@ spotify_token = None
 spotify_token_expire_time = time.time()
 
 
-@SiteList.register
+@SiteManager.register
 class Spotify(AbstractSite):
     ID_TYPE = IdType.Spotify_Album
     URL_PATTERNS = [r'\w+://open\.spotify\.com/album/([a-zA-Z0-9]+)']

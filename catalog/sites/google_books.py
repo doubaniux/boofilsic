@@ -7,10 +7,11 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@SiteList.register
+@SiteManager.register
 class GoogleBooks(AbstractSite):
+    SITE_NAME = SiteName.GoogleBooks
     ID_TYPE = IdType.GoogleBooks
-    URL_PATTERNS = [   
+    URL_PATTERNS = [
         r"https://books\.google\.co[^/]+/books\?id=([^&#]+)",
         r"https://www\.google\.co[^/]+/books/edition/[^/]+/([^&#?]+)",
         r"https://books\.google\.co[^/]+/books/about/[^?]+?id=([^&#?]+)",

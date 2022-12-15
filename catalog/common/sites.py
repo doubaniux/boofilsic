@@ -1,5 +1,5 @@
 """
-Site and SiteList
+Site and SiteManager
 
 Site should inherite from AbstractSite
 a Site should map to a unique set of url patterns.
@@ -28,6 +28,7 @@ class AbstractSite:
     """
     Abstract class to represent a site
     """
+    SITE_NAME = None
     ID_TYPE = None
     WIKI_PROPERTY_ID = 'P0undefined0'
     DEFAULT_MODEL = None
@@ -74,7 +75,11 @@ class AbstractSite:
     def get_item(self):
         p = self.get_resource()
         if not p:
-            raise ValueError(f'resource not available for {self.url}')
+            # raise ValueError(f'resource not available for {self.url}')
+            return None
+        if not p.ready:
+            # raise ValueError(f'resource not ready for {self.url}')
+            return None
         model = p.get_preferred_model()
         if not model:
             model = self.DEFAULT_MODEL
@@ -93,7 +98,7 @@ class AbstractSite:
         return bool(self.resource and self.resource.ready)
 
     def get_resource_ready(self, auto_save=True, auto_create=True, auto_link=True, data_from_link=None):
-        """return a resource scraped, or scrape if not yet""" 
+        """return a resource scraped, or scrape if not yet"""
         if auto_link:
             auto_create = True
         if auto_create:
@@ -119,7 +124,7 @@ class AbstractSite:
                 p.item.save()
         if auto_link:
             for linked_resources in p.required_resources:
-                linked_site = SiteList.get_site_by_url(linked_resources['url'])
+                linked_site = SiteManager.get_site_by_url(linked_resources['url'])
                 if linked_site:
                     linked_site.get_resource_ready(auto_link=False)
                 else:
@@ -129,7 +134,7 @@ class AbstractSite:
         return p
 
 
-class SiteList:
+class SiteManager:
     registry = {}
 
     @classmethod
@@ -153,3 +158,11 @@ class SiteList:
     def get_id_by_url(cls, url: str):
         site = cls.get_site_by_url(url)
         return site.url_to_id(url) if site else None
+
+    @staticmethod
+    def get_site_by_resource(resource):
+        return SiteManager.get_site_by_id_type(resource.id_type)
+
+
+ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(resource.id_type)
+# ExternalResource.get_site = SiteManager.get_site_by_resource

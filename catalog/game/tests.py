@@ -8,17 +8,17 @@ class IGDBTestCase(TestCase):
         t_id_type = IdType.IGDB
         t_id_value = 'portal-2'
         t_url = 'https://www.igdb.com/games/portal-2'
-        site = SiteList.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url)
         self.assertEqual(site.id_value, t_id_value)
 
     @use_local_response
     def test_scrape(self):
         t_url = 'https://www.igdb.com/games/portal-2'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
@@ -29,7 +29,7 @@ class IGDBTestCase(TestCase):
     @use_local_response
     def test_scrape_non_steam(self):
         t_url = 'https://www.igdb.com/games/the-legend-of-zelda-breath-of-the-wild'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
@@ -45,17 +45,17 @@ class SteamTestCase(TestCase):
         t_id_value = '620'
         t_url = 'https://store.steampowered.com/app/620/Portal_2/'
         t_url2 = 'https://store.steampowered.com/app/620'
-        site = SiteList.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url2)
         self.assertEqual(site.id_value, t_id_value)
 
     @use_local_response
     def test_scrape(self):
         t_url = 'https://store.steampowered.com/app/620/Portal_2/'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
@@ -70,17 +70,17 @@ class DoubanGameTestCase(TestCase):
         t_id_type = IdType.DoubanGame
         t_id_value = '10734307'
         t_url = 'https://www.douban.com/game/10734307/'
-        site = SiteList.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url)
         self.assertEqual(site.id_value, t_id_value)
 
     @use_local_response
     def test_scrape(self):
         t_url = 'https://www.douban.com/game/10734307/'
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
@@ -94,10 +94,10 @@ class BangumiGameTestCase(TestCase):
         t_id_type = IdType.Bangumi
         t_id_value = '15912'
         t_url = 'https://bgm.tv/subject/15912'
-        site = SiteList.get_site_by_id_type(t_id_type)
+        site = SiteManager.get_site_by_id_type(t_id_type)
         self.assertIsNotNone(site)
         self.assertEqual(site.validate_url(t_url), True)
-        site = SiteList.get_site_by_url(t_url)
+        site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.url, t_url)
         self.assertEqual(site.id_value, t_id_value)
 
@@ -112,6 +112,6 @@ class MultiGameSitesTestCase(TestCase):
     def test_games(self):
         url1 = 'https://www.igdb.com/games/portal-2'
         url2 = 'https://store.steampowered.com/app/620/Portal_2/'
-        p1 = SiteList.get_site_by_url(url1).get_resource_ready()
-        p2 = SiteList.get_site_by_url(url2).get_resource_ready()
+        p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
+        p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)

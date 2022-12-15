@@ -8,8 +8,9 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@SiteList.register
+@SiteManager.register
 class DoubanBook(AbstractSite):
+    SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanBook
     URL_PATTERNS = [r"\w+://book\.douban\.com/subject/(\d+)/{0,1}", r"\w+://m.douban.com/book/subject/(\d+)/{0,1}"]
     WIKI_PROPERTY_ID = '?'
@@ -181,7 +182,7 @@ class DoubanBook(AbstractSite):
         return pd
 
 
-@SiteList.register
+@SiteManager.register
 class DoubanBook_Work(AbstractSite):
     ID_TYPE = IdType.DoubanBook_Work
     URL_PATTERNS = [r"\w+://book\.douban\.com/works/(\d+)"]

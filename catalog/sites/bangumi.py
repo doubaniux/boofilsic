@@ -6,7 +6,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@SiteList.register
+@SiteManager.register
 class Bangumi(AbstractSite):
     ID_TYPE = IdType.Bangumi
     URL_PATTERNS = [

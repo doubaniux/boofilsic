@@ -26,6 +26,8 @@ from .utils import *
 class Edition(Item):
     category = ItemCategory.Book
     url_path = 'book'
+    demonstrative = _('这本书')
+
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
     asin = PrimaryLookupIdDescriptor(IdType.ASIN)
     cubn = PrimaryLookupIdDescriptor(IdType.CUBN)

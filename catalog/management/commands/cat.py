@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 import pprint
-from catalog.common import SiteList
+from catalog.common import SiteManager
 from catalog.sites import *
 
 
@@ -17,7 +17,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         url = str(options['url'])
-        site = SiteList.get_site_by_url(url)
+        site = SiteManager.get_site_by_url(url)
         if site is None:
             self.stdout.write(self.style.ERROR(f'Unknown site for {url}'))
             return

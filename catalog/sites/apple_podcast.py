@@ -6,7 +6,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@SiteList.register
+@SiteManager.register
 class ApplePodcast(AbstractSite):
     ID_TYPE = IdType.ApplePodcast
     URL_PATTERNS = [r"https://[^.]+.apple.com/\w+/podcast/*[^/?]*/id(\d+)"]

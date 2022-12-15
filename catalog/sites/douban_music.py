@@ -8,7 +8,7 @@ import logging
 _logger = logging.getLogger(__name__)
 
 
-@SiteList.register
+@SiteManager.register
 class DoubanMusic(AbstractSite):
     ID_TYPE = IdType.DoubanMusic
     URL_PATTERNS = [r"\w+://music\.douban\.com/subject/(\d+)/{0,1}", r"\w+://m.douban.com/music/subject/(\d+)/{0,1}"]
