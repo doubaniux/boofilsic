@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 @SiteManager.register
 class Steam(AbstractSite):
+    SITE_NAME = SiteName.Steam
     ID_TYPE = IdType.Steam
     URL_PATTERNS = [r"\w+://store\.steampowered\.com/app/(\d+)"]
     WIKI_PROPERTY_ID = '?'

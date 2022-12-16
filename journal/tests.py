@@ -62,9 +62,13 @@ class ShelfTest(TestCase):
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 4)
         self.assertEqual(log.last().metadata, {'progress': 10})
-        shelf_manager.move_item(book1, ShelfType.STARTED, metadata={'progress': 100})
+        shelf_manager.move_item(book1, ShelfType.STARTED, metadata={'progress': 90})
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 5)
+        self.assertEqual(Mark(user, book1).visibility, 0)
+        shelf_manager.move_item(book1, ShelfType.STARTED, metadata={'progress': 90}, visibility=1)
+        self.assertEqual(Mark(user, book1).visibility, 1)
+        self.assertEqual(shelf_manager.get_log_for_item(book1).count(), 5)
 
 
 class TagTest(TestCase):

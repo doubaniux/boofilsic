@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 
 @SiteManager.register
 class ApplePodcast(AbstractSite):
+    SITE_NAME = SiteName.ApplePodcast
     ID_TYPE = IdType.ApplePodcast
     URL_PATTERNS = [r"https://[^.]+.apple.com/\w+/podcast/*[^/?]*/id(\d+)"]
     WIKI_PROPERTY_ID = 'P5842'

@@ -10,8 +10,162 @@
 {% load strip_scheme %}
 {% load thumb %}
 
+{% block title %}
+<h5 class="entity-detail__title">
+	{% if item.season_number %}
+	{{ item.title }} {% trans '第' %}{{ item.season_number|apnumber }}{% trans '季' %} {{ item.orig_title }} Season {{ item.season_number }}
+	<span class="entity-detail__title entity-detail__title--secondary">
+		{% if item.year %}({{ item.year }}){% endif %}
+	</span>
+	{% else %}
+	{{ item.title }} {{ item.orig_title }}
+	<span class="entity-detail__title entity-detail__title--secondary">
+		{% if item.year %}({{ item.year }}){% endif %}
+	</span>
+	{% endif %}
+
+	{% for res in item.external_resources.all %}
+	<a href="{{ res.url }}">
+	  <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
+	</a>
+	{% endfor %}
+</h5>
+{% endblock %}
+
 <!-- class specific details -->
 {% block details %}
+<div class="entity-detail__fields">
+	<div class="entity-detail__rating">
+		{% if item.rating and item.rating_number >= 5 %}
+		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:"0" }}"></span>
+		<span class="entity-detail__rating-score"> {{ item.rating }} </span>
+		<small>({{ item.rating_number }}人评分)</small>
+		{% else %}
+		<span> {% trans '评分：评分人数不足' %}</span>
+		{% endif %}
+	</div>
+	<div>{% if item.imdb %}
+		{% trans 'IMDb：' %}<a href="https://www.imdb.com/title/{{ item.imdb }}/" target="_blank">{{ item.imdb }}</a>
+		{% endif %}
+	</div>
+	<div>{% if item.director %}{% trans '导演：' %}
+		{% for director in item.director %}
+		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+			<span class="director">{{ director }}</span>
+			{% if not forloop.last %} / {% endif %}
+		</span>
+		{% endfor %}
+		{% if item.director|length > 5 %}
+		<a href="javascript:void(0);" id="directorMore">{% trans '更多' %}</a>
+		<script>
+			$("#directorMore").on('click', function (e) {
+				$("span.director:not(:visible)").each(function (e) {
+					$(this).parent().removeAttr('style');
+				});
+				$(this).remove();
+			})
+		</script>
+		{% endif %}
+	{% endif %}</div>
+	<div>{% if item.playwright %}{% trans '编剧：' %}
+		{% for playwright in item.playwright %}
+		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+			<span class="playwright">{{ playwright }}</span>
+			{% if not forloop.last %} / {% endif %}
+		</span>
+		{% endfor %}
+		{% if item.playwright|length > 5 %}
+		<a href="javascript:void(0);" id="playwrightMore">{% trans '更多' %}</a>
+		<script>
+			$("#playwrightMore").on('click', function (e) {
+				$("span.playwright:not(:visible)").each(function (e) {
+					$(this).parent().removeAttr('style');
+				});
+				$(this).remove();
+			})
+		</script>
+		{% endif %}
+	{% endif %}</div>
+	<div>{% if item.actor %}{% trans '主演：' %}
+		{% for actor in item.actor %}
+		<span {% if forloop.counter > 5 %}style="display: none;"{% endif %}>
+			<span class="actor">{{ actor }}</span>
+			{% if not forloop.last %} / {% endif %}
+		</span>
+		{% endfor %}
+
+		{% if item.actor|length > 5 %}
+		<a href="javascript:void(0);" id="actorMore">{% trans '更多' %}</a>
+		<script>
+			$("#actorMore").on('click', function(e) {
+				$("span.actor:not(:visible)").each(function(e){
+					$(this).parent().removeAttr('style');
+				});
+				$(this).remove();
+			})
+		</script>
+		{% endif %}
+
+	{% endif %}</div>
+	<div>{% if item.genre %}{% trans '类型：' %}
+		{% for genre in item.genre %}
+		<span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+	{% endif %}</div>
+	<div>{% if item.area %}{% trans '制片国家/地区：' %}
+		{% for area in item.area %}
+		<span>{{ area }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+	{% endif %}</div>
+	<div>{% if item.language %}{% trans '语言：' %}
+		{% for language in item.language %}
+		<span>{{ language }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+	{% endif %}</div>
+
+</div>
+<div class="entity-detail__fields">
+	<div>{% if item.duration %}{% trans '片长：' %}{{ item.duration }}{% endif %}</div>
+	<div>{% if item.season_count %}{% trans '季数：' %}{{ item.season_count }}{% endif %}</div>
+	<div>{% if item.episode_count %}{% trans '集数：' %}{{ item.episode_count }}{% endif %}</div>
+	<div>{% if item.single_episode_length %}{% trans '单集长度：' %}{{ item.single_episode_length }}{% endif %}</div>
+
+	<div>{% if item.showtime %}{% trans '上映时间：' %}
+		{% for showtime in item.showtime %}
+		{% for time, region in showtime.items %}
+		<span>{{ time }}{% if region != '' %}({{ region }}){% endif %}</span>
+		{% endfor %}
+		{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+	{% endif %}</div>
+	<div>{% if item.other_title %}{% trans '又名：' %}
+		{% for other_title in item.other_title %}
+		<span>{{ other_title }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+	{% endif %}</div>
+	<div>{% if item.site %}{% trans '网站：' %}
+		<a href="{{ item.site }}" target="_blank">{{ item.site|strip_scheme }}</a>
+	{% endif %}</div>
+	{% if item.other_info %}
+	{% for k, v in item.other_info.items %}
+	<div>
+		{{ k }}：{{ v  | urlize }}
+	</div>
+	{% endfor %}
+	{% endif %}
+
+
+	{% if item.last_editor and item.last_editor.preference.show_last_edit or user.is_staff %}
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
+	{% endif %}
+
+	<div>
+		<a href="{% url 'movies:update' item.id %}">{% trans '编辑这部电影' %}</a>
+		{% if user.is_staff %}
+		/<a href="{% url 'movies:delete' item.id %}"> {% trans '删除' %}</a>
+		{% endif %}
+	</div>
+</div>
 {% endblock %}
 
 <!-- class specific sidebar -->

@@ -27,9 +27,12 @@ from journal.models import Mark
 _logger = logging.getLogger(__name__)
 
 
-def retrieve(request, uid):
+def retrieve(request, item_path, item_uid):
     if request.method == 'GET':
-        item = get_object_or_404(Edition, uid=base62.decode(uid))
+        item = get_object_or_404(Item, uid=base62.decode(item_uid))
+        item_url = f'/{item_path}/{item_uid}/'
+        if item.url != item_url:
+            return redirect(item.url)
         mark = None
         review = None
         mark_list = None

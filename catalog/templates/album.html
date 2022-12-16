@@ -12,8 +12,106 @@
 
 <!-- class specific details -->
 {% block details %}
+<div class="entity-detail__fields">
+	<div class="entity-detail__rating">
+		{% if item.rating and item.rating_number >= 5 %}
+		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:"0" }}"></span>
+		<span class="entity-detail__rating-score"> {{ item.rating }} </span>
+		<small>({{ item.rating_number }}人评分)</small>
+		{% else %}
+		<span> {% trans '评分：评分人数不足' %}</span>
+		{% endif %}
+	</div>
+	<div>{% if item.artist %}{% trans '艺术家：' %}
+		{% for artist in item.artist %}
+		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+			<span class="artist">{{ artist }}</span>
+			{% if not forloop.last %} / {% endif %}
+		</span>
+		{% endfor %}
+		{% if item.artist|length > 5 %}
+		<a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
+		<script>
+			$("#artistMore").on('click', function (e) {
+				$("span.artist:not(:visible)").each(function (e) {
+					$(this).parent().removeAttr('style');
+				});
+				$(this).remove();
+			})
+		</script>
+		{% endif %}
+	{% endif %}</div>
+	<div>{% if item.company %}{% trans '发行方：' %}
+		{% for company in item.company %}
+		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+			<span class="company">{{ company }}</span>
+			{% if not forloop.last %} / {% endif %}
+		</span>
+		{% endfor %}
+		{% if item.company|length > 5 %}
+		<a href="javascript:void(0);" id="companyMore">{% trans '更多' %}</a>
+		<script>
+			$("#companyMore").on('click', function (e) {
+				$("span.company:not(:visible)").each(function (e) {
+					$(this).parent().removeAttr('style');
+				});
+				$(this).remove();
+			})
+		</script>
+		{% endif %}
+	{% endif %}</div>
+	<div>{% if item.release_date %}
+		{% trans '发行日期：' %}{{ item.release_date }}
+		{% endif %}
+	</div>
+	<div>{% if item.duration %}
+		{% trans '时长：' %}{{ item.get_duration_display }}
+		{% endif %}
+	</div>
+	<div>{% if item.genre %}
+		{% trans '流派：' %}{{ item.genre }}
+		{% endif %}
+	</div>
+	<div>{% if item.barcode %}
+		{% trans '条形码：' %}{{ item.barcode }}
+		{% endif %}
+	</div>
+
+</div>
+<div class="entity-detail__fields">
+	<div>{% if item.other_title %}
+		{% trans '又名：' %}{{ item.other_title }}
+		{% endif %}
+	</div>
+	<div>{% if item.album_type %}
+		{% trans '专辑类型：' %}{{ item.album_type }}
+		{% endif %}
+	</div>
+	<div>{% if item.media %}
+		{% trans '介质：' %}{{ item.media }}
+		{% endif %}
+	</div>
+	<div>{% if item.disc_count %}
+		{% trans '碟片数：' %}{{ item.disc_count }}
+		{% endif %}
+	</div>
+
+	{% if item.last_editor and item.last_editor.preference.show_last_edit or user.is_staff %}
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
+	{% endif %}
+
+	<div>
+		<a href="{% url 'music:update_album' item.id %}">{% trans '编辑这个作品' %}</a>
+		{% if user.is_staff %}
+		/<a href="{% url 'music:delete_album' item.id %}"> {% trans '删除' %}</a>
+		{% endif %}
+	</div>
+</div>
 {% endblock %}
 
 <!-- class specific sidebar -->
 {% block sidebar %}
+{% if item.get_embed_link %}
+<iframe src="{{ item.get_embed_link }}"  height="320" frameborder="0" allowtransparency="true" allow="encrypted-media"></iframe>
+{% endif %}
 {% endblock %}

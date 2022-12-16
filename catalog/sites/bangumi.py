@@ -8,6 +8,7 @@ _logger = logging.getLogger(__name__)
 
 @SiteManager.register
 class Bangumi(AbstractSite):
+    SITE_NAME = SiteName.Bangumi
     ID_TYPE = IdType.Bangumi
     URL_PATTERNS = [
         r"https://bgm\.tv/subject/(\d+)",

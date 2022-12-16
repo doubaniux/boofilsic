@@ -9,6 +9,7 @@ _logger = logging.getLogger(__name__)
 
 @SiteManager.register
 class DoubanDrama(AbstractSite):
+    SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanDrama
     URL_PATTERNS = [r"\w+://www.douban.com/location/drama/(\d+)/"]
     WIKI_PROPERTY_ID = 'P6443'

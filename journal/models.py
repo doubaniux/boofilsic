@@ -327,23 +327,33 @@ class ShelfManager:
         # metadata=None means no change
         if not item:
             raise ValueError('empty item')
-        lastqm = self._shelf_member_for_item(item)
-        lastqmm = lastqm.metadata if lastqm else None
-        lastq = lastqm._shelf if lastqm else None
-        lastqt = lastq.shelf_type if lastq else None
+        last_shelfmember = self._shelf_member_for_item(item)
+        last_shelf = last_shelfmember._shelf if last_shelfmember else None
+        last_metadata = last_shelfmember.metadata if last_shelfmember else None
+        last_visibility = last_shelfmember.visibility if last_shelfmember else None
         shelf = self.get_shelf(item.category, shelf_type) if shelf_type else None
-        if lastq != shelf:
-            if lastq:
-                lastq.remove_item(item)
+        changed = False
+        if last_shelf != shelf:  # change shelf
+            changed = True
+            if last_shelf:
+                last_shelf.remove_item(item)
             if shelf:
                 shelf.append_item(item, visibility=visibility, metadata=metadata or {})
-        elif metadata is not None:
-            lastqm.metadata = metadata
-            lastqm.save()
-        elif lastqm:
-            metadata = lastqm.metadata
-        if lastqt != shelf_type or (lastqt and metadata != lastqmm):
-            ShelfLogEntry.objects.create(owner=self.owner, shelf=shelf, item=item, metadata=metadata or {})
+        elif last_shelf is None:
+            raise ValueError('empty shelf')
+        else:
+            if metadata is not None and metadata != last_metadata:  # change metadata
+                changed = True
+                last_shelfmember.metadata = metadata
+                last_shelfmember.visibility = visibility
+                last_shelfmember.save()
+            elif visibility != last_visibility:  # change visibility
+                last_shelfmember.visibility = visibility
+                last_shelfmember.save()
+        if changed:
+            if metadata is None:
+                metadata = last_metadata or {}
+            ShelfLogEntry.objects.create(owner=self.owner, shelf=shelf, item=item, metadata=metadata)
 
     def get_log(self):
         return ShelfLogEntry.objects.filter(owner=self.owner).order_by('timestamp')
@@ -487,6 +497,10 @@ class Mark:
     @property
     def shelf_label(self):
         return self.shelfmember._shelf.shelf_label if self.shelfmember else None
+
+    @property
+    def created_time(self):
+        return self.shelfmember.created_time if self.shelfmember else None
 
     @property
     def visibility(self):

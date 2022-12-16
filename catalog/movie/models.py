@@ -10,12 +10,12 @@ class Movie(Item):
     tmdb_movie = PrimaryLookupIdDescriptor(IdType.TMDB_Movie)
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     duration = jsondata.IntegerField(blank=True, default=None)
+    demonstrative = _('这部电影')
 
     METADATA_COPY_LIST = [
         'title',
         'orig_title',
         'other_title',
-        'imdb_code',
         'director',
         'playwright',
         'actor',
@@ -33,7 +33,6 @@ class Movie(Item):
     ]
     orig_title = jsondata.CharField(_("original title"), blank=True, default='', max_length=500)
     other_title = jsondata.ArrayField(models.CharField(_("other title"), blank=True, default='', max_length=500), null=True, blank=True, default=list, )
-    imdb_code = jsondata.CharField(blank=True, max_length=10, null=False, db_index=True, default='')
     director = jsondata.ArrayField(models.CharField(_("director"), blank=True, default='', max_length=200), null=True, blank=True, default=list, )
     playwright = jsondata.ArrayField(models.CharField(_("playwright"), blank=True, default='', max_length=200), null=True, blank=True, default=list, )
     actor = jsondata.ArrayField(models.CharField(_("actor"), blank=True, default='', max_length=200), null=True, blank=True, default=list, )

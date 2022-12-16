@@ -51,7 +51,7 @@ class Edition(Item):
         'pages',
         'contents',
         'series',
-        'producer',
+        'imprint',
     ]
     subtitle = jsondata.CharField(null=True, blank=True, default=None)
     orig_title = jsondata.CharField(null=True, blank=True, default=None)
@@ -66,7 +66,7 @@ class Edition(Item):
     series = jsondata.CharField(null=True, blank=True, default=None)
     contents = jsondata.CharField(null=True, blank=True, default=None)
     price = jsondata.FloatField(_("发表月份"), null=True, blank=True)
-    producer = jsondata.FloatField(_("发表月份"), null=True, blank=True)
+    imprint = jsondata.FloatField(_("发表月份"), null=True, blank=True)
 
     @property
     def isbn10(self):

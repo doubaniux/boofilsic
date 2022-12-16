@@ -20,6 +20,12 @@ def search_tmdb_by_imdb_id(imdb_id):
     return res_data
 
 
+def query_tmdb_tv_episode(tv, season, episode):
+    tmdb_api_url = f"https://api.themoviedb.org/3/tv/{tv}/season/{season}/episode/{episode}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids"
+    res_data = BasicDownloader(tmdb_api_url).download().json()
+    return res_data
+
+
 def _copy_dict(s, key_map):
     d = {}
     for src, dst in key_map.items():
@@ -27,39 +33,9 @@ def _copy_dict(s, key_map):
     return d
 
 
-genre_map = {
-    'Sci-Fi & Fantasy': 'Sci-Fi',
-    'War & Politics': 'War',
-    '儿童': 'Kids',
-    '冒险': 'Adventure',
-    '剧情': 'Drama',
-    '动作': 'Action',
-    '动作冒险': 'Action',
-    '动画': 'Animation',
-    '历史': 'History',
-    '喜剧': 'Comedy',
-    '奇幻': 'Fantasy',
-    '家庭': 'Family',
-    '恐怖': 'Horror',
-    '悬疑': 'Mystery',
-    '惊悚': 'Thriller',
-    '战争': 'War',
-    '新闻': 'News',
-    '爱情': 'Romance',
-    '犯罪': 'Crime',
-    '电视电影': 'TV Movie',
-    '真人秀': 'Reality-TV',
-    '科幻': 'Sci-Fi',
-    '纪录': 'Documentary',
-    '肥皂剧': 'Soap',
-    '脱口秀': 'Talk-Show',
-    '西部': 'Western',
-    '音乐': 'Music',
-}
-
-
 @SiteManager.register
 class TMDB_Movie(AbstractSite):
+    SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_Movie
     URL_PATTERNS = [r'\w+://www.themoviedb.org/movie/(\d+)']
     WIKI_PROPERTY_ID = '?'
@@ -98,8 +74,7 @@ class TMDB_Movie(AbstractSite):
             # in minutes
             duration = res_data['runtime'] if res_data['runtime'] else None
 
-        genre = list(map(lambda x: genre_map[x['name']] if x['name']
-                         in genre_map else 'Other', res_data['genres']))
+        genre = [x['name'] for x in res_data['genres']]
         language = list(map(lambda x: x['name'], res_data['spoken_languages']))
         brief = res_data['overview']
 
@@ -199,8 +174,8 @@ class TMDB_TV(AbstractSite):
             # in minutes
             duration = res_data['runtime'] if res_data['runtime'] else None
 
-        genre = list(map(lambda x: genre_map[x['name']] if x['name']
-                         in genre_map else 'Other', res_data['genres']))
+        genre = [x['name'] for x in res_data['genres']]
+
         language = list(map(lambda x: x['name'], res_data['spoken_languages']))
         brief = res_data['overview']
 
@@ -248,6 +223,7 @@ class TMDB_TV(AbstractSite):
             'language': language,
             'year': year,
             'duration': duration,
+            'season_count': res_data['number_of_seasons'],
             'season': None,
             'episodes': None,
             'single_episode_length': None,
@@ -292,7 +268,7 @@ class TMDB_TVSeason(AbstractSite):
         d = BasicDownloader(api_url).download().json()
         if not d.get('id'):
             raise ParseError('id')
-        pd = ResourceContent(metadata=_copy_dict(d, {'name': 'title', 'overview': 'brief', 'air_date': 'air_date', 'season_number': 0, 'external_ids': 0}))
+        pd = ResourceContent(metadata=_copy_dict(d, {'name': 'title', 'overview': 'brief', 'air_date': 'air_date', 'season_number': 0, 'external_ids': []}))
         pd.metadata['required_resources'] = [{
             'model': 'TVShow',
             'id_type': IdType.TMDB_TV,

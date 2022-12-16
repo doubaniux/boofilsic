@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 @SiteManager.register
 class IMDB(AbstractSite):
+    SITE_NAME = SiteName.IMDB
     ID_TYPE = IdType.IMDB
     URL_PATTERNS = [r'\w+://www.imdb.com/title/(tt\d+)']
     WIKI_PROPERTY_ID = '?'

@@ -1,3 +1,4 @@
+from .common.models import Item
 from .book.models import Edition, Work, Series
 from .movie.models import Movie
 from .tv.models import TVShow, TVSeason, TVEpisode

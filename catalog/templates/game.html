@@ -12,6 +12,100 @@
 
 <!-- class specific details -->
 {% block details %}
+<div class="entity-detail__fields">
+	<div class="entity-detail__rating">
+		{% if item.rating and item.rating_number >= 5 %}
+		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:"0" }}"></span>
+		<span class="entity-detail__rating-score"> {{ item.rating }} </span>
+		<small>({{ item.rating_number }}人评分)</small>
+		{% else %}
+		<span> {% trans '评分：评分人数不足' %}</span>
+		{% endif %}
+	</div>
+
+	<div>{% if item.other_title %}{% trans '别名：' %}
+		{% for other_title in item.other_title %}
+		<span {% if forloop.counter > 5 %}style="display: none;" {% endif %}>
+			<span class="other_title">{{ other_title }}</span>
+			{% if not forloop.last %} / {% endif %}
+		</span>
+		{% endfor %}
+		{% if item.other_title|length > 5 %}
+		<a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
+		<script>
+			$("#otherTitleMore").on('click', function (e) {
+				$("span.other_title:not(:visible)").each(function (e) {
+					$(this).parent().removeAttr('style');
+				});
+				$(this).remove();
+			})
+		</script>
+		{% endif %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.genre %}{% trans '类型：' %}
+		{% for genre in item.genre %}
+		<span>{{ genre }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.developer %}{% trans '开发商：' %}
+		{% for developer in item.developer %}
+		<span>{{ developer }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>
+		{% if item.publisher %}{% trans '发行商：' %}
+		{% for publisher in item.publisher %}
+		<span>{{ publisher }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+	<div>{% if item.release_date %}
+		{% trans '发行日期：' %}{{ item.release_date }}
+		{% endif %}
+	</div>
+
+	{% if item.other_info %}
+	{% for k, v in item.other_info.items %}
+	<div>
+		{{ k }}：{{ v  | urlize }}
+	</div>
+	{% endfor %}
+	{% endif %}
+
+</div>
+<div class="entity-detail__fields">
+
+	<div>
+		{% if item.platform %}{% trans '平台：' %}
+		{% for platform in item.platform %}
+		<span>{{ platform }}</span>{% if not forloop.last %} / {% endif %}
+		{% endfor %}
+		{% endif %}
+	</div>
+
+
+
+	{% if item.last_editor and item.last_editor.preference.show_last_edit or user.is_staff %}
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
+	{% endif %}
+
+	<div>
+		<a href="{% url 'games:update' item.id %}">{% trans '编辑这个游戏' %}</a>
+
+		{% if user.is_staff %}
+		/<a href="{% url 'games:delete' item.id %}"> {% trans '删除' %}</a>
+		{% endif %}
+	</div>
+</div>
 {% endblock %}
 
 <!-- class specific sidebar -->

@@ -10,6 +10,7 @@ _logger = logging.getLogger(__name__)
 
 @SiteManager.register
 class DoubanMusic(AbstractSite):
+    SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanMusic
     URL_PATTERNS = [r"\w+://music\.douban\.com/subject/(\d+)/{0,1}", r"\w+://m.douban.com/music/subject/(\d+)/{0,1}"]
     WIKI_PROPERTY_ID = ''
@@ -56,51 +57,48 @@ class DoubanMusic(AbstractSite):
         brief = '\n'.join([e.strip() for e in brief_elem[0].xpath(
             './text()')]) if brief_elem else None
 
-        gtin = None
-        isrc = None
-        other_info = {}
-        other_elem = content.xpath(
-            "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]")
-        if other_elem:
-            other_info['又名'] = other_elem[0].strip()
-        other_elem = content.xpath(
-            "//div[@id='info']//span[text()='专辑类型:']/following-sibling::text()[1]")
-        if other_elem:
-            other_info['专辑类型'] = other_elem[0].strip()
-        other_elem = content.xpath(
-            "//div[@id='info']//span[text()='介质:']/following-sibling::text()[1]")
-        if other_elem:
-            other_info['介质'] = other_elem[0].strip()
-        other_elem = content.xpath(
-            "//div[@id='info']//span[text()='ISRC:']/following-sibling::text()[1]")
-        if other_elem:
-            other_info['ISRC'] = other_elem[0].strip()
-            isrc = other_elem[0].strip()
-        other_elem = content.xpath(
-            "//div[@id='info']//span[text()='条形码:']/following-sibling::text()[1]")
-        if other_elem:
-            other_info['条形码'] = other_elem[0].strip()
-            gtin = other_elem[0].strip()
-        other_elem = content.xpath(
-            "//div[@id='info']//span[text()='碟片数:']/following-sibling::text()[1]")
-        if other_elem:
-            other_info['碟片数'] = other_elem[0].strip()
-
         img_url_elem = content.xpath("//div[@id='mainpic']//img/@src")
         img_url = img_url_elem[0].strip() if img_url_elem else None
 
-        pd = ResourceContent(metadata={
+        data = {
             'title': title,
             'artist': artist,
             'genre': genre,
             'release_date': release_date,
             'duration': None,
-            'company': company,
+            'company': [company],
             'track_list': track_list,
             'brief': brief,
-            'other_info': other_info,
             'cover_image_url': img_url
-        })
+        }
+        gtin = None
+        isrc = None
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='又名:']/following-sibling::text()[1]")
+        if other_elem:
+            data['other_title'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='专辑类型:']/following-sibling::text()[1]")
+        if other_elem:
+            data['album_type'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='介质:']/following-sibling::text()[1]")
+        if other_elem:
+            data['media'] = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='ISRC:']/following-sibling::text()[1]")
+        if other_elem:
+            isrc = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='条形码:']/following-sibling::text()[1]")
+        if other_elem:
+            gtin = other_elem[0].strip()
+        other_elem = content.xpath(
+            "//div[@id='info']//span[text()='碟片数:']/following-sibling::text()[1]")
+        if other_elem:
+            data['disc_count'] = other_elem[0].strip()
+
+        pd = ResourceContent(metadata=data)
         if gtin:
             pd.lookup_ids[IdType.GTIN] = gtin
         if isrc:

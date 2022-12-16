@@ -39,6 +39,7 @@ def search_igdb_by_3p_url(steam_url):
 
 @SiteManager.register
 class IGDB(AbstractSite):
+    SITE_NAME = SiteName.IGDB
     ID_TYPE = IdType.IGDB
     URL_PATTERNS = [r"\w+://www\.igdb\.com/games/([a-zA-Z0-9\-_]+)"]
     WIKI_PROPERTY_ID = '?'
@@ -90,9 +91,9 @@ class IGDB(AbstractSite):
                 steam_url = website['url']
         pd = ResourceContent(metadata={
             'title': r['name'],
-            'other_title': None,
-            'developer': developer,
-            'publisher': publisher,
+            'other_title': [],
+            'developer': [developer],
+            'publisher': [publisher],
             'release_date': release_date,
             'genre': genre,
             'platform': platform,

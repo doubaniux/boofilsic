@@ -20,7 +20,7 @@ class SiteName(models.TextChoices):
     IMDB = 'imdb', _('IMDB')
     TMDB = 'tmdb', _('The Movie Database')
     Bandcamp = 'bandcamp', _('Bandcamp')
-    Spotify_Album = 'spotify', _('Spotify')
+    Spotify = 'spotify', _('Spotify')
     IGDB = 'igdb', _('IGDB')
     Steam = 'steam', _('Steam')
     Bangumi = 'bangumi', _('Bangumi')
@@ -231,7 +231,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def url(self):
-        return f'/{self.url_path}/{self.url_id}'
+        return f'/{self.url_path}/{self.url_id}/'
 
     @property
     def class_name(self):
@@ -239,7 +239,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @classmethod
     def get_by_url(cls, url_or_b62):
-        b62 = url_or_b62.split('/')[-1]
+        b62 = url_or_b62.strip().split('/')[-2]
         return cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
 
     # def get_lookup_id(self, id_type: str) -> str:

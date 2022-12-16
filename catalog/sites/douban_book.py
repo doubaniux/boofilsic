@@ -140,7 +140,7 @@ class DoubanBook(AbstractSite):
 
         imprint_elem = content.xpath(
             "//div[@id='info']//span[text()='出品方:']/following-sibling::a[1]/text()")
-        producer = imprint_elem[0].strip() if imprint_elem else None
+        imprint = imprint_elem[0].strip() if imprint_elem else None
 
         data = {
             'title': title,
@@ -160,7 +160,7 @@ class DoubanBook(AbstractSite):
             'brief': brief,
             'contents': contents,
             'series': series,
-            'producer': producer,
+            'imprint': imprint,
             'cover_image_url': img_url,
         }
 

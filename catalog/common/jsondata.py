@@ -129,7 +129,8 @@ class CharField(JSONFieldMixin, fields.CharField):
 class DateField(JSONFieldMixin, fields.DateField):
     def to_json(self, value):
         if value:
-            assert isinstance(value, (datetime, date))
+            if not isinstance(value, (datetime, date)):
+                value = dateparse.parse_date(value)
             return value.strftime('%Y-%m-%d')
 
     def from_json(self, value):
@@ -140,6 +141,8 @@ class DateField(JSONFieldMixin, fields.DateField):
 class DateTimeField(JSONFieldMixin, fields.DateTimeField):
     def to_json(self, value):
         if value:
+            if not isinstance(value, (datetime, date)):
+                value = dateparse.parse_date(value)
             if not timezone.is_aware(value):
                 value = timezone.make_aware(value)
             return value.isoformat()

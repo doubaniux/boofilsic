@@ -52,6 +52,7 @@
                 </a>
 
                 <div class="entity-detail__info">
+                  {% block title %}
                   <h5 class="entity-detail__title">
                     {{ item.title }}
 
@@ -61,6 +62,7 @@
                     </a>
                     {% endfor %}
                   </h5>
+                  {% endblock %}
 
                   {% block details %}
                   <div class="entity-detail__fields">
@@ -112,6 +114,16 @@
               </div>
               {% endif %}
 
+              {% if item.track_list %}
+              <div class="entity-desc" id="description">
+                  <h5 class="entity-desc__title">{% trans '曲目' %}</h5>
+                      <p class="entity-desc__content">{{ item.track_list | linebreaksbr }}</p>
+                      <div class="entity-desc__unfold-button entity-desc__unfold-button--hidden">
+                          <a href="javascript:void(0);">展开全部</a>
+                      </div>
+                  </div>
+              {% endif %}
+
               <div class="entity-marks">
                 <h5 class="entity-marks__title">{% trans '标记' %}</h5>
                 <a href="{% url 'books:retrieve_mark_list' item.id %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
@@ -152,10 +164,10 @@
             <div class="aside-section-wrapper">
               {% if mark.shelf_type %}
               <div class="mark-panel">
+                <span class="mark-panel__status">{% trans '我' %}{% trans mark.shelf_label %}</span>
                 {% if mark.rating %}
                 <span class="mark-panel__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
                 {% endif %}
-                <span class="mark-panel__status">{% trans '我' %}{% trans mark.shelf_label %}</span>
                 {% if mark.visibility > 0 %}
                 <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                 {% endif %}

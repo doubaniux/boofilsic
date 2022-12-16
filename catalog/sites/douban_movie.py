@@ -5,57 +5,15 @@ from catalog.tv.models import *
 import logging
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-from .tmdb import TMDB_TV, search_tmdb_by_imdb_id
+from .tmdb import TMDB_TV, search_tmdb_by_imdb_id, query_tmdb_tv_episode
 
 
 _logger = logging.getLogger(__name__)
 
 
-class MovieGenreEnum(models.TextChoices):
-    DRAMA = 'Drama', _('剧情')
-    KIDS = 'Kids', _('儿童')
-    COMEDY = 'Comedy', _('喜剧')
-    BIOGRAPHY = 'Biography', _('传记')
-    ACTION = 'Action', _('动作')
-    HISTORY = 'History', _('历史')
-    ROMANCE = 'Romance', _('爱情')
-    WAR = 'War', _('战争')
-    SCI_FI = 'Sci-Fi', _('科幻')
-    CRIME = 'Crime', _('犯罪')
-    ANIMATION = 'Animation', _('动画')
-    WESTERN = 'Western', _('西部')
-    MYSTERY = 'Mystery', _('悬疑')
-    FANTASY = 'Fantasy', _('奇幻')
-    THRILLER = 'Thriller', _('惊悚')
-    ADVENTURE = 'Adventure', _('冒险')
-    HORROR = 'Horror', _('恐怖')
-    DISASTER = 'Disaster', _('灾难')
-    DOCUMENTARY = 'Documentary', _('纪录片')
-    MARTIAL_ARTS = 'Martial-Arts', _('武侠')
-    SHORT = 'Short', _('短片')
-    ANCIENT_COSTUM = 'Ancient-Costum', _('古装')
-    EROTICA = 'Erotica', _('情色')
-    SPORT = 'Sport', _('运动')
-    GAY_LESBIAN = 'Gay/Lesbian', _('同性')
-    OPERA = 'Opera', _('戏曲')
-    MUSIC = 'Music', _('音乐')
-    FILM_NOIR = 'Film-Noir', _('黑色电影')
-    MUSICAL = 'Musical', _('歌舞')
-    REALITY_TV = 'Reality-TV', _('真人秀')
-    FAMILY = 'Family', _('家庭')
-    TALK_SHOW = 'Talk-Show', _('脱口秀')
-    NEWS = 'News', _('新闻')
-    SOAP = 'Soap', _('肥皂剧')
-    TV_MOVIE = 'TV Movie', _('电视电影')
-    THEATRE = 'Theatre', _('舞台艺术')
-    OTHER = 'Other', _('其他')
-
-
-# MovieGenreTranslator = ChoicesDictGenerator(MovieGenreEnum)
-
-
 @SiteManager.register
 class DoubanMovie(AbstractSite):
+    SITE_NAME = SiteName.Douban
     ID_TYPE = IdType.DoubanMovie
     URL_PATTERNS = [r"\w+://movie\.douban\.com/subject/(\d+)/{0,1}", r"\w+://m.douban.com/movie/subject/(\d+)/{0,1}"]
     WIKI_PROPERTY_ID = '?'
@@ -109,30 +67,16 @@ class DoubanMovie(AbstractSite):
             "//div[@id='info']//span[text()='主演']/following-sibling::span[1]/a/text()")
         actor = list(map(lambda a: a[:200], actor_elem)) if actor_elem else None
 
-        # construct genre translator
-        genre_translator = {}
-        attrs = [attr for attr in dir(MovieGenreEnum) if '__' not in attr]
-        for attr in attrs:
-            genre_translator[getattr(MovieGenreEnum, attr).label] = getattr(
-                MovieGenreEnum, attr).value
-
         genre_elem = content.xpath("//span[@property='v:genre']/text()")
+        genre = []
         if genre_elem:
-            genre = []
             for g in genre_elem:
                 g = g.split(' ')[0]
                 if g == '紀錄片':  # likely some original data on douban was corrupted
                     g = '纪录片'
                 elif g == '鬼怪':
                     g = '惊悚'
-                if g in genre_translator:
-                    genre.append(genre_translator[g])
-                elif g in genre_translator.values():
-                    genre.append(g)
-                else:
-                    _logger.error(f'unable to map genre {g}')
-        else:
-            genre = None
+                genre.append(g)
 
         showtime_elem = content.xpath(
             "//span[@property='v:initialReleaseDate']/text()")
@@ -230,7 +174,7 @@ class DoubanMovie(AbstractSite):
             'year': year,
             'duration': duration,
             'season_number': season,
-            'episodes': episodes,
+            'episode_count': episodes,
             'single_episode_length': single_episode_length,
             'brief': brief,
             'is_series': is_series,
@@ -252,8 +196,11 @@ class DoubanMovie(AbstractSite):
                 pd.metadata['preferred_model'] = 'TVSeason'
                 tmdb_show_id = res_data['tv_episode_results'][0]['show_id']
                 if res_data['tv_episode_results'][0]['episode_number'] != 1:
-                    _logger.error(f'Douban Movie {self.url} mapping to unexpected imdb episode {imdb_code}')
-                    # TODO correct the IMDB id
+                    _logger.warning(f'Douban Movie {self.url} mapping to unexpected imdb episode {imdb_code}')
+                    resp = query_tmdb_tv_episode(tmdb_show_id, res_data['tv_episode_results'][0]['season_number'], 1)
+                    imdb_code = resp['external_ids']['imdb_id']
+                    _logger.warning(f'Douban Movie {self.url} re-mapped to imdb episode {imdb_code}')
+
             pd.lookup_ids[IdType.IMDB] = imdb_code
             if tmdb_show_id:
                 pd.metadata['required_resources'] = [{

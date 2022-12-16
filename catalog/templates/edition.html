@@ -43,6 +43,7 @@
 	<div>{% if item.binding %}{% trans '装帧：' %}{{ item.binding }}{% endif %}</div>
 	<div>{% if item.price %}{% trans '定价：' %}{{ item.price }}{% endif %}</div>
 	<div>{% if item.pages %}{% trans '页数：' %}{{ item.pages }}{% endif %}</div>
+	<div>{% if item.imprint %}{% trans '出品方：' %}{{ item.imprint }}{% endif %}</div>
 	{% if item.other_info %}                                  
 	{% for k, v in item.other_info.items %}
 	<div>

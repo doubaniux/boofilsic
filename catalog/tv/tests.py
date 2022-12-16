@@ -79,6 +79,13 @@ class DoubanMovieTVTestCase(TestCase):
         p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
         self.assertEqual(p3.item.__class__.__name__, 'TVShow')
 
+    @use_local_response
+    def test_scrape_fix_imdb(self):
+        url = 'https://movie.douban.com/subject/35597581/'
+        item = SiteManager.get_site_by_url(url).get_resource_ready().item
+        # this douban links to S6E3, we'll reset it to S6E1 to keep consistant
+        self.assertEqual(item.imdb, 'tt21599650')
+
 
 class MultiTVSitesTestCase(TestCase):
     @use_local_response
