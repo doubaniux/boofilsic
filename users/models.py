@@ -183,7 +183,7 @@ class Preference(models.Model):
 class Report(models.Model):
     submit_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='sumbitted_reports', null=True)
     reported_user = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='accused_reports', null=True)
-    image = models.ImageField(upload_to=report_image_path, height_field=None, width_field=None, max_length=None, blank=True, default='')
+    image = models.ImageField(upload_to=report_image_path, height_field=None, width_field=None, blank=True, default='')
     is_read = models.BooleanField(default=False)
     submitted_time = models.DateTimeField(auto_now_add=True)
     message = models.CharField(max_length=1000)

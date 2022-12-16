@@ -250,7 +250,6 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         # TODO
         # ll = set(lookup_ids)
         # ll = list(filter(lambda a, b: b, ll))
-        # print(ll)
         pass
 
     METADATA_COPY_LIST = ['title', 'brief']  # list of metadata keys to copy from resource to item

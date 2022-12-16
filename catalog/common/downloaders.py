@@ -43,8 +43,10 @@ def get_mock_mode():
 
 
 def get_mock_file(url):
-    fn = re.sub(r'[^\w]', '_', url)
-    return re.sub(r'_key_[A-Za-z0-9]+', '_key_19890604', fn)
+    fn = url.replace('***REMOVED***', '1234')  # Thank you, Github Action -_-!
+    fn = re.sub(r'[^\w]', '_', fn)
+    fn = re.sub(r'_key_[*A-Za-z0-9]+', '_key_8964', fn)
+    return fn
 
 
 class DownloadError(Exception):

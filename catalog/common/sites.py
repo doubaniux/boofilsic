@@ -67,7 +67,7 @@ class AbstractSite:
                 self.resource = ExternalResource(id_type=self.ID_TYPE, id_value=self.id_value, url=self.url)
         return self.resource
 
-    def bypass_scrape(self, data_from_link) -> ResourceContent | None:
+    def bypass_scrape(self, data_from_link) -> ResourceContent:
         """subclass may implement this to use data from linked resource and bypass actual scrape"""
         return None
 

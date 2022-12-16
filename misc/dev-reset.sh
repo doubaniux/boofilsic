@@ -22,7 +22,7 @@ psql $* neodb -c "CREATE EXTENSION hstore WITH SCHEMA public;" || exit $?
 
 find -type d -name migrations | xargs rm -rf
 
-python3 manage.py makemigrations mastodon users books movies games music sync management collection common sync management catalog journal social || exit $?
+python3 manage.py makemigrations auth mastodon users books movies games music sync management collection common sync management timeline catalog journal social || exit $?
 
 python3 manage.py migrate || exit $?
 
