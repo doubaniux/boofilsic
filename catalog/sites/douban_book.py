@@ -176,7 +176,9 @@ class DoubanBook(AbstractSite):
             }]
 
         pd = ResourceContent(metadata=data)
-        pd.lookup_ids[IdType.ISBN] = isbn
+        t, n = detect_isbn_asin(isbn)
+        if t:
+            pd.lookup_ids[t] = n
         pd.lookup_ids[IdType.CUBN] = cubn
         pd.cover_image, pd.cover_image_extention = BasicImageDownloader.download_image(img_url, self.url)
         return pd

@@ -1,5 +1,6 @@
 from django.test import TestCase
 from catalog.book.models import *
+from catalog.book.utils import *
 from catalog.common import *
 
 
@@ -34,6 +35,14 @@ class BookTestCase(TestCase):
         self.assertEqual(hyperion.isbn10, None)
 
     def test_isbn(self):
+        t, n = detect_isbn_asin('0553283685')
+        self.assertEqual(t, IdType.ISBN)
+        self.assertEqual(n, '9780553283686')
+        t, n = detect_isbn_asin('9780553283686')
+        self.assertEqual(t, IdType.ISBN)
+        t, n = detect_isbn_asin(' b0043M6780')
+        self.assertEqual(t, IdType.ASIN)
+
         hyperion = Edition.objects.get(title="Hyperion")
         self.assertEqual(hyperion.isbn, '9780553283686')
         self.assertEqual(hyperion.isbn10, '0553283685')
@@ -82,7 +91,7 @@ class GoodreadsTestCase(TestCase):
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
         self.assertEqual(site.resource.metadata.get('title'), 'Hyperion')
-        self.assertEqual(site.resource.metadata.get('isbn'), isbn)
+        self.assertEqual(site.resource.get_all_lookup_ids().get(IdType.ISBN), isbn)
         self.assertEqual(site.resource.required_resources[0]['id_value'], '1383900')
         edition = Edition.objects.get(primary_lookup_id_type=IdType.ISBN, primary_lookup_id_value=isbn)
         resource = edition.external_resources.all().first()
@@ -229,6 +238,7 @@ class MultiBookSitesTestCase(TestCase):
         w3 = p3.item.works.all().first()
         self.assertNotEqual(w3, w2)
         p4 = SiteManager.get_site_by_url(url4).get_resource_ready()
+        self.assertEqual(p4.item.id, p1.item.id)
         self.assertEqual(p4.item.works.all().count(), 2)
         self.assertEqual(p1.item.works.all().count(), 2)
         w2e = w2.editions.all().order_by('title')

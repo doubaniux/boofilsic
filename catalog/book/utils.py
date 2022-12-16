@@ -1,3 +1,7 @@
+import re
+from .models import IdType
+
+
 def check_digit_10(isbn):
     assert len(isbn) == 9
     sum = 0
@@ -34,12 +38,23 @@ def isbn_13_to_10(isbn):
 
 
 def is_isbn_13(isbn):
-    return len(isbn) == 13
+    return re.match(r'\d{13}', isbn) is not None
 
 
 def is_isbn_10(isbn):
-    return len(isbn) == 10 and isbn[0] >= '0' and isbn[0] <= '9'
+    return re.match(r'\d{9}[X0-9]', isbn) is not None
 
 
 def is_asin(asin):
-    return len(asin) == 10 and asin[0].lower == 'b'
+    return re.match(r'B[A-Z0-9]{9}', asin) is not None
+
+
+def detect_isbn_asin(s):
+    n = s.strip().upper() if s else ''
+    if is_isbn_13(n):
+        return IdType.ISBN, n
+    if is_isbn_10(n):
+        return IdType.ISBN, isbn_10_to_13(n)
+    if is_asin(n):
+        return IdType.ASIN, n
+    return None, None

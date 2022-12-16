@@ -1,5 +1,6 @@
 from catalog.book.models import Edition, Work
 from catalog.common import *
+from catalog.book.utils import detect_isbn_asin
 from lxml import html
 import json
 import logging
@@ -60,10 +61,15 @@ class Goodreads(AbstractSite):
             raise ParseError(self, 'Book in __NEXT_DATA__ json')
         data['title'] = b['title']
         data['brief'] = b['description']
-        data['isbn'] = b['details'].get('isbn13')
-        asin = b['details'].get('asin')
-        if asin and asin != data['isbn']:
-            data['asin'] = asin
+        ids = {}
+        t, n = detect_isbn_asin(b['details'].get('asin'))
+        if t:
+            ids[t] = n
+        t, n = detect_isbn_asin(b['details'].get('isbn13'))
+        if t:
+            ids[t] = n
+        # amazon has a known problem to use another book's isbn as asin
+        # so we alway overwrite asin-converted isbn with real isbn
         data['pages'] = b['details'].get('numPages')
         data['cover_image_url'] = b['imageUrl']
         w = next(filter(lambda x: x.get('details'), o['Work']), None)
@@ -76,8 +82,8 @@ class Goodreads(AbstractSite):
                 'url': w['editions']['webUrl'],
             }]
         pd = ResourceContent(metadata=data)
-        pd.lookup_ids[IdType.ISBN] = data.get('isbn')
-        pd.lookup_ids[IdType.ASIN] = data.get('asin')
+        pd.lookup_ids[IdType.ISBN] = ids.get(IdType.ISBN)
+        pd.lookup_ids[IdType.ASIN] = ids.get(IdType.ASIN)
         if data["cover_image_url"]:
             imgdl = BasicImageDownloader(data["cover_image_url"], self.url)
             try:
