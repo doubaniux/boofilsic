@@ -40,6 +40,10 @@ class AbstractSite:
         return u is not None
 
     @classmethod
+    def validate_url_fallback(self, url: str):
+        return False
+
+    @classmethod
     def id_to_url(self, id_value):
         return 'https://undefined/' + id_value
 
@@ -152,6 +156,8 @@ class SiteManager:
     @classmethod
     def get_site_by_url(cls, url: str):
         cls = next(filter(lambda p: p.validate_url(url), cls.registry.values()), None)
+        if cls is None:
+            cls = next(filter(lambda p: p.validate_url_fallback(url), cls.registry.values()), None)
         return cls(url) if cls else None
 
     @classmethod

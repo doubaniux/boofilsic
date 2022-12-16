@@ -23,6 +23,7 @@ class Album(Item):
         'company',
         'track_list',
         'brief',
+        'bandcamp_album_id',
     ]
     release_date = jsondata.DateField(_('发行日期'), auto_now=False, auto_now_add=False, null=True, blank=True)
     duration = jsondata.IntegerField(_("时长"), null=True, blank=True)
@@ -33,4 +34,5 @@ class Album(Item):
     other_title = jsondata.CharField(blank=True, default='', max_length=500)
     album_type = jsondata.CharField(blank=True, default='', max_length=500)
     media = jsondata.CharField(blank=True, default='', max_length=500)
+    bandcamp_album_id = jsondata.CharField(blank=True, default='', max_length=500)
     disc_count = jsondata.IntegerField(blank=True, default='', max_length=500)

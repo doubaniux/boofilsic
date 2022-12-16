@@ -12,4 +12,5 @@ from .imdb import IMDB
 from .spotify import Spotify
 from .igdb import IGDB
 from .steam import Steam
+from .bandcamp import Bandcamp
 from .bangumi import Bangumi

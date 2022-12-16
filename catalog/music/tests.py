@@ -59,3 +59,28 @@ class MultiMusicSitesTestCase(TestCase):
         p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
         p2 = SiteManager.get_site_by_url(url2).get_resource_ready()
         self.assertEqual(p1.item.id, p2.item.id)
+
+
+class BandcampTestCase(TestCase):
+    def test_parse(self):
+        t_id_type = IdType.Bandcamp
+        t_id_value = 'intlanthem.bandcamp.com/album/in-these-times'
+        t_url = 'https://intlanthem.bandcamp.com/album/in-these-times?from=hpbcw'
+        t_url2 = 'https://intlanthem.bandcamp.com/album/in-these-times'
+        site = SiteManager.get_site_by_id_type(t_id_type)
+        self.assertIsNotNone(site)
+        self.assertEqual(site.validate_url(t_url), True)
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.url, t_url2)
+        self.assertEqual(site.id_value, t_id_value)
+
+    # @use_local_response
+    def test_scrape(self):
+        t_url = 'https://intlanthem.bandcamp.com/album/in-these-times?from=hpbcw'
+        site = SiteManager.get_site_by_url(t_url)
+        self.assertEqual(site.ready, False)
+        site.get_resource_ready()
+        self.assertEqual(site.ready, True)
+        self.assertEqual(site.resource.metadata['title'], 'In These Times')
+        self.assertEqual(site.resource.metadata['artist'], ['Makaya McCraven'])
+        self.assertIsInstance(site.resource.item, Album)
