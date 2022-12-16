@@ -74,7 +74,7 @@ class BandcampTestCase(TestCase):
         self.assertEqual(site.url, t_url2)
         self.assertEqual(site.id_value, t_id_value)
 
-    # @use_local_response
+    @use_local_response
     def test_scrape(self):
         t_url = 'https://intlanthem.bandcamp.com/album/in-these-times?from=hpbcw'
         site = SiteManager.get_site_by_url(t_url)
