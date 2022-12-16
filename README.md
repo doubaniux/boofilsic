@@ -1,4 +1,7 @@
 # Boofilsic/NeoDB
+
+![Test Status](https://github.com/neodb-social/neodb/actions/workflows/django.yml/badge.svg?branch=main)
+
 Boofilsic/NeoDB is an open source project and free service to help users manage, share and discover collections, reviews and ratings for culture products (e.g. books, movies, music, podcasts, games and performances) in Fediverse. 
 
 [NeoDB.social](https://neodb.social) and [NiceDB](https://nicedb.org) are free services hosted by volunteers.
