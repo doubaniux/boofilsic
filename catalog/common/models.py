@@ -318,6 +318,8 @@ class ExternalResource(models.Model):
         self.metadata = resource_content.metadata
         if resource_content.cover_image and resource_content.cover_image_extention:
             self.cover = SimpleUploadedFile('temp.' + resource_content.cover_image_extention, resource_content.cover_image)
+        else:
+            self.cover = resource_content.metadata.get('cover_image_path')
         self.scraped_time = timezone.now()
         self.save()
 

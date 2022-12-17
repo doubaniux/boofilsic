@@ -13,13 +13,14 @@ class Game(Item):
 
     METADATA_COPY_LIST = [
         'title',
+        'brief',
         'other_title',
         'developer',
         'publisher',
         'release_date',
         'genre',
         'platform',
-        'brief',
+        'official_site',
     ]
 
     other_title = jsondata.ArrayField(
@@ -62,4 +63,8 @@ class Game(Item):
         null=True,
         blank=True,
         default=list,
+    )
+
+    official_site = jsondata.CharField(
+        default='',
     )

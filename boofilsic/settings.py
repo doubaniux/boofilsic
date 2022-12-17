@@ -368,3 +368,5 @@ if ENABLE_NEW_MODEL:
     INSTALLED_APPS.append('catalog.apps.CatalogConfig')
     INSTALLED_APPS.append('journal.apps.JournalConfig')
     INSTALLED_APPS.append('social.apps.SocialConfig')
+    INSTALLED_APPS.append('legacy.apps.LegacyConfig')
+

@@ -27,6 +27,11 @@ from journal.models import Mark
 _logger = logging.getLogger(__name__)
 
 
+def retrieve_by_uuid(request, item_uuid):
+    item = get_object_or_404(Item, uid=item_uuid)
+    return redirect(item.url)
+
+
 def retrieve(request, item_path, item_uid):
     if request.method == 'GET':
         item = get_object_or_404(Item, uid=base62.decode(item_uid))

@@ -173,6 +173,7 @@ class DoubanBook(AbstractSite):
                 'id_value': r[1] if r else None,
                 'title': data['title'],
                 'url': works_element[0],
+                'content': {'metadata': {'title': data['title']}}
             }]
 
         pd = ResourceContent(metadata=data)
@@ -194,14 +195,6 @@ class DoubanBook_Work(AbstractSite):
     @classmethod
     def id_to_url(self, id_value):
         return "https://book.douban.com/works/" + id_value + "/"
-
-    def bypass_scrape(self, data_from_link):
-        if not data_from_link:
-            return None
-        pd = ResourceContent(metadata={
-            'title': data_from_link['title'],
-        })
-        return pd
 
     def scrape(self):
         content = DoubanDownloader(self.url).download().html()

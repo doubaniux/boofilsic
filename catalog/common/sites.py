@@ -23,6 +23,12 @@ class ResourceContent:
     cover_image: bytes = None
     cover_image_extention: str = None
 
+    def dict(self):
+        return {'metadata': self.metadata, 'lookup_ids': self.lookup_ids}
+
+    def to_json(self) -> str:
+        return json.dumps({'metadata': self.metadata, 'lookup_ids': self.lookup_ids})
+
 
 class AbstractSite:
     """
@@ -67,10 +73,6 @@ class AbstractSite:
                 self.resource = ExternalResource(id_type=self.ID_TYPE, id_value=self.id_value, url=self.url)
         return self.resource
 
-    def bypass_scrape(self, data_from_link) -> ResourceContent:
-        """subclass may implement this to use data from linked resource and bypass actual scrape"""
-        return None
-
     def scrape(self) -> ResourceContent:
         """subclass should implement this, return ResourceContent object"""
         data = ResourceContent()
@@ -101,7 +103,7 @@ class AbstractSite:
     def ready(self):
         return bool(self.resource and self.resource.ready)
 
-    def get_resource_ready(self, auto_save=True, auto_create=True, auto_link=True, data_from_link=None):
+    def get_resource_ready(self, auto_save=True, auto_create=True, auto_link=True, preloaded_content=None, reload=False):
         """return a resource scraped, or scrape if not yet"""
         if auto_link:
             auto_create = True
@@ -111,9 +113,12 @@ class AbstractSite:
         resource_content = {}
         if not self.resource:
             return None
-        if not p.ready:
-            resource_content = self.bypass_scrape(data_from_link)
-            if not resource_content:
+        if not p.ready or reload:
+            if isinstance(preloaded_content, ResourceContent):
+                resource_content = preloaded_content
+            elif isinstance(preloaded_content, dict):
+                resource_content = ResourceContent(**preloaded_content)
+            else:
                 resource_content = self.scrape()
             p.update_content(resource_content)
         if not p.ready:
@@ -127,12 +132,12 @@ class AbstractSite:
                 p.item.merge_data_from_external_resources()
                 p.item.save()
         if auto_link:
-            for linked_resources in p.required_resources:
-                linked_site = SiteManager.get_site_by_url(linked_resources['url'])
+            for linked_resource in p.required_resources:
+                linked_site = SiteManager.get_site_by_url(linked_resource['url'])
                 if linked_site:
-                    linked_site.get_resource_ready(auto_link=False)
+                    linked_site.get_resource_ready(auto_link=False, preloaded_content=linked_resource.get('content'))
                 else:
-                    _logger.error(f'unable to get site for {linked_resources["url"]}')
+                    _logger.error(f'unable to get site for {linked_resource["url"]}')
             p.item.update_linked_items_from_external_resource(p)
             p.item.save()
         return p
@@ -141,28 +146,28 @@ class AbstractSite:
 class SiteManager:
     registry = {}
 
-    @classmethod
-    def register(cls, target) -> Callable:
+    @staticmethod
+    def register(target) -> Callable:
         id_type = target.ID_TYPE
-        if id_type in cls.registry:
+        if id_type in SiteManager.registry:
             raise ValueError(f'Site for {id_type} already exists')
-        cls.registry[id_type] = target
+        SiteManager.registry[id_type] = target
         return target
 
-    @classmethod
-    def get_site_by_id_type(cls, typ: str):
-        return cls.registry[typ]() if typ in cls.registry else None
+    @staticmethod
+    def get_site_by_id_type(typ: str):
+        return SiteManager.registry[typ]() if typ in SiteManager.registry else None
 
-    @classmethod
-    def get_site_by_url(cls, url: str):
-        cls = next(filter(lambda p: p.validate_url(url), cls.registry.values()), None)
+    @staticmethod
+    def get_site_by_url(url: str):
+        cls = next(filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None)
         if cls is None:
-            cls = next(filter(lambda p: p.validate_url_fallback(url), cls.registry.values()), None)
+            cls = next(filter(lambda p: p.validate_url_fallback(url), SiteManager.registry.values()), None)
         return cls(url) if cls else None
 
-    @classmethod
-    def get_id_by_url(cls, url: str):
-        site = cls.get_site_by_url(url)
+    @staticmethod
+    def get_id_by_url(url: str):
+        site = SiteManager.get_site_by_url(url)
         return site.url_to_id(url) if site else None
 
     @staticmethod

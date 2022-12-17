@@ -50,7 +50,9 @@ def is_asin(asin):
 
 
 def detect_isbn_asin(s):
-    n = s.strip().upper() if s else ''
+    if not s:
+        return None, None
+    n = re.sub(r'[^0-9A-Z]', '', s.upper())
     if is_isbn_13(n):
         return IdType.ISBN, n
     if is_isbn_10(n):

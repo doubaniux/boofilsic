@@ -73,13 +73,10 @@
 		{% endif %}
 	</div>
 
-	{% if item.other_info %}
-	{% for k, v in item.other_info.items %}
-	<div>
-		{{ k }}：{{ v  | urlize }}
+	<div>{% if item.official_site %}
+		{% trans '官方网站：' %}{{ item.official_site|urlizetrunc:42 }}
+		{% endif %}
 	</div>
-	{% endfor %}
-	{% endif %}
 
 </div>
 <div class="entity-detail__fields">
