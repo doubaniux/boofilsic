@@ -137,7 +137,7 @@ select {
 }
 
 select:focus {
-  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 29 14" width="29"><path fill="#9b4dca" d="M9.37727 3.625l5.08154 6.93523L19.54036 3.625"/></svg>');
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" height="14" viewBox="0 0 29 14" width="29"><path fill="#00a1cc" d="M9.37727 3.625l5.08154 6.93523L19.54036 3.625"/></svg>');
 }
 
 textarea {
@@ -341,7 +341,7 @@ a {
 }
 
 a:active, a:hover, a:hover:visited {
-  color: #606c76;
+  color: #d5d5d5;
 }
 
 li {
@@ -2430,7 +2430,13 @@ select::placeholder {
 
 .markdownx-preview blockquote {
   border-left: lightgray solid 0.4em;
-  padding-left: 0.4em;
+  padding-left: 0.1em;
+  margin-left: 0;
+}
+
+.markdownx-preview code {
+  border-left: #00a1cc solid 0.3em;
+  padding-left: 0.1em;
 }
 
 .rating-star .jq-star {

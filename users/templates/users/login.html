@@ -12,7 +12,7 @@
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{% static 'img/logo_square.jpg' %}">
     <title>{{ site_name }} - {% trans '登录' %}</title>
     {% include "partial/_common_libs.html" %}
-    <link rel="stylesheet" href="https://cdn.staticfile.org/milligram/1.4.1/milligram.min.css">
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
     <script src="https://cdn.staticfile.org/js-cookie/3.0.1/js.cookie.min.js"></script>
