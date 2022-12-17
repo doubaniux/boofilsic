@@ -3,6 +3,7 @@ from users.models import User
 from datetime import timedelta
 from django.utils import timezone
 from tqdm import tqdm
+from django.conf import settings
 
 
 class Command(BaseCommand):
@@ -10,7 +11,7 @@ class Command(BaseCommand):
 
     def handle(self, *args, **options):
         count = 0
-        for user in tqdm(User.objects.filter(mastodon_last_refresh__lt=timezone.now() - timedelta(hours=24), is_active=True)):
+        for user in tqdm(User.objects.filter(mastodon_last_refresh__lt=timezone.now() - timedelta(hours=settings.MASTODON_RELATIONSHIP_CACHE_LIFETIME), is_active=True)):
             if user.mastodon_token or user.mastodon_refresh_token:
                 tqdm.write(f"Refreshing {user}")
                 if user.refresh_mastodon_data():

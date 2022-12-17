@@ -361,3 +361,6 @@ TYPESENSE_CONNECTION = {
     }],
     'connection_timeout_seconds': 2
 }
+
+# hours
+MASTODON_RELATIONSHIP_CACHE_LIFETIME = 1
