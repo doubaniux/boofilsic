@@ -21,7 +21,7 @@ class ReviewFeed(Feed):
         return user.url
 
     def description(self, user):
-        return "%s的评论合集 - NeoDB" % user.display_name
+        return "%s的评论合集 - NiceDB" % user.display_name
 
     def items(self, user):
         if user is None:
