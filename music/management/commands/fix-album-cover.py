@@ -100,8 +100,12 @@ class DoubanPatcherMixin:
                 get(url, 60)
             else:
                 error = error + '\nScraperAPI: '
-                # get(f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}', 60)
-                get(f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}', 60)
+
+                if settings.SCRAPESTACK_KEY is not None:
+                    dl_url = f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}'
+                elif settings.SCRAPERAPI_KEY is not None:
+                    dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+                get(dl_url, 60)
             check_content()
 
         wayback_cdx()
@@ -121,9 +125,11 @@ class DoubanPatcherMixin:
         ext = None
 
         dl_url = url
+
         if settings.SCRAPESTACK_KEY is not None:
             dl_url = f'http://api.scrapestack.com/scrape?access_key={settings.SCRAPESTACK_KEY}&url={url}'
-            # f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
+        elif settings.SCRAPERAPI_KEY is not None:
+            dl_url = f'http://api.scraperapi.com?api_key={settings.SCRAPERAPI_KEY}&url={url}'
 
         try:
             img_response = requests.get(dl_url, timeout=90)
