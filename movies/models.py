@@ -1,17 +1,27 @@
 import uuid
 import django.contrib.postgres.fields as postgres
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db import models
 from django.core.serializers.json import DjangoJSONEncoder
 from django.shortcuts import reverse
-from common.models import Entity, Mark, Review, Tag
+from common.models import Entity, Mark, Review, Tag, MarkStatusEnum
 from common.utils import ChoicesDictGenerator, GenerateDateUUIDMediaFilePath
-from boofilsic.settings import MOVIE_MEDIA_PATH_ROOT, DEFAULT_MOVIE_IMAGE
 from django.utils import timezone
+from django.conf import settings
+from django.db.models import Q
+import re
+from simple_history.models import HistoricalRecords
+
+
+MovieMarkStatusTranslation = {
+    MarkStatusEnum.DO.value: _("在看"),
+    MarkStatusEnum.WISH.value: _("想看"),
+    MarkStatusEnum.COLLECT.value: _("看过")
+}
 
 
 def movie_cover_path(instance, filename):
-    return GenerateDateUUIDMediaFilePath(instance, filename, MOVIE_MEDIA_PATH_ROOT)
+    return GenerateDateUUIDMediaFilePath(instance, filename, settings.MOVIE_MEDIA_PATH_ROOT)
 
 
 class MovieGenreEnum(models.TextChoices):
@@ -47,6 +57,10 @@ class MovieGenreEnum(models.TextChoices):
     REALITY_TV = 'Reality-TV', _('真人秀')
     FAMILY = 'Family', _('家庭')
     TALK_SHOW = 'Talk-Show', _('脱口秀')
+    NEWS = 'News', _('新闻')
+    SOAP = 'Soap', _('肥皂剧')
+    TV_MOVIE = 'TV Movie', _('电视电影')
+    THEATRE = 'Theatre', _('舞台艺术')
     OTHER = 'Other', _('其他')
 
 
@@ -58,13 +72,13 @@ class Movie(Entity):
     Can either be movie or series.
     '''
     # widely recognized name, usually in Chinese
-    title = models.CharField(_("title"), max_length=200)
+    title = models.CharField(_("title"), max_length=500)
     # original name, for books in foreign language
     orig_title = models.CharField(
-        _("original title"), blank=True, default='', max_length=200)
+        _("original title"), blank=True, default='', max_length=500)
     other_title = postgres.ArrayField(
         models.CharField(_("other title"), blank=True,
-                         default='', max_length=300),
+                         default='', max_length=500),
         null=True,
         blank=True,
         default=list,
@@ -73,21 +87,21 @@ class Movie(Entity):
         blank=True, max_length=10, null=False, db_index=True, default='')
     director = postgres.ArrayField(
         models.CharField(_("director"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     playwright = postgres.ArrayField(
         models.CharField(_("playwright"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     actor = postgres.ArrayField(
         models.CharField(_("actor"), blank=True,
-                         default='', max_length=100),
+                         default='', max_length=200),
         null=True,
         blank=True,
         default=list,
@@ -112,7 +126,7 @@ class Movie(Entity):
         default=list,
     )
     site = models.URLField(_('site url'), blank=True, default='', max_length=200)
-    
+
     # country or region
     area = postgres.ArrayField(
         models.CharField(
@@ -140,7 +154,7 @@ class Movie(Entity):
     year = models.PositiveIntegerField(null=True, blank=True)
     duration = models.CharField(blank=True, default='', max_length=200)
 
-    cover = models.ImageField(_("poster"), upload_to=movie_cover_path, default=DEFAULT_MOVIE_IMAGE, blank=True)
+    cover = models.ImageField(_("poster"), upload_to=movie_cover_path, default=settings.DEFAULT_MOVIE_IMAGE, blank=True)
 
     ############################################
     # exclusive fields to series
@@ -157,26 +171,66 @@ class Movie(Entity):
     ############################################
     is_series = models.BooleanField(default=False)
 
+    history = HistoricalRecords()
 
     def __str__(self):
         if self.year:
-            return self.title + f"({self.year})"  
+            return self.title + f"({self.year})"
         else:
             return self.title
 
+    def get_json(self):
+        r = {
+            'other_title': self.other_title,
+            'original_title': self.orig_title,
+            'director': self.director,
+            'playwright': self.playwright,
+            'actor': self.actor,
+            'release_year': self.year,
+            'genre': self.genre,
+            'language': self.language,
+            'season': self.season,
+            'duration': self.duration,
+            'imdb_code': self.imdb_code,
+        }
+        r.update(super().get_json())
+        return r
 
     def get_absolute_url(self):
         return reverse("movies:retrieve", args=[self.id])
 
+    @property
+    def wish_url(self):
+        return reverse("movies:wish", args=[self.id])
+
     def get_tags_manager(self):
         return self.movie_tags
-
 
     def get_genre_display(self):
         translated_genre = []
         for g in self.genre:
             translated_genre.append(MovieGenreTranslator[g])
         return translated_genre
+
+    def get_related_movies(self):
+        imdb = 'no match' if self.imdb_code is None or self.imdb_code == '' else self.imdb_code
+        qs = Q(imdb_code=imdb)
+        if self.is_series:
+            prefix = re.sub(r'\d+', '', re.sub(r'\s+第.+季', '', self.title))
+            if not prefix:
+                prefix = self.title
+            qs = qs | Q(title__startswith=prefix)
+        qs = qs & ~Q(id=self.id)
+        return Movie.objects.filter(qs).order_by('season')
+
+    def get_identicals(self):
+        qs = Q(orig_title=self.title)
+        if self.imdb_code:
+            qs = Q(imdb_code=self.imdb_code)
+            # qs = qs & ~Q(id=self.id)
+            return Movie.objects.filter(qs)
+        else:
+            return [self]  # Book.objects.filter(id=self.id)
 
     @property
     def verbose_category_name(self):
@@ -185,22 +239,44 @@ class Movie(Entity):
         else:
             return _("电影")
 
+    @property
+    def mark_class(self):
+        return MovieMark
+
+    @property
+    def tag_class(self):
+        return MovieTag
+
 
 class MovieMark(Mark):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='movie_marks', null=True)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['owner', 'movie'], name='unique_movie_mark')
         ]
 
+    @property
+    def translated_status(self):
+        return MovieMarkStatusTranslation[self.status]
+
 
 class MovieReview(Review):
     movie = models.ForeignKey(Movie, on_delete=models.CASCADE, related_name='movie_reviews', null=True)
+
     class Meta:
         constraints = [
             models.UniqueConstraint(
                 fields=['owner', 'movie'], name='unique_movie_review')
         ]
+
+    @property
+    def url(self):
+        return reverse("movies:retrieve_review", args=[self.id])
+
+    @property
+    def item(self):
+        return self.movie
 
 
 class MovieTag(Tag):
@@ -211,3 +287,7 @@ class MovieTag(Tag):
             models.UniqueConstraint(
                 fields=['content', 'mark'], name="unique_moviemark_tag")
         ]
+
+    @property
+    def item(self):
+        return self.movie

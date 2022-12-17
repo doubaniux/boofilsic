@@ -1,5 +1,5 @@
 $(document).ready( function() {
-    
+let render = function() {
     let ratingLabels = $(".rating-star");
     $(ratingLabels).each( function(index, value) {
         let ratingScore = $(this).data("rating-score") / 2;
@@ -8,5 +8,9 @@ $(document).ready( function() {
             readOnly: true
         });
     });
-    
+};
+document.body.addEventListener('htmx:load', function(evt) {
+    render();
+});
+render();
 });

@@ -1,14 +1,16 @@
 from django.db import models
 from django.utils import timezone
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 
 class MastodonApplication(models.Model):
     domain_name = models.CharField(_('site domain name'), max_length=100, unique=True)
-    app_id = models.PositiveIntegerField(_('in-site app id'))
+    app_id = models.PositiveIntegerField(_('in-site app id'))  # TODO Remove? bc 1) it seems useless 2) GoToSocial returns a hash text id
     client_id = models.CharField(_('client id'), max_length=100)
     client_secret = models.CharField(_('client secret'), max_length=100)
-    vapid_key = models.CharField(_('vapid key'), max_length=200)
+    vapid_key = models.CharField(_('vapid key'), max_length=200, null=True, blank=True)
+    star_mode = models.PositiveIntegerField(_('0: custom emoji; 1: unicode moon; 2: text'), blank=False, default=0)
+    max_status_len = models.PositiveIntegerField(_('max toot len'), blank=False, default=500)
 
     is_proxy = models.BooleanField(default=False, blank=True)
     proxy_to = models.CharField(max_length=100, blank=True, default='')
@@ -27,7 +29,7 @@ class CrossSiteUserInfo(models.Model):
     # target site domain name
     target_site = models.CharField(_("target site domain name"), max_length=100)
     # target site id
-    site_id = models.PositiveIntegerField()
+    site_id = models.CharField(max_length=100, blank=False)
 
     class Meta:
         constraints = [

@@ -5,9 +5,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="refresh" content="3;url={% url 'common:home' %}">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/skeleton-css@2.0.4/css/normalize.css">
-    <link rel="stylesheet" href="{% static 'lib/css/milligram.css' %}">
+    <meta http-equiv="refresh" content="5;url={% if url %}{{url}}{% else %}{% url 'common:home' %}{% endif %}">
+    <link rel="stylesheet" href="https://cdn.staticfile.org/milligram/1.4.1/milligram.min.css">
     <link rel="stylesheet" href="{% static 'css/boofilsic_edit.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic_box.css' %}">
     <title>{% trans '错误' %}</title>

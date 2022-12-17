@@ -1,4 +1,4 @@
-from django.urls import path
+from django.urls import path, re_path
 from .views import *
 
 
@@ -8,9 +8,10 @@ urlpatterns = [
     path('<int:id>/', retrieve, name='retrieve'),
     path('update/<int:id>/', update, name='update'),
     path('delete/<int:id>/', delete, name='delete'),
+    path('rescrape/<int:id>/', rescrape, name='rescrape'),
     path('mark/', create_update_mark, name='create_update_mark'),
-    path('<int:game_id>/mark/list/',
-         retrieve_mark_list, name='retrieve_mark_list'),
+    path('wish/<int:id>/', wish, name='wish'),
+    re_path('(?P<game_id>[0-9]+)/mark/list/(?:(?P<following_only>\\d+))?', retrieve_mark_list, name='retrieve_mark_list'),
     path('mark/delete/<int:id>/', delete_mark, name='delete_mark'),
     path('<int:game_id>/review/create/', create_review, name='create_review'),
     path('review/update/<int:id>/', update_review, name='update_review'),

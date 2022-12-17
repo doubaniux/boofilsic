@@ -1,29 +1,34 @@
 import re
 from decimal import *
 from markdown import markdown
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 from django.db import models, IntegrityError
 from django.core.serializers.json import DjangoJSONEncoder
-from django.db.models import Q
+from django.db.models import Q, Count, Sum
 from markdownx.models import MarkdownxField
 from users.models import User
-from mastodon.api import get_relationships, get_cross_site_id
-from boofilsic.settings import CLIENT_NAME
 from django.utils import timezone
+from django.conf import settings
 
 
 RE_HTML_TAG = re.compile(r"<[^>]*>")
+MAX_TOP_TAGS = 5
 
 
 # abstract base classes
 ###################################
 class SourceSiteEnum(models.TextChoices):
-    IN_SITE = "in-site", CLIENT_NAME
-    DOUBAN = "douban",  _("豆瓣")
+    IN_SITE = "in-site", settings.CLIENT_NAME
+    DOUBAN = "douban", _("豆瓣")
     SPOTIFY = "spotify", _("Spotify")
     IMDB = "imdb", _("IMDb")
     STEAM = "steam", _("STEAM")
     BANGUMI = 'bangumi', _("bangumi")
+    GOODREADS = "goodreads", _("goodreads")
+    TMDB = "tmdb", _("The Movie Database")
+    GOOGLEBOOKS = "googlebooks", _("Google Books")
+    BANDCAMP = "bandcamp", _("BandCamp")
+    IGDB = "igdb", _("IGDB")
 
 
 class Entity(models.Model):
@@ -52,9 +57,29 @@ class Entity(models.Model):
                 rating__lte=10), name='%(class)s_rating_upperbound'),
         ]
 
-
     def get_absolute_url(self):
         raise NotImplementedError("Subclass should implement this method")
+
+    @property
+    def url(self):
+        return self.get_absolute_url()
+
+    @property
+    def absolute_url(self):
+        """URL with host and protocol"""
+        return settings.APP_WEBSITE + self.url
+
+    def get_json(self):
+        return {
+            'title': self.title,
+            'brief': self.brief,
+            'rating': self.rating,
+            'url': self.url,
+            'cover_url': self.cover.url,
+            'top_tags': self.tags[:5],
+            'category_name': self.verbose_category_name,
+            'other_info': self.other_info,
+        }
 
     def save(self, *args, **kwargs):
         """ update rating and strip source url scheme & querystring before save to db """
@@ -108,6 +133,15 @@ class Entity(models.Model):
         self.calculate_rating(old_rating, new_rating)
         self.save()
 
+    def refresh_rating(self):  # TODO: replace update_rating()
+        a = self.marks.filter(rating__gt=0).aggregate(Sum('rating'), Count('rating'))
+        if self.rating_total_score != a['rating__sum'] or self.rating_number != a['rating__count']:
+            self.rating_total_score = a['rating__sum']
+            self.rating_number = a['rating__count']
+            self.rating = a['rating__sum'] / a['rating__count'] if a['rating__count'] > 0 else None
+            self.save()
+        return self.rating
+
     def get_tags_manager(self):
         """
         Since relation between tag and entity is foreign key, and related name has to be unique,
@@ -115,9 +149,13 @@ class Entity(models.Model):
         """
         raise NotImplementedError("Subclass should implement this method.")
 
+    @property
+    def top_tags(self):
+        return self.get_tags_manager().values('content').annotate(tag_frequency=Count('content')).order_by('-tag_frequency')[:MAX_TOP_TAGS]
+
     def get_marks_manager(self):
         """
-        Normally this won't be used. 
+        Normally this won't be used.
         There is no ocassion where visitor can simply view all the marks.
         """
         raise NotImplementedError("Subclass should implement this method.")
@@ -128,6 +166,19 @@ class Entity(models.Model):
         There is no ocassion where visitor can simply view all the reviews.
         """
         raise NotImplementedError("Subclass should implement this method.")
+
+    @property
+    def all_tag_list(self):
+        return self.get_tags_manager().values('content').annotate(frequency=Count('content')).order_by('-frequency')
+
+    @property
+    def tags(self):
+        return list(map(lambda t: t['content'], self.all_tag_list))
+
+    @property
+    def marks(self):
+        params = {self.__class__.__name__.lower() + '_id': self.id}
+        return self.mark_class.objects.filter(**params)
 
     @classmethod
     def get_category_mapping_dict(cls):
@@ -144,75 +195,64 @@ class Entity(models.Model):
     def verbose_category_name(self):
         raise NotImplementedError("Subclass should implement this.")
 
+    @property
+    def mark_class(self):
+        raise NotImplementedError("Subclass should implement this.")
+
+    @property
+    def tag_class(self):
+        raise NotImplementedError("Subclass should implement this.")
+
 
 class UserOwnedEntity(models.Model):
-    is_private = models.BooleanField()
-    owner = models.ForeignKey(
-        User, on_delete=models.CASCADE, related_name='user_%(class)ss')
+    is_private = models.BooleanField(default=False, null=True)  # first set allow null, then migration, finally (in a few days) remove for good
+    visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='user_%(class)ss')
     created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(default=timezone.now)
 
     class Meta:
         abstract = True
 
+    def is_visible_to(self, viewer):
+        if not viewer.is_authenticated:
+            return self.visibility == 0
+        owner = self.owner
+        if owner == viewer:
+            return True
+        if not owner.is_active:
+            return False
+        if self.visibility == 2:
+            return False
+        if viewer.is_blocking(owner) or owner.is_blocking(viewer) or viewer.is_muting(owner):
+            return False
+        if self.visibility == 1:
+            return viewer.is_following(owner)
+        else:
+            return True
+
+    def is_editable_by(self, viewer):
+        return True if viewer.is_staff or viewer.is_superuser or viewer == self.owner else False
+
     @classmethod
-    def get_available(cls, entity, request_user, token):
-        # TODO add amount limit for once query
-        """ 
-        Returns all avaliable user-owned entities related to given entity. 
-        This method handles mute/block relationships and private/public visibilities.
-        """
-        # the foreign key field that points to entity
-        # has to be named as the lower case name of that entity
+    def get_available(cls, entity, request_user, following_only=False):
+        # e.g. SongMark.get_available(song, request.user)
         query_kwargs = {entity.__class__.__name__.lower(): entity}
-        user_owned_entities = cls.objects.filter(
-            **query_kwargs).order_by("-edited_time")
-
-        # every user should only be abled to have one user owned entity for each entity
-        # this is guaranteed by models
-        id_list = []
-
-        # none_index tracks those failed cross site id query
-        none_index = []
-
-        for (i, entity) in enumerate(user_owned_entities):
-            if entity.owner.mastodon_site == request_user.mastodon_site:
-                id_list.append(entity.owner.mastodon_id)
-            else:
-                # TODO there could be many requests therefore make the pulling asynchronized
-                cross_site_id = get_cross_site_id(
-                    entity.owner, request_user.mastodon_site, token)
-                if not cross_site_id is None:
-                    id_list.append(cross_site_id)
-                else:
-                    none_index.append(i)
-                    # populate those query-failed None postions
-                    # to ensure the consistency of the orders of 
-                    # the three(id_list, user_owned_entities, relationships)
-                    id_list.append(request_user.mastodon_id)
-
-        # Mastodon request
-        relationships = get_relationships(
-            request_user.mastodon_site, id_list, token)
-        mute_block_blocked_index = []
-        following_index = []
-        for i, r in enumerate(relationships):
-            # the order of relationships is corresponding to the id_list,
-            # and the order of id_list is the same as user_owned_entiies
-            if r['blocking'] or r['blocked_by'] or r['muting']:
-                mute_block_blocked_index.append(i)
-            if r['following']:
-                following_index.append(i)
-        available_entities = [
-            e for i, e in enumerate(user_owned_entities)
-                if ((e.is_private == True and i in following_index) or e.is_private == False or e.owner == request_user)
-                    and not i in mute_block_blocked_index and not i in none_index
-        ]
-        return available_entities
+        all_entities = cls.objects.filter(**query_kwargs).order_by("-created_time")  # get all marks for song
+        visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user) and (_entity.owner.mastodon_username in request_user.mastodon_following if following_only else True), all_entities))
+        return visible_entities
 
     @classmethod
-    def get_available_by_user(cls, owner, is_following):
-        """ 
+    def get_available_for_identicals(cls, entity, request_user, following_only=False):
+        # e.g. SongMark.get_available(song, request.user)
+        query_kwargs = {entity.__class__.__name__.lower() + '__in': entity.get_identicals()}
+        all_entities = cls.objects.filter(**query_kwargs).order_by("-created_time")  # get all marks for song
+        visible_entities = list(filter(lambda _entity: _entity.is_visible_to(request_user) and (_entity.owner.mastodon_username in request_user.mastodon_following if following_only else True), all_entities))
+        return visible_entities
+
+    @classmethod
+    def get_available_by_user(cls, owner, is_following):  # FIXME
+        """
         Returns all avaliable owner's entities.
         Mute/Block relation is not handled in this method.
 
@@ -220,9 +260,16 @@ class UserOwnedEntity(models.Model):
         :param is_following: if the current user is following the owner
         """
         user_owned_entities = cls.objects.filter(owner=owner)
-        if not is_following:
-            user_owned_entities = user_owned_entities.exclude(is_private=True)
+        if is_following:
+            user_owned_entities = user_owned_entities.exclude(visibility=2)
+        else:
+            user_owned_entities = user_owned_entities.filter(visibility=0)
         return user_owned_entities
+
+    @property
+    def item(self):
+        attr = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', self.__class__.__name__)[0].lower()
+        return getattr(self, attr)
 
 
 # commonly used entity classes
@@ -236,10 +283,20 @@ class MarkStatusEnum(models.TextChoices):
 class Mark(UserOwnedEntity):
     status = models.CharField(choices=MarkStatusEnum.choices, max_length=20)
     rating = models.PositiveSmallIntegerField(blank=True, null=True)
-    text = models.CharField(max_length=500, blank=True, default='')
+    text = models.CharField(max_length=5000, blank=True, default='')
+    shared_link = models.CharField(max_length=5000, blank=True, default='')
 
     def __str__(self):
-        return f"({self.id}) {self.owner} {self.status.upper()}"
+        return f"Mark({self.id} {self.owner} {self.status.upper()})"
+
+    @property
+    def translated_status(self):
+        raise NotImplementedError("Subclass should implement this.")
+
+    @property
+    def tags(self):
+        tags = self.item.tag_class.objects.filter(mark_id=self.id)
+        return tags
 
     class Meta:
         abstract = True
@@ -249,7 +306,7 @@ class Mark(UserOwnedEntity):
             models.CheckConstraint(check=models.Q(
                 rating__lte=10), name='mark_rating_upperbound'),
         ]
-    
+
     # TODO update entity rating when save
     # TODO update tags
 
@@ -257,6 +314,7 @@ class Mark(UserOwnedEntity):
 class Review(UserOwnedEntity):
     title = models.CharField(max_length=120)
     content = MarkdownxField()
+    shared_link = models.CharField(max_length=5000, blank=True, default='')
 
     def __str__(self):
         return self.title
@@ -271,12 +329,39 @@ class Review(UserOwnedEntity):
     class Meta:
         abstract = True
 
+    @property
+    def translated_status(self):
+        return '评论了'
+
 
 class Tag(models.Model):
     content = models.CharField(max_length=50)
 
     def __str__(self):
         return self.content
+
+    @property
+    def edited_time(self):
+        return self.mark.edited_time
+
+    @property
+    def created_time(self):
+        return self.mark.created_time
+
+    @property
+    def text(self):
+        return self.mark.text
+
+    @classmethod
+    def find_by_user(cls, tag, owner, viewer):
+        qs = cls.objects.filter(content=tag, mark__owner=owner)
+        if owner != viewer:
+            qs = qs.filter(mark__visibility__lte=owner.get_max_visibility(viewer))
+        return qs
+
+    @classmethod
+    def all_by_user(cls, owner):
+        return cls.objects.filter(mark__owner=owner).values('content').annotate(total=Count('content')).order_by('-total')
 
     class Meta:
         abstract = True

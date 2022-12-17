@@ -10,8 +10,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'NiceDB - 删除评论' %}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>{{ site_name }} - {% trans '删除评论' %}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
     
@@ -35,7 +35,7 @@
                                 <h5 class="review-head__title">
                                     {{ review.title }}
                                 </h5>
-                                {% if review.is_private %}
+                                {% if review.visibility > 0 %}
                                 <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"
                                         viewBox="0 0 20 20">
                                             <path
@@ -46,7 +46,7 @@
                                 <div class="review-head__body">
                                     <div class="review-head__info">
 
-                                        <a href="{% url 'users:home' review.owner.id %}"
+                                        <a href="{% url 'users:home' review.owner.mastodon_username %}"
                                             class="review-head__owner-link">{{ review.owner.username }}</a>
 
                                         {% if mark %}
@@ -89,12 +89,6 @@
     </div>
 
 
-    {% comment %}
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <!--current user mastodon id-->
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% endcomment %}
 
     <script>
 

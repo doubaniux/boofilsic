@@ -10,8 +10,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'NiceDB - ' %}{{ title }}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>{{ site_name }} - {{ title }}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
     <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
 </head>
 
@@ -22,9 +22,24 @@
 
             <section id="content" class="container">
                 <div class="grid">
+                    {% if is_update and form.source_site.value != 'in-site' %}
+                    <div style="float:right;padding-left:16px">
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '源网站' %}: <a href="{{ form.source_url.value }}">{{ form.source_site.value }}</a></div>
+                                <div class="action-panel__button-group">
+                                    <form method="post" action="{% url 'games:rescrape' form.id.value %}">
+                                        {% csrf_token %}
+                                        <input class="button" type="submit" value="{% trans '从源网站重新抓取' %}">
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <div class="single-section-wrapper" id="main">
-                        <a href="{% url 'games:scrape' %}"
-                            class="single-section-wrapper__link single-section-wrapper__link--secondary">{% trans '>>> 试试一键剽取~ <<<' %}</a>
+                        {% comment %} <a href="{% url 'games:scrape' %}" class="single-section-wrapper__link single-section-wrapper__link--secondary">{% trans '>>> 试试一键剽取~ <<<' %}</a> {% endcomment %}
                         <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form.media }}
@@ -55,12 +70,6 @@
     </div>
 
 
-    {% comment %}
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <!--current user mastodon id-->
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% endcomment %}
 
     <script>
         // mark required

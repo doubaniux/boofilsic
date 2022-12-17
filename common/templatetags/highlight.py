@@ -1,17 +1,19 @@
 from django import template
 from django.utils.safestring import mark_safe
 from django.template.defaultfilters import stringfilter
-from django.utils.html import format_html
+from opencc import OpenCC
 
-import re
 
+cc = OpenCC('t2s')
 register = template.Library()
+
 
 @register.filter
 @stringfilter
 def highlight(text, search):
-    to_be_replaced_words = set(re.findall(search, text, flags=re.IGNORECASE))
-
-    for word in to_be_replaced_words:
-        text = text.replace(word, f'<span class="highlight">{word}</span>')
+    for s in cc.convert(search.strip().lower()).split(' '):
+        if s:
+            p = cc.convert(text.lower()).find(s)
+            if p != -1:
+                text = f'{text[0:p]}<span class="highlight">{text[p:p+len(s)]}</span>{text[p+len(s):]}'
     return mark_safe(text)

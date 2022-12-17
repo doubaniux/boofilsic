@@ -54,38 +54,50 @@ const NUMBER_PER_REQUEST = 20
 //       "fields": []
 //     }
 //   ]
-function getFollowers(id, mastodonURI, token, callback) {
-    let url = mastodonURI + API_FOLLOWERS.replace(":id", id);
-    $.ajax({
-        url: url,
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        },
-        data: {
-            'limit': NUMBER_PER_REQUEST
-        },
-        success: function(data, status, request){
-            callback(data, request);
-        },
-    });
+async function getFollowers(id, mastodonURI, token, callback) {
+    const url = mastodonURI + API_FOLLOWERS.replace(":id", id);
+    var response;
+    try {
+        response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
+    } catch (e) {
+        console.error('loading followers failed.');
+        return;
+    }
+    const json = await response.json();
+    let nextUrl = null;
+    let links = response.headers.get('link');
+    if (links) {
+        links.split(',').forEach(link => {
+            if (link.includes('next')) {
+                let regex = /<(.*?)>/;
+                nextUrl = link.match(regex)[1];
+            }
+        });
+    }
+    callback(json, nextUrl);
 }
 
-function getFollowing(id, mastodonURI, token, callback) {
-    let url = mastodonURI + API_FOLLOWING.replace(":id", id);
-    $.ajax({
-        url: url,
-        method: 'GET',
-        headers: {
-            'Authorization': 'Bearer ' + token,
-        },        
-        data: {
-            'limit': NUMBER_PER_REQUEST
-        },
-        success: function(data, status, request){
-            callback(data, request);
-        },
-    });
+async function getFollowing(id, mastodonURI, token, callback) {
+    const url = mastodonURI + API_FOLLOWING.replace(":id", id);
+    var response;
+    try {
+        response = await fetch(url+'?limit='+NUMBER_PER_REQUEST, {headers: {'Authorization': 'Bearer ' + token}});
+    } catch (e) {
+        console.error('loading following failed.');
+        return;
+    }
+    const json = await response.json();
+    let nextUrl = null;
+    let links = response.headers.get('link');
+    if (links) {
+        links.split(',').forEach(link => {
+            if (link.includes('next')) {
+                let regex = /<(.*?)>/;
+                nextUrl = link.match(regex)[1];
+            }
+        });
+    }
+    callback(json, nextUrl);
 }
 
 // {
@@ -143,6 +155,7 @@ function getEmojiDict(emoji_list) {
 }
 
 function translateEmojis(text, emoji_list, large) {
+    console.log(text)
     let dict = getEmojiDict(emoji_list);
     let regex = /:(.*?):/g;
     let translation = null

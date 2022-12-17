@@ -13,8 +13,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'NiceDB - ' %}{{ album.title }}{% trans '的评论' %}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>{{ site_name }} - {{ album.title }}{% trans '的评论' %}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/rating-star-readonly.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
@@ -40,9 +40,9 @@
 
                                     <li class="entity-reviews__review entity-reviews__review--wider">
 
-                                        <a href="{% url 'users:home' review.owner.id %}"
+                                        <a href="{% url 'users:home' review.owner.mastodon_username %}"
                                             class="entity-reviews__owner-link">{{ review.owner.username }}</a>
-                                        {% if review.is_private %}
+                                        {% if review.visibility > 0 %}
                                         <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg"
                                                 viewBox="0 0 20 20">
                                                     <path
@@ -120,7 +120,7 @@
                                         {% if album.artist|length > 5 %}
                                         <a href="javascript:void(0);" id="artistMore">{% trans '更多' %}</a>
                                         <script>
-                                            $("#artistMore").click(function (e) {
+                                            $("#artistMore").on('click', function (e) {
                                                 $("span.artist:not(:visible)").each(function (e) {
                                                     $(this).parent().removeAttr('style');
                                                 });
@@ -150,12 +150,6 @@
     </div>
 
 
-    {% comment %}
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon request.user.mastodon_site %}</div>
-    <!--current user mastodon id-->
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% endcomment %}
 
     <script>
 

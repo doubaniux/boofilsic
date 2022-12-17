@@ -1,0 +1,32 @@
+version: '3'
+
+services:
+  redis:
+    image: redis:alpine
+
+  db:
+    image: postgres:14-alpine
+    volumes:
+      - /tmp/data/db:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=postgres
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+
+  web:
+    build: .
+    command: python manage.py runserver 0.0.0.0:8000
+    volumes:
+      - .:/code
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      - DB_NAME=postgres
+      - DB_USER=postgres
+      - DB_PASSWORD=postgres
+      - REDIS_HOST=redis
+      - DJANGO_SETTINGS_MODULE=yoursettings.dev
+    depends_on:
+      - db
+      - redis

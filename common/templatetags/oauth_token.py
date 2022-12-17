@@ -7,7 +7,7 @@ register = template.Library()
 class OAuthTokenNode(template.Node):
     def render(self, context):
         request = context.get('request')
-        oauth_token = request.session.get('oauth_token', default='')
+        oauth_token = request.user.mastodon_token
         return format_html(oauth_token)
 
 

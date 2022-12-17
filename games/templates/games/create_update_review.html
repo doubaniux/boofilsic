@@ -13,8 +13,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{% trans 'NiceDB - ' %}{{ title }}</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <title>{{ site_name }} - {{ title }}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
     <script src="{% static 'js/create_update_review.js' %}"></script>
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
@@ -94,7 +94,7 @@
                                 <div class="review-form__option">
                                     <div class="review-form__visibility-radio">
 
-                                        {{ form.is_private.label }}{{ form.is_private }}
+                                        {{ form.visibility.label }}{{ form.visibility }}
                                     </div>
                                     <div class="review-form__share-checkbox">
                                         {{ form.share_to_mastodon }}{{ form.share_to_mastodon.label }}
@@ -114,12 +114,6 @@
         {% include "partial/_footer.html" %}
     </div>
     
-    {% comment %}        
-    <div id="oauth2Token" hidden="true">{% oauth_token %}</div>
-    <div id="mastodonURI" hidden="true">{% mastodon  request.user.mastodon_site %}</div>
-    <!--current user mastodon id--> 
-    <div id="userMastodonID" hidden="true">{{ user.mastodon_id }}</div>
-    {% endcomment %}
         
     <script>
 

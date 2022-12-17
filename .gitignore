@@ -25,3 +25,13 @@ migrations/
 # debug log file
 /log
 log
+
+# conf folders
+/conf
+/neodb
+
+# typesense folder
+/typesense-data
+
+# test coverage
+.coverage

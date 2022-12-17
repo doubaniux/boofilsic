@@ -14,21 +14,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta property="og:title" content="NiceDB游戏 - {{ game.title }}">
+    <meta property="og:title" content="{{ site_name }}游戏 - {{ game.title }}">
     <meta property="og:type" content="game">
     <meta property="og:url" content="{{ request.build_absolute_uri }}">
     <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ game.cover.url }}">
-    <meta property="og:site_name" content="NiceDB">
-    <meta property="og:description"content="{{ game.brief }}">
+    <meta property="og:site_name" content="{{ site_name }}">
+    <meta property="og:description" content="{{ game.brief }}">
     
-    <title>{% trans 'NiceDB - 游戏详情' %} | {{ game.title }}</title>
+    <title>{{ site_name }} - {% trans '游戏详情' %} | {{ game.title }}</title>
         
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    {% include "partial/_common_libs.html" with jquery=1 %}
+
     <script src="{% static 'lib/js/rating-star.js' %}"></script>
     <script src="{% static 'js/detail.js' %}"></script>    
-    <link rel="stylesheet" href="{% static 'css/boofilsic.css' %}">
     <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
-
 </head>
 
 <body>
@@ -54,11 +53,12 @@
                                     
                                     <div class="entity-detail__fields">
                                         <div class="entity-detail__rating">
-                                            {% if game.rating %}
+                                            {% if game.rating and game.rating_number >= 5 %}
                                             <span class="entity-detail__rating-star rating-star" data-rating-score="{{ game.rating | floatformat:"0" }}"></span>
                                             <span class="entity-detail__rating-score"> {{ game.rating }} </span>
+                                            <small>({{ game.rating_number }}人评分)</small>
                                             {% else %}
-                                            <span> {% trans '评分：暂无评分' %}</span>
+                                            <span> {% trans '评分：评分人数不足' %}</span>
                                             {% endif %}
                                         </div>
 
@@ -72,7 +72,7 @@
                                             {% if game.other_title|length > 5 %}
                                             <a href="javascript:void(0);" id="otherTitleMore">{% trans '更多' %}</a>
                                             <script>
-                                                $("#otherTitleMore").click(function (e) {
+                                                $("#otherTitleMore").on('click', function (e) {
                                                     $("span.other_title:not(:visible)").each(function (e) {
                                                         $(this).parent().removeAttr('style');
                                                     });
@@ -111,7 +111,15 @@
                                             {% trans '发行日期：' %}{{ game.release_date }}
                                             {% endif %}
                                         </div>
-                             
+                                        
+                                        {% if game.other_info %}                                  
+                                        {% for k, v in game.other_info.items %}
+                                        <div>
+                                            {{ k }}：{{ v  | urlize }}
+                                        </div>
+                                        {% endfor %}
+                                        {% endif %}
+                                        
                                     </div>
                                     <div class="entity-detail__fields">
                                         
@@ -123,17 +131,10 @@
                                             {% endif %}
                                         </div>
 
-                                        {% if game.other_info %}                                  
-                                        {% for k, v in game.other_info.items %}
-                                        <div>
-                                            {{ k }}：{{ v  | urlize }}
-                                        </div>
-                                        {% endfor %}
-                                        {% endif %}
-                                        
+
                                     
-                                        {% if game.last_editor %}
-                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' game.last_editor.id %}">{{ game.last_editor | default:"" }}</a></div>
+                                        {% if game.last_editor and game.last_editor.preference.show_last_edit or user.is_staff %}
+                                        <div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' game.last_editor.mastodon_username %}">{{ game.last_editor | default:"" }}</a></div>
                                         {% endif %}
 
                                         <div>
@@ -178,43 +179,23 @@
                                 
                                 <h5 class="entity-marks__title">{% trans '这个游戏的标记' %}</h5>
                                 {% if mark_list_more %}
-                                <a href="{% url 'games:retrieve_mark_list' game.id %}" class="entity-marks__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'games:retrieve_mark_list' game.id %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
                                 {% endif %}
-                                {% if mark_list %}
-                                <ul class="entity-marks__mark-list">                                    
-                                {% for others_mark in mark_list %}
-                                <li class="entity-marks__mark">
-                                    <a href="{% url 'users:home' others_mark.owner.id %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
-                                    <span>{{ others_mark.get_status_display }}</span>
-                                    {% if others_mark.rating %}
-                                    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating | floatformat:"0" }}"></span>
-                                    {% endif %}
-                                    {% if others_mark.is_private %}
-                                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
-                                    {% endif %}
-                                    <span class="entity-marks__mark-time">{{ others_mark.edited_time }}</span>
-                                    {% if others_mark.text %}
-                                    <p class="entity-marks__mark-content">{{ others_mark.text }}</p>
-                                    {% endif %}
-                                </li>
-                                {% endfor %}
-                                </ul>
-                                {% else %}
-                                <div>{% trans '暂无标记' %}</div>    
-                                {% endif %}
+                                <a href="{% url 'games:retrieve_mark_list' game.id 1 %}" class="entity-marks__more-link">关注的人的标记</a>
+                                {% include "partial/mark_list.html" with mark_list=mark_list current_item=game %}    
                             </div>
                             <div class="entity-reviews">
                                 <h5 class="entity-reviews__title">{% trans '这个游戏的评论' %}</h5>
 
                                 {% if review_list_more %}
-                                <a href="{% url 'games:retrieve_review_list' game.id %}" class="entity-reviews__more-link">{% trans '更多' %}</a>
+                                <a href="{% url 'games:retrieve_review_list' game.id %}" class="entity-reviews__more-link">{% trans '全部评论' %}</a>
                                 {% endif %}
                                 {% if review_list %}
                                 <ul class="entity-reviews__review-list">
                                 {% for others_review in review_list %}
                                 <li class="entity-reviews__review">
-                                    <a href="{% url 'users:home' others_review.owner.id %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
-                                    {% if others_review.is_private %}
+                                    <a href="{% url 'users:home' others_review.owner.mastodon_username %}" class="entity-reviews__owner-link">{{ others_review.owner.username }}</a>
+                                    {% if others_review.visibility > 0 %}
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                     {% endif %}
                                     <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
@@ -242,7 +223,7 @@
                                     <span class="mark-panel__rating-star rating-star" data-rating-score="{{ mark.rating | floatformat:"0" }}"></span>
                                     {% endif %}
                                 {% endif %}
-                                {% if mark.is_private %}
+                                {% if mark.visibility > 0 %}
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                                 {% endif %}                                        
                                 <span class="mark-panel__actions">
@@ -254,7 +235,7 @@
                                 </span>
                                 <div class="mark-panel__clear"></div>
 
-                                <div class="mark-panel__time">{{ mark.edited_time }}</div>
+                                <div class="mark-panel__time">{{ mark.created_time }}</div>
 
                                 {% if mark.text %}
                                 <p class="mark-panel__text">{{ mark.text }}</p>
@@ -286,7 +267,7 @@
                             <div class="review-panel">
    
                                 <span class="review-panel__label">{% trans '我的评论' %}</span>
-                                {% if review.is_private %}
+                                {% if review.visibility > 0 %}
                                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>                                      
                                 {% endif %}
 
@@ -315,6 +296,24 @@
 
                             {% endif %}
                         </div>
+
+                        {% if collection_list %}
+                        <div class="aside-section-wrapper">
+                            <div class="action-panel">
+                                <div class="action-panel__label">{% trans '相关收藏单' %}</div>
+                                <div >
+                                    {% for c in collection_list %}
+                                    <p>
+                                        <a href="{% url 'collection:retrieve' c.id %}">{{ c.title }}</a>
+                                    </p>
+                                    {% endfor %}
+                                    <div class="action-panel__button-group action-panel__button-group--center">
+                                        <button class="action-panel__button add-to-list" hx-get="{% url 'collection:add_to_list' 'game' game.id %}" hx-target="body" hx-swap="beforeend">{% trans '添加到收藏单' %}</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
                                 
                     </div>
                 </div>
@@ -377,8 +376,8 @@
                     
                     <div class="mark-modal__option">
                         <div class="mark-modal__visibility-radio">
-                            <span>{{ mark_form.is_private.label }}:</span>
-                            {{ mark_form.is_private }}
+                            <span>{{ mark_form.visibility.label }}:</span>
+                            {{ mark_form.visibility }}
                         </div>
                         <div class="mark-modal__share-checkbox">
                             {{ mark_form.share_to_mastodon }}{{ mark_form.share_to_mastodon.label }}

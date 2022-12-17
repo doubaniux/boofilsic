@@ -1,0 +1,159 @@
+{% load thumb %}
+{% load highlight %}
+{% load i18n %}
+{% load l10n %}
+{% load user_item %}
+{% current_user_marked_item book as marked %}
+<li class="entity-list__entity">
+    <div class="entity-list__entity-img-wrapper">
+        <a href="{% url 'books:retrieve' book.id %}">
+            <img src="{{ book.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
+        </a>
+        {% if not marked %}
+        <a class="entity-list__entity-action-icon" hx-post="{% url 'books:wish' book.id %}" title="加入想读">➕</a>
+        {% endif %}
+    </div>
+
+    <div class="entity-list__entity-text">
+        {% if editable %}
+        <div class="collection-item-position-edit">
+            {% if not forloop.first %}
+            <a hx-target=".entity-list" hx-post="{% url 'collection:move_up_item' form.instance.id collectionitem.id %}">▲</a>
+            {% endif %}
+            {% if not forloop.last %}
+            <a hx-target=".entity-list" hx-post="{% url 'collection:move_down_item' form.instance.id collectionitem.id %}">▼</a>
+            {% endif %}
+            <a hx-target=".entity-list" hx-post="{% url 'collection:delete_item' form.instance.id collectionitem.id %}">✖</a>
+        </div>
+        {% endif %}
+
+        <div class="entity-list__entity-title">
+
+            <a href="{% url 'books:retrieve' book.id %}" class="entity-list__entity-link">
+                {% if request.GET.q %}
+                {{ book.title | highlight:request.GET.q }}
+                {% else %}
+                {{ book.title }}
+                {% endif %}
+
+            </a>
+            {% if not request.GET.c and not hide_category %}
+            <span class="entity-list__entity-category">[{{book.verbose_category_name}}]</span>
+            {% endif %}
+            <a href="{{ book.source_url }}">
+                <span class="source-label source-label__{{ book.source_site }}">{{ book.get_source_site_display }}</span>
+            </a>
+        </div>
+
+        {% if book.rating %}
+        <div class="rating-star entity-list__rating-star" data-rating-score="{{ book.rating | floatformat:"0" }}"></div>
+        <span class="entity-list__rating-score rating-score">{{ book.rating }}</span>
+        {% else %}
+        <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
+        {% endif %}
+
+        <span class="entity-list__entity-info">
+            {% if book.pub_year %} /
+            {{ book.pub_year }}{% trans '年' %}{% if book.pub_month %}{{book.pub_month }}{% trans '月' %}{% endif %}
+            {% endif %}
+
+            {% if book.author %} /
+            {% for author in book.author %}
+            {% if request.GET.q %}
+            {{ author | highlight:request.GET.q }}
+            {% else %}
+            {{ author }}
+            {% endif %}
+            {% if not forloop.last %},{% endif %}
+            {% endfor %}
+            {% endif %}
+
+            {% if book.translator %} /
+            {% trans '翻译' %}:
+            {% for translator in book.translator %}
+            {% if request.GET.q %}
+            {{ translator | highlight:request.GET.q }}
+            {% else %}
+            {{ translator }}
+            {% endif %}
+            {% if not forloop.last %},{% endif %}
+            {% endfor %}
+            {% endif %}
+
+            {% if book.subtitle %} /
+            {% trans '副标题' %}:
+            {% if request.GET.q %}
+            {{ book.subtitle | highlight:request.GET.q }}
+            {% else %}
+            {{ book.subtitle }}
+            {% endif %}
+            {% endif %}
+
+            {% if book.orig_title %} /
+            {% trans '原名' %}:
+            {% if request.GET.q %}
+            {{ book.orig_title | highlight:request.GET.q }}
+            {% else %}
+            {{ book.orig_title }}
+            {% endif %}
+            {% endif %}
+        </span>
+        <p class="entity-list__entity-brief">
+            {{ book.brief }}
+        </p>
+
+        <div class="tag-collection">
+            {% for tag_dict in book.top_tags %}
+            <span class="tag-collection__tag">
+                <a href="{% url 'common:search' %}?tag={{ tag_dict.content }}">{{ tag_dict.content }}</a>
+            </span>
+            {% endfor %}
+        </div>
+
+        {% if mark %}
+        <div class="clearfix"></div>
+        <div class="dividing-line dividing-line--dashed"></div>
+        <div class="entity-marks" style="margin-bottom: 0;">
+            <ul class="entity-marks__mark-list">
+                <li class="entity-marks__mark">
+                    {% if mark.rating %}
+                    <span class="entity-marks__rating-star rating-star"
+                        data-rating-score="{{ mark.rating | floatformat:"0" }}" style="left: -4px;"></span>
+                    {% endif %}
+                    {% if mark.visibility > 0 %}
+                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                                <path
+                                    d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+                        </svg></span>
+                    {% endif %}
+                    <span class="entity-marks__mark-time">
+                        {% trans '于' %} {{ mark.created_time }}
+                        {% if status == 'reviewed' %}
+                        {% trans '评论' %}: <a href="{% url 'books:retrieve_review' mark.id %}">{{ mark.title }}</a>
+                        {% else %}
+                        {% trans '标记' %}
+                        {% endif %}
+                    </span>
+                    {% if mark.text %}
+                    <p class="entity-marks__mark-content">{{ mark.text }}</p>
+                    {% endif %}
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+
+        {% if collectionitem %}
+        <div class="clearfix"></div>
+        <div class="dividing-line dividing-line--dashed"></div>
+        <div class="entity-marks" style="margin-bottom: 0;">
+            <ul class="entity-marks__mark-list">
+                <li class="entity-marks__mark">
+                    <p class="entity-marks__mark-content" hx-target="this" hx-swap="innerHTML">
+                        {% include "show_item_comment.html" %}
+                    </p>
+                </li>
+            </ul>
+        </div>
+        {% endif %}
+    </div>
+</li>

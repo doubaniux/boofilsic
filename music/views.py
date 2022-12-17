@@ -1,24 +1,24 @@
-# from boofilsic.settings import MASTODON_TAGS
 from .forms import *
 from .models import *
 from common.models import SourceSiteEnum
-from common.views import PAGE_LINK_NUMBER, jump_or_scrape
+from common.views import PAGE_LINK_NUMBER, jump_or_scrape, go_relogin
 from common.utils import PageLinksGenerator
-from mastodon.utils import rating_to_emoji
-from mastodon.api import check_visibility, post_toot, TootVisibilityEnum
+from mastodon.models import MastodonApplication
+from mastodon.api import share_mark, share_review
 from mastodon import mastodon_request_included
 from django.core.paginator import Paginator
 from django.utils import timezone
 from django.db.models import Count
 from django.db import IntegrityError, transaction
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
-from django.http import HttpResponseBadRequest, HttpResponseServerError
+from django.http import HttpResponseBadRequest, HttpResponseServerError, HttpResponse
 from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.decorators import login_required, permission_required
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 import logging
 from django.shortcuts import render
-
+from collection.models import CollectionItem
+from common.scraper import get_scraper_by_url, get_normalized_url
 
 
 logger = logging.getLogger(__name__)
@@ -100,6 +100,7 @@ def update_song(request, id):
             'music/create_update_song.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': page_title,
                 'submit_url': reverse("music:update_song", args=[song.id]),
                 # provided for frontend js
@@ -129,6 +130,7 @@ def update_song(request, id):
                 'music/create_update_song.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': page_title,
                     'submit_url': reverse("music:update_song", args=[song.id]),
                     # provided for frontend js
@@ -187,6 +189,7 @@ def retrieve_song(request, id):
         else:
             mark_form = SongMarkForm(initial={
                 'song': song,
+                'visibility': request.user.get_preference().default_visibility if request.user.is_authenticated else 0,
                 'tags': mark_tags
             })
 
@@ -206,10 +209,8 @@ def retrieve_song(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = SongMark.get_available(
-                song, request.user, request.session['oauth_token'])
-            review_list = SongReview.get_available(
-                song, request.user, request.session['oauth_token'])
+            mark_list = SongMark.get_available(song, request.user)
+            review_list = SongReview.get_available(song, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -217,6 +218,8 @@ def retrieve_song(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
+        all_collections = CollectionItem.objects.filter(song=song).annotate(num_marks=Count('collection__collection_marks')).order_by('-num_marks')[:20]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, all_collections))
 
         # def strip_html_tags(text):
         #     import re
@@ -241,6 +244,7 @@ def retrieve_song(request, id):
                 'review_list_more': review_list_more,
                 'song_tag_list': song_tag_list,
                 'mark_tags': mark_tags,
+                'collection_list': collection_list,
             }
         )
     else:
@@ -285,12 +289,19 @@ def create_update_song_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            song_id = request.POST.get('song')
+            mark = SongMark.objects.filter(song_id=song_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(SongMark, pk=pk)
             if request.user != mark.owner:
                 return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.songmark_tags.all()
+            if mark.status != request.POST.get('status'):
+                mark.created_time = timezone.now()
             # update
             form = SongMarkForm(request.POST, instance=mark)
         else:
@@ -298,7 +309,7 @@ def create_update_song_mark(request):
             form = SongMarkForm(request.POST)
 
         if form.is_valid():
-            if form.instance.status == MarkStatusEnum.WISH.value:
+            if form.instance.status == MarkStatusEnum.WISH.value or form.instance.rating == 0:
                 form.instance.rating = None
                 form.cleaned_data['rating'] = None
             form.instance.owner = request.user
@@ -326,28 +337,10 @@ def create_update_song_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("music:retrieve_song",
-                                                                args=[song.id])
-                words = MusicMarkStatusTranslator(form.cleaned_data['status']) +\
-                    f"《{song.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'])
-
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
-                tags = ''
-                content = words + '\n' + url + '\n' + \
-                    form.cleaned_data['text'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_mark(form.instance):
+                    return go_relogin(request)
         else:
-            return HttpResponseBadRequest("invalid form data")
+            return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("music:retrieve_song", args=[form.instance.song.id]))
     else:
@@ -356,11 +349,30 @@ def create_update_song_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_song_mark_list(request, song_id):
+def wish_song(request, id):
+    if request.method == 'POST':
+        song = get_object_or_404(Song, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': request.user.preference.default_visibility,
+            'song': song,
+        }
+        try:
+            SongMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def retrieve_song_mark_list(request, song_id, following_only=False):
     if request.method == 'GET':
         song = get_object_or_404(Song, pk=song_id)
-        queryset = SongMark.get_available(
-            song, request.user, request.session['oauth_token'])
+        queryset = SongMark.get_available(song, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -421,23 +433,8 @@ def create_song_review(request, song_id):
             form.instance.owner = request.user
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("music:retrieve_song_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.song.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_song_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -473,23 +470,8 @@ def update_song_review(request, id):
             form.instance.edited_time = timezone.now()
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("music:retrieve_song_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.song.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_song_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -524,11 +506,10 @@ def delete_song_review(request, id):
 
 
 @mastodon_request_included
-@login_required
 def retrieve_song_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(SongReview, pk=id)
-        if not check_visibility(review, request.session['oauth_token'], request.user):
+        if not review.is_visible_to(request.user):
             msg = _("你没有访问这个页面的权限😥")
             return render(
                 request,
@@ -563,8 +544,7 @@ def retrieve_song_review(request, id):
 def retrieve_song_review_list(request, song_id):
     if request.method == 'GET':
         song = get_object_or_404(Song, pk=song_id)
-        queryset = SongReview.get_available(
-            song, request.user, request.session['oauth_token'])
+        queryset = SongReview.get_available(song, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)
@@ -662,6 +642,18 @@ def create_album(request):
 
 
 @login_required
+def rescrape(request, id):
+    if request.method != 'POST':
+        return HttpResponseBadRequest()
+    item = get_object_or_404(Album, pk=id)
+    url = get_normalized_url(item.source_url)
+    scraper = get_scraper_by_url(url)
+    scraper.scrape(url)
+    form = scraper.save(request_user=request.user, instance=item)
+    return redirect(reverse("music:retrieve_album", args=[form.instance.id]))
+
+
+@login_required
 def update_album(request, id):
     if request.method == 'GET':
         album = get_object_or_404(Album, pk=id)
@@ -672,6 +664,7 @@ def update_album(request, id):
             'music/create_update_album.html',
             {
                 'form': form,
+                'is_update': True,
                 'title': page_title,
                 'submit_url': reverse("music:update_album", args=[album.id]),
                 # provided for frontend js
@@ -701,6 +694,7 @@ def update_album(request, id):
                 'music/create_update_album.html',
                 {
                     'form': form,
+                    'is_update': True,
                     'title': page_title,
                     'submit_url': reverse("music:update_album", args=[album.id]),
                     # provided for frontend js
@@ -758,6 +752,7 @@ def retrieve_album(request, id):
         else:
             mark_form = AlbumMarkForm(initial={
                 'album': album,
+                'visibility': request.user.get_preference().default_visibility if request.user.is_authenticated else 0,
                 'tags': mark_tags
             })
 
@@ -777,10 +772,8 @@ def retrieve_album(request, id):
             mark_list_more = None
             review_list_more = None
         else:
-            mark_list = AlbumMark.get_available(
-                album, request.user, request.session['oauth_token'])
-            review_list = AlbumReview.get_available(
-                album, request.user, request.session['oauth_token'])
+            mark_list = AlbumMark.get_available(album, request.user)
+            review_list = AlbumReview.get_available(album, request.user)
             mark_list_more = True if len(mark_list) > MARK_NUMBER else False
             mark_list = mark_list[:MARK_NUMBER]
             for m in mark_list:
@@ -788,6 +781,8 @@ def retrieve_album(request, id):
             review_list_more = True if len(
                 review_list) > REVIEW_NUMBER else False
             review_list = review_list[:REVIEW_NUMBER]
+        all_collections = CollectionItem.objects.filter(album=album).annotate(num_marks=Count('collection__collection_marks')).order_by('-num_marks')[:20]
+        collection_list = filter(lambda c: c.is_visible_to(request.user), map(lambda i: i.collection, all_collections))
 
         # def strip_html_tags(text):
         #     import re
@@ -812,6 +807,7 @@ def retrieve_album(request, id):
                 'review_list_more': review_list_more,
                 'album_tag_list': album_tag_list,
                 'mark_tags': mark_tags,
+                'collection_list': collection_list,
             }
         )
     else:
@@ -856,12 +852,19 @@ def create_update_album_mark(request):
         pk = request.POST.get('id')
         old_rating = None
         old_tags = None
+        if not pk:
+            album_id = request.POST.get('album')
+            mark = AlbumMark.objects.filter(album_id=album_id, owner=request.user).first()
+            if mark:
+                pk = mark.id
         if pk:
             mark = get_object_or_404(AlbumMark, pk=pk)
             if request.user != mark.owner:
                 return HttpResponseBadRequest()
             old_rating = mark.rating
             old_tags = mark.albummark_tags.all()
+            if mark.status != request.POST.get('status'):
+                mark.created_time = timezone.now()
             # update
             form = AlbumMarkForm(request.POST, instance=mark)
         else:
@@ -869,7 +872,7 @@ def create_update_album_mark(request):
             form = AlbumMarkForm(request.POST)
 
         if form.is_valid():
-            if form.instance.status == MarkStatusEnum.WISH.value:
+            if form.instance.status == MarkStatusEnum.WISH.value or form.instance.rating == 0:
                 form.instance.rating = None
                 form.cleaned_data['rating'] = None
             form.instance.owner = request.user
@@ -897,28 +900,10 @@ def create_update_album_mark(request):
                 return HttpResponseServerError("integrity error")
 
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("music:retrieve_album",
-                                                                args=[album.id])
-                words = MusicMarkStatusTranslator(form.cleaned_data['status']) +\
-                    f"《{album.title}》" + \
-                    rating_to_emoji(form.cleaned_data['rating'])
-
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '标记'}
-                tags = ''
-                content = words + '\n' + url + '\n' + \
-                    form.cleaned_data['text'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_mark(form.instance):
+                    return go_relogin(request)
         else:
-            return HttpResponseBadRequest("invalid form data")
+            return HttpResponseBadRequest(f"invalid form data {form.errors}")
 
         return redirect(reverse("music:retrieve_album", args=[form.instance.album.id]))
     else:
@@ -927,11 +912,30 @@ def create_update_album_mark(request):
 
 @mastodon_request_included
 @login_required
-def retrieve_album_mark_list(request, album_id):
+def wish_album(request, id):
+    if request.method == 'POST':
+        album = get_object_or_404(Album, pk=id)
+        params = {
+            'owner': request.user,
+            'status': MarkStatusEnum.WISH,
+            'visibility': request.user.preference.default_visibility,
+            'album': album,
+        }
+        try:
+            AlbumMark.objects.create(**params)
+        except Exception:
+            pass
+        return HttpResponse("✔️")
+    else:
+        return HttpResponseBadRequest("invalid method")
+
+
+@mastodon_request_included
+@login_required
+def retrieve_album_mark_list(request, album_id, following_only=False):
     if request.method == 'GET':
         album = get_object_or_404(Album, pk=album_id)
-        queryset = AlbumMark.get_available(
-            album, request.user, request.session['oauth_token'])
+        queryset = AlbumMark.get_available(album, request.user, following_only=following_only)
         paginator = Paginator(queryset, MARK_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         marks = paginator.get_page(page_number)
@@ -992,23 +996,8 @@ def create_album_review(request, album_id):
             form.instance.owner = request.user
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("music:retrieve_album_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.album.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_album_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -1044,23 +1033,8 @@ def update_album_review(request, id):
             form.instance.edited_time = timezone.now()
             form.save()
             if form.cleaned_data['share_to_mastodon']:
-                if form.cleaned_data['is_private']:
-                    visibility = TootVisibilityEnum.PRIVATE
-                else:
-                    visibility = TootVisibilityEnum.UNLISTED
-                url = "https://" + request.get_host() + reverse("music:retrieve_album_review",
-                                                                args=[form.instance.id])
-                words = "发布了关于" + f"《{form.instance.album.title}》" + "的评论"
-                # tags = MASTODON_TAGS % {'category': '书', 'type': '评论'}
-                tags = ''
-                content = words + '\n' + url + \
-                    '\n' + form.cleaned_data['title'] + '\n' + tags
-                response = post_toot(request.user.mastodon_site, content, visibility,
-                                     request.session['oauth_token'])
-                if response.status_code != 200:
-                    mastodon_logger.error(
-                        f"CODE:{response.status_code} {response.text}")
-                    return HttpResponseServerError("publishing mastodon status failed")
+                if not share_review(form.instance):
+                    return go_relogin(request)
             return redirect(reverse("music:retrieve_album_review", args=[form.instance.id]))
         else:
             return HttpResponseBadRequest()
@@ -1095,11 +1069,10 @@ def delete_album_review(request, id):
 
 
 @mastodon_request_included
-@login_required
 def retrieve_album_review(request, id):
     if request.method == 'GET':
         review = get_object_or_404(AlbumReview, pk=id)
-        if not check_visibility(review, request.session['oauth_token'], request.user):
+        if not review.is_visible_to(request.user):
             msg = _("你没有访问这个页面的权限😥")
             return render(
                 request,
@@ -1134,8 +1107,7 @@ def retrieve_album_review(request, id):
 def retrieve_album_review_list(request, album_id):
     if request.method == 'GET':
         album = get_object_or_404(Album, pk=album_id)
-        queryset = AlbumReview.get_available(
-            album, request.user, request.session['oauth_token'])
+        queryset = AlbumReview.get_available(album, request.user)
         paginator = Paginator(queryset, REVIEW_PER_PAGE)
         page_number = request.GET.get('page', default=1)
         reviews = paginator.get_page(page_number)

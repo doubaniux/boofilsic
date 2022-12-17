@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.http import HttpResponseBadRequest, JsonResponse, HttpResponse
 from .models import SyncTask
 from .forms import SyncTaskForm
-from .jobs import sync_task_manager
+from .jobs import import_doufen_task
 import tempfile
 import os
 from threading import Thread
@@ -11,6 +11,7 @@ import openpyxl
 from django.utils.datastructures import MultiValueDictKeyError
 from openpyxl.utils.exceptions import InvalidFileException
 from zipfile import BadZipFile
+import django_rq
 
 
 @login_required
@@ -25,7 +26,7 @@ def sync_douban(request):
             wb = openpyxl.open(uploaded_file, read_only=True,
                                data_only=True, keep_links=False)
             wb.close()
-        except (MultiValueDictKeyError, InvalidFileException, BadZipFile) as e :
+        except (MultiValueDictKeyError, InvalidFileException, BadZipFile) as e:
             # raise e
             return HttpResponseBadRequest(content="invalid excel file")
 
@@ -35,8 +36,7 @@ def sync_douban(request):
             # stop all preivous task
             SyncTask.objects.filter(user=request.user, is_finished=False).update(is_finished=True)
             form.save()
-            sync_task_manager.add_task(form.instance)
-
+            django_rq.get_queue('doufen').enqueue(import_doufen_task, form.instance, job_id=f'SyncTask_{form.instance.id}')
             return HttpResponse(status=204)
         else:
             return HttpResponseBadRequest()
@@ -55,6 +55,7 @@ def query_progress(request):
         return JsonResponse()
 
 
+@login_required
 def query_last_task(request):
     task = request.user.user_synctasks.order_by('-id').first()
     if task is not None:

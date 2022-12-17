@@ -17,21 +17,110 @@ from music.models import Album, Song, AlbumMark, SongMark
 from users.models import Report, User, Preference
 from mastodon.decorators import mastodon_request_included
 from users.views import home as user_home
+from timeline.views import timeline as user_timeline
 from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
-from common.scraper import scraper_registry
+from common.scraper import get_scraper_by_url, get_normalized_url
 from common.config import *
+from common.searcher import ExternalSources
 from management.models import Announcement
+from django.conf import settings
+from common.index import Indexer
+from django.http import JsonResponse
+from django.db.utils import IntegrityError
+
 
 logger = logging.getLogger(__name__)
 
+
 @login_required
 def home(request):
-    return user_home(request, request.user.id)
+    if request.user.get_preference().classic_homepage:
+        return redirect(reverse("users:home", args=[request.user.mastodon_username]))
+    else:
+        return redirect(reverse("timeline:timeline"))
 
 
 @login_required
+def external_search(request):
+    category = request.GET.get("c", default='all').strip().lower()
+    if category == 'all':
+        category = None
+    keywords = request.GET.get("q", default='').strip()
+    page_number = int(request.GET.get('page', default=1))
+    items = ExternalSources.search(category, keywords, page_number) if keywords else []
+    dedupe_urls = request.session.get('search_dedupe_urls', [])
+    items = [i for i in items if i.source_url not in dedupe_urls]
+
+    return render(
+        request,
+        "common/external_search_result.html",
+        {
+            "external_items": items,
+        }
+    )
+
+
 def search(request):
+    if settings.SEARCH_BACKEND is None:
+        return search2(request)
+    category = request.GET.get("c", default='all').strip().lower()
+    if category == 'all':
+        category = None
+    keywords = request.GET.get("q", default='').strip()
+    tag = request.GET.get("tag", default='').strip()
+    p = request.GET.get('page', default='1')
+    page_number = int(p) if p.isdigit() else 1
+    if not (keywords or tag):
+        return render(
+            request,
+            "common/search_result.html",
+            {
+                "items": None,
+            }
+        )
+    if request.user.is_authenticated:
+        url_validator = URLValidator()
+        try:
+            url_validator(keywords)
+            # validation success
+            return jump_or_scrape(request, keywords)
+        except ValidationError as e:
+            pass
+    
+    result = Indexer.search(keywords, page=page_number, category=category, tag=tag)
+    keys = []
+    items = []
+    urls = []
+    for i in result.items:
+        key = i.isbn if hasattr(i, 'isbn') else (i.imdb_code if hasattr(i, 'imdb_code') else None)
+        if key is None:
+            items.append(i)
+        elif key not in keys:
+            keys.append(key)
+            items.append(i)
+        urls.append(i.source_url)
+        i.tag_list = i.all_tag_list[:TAG_NUMBER_ON_LIST]
+
+    if request.path.endswith('.json/'):
+        return JsonResponse({
+            'num_pages': result.num_pages,
+            'items':list(map(lambda i:i.get_json(), items))
+            })
+
+    request.session['search_dedupe_urls'] = urls
+    return render(
+        request,
+        "common/search_result.html",
+        {
+            "items": items,
+            "pagination": PageLinksGenerator(PAGE_LINK_NUMBER, page_number, result.num_pages),
+            "categories": ['book', 'movie', 'music', 'game'],
+        }
+    )
+
+
+def search2(request):
     if request.method == 'GET':
 
         # test if input serach string is empty or not excluding param ?c=
@@ -109,7 +198,7 @@ def search(request):
             else:
                 ordered_queryset = list(queryset)
             return ordered_queryset
-            
+
         def movie_param_handler(**kwargs):
             # keywords
             keywords = kwargs.get('keywords')
@@ -240,7 +329,7 @@ def search(request):
                         elif music.__class__ == Song:
                             similarity += 1/2 * SequenceMatcher(None, keyword, music.title).quick_ratio() \
                                 + 1/6 * SequenceMatcher(None, keyword, artist_dump).quick_ratio() \
-                                + 1/6 * SequenceMatcher(None, keyword, music.album.title).quick_ratio()
+                                + 1/6 * (SequenceMatcher(None, keyword, music.album.title).quick_ratio() if music.album is not None else 0)
                         n += 1
                     music.similarity = similarity / n
                 elif tag:
@@ -322,32 +411,50 @@ def jump_or_scrape(request, url):
     if this_site in url:
         return redirect(url)
 
-    # match url to registerd sites
-    matched_host = None
-    for host in scraper_registry:
-        if host in url:
-            matched_host = host
-            break
-
-    if matched_host is None:
+    url = get_normalized_url(url)
+    scraper = get_scraper_by_url(url)
+    if scraper is None:
         # invalid url
-        return render(request, 'common/error.html', {'msg': _("链接非法，查询失败")})
+        return render(request, 'common/error.html', {'msg': _("链接无效，查询失败")})
     else:
-        scraper = scraper_registry[matched_host]
+        try:
+            effective_url = scraper.get_effective_url(url)
+        except ValueError:
+            return render(request, 'common/error.html', {'msg': _("链接无效，查询失败")})
         try:
             # raise ObjectDoesNotExist
-            effective_url = scraper.get_effective_url(url)
             entity = scraper.data_class.objects.get(source_url=effective_url)
             # if exists then jump to detail page
+            if request.path.endswith('.json/'):
+                return JsonResponse({
+                    'num_pages': 1,
+                    'items': [entity.get_json()]
+                    })
             return redirect(entity)
         except ObjectDoesNotExist:
             # scrape if not exists
             try:
                 scraper.scrape(url)
                 form = scraper.save(request_user=request.user)
+            except IntegrityError as ie:  # duplicate key on source_url may be caused by user's double submission
+                try:
+                    entity = scraper.data_class.objects.get(source_url=effective_url)
+                    return redirect(entity)
+                except Exception as e:
+                    logger.error(f"Scrape Failed URL: {url}\n{e}")
+                    if settings.DEBUG:
+                        logger.error("Expections during saving scraped data:", exc_info=e)
+                    return render(request, 'common/error.html', {'msg': _("爬取数据失败😫")})
             except Exception as e:
-                logger.error(f"Scrape Failed URL: {url}")
-                logger.error("Expections during saving scraped data:", exc_info=e)
+                logger.error(f"Scrape Failed URL: {url}\n{e}")
+                if settings.DEBUG:
+                    logger.error("Expections during saving scraped data:", exc_info=e)
                 return render(request, 'common/error.html', {'msg': _("爬取数据失败😫")})
             return redirect(form.instance)
 
+
+def go_relogin(request):
+    return render(request, 'common/error.html', {
+        'url': reverse("users:connect") + '?domain=' + request.user.mastodon_site,
+        'msg': _("信息已保存，但是未能分享到联邦网络"),
+        'secondary_msg': _("可能是你在联邦网络(Mastodon/Pleroma/...)的登录状态过期了，正在跳转到联邦网络重新登录😼")})

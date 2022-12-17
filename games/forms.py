@@ -1,28 +1,24 @@
 from django import forms
 from django.contrib.postgres.forms import SimpleArrayField
 from django.utils.translation import gettext_lazy as _
-from .models import Game, GameMark, GameReview
+from .models import Game, GameMark, GameReview, GameMarkStatusTranslation
 from common.models import MarkStatusEnum
 from common.forms import *
 
 
 def GameMarkStatusTranslator(status):
-    trans_dict = {
-        MarkStatusEnum.DO.value: _("在玩"),
-        MarkStatusEnum.WISH.value: _("想玩"),
-        MarkStatusEnum.COLLECT.value: _("玩过")
-    }
-    return trans_dict[status]
+    return GameMarkStatusTranslation[status]
 
 
 class GameForm(forms.ModelForm):
-    # id = forms.IntegerField(required=False, widget=forms.HiddenInput())
+    id = forms.IntegerField(required=False, widget=forms.HiddenInput())
 
     other_info = JSONField(required=False, label=_("其他信息"))
 
     class Meta:
         model = Game
         fields = [
+            'id',
             'title',
             'source_site',
             'source_url',
@@ -66,11 +62,8 @@ class GameMarkForm(MarkForm):
             'status',
             'rating',
             'text',
-            'is_private',
+            'visibility',
         ]
-        labels = {
-            'rating': _("评分"),
-        }
         widgets = {
             'game': forms.TextInput(attrs={"hidden": ""}),
         }
@@ -85,14 +78,8 @@ class GameReviewForm(ReviewForm):
             'game',
             'title',
             'content',
-            'is_private'
+            'visibility'
         ]
-        labels = {
-            'book': "",
-            'title': _("标题"),
-            'content': _("正文"),
-            'share_to_mastodon': _("分享到长毛象")
-        }
         widgets = {
             'game': forms.TextInput(attrs={"hidden": ""}),
         }
