@@ -363,10 +363,10 @@ TYPESENSE_CONNECTION = {
 DOWNLOADER_RETRIES = 3
 DOWNLOADER_SAVEDIR = None
 ENABLE_NEW_MODEL = os.getenv('new_data_model')
+DISABLE_SOCIAL = False  # disable writing to social feeds during importing/etc
 if ENABLE_NEW_MODEL:
     INSTALLED_APPS.append('polymorphic')
     INSTALLED_APPS.append('catalog.apps.CatalogConfig')
     INSTALLED_APPS.append('journal.apps.JournalConfig')
     INSTALLED_APPS.append('social.apps.SocialConfig')
     INSTALLED_APPS.append('legacy.apps.LegacyConfig')
-
