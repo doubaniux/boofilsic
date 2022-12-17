@@ -36,7 +36,8 @@ class TVShow(Item):
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tv = PrimaryLookupIdDescriptor(IdType.TMDB_TV)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
-    season_count = jsondata.IntegerField(null=True)
+    season_count = models.IntegerField(null=True)
+    episode_count = models.PositiveIntegerField(null=True)
 
     METADATA_COPY_LIST = [
         'title',
@@ -53,7 +54,8 @@ class TVShow(Item):
         'language',
         'year',
         'duration',
-        'season_number',
+        'season_count',
+        'episode_count',
         'single_episode_length',
         'brief',
     ]

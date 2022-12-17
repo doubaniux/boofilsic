@@ -103,8 +103,23 @@ class AbstractSite:
     def ready(self):
         return bool(self.resource and self.resource.ready)
 
-    def get_resource_ready(self, auto_save=True, auto_create=True, auto_link=True, preloaded_content=None, reload=False):
-        """return a resource scraped, or scrape if not yet"""
+    def get_resource_ready(self, auto_save=True, auto_create=True, auto_link=True, preloaded_content=None, ignore_existing_content=False):
+        """
+        Returns an ExternalResource in scraped state if possible
+        
+        Parameters
+        ----------
+        auto_save : bool
+            automatically saves the ExternalResource and, if auto_create, the Item too
+        auto_create : bool
+            automatically creates an Item if not exist yet
+        auto_link : bool
+            automatically scrape the linked resources (e.g. a TVSeason may have a linked TVShow)
+        preloaded_content : ResourceContent or dict
+            skip scrape(), and use this as scraped result
+        ignore_existing_content : bool
+            if ExternalResource already has content, ignore that and either use preloaded_content or call scrape()
+        """
         if auto_link:
             auto_create = True
         if auto_create:
@@ -113,7 +128,7 @@ class AbstractSite:
         resource_content = {}
         if not self.resource:
             return None
-        if not p.ready or reload:
+        if not p.ready or ignore_existing_content:
             if isinstance(preloaded_content, ResourceContent):
                 resource_content = preloaded_content
             elif isinstance(preloaded_content, dict):

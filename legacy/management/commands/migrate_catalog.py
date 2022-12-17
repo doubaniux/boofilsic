@@ -117,7 +117,7 @@ def _movie_tv_convert(entity):
         'duration': entity.duration,
         'season_count': entity.other_info.get('Seasons') if entity.other_info else None,
         'season_number': entity.season,
-        'episodes': entity.episodes,
+        'episode_count': entity.episodes,
         'single_episode_length': entity.single_episode_length,
         'is_series': entity.is_series,
     })
@@ -185,11 +185,11 @@ class Command(BaseCommand):
                         item = None
                         if site:
                             if not site.DEFAULT_MODEL and not content.metadata.get('preferred_model'):
-                                if model_map[typ] != Movie or not content.metadata.get('is_series'):
+                                if model_map[typ] == Movie and entity.is_series:
+                                    content.metadata['preferred_model'] = 'TVSeason' if entity.season else 'TVShow'
+                                else:
                                     content.metadata['preferred_model'] = model_map[typ].__name__
-                                else:  # TV
-                                    content.metadata['preferred_model'] = 'TVSeason' if content.metadata.get('season') else 'TVShow'
-                            item = site.get_resource_ready(preloaded_content=content, reload=reload).item
+                            item = site.get_resource_ready(preloaded_content=content, ignore_existing_content=reload).item
                         else:
                             # not known site, try save item without external resource
                             item = None

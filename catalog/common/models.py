@@ -175,12 +175,8 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     category = None  # subclass must specify this
     demonstrative = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
-    # item_type = models.CharField(_("类型"), choices=ItemType.choices, blank=False, max_length=50)
     title = models.CharField(_("title in primary language"), max_length=1000, default="")
-    # title_ml = models.JSONField(_("title in different languages {['lang':'zh-cn', 'text':'', primary:True], ...}"), null=True, blank=True, default=list)
     brief = models.TextField(_("简介"), blank=True, default="")
-    # brief_ml = models.JSONField(_("brief in different languages {['lang':'zh-cn', 'text':'', primary:True], ...}"), null=True, blank=True, default=list)
-    genres = models.JSONField(_("分类"), null=True, blank=True, default=list)
     primary_lookup_id_type = models.CharField(_("isbn/cubn/imdb"), blank=False, null=True, max_length=50)
     primary_lookup_id_value = models.CharField(_("1234/tt789"), blank=False, null=True, max_length=1000)
     metadata = models.JSONField(_("其他信息"), blank=True, null=True, default=dict)

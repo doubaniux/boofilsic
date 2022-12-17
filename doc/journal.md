@@ -23,53 +23,55 @@ Item .. Content
 class Content {
     +Item target
 }
-Content <|-- Rating 
+Content <|-- Rating
 class Rating {
     +int grade
 }
-Content <|-- Review 
+Content <|-- Review
 class Review {
-    +Enum warning_type
     +str title
+    +str body
+}
+Content <|-- Comment
+class Comment {
     +str text
 }
-
 Content <|-- Note
 class Note {
     +str text
     +int position
     +enum position_type
     +str quotation
-    +Image image 
-    
+    +Image image
+
 }
 Content <|-- Reply
 class Reply {
     +Content reply_to
 }
 Piece <|-- List
-Item <|-- List
 class List{
     +ListItem[] items
 }
 Item .. ListItem
 List *-- ListItem
 class ListItem {
+    +int position
     +Item item
-    +Comment comment
     +Dict metadata
 }
-List <|-- Collection 
+List <|-- Collection
+Item .. Collection
 class Collection {
     +str title
     +str brief
     +Bool collabrative
 }
-List <|-- Tag 
+List <|-- Tag
 class Tag {
     +str title
 }
-List <|-- Shelf 
+List <|-- Shelf
 class Shelf {
     +Enum type
 }
