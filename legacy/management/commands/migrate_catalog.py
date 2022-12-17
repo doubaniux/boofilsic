@@ -147,7 +147,7 @@ model_link = {
 
 
 class Command(BaseCommand):
-    help = 'Migrate legacy books'
+    help = 'Migrate legacy catalog'
 
     def add_arguments(self, parser):
         parser.add_argument('--book', dest='types', action='append_const', const=Legacy_Book)
@@ -168,7 +168,7 @@ class Command(BaseCommand):
             LinkModel = model_link[typ]
             if options['clearlink']:
                 LinkModel.objects.all().delete()
-            qs = typ.objects.all().order_by('id')  # if h == 0 else c.objects.filter(edited_time__gt=timezone.now() - timedelta(hours=h))
+            qs = typ.objects.all().order_by('id')
             if options['id']:
                 if options['maxid']:
                     qs = qs.filter(id__gte=int(options['id']), id__lte=int(options['maxid']))
@@ -208,7 +208,7 @@ class Command(BaseCommand):
                         links.append(LinkModel(old_id=entity.id, new_uid=item.uid))
                         # pprint.pp(site.get_item())
                     except Exception as e:
-                        print(f'Convert failed for {entity}: {e}')
+                        print(f'Convert failed for {typ} {entity.id}: {e}')
                         if options['failstop']:
                             raise(e)
                     # return

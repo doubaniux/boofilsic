@@ -42,7 +42,7 @@ These are list of activities should be either shown in the site or delivered as 
 
  - `Add` / `Remove` an *Item* to / from a *List*:
      + add / remove *Item* to / from a user *Collection*
-     + mark *Item* as wished / started / done, which are essentially add to / remove from user's predefined *Collection*
+     + mark *Item* as wishlist / progress / complete, which are essentially add to / remove from user's predefined *Collection*
  - `Create` / `Update` / `Delete` a user *Collection*
  - `Create` / `Update` / `Delete` a *Content* with an `Object Link` to *Item*
      + `Create` / `Update` / `Delete` a *Comment* or *Review*

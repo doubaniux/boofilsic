@@ -16,9 +16,11 @@ from functools import cached_property
 from django.db.models import Count, Avg
 import django.dispatch
 import math
+import uuid
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
+    uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
     created_time = models.DateTimeField(auto_now_add=True)
@@ -47,13 +49,13 @@ class Comment(Content):
     @staticmethod
     def comment_item_by_user(item, user, text, visibility=0):
         comment = Comment.objects.filter(owner=user, item=item).first()
-        if text is None:
+        if not text:
             if comment is not None:
                 comment.delete()
                 comment = None
         elif comment is None:
             comment = Comment.objects.create(owner=user, item=item, text=text, visibility=visibility)
-        else:
+        elif comment.text != text or comment.visibility != visibility:
             comment.text = text
             comment.visibility = visibility
             comment.save()
@@ -99,16 +101,21 @@ class Rating(Content):
         return stat['count']
 
     @staticmethod
-    def set_item_rating_by_user(item, rating_grade, user, visibility=0):
-        if rating_grade is not None and (rating_grade < 1 or rating_grade > 10):
+    def rate_item_by_user(item, user, rating_grade, visibility=0):
+        if not rating_grade and (rating_grade < 1 or rating_grade > 10):
             raise ValueError(f'Invalid rating grade: {rating_grade}')
         rating = Rating.objects.filter(owner=user, item=item).first()
-        if not rating:
+        if not rating_grade:
+            if rating:
+                rating.delete()
+                rating = None
+        elif rating is None:
             rating = Rating.objects.create(owner=user, item=item, grade=rating_grade, visibility=visibility)
-        else:
+        elif rating.grade != rating_grade or rating.visibility != visibility:
             rating.visibility = visibility
             rating.grade = rating_grade
             rating.save()
+        return rating
 
     @staticmethod
     def get_item_rating_by_user(item, user):
@@ -173,8 +180,8 @@ class List(Piece):
 
     def remove_item(self, item):
         member = self.members.all().filter(item=item).first()
-        list_remove.send(sender=self.__class__, instance=self, item=item, member=member)
         if member:
+            list_remove.send(sender=self.__class__, instance=self, item=item, member=member)
             member.delete()
 
     def move_up_item(self, item):
@@ -228,29 +235,29 @@ Shelf
 
 
 class ShelfType(models.TextChoices):
-    WISHED = ('wished', '未开始')
-    STARTED = ('started', '进行中')
-    DONE = ('done', '完成')
+    WISHLIST = ('wishlist', '未开始')
+    PROGRESS = ('progress', '进行中')
+    COMPLETE = ('complete', '完成')
     # DISCARDED = ('discarded', '放弃')
 
 
 ShelfTypeNames = [
-    [ItemCategory.Book, ShelfType.WISHED, _('想读')],
-    [ItemCategory.Book, ShelfType.STARTED, _('在读')],
-    [ItemCategory.Book, ShelfType.DONE, _('读过')],
-    [ItemCategory.Movie, ShelfType.WISHED, _('想看')],
-    [ItemCategory.Movie, ShelfType.STARTED, _('在看')],
-    [ItemCategory.Movie, ShelfType.DONE, _('看过')],
-    [ItemCategory.TV, ShelfType.WISHED, _('想看')],
-    [ItemCategory.TV, ShelfType.STARTED, _('在看')],
-    [ItemCategory.TV, ShelfType.DONE, _('看过')],
-    [ItemCategory.Music, ShelfType.WISHED, _('想听')],
-    [ItemCategory.Music, ShelfType.STARTED, _('在听')],
-    [ItemCategory.Music, ShelfType.DONE, _('听过')],
-    [ItemCategory.Game, ShelfType.WISHED, _('想玩')],
-    [ItemCategory.Game, ShelfType.STARTED, _('在玩')],
-    [ItemCategory.Game, ShelfType.DONE, _('玩过')],
-    [ItemCategory.Collection, ShelfType.WISHED, _('关注')],
+    [ItemCategory.Book, ShelfType.WISHLIST, _('想读')],
+    [ItemCategory.Book, ShelfType.PROGRESS, _('在读')],
+    [ItemCategory.Book, ShelfType.COMPLETE, _('读过')],
+    [ItemCategory.Movie, ShelfType.WISHLIST, _('想看')],
+    [ItemCategory.Movie, ShelfType.PROGRESS, _('在看')],
+    [ItemCategory.Movie, ShelfType.COMPLETE, _('看过')],
+    [ItemCategory.TV, ShelfType.WISHLIST, _('想看')],
+    [ItemCategory.TV, ShelfType.PROGRESS, _('在看')],
+    [ItemCategory.TV, ShelfType.COMPLETE, _('看过')],
+    [ItemCategory.Music, ShelfType.WISHLIST, _('想听')],
+    [ItemCategory.Music, ShelfType.PROGRESS, _('在听')],
+    [ItemCategory.Music, ShelfType.COMPLETE, _('听过')],
+    [ItemCategory.Game, ShelfType.WISHLIST, _('想玩')],
+    [ItemCategory.Game, ShelfType.PROGRESS, _('在玩')],
+    [ItemCategory.Game, ShelfType.COMPLETE, _('玩过')],
+    [ItemCategory.Collection, ShelfType.WISHLIST, _('关注')],
     # TODO add more combinations
 ]
 
@@ -327,6 +334,7 @@ class ShelfManager:
         # metadata=None means no change
         if not item:
             raise ValueError('empty item')
+        new_shelfmember = None
         last_shelfmember = self._shelf_member_for_item(item)
         last_shelf = last_shelfmember._shelf if last_shelfmember else None
         last_metadata = last_shelfmember.metadata if last_shelfmember else None
@@ -338,10 +346,11 @@ class ShelfManager:
             if last_shelf:
                 last_shelf.remove_item(item)
             if shelf:
-                shelf.append_item(item, visibility=visibility, metadata=metadata or {})
+                new_shelfmember = shelf.append_item(item, visibility=visibility, metadata=metadata or {})
         elif last_shelf is None:
             raise ValueError('empty shelf')
         else:
+            new_shelfmember = last_shelfmember
             if metadata is not None and metadata != last_metadata:  # change metadata
                 changed = True
                 last_shelfmember.metadata = metadata
@@ -354,6 +363,7 @@ class ShelfManager:
             if metadata is None:
                 metadata = last_metadata or {}
             ShelfLogEntry.objects.create(owner=self.owner, shelf=shelf, item=item, metadata=metadata)
+        return new_shelfmember
 
     def get_log(self):
         return ShelfLogEntry.objects.filter(owner=self.owner).order_by('timestamp')
@@ -444,6 +454,19 @@ class TagManager:
         return list(map(lambda t: t['title'], tags))
 
     @staticmethod
+    def tag_item_by_user(item, user, tag_titles, default_visibility=0):
+        titles = set([Tag.cleanup_title(tag_title) for tag_title in tag_titles])
+        current_titles = set([m._tag.title for m in TagMember.objects.filter(owner=user, item=item)])
+        for title in titles - current_titles:
+            tag = Tag.objects.filter(owner=user, title=title).first()
+            if not tag:
+                tag = Tag.objects.create(owner=user, title=title, visibility=default_visibility)
+            tag.append_item(item)
+        for title in current_titles - titles:
+            tag = Tag.objects.filter(owner=user, title=title).first()
+            tag.remove_item(item)
+
+    @staticmethod
     def add_tag_by_user(item, tag_title, user, default_visibility=0):
         title = Tag.cleanup_title(tag_title)
         tag = Tag.objects.filter(owner=user, title=title).first()
@@ -526,12 +549,23 @@ class Mark:
     def review(self):
         return Review.objects.filter(owner=self.owner, item=self.item).first()
 
-    def update(self, shelf_type, comment_text, rating_grade, visibility):
+    def update(self, shelf_type, comment_text, rating_grade, visibility, metadata=None, created_time=None):
         if shelf_type != self.shelf_type or visibility != self.visibility:
-            self.owner.shelf_manager.move_item(self.item, shelf_type, visibility=visibility)
-            del self.shelfmember
+            self.shelfmember = self.owner.shelf_manager.move_item(self.item, shelf_type, visibility=visibility)
+            if self.shelfmember and (created_time or metadata is not None):
+                if created_time:
+                    self.shelfmember.created_time = created_time
+                if metadata is not None:
+                    self.shelfmember.metadata = metadata
+                self.shelfmember.save()
         if comment_text != self.text or visibility != self.visibility:
             self.comment = Comment.comment_item_by_user(self.item, self.owner, comment_text, visibility)
+            if self.comment and created_time:
+                self.comment.created_time = created_time
+                self.comment.save(update_fields=['created_time'])
         if rating_grade != self.rating or visibility != self.visibility:
-            Rating.set_item_rating_by_user(self.item, rating_grade, self.owner, visibility)
+            rating_content = Rating.rate_item_by_user(self.item, self.owner, rating_grade, visibility)
             self.rating = rating_grade
+            if rating_content and created_time:
+                rating_content.created_time = created_time
+                rating_content.save(update_fields=['created_time'])

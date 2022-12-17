@@ -21,17 +21,17 @@ class SocialTest(TestCase):
         self.assertEqual(len(timeline), 0)
 
         # 1 activity after adding first book to shelf
-        self.alice.shelf_manager.move_item(self.book1, ShelfType.WISHED, visibility=1)
+        self.alice.shelf_manager.move_item(self.book1, ShelfType.WISHLIST, visibility=1)
         timeline = self.alice.activity_manager.get_viewable_activities()
         self.assertEqual(len(timeline), 1)
 
         # 2 activities after adding second book to shelf
-        self.alice.shelf_manager.move_item(self.book2, ShelfType.WISHED)
+        self.alice.shelf_manager.move_item(self.book2, ShelfType.WISHLIST)
         timeline = self.alice.activity_manager.get_viewable_activities()
         self.assertEqual(len(timeline), 2)
 
         # 2 activities after change first mark
-        self.alice.shelf_manager.move_item(self.book1, ShelfType.STARTED)
+        self.alice.shelf_manager.move_item(self.book1, ShelfType.PROGRESS)
         timeline = self.alice.activity_manager.get_viewable_activities()
         self.assertEqual(len(timeline), 2)
 
@@ -47,7 +47,7 @@ class SocialTest(TestCase):
         self.assertEqual(len(timeline2), 2)
 
         # alice:3 bob:2 after alice adding second book to shelf as private
-        self.alice.shelf_manager.move_item(self.movie, ShelfType.WISHED, visibility=2)
+        self.alice.shelf_manager.move_item(self.movie, ShelfType.WISHLIST, visibility=2)
         timeline = self.alice.activity_manager.get_viewable_activities()
         self.assertEqual(len(timeline), 3)
         timeline2 = self.bob.activity_manager.get_viewable_activities()

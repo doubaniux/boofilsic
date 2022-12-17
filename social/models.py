@@ -14,6 +14,7 @@ import logging
 from functools import cached_property
 from django.db.models.signals import post_save, post_delete, pre_delete
 from django.db.models import Q
+from django.conf import settings
 
 
 _logger = logging.getLogger(__name__)
@@ -144,8 +145,9 @@ class DataSignalManager:
 
     @staticmethod
     def add_handler_for_model(model):
-        post_save.connect(DataSignalManager.save_handler, sender=model)
-        pre_delete.connect(DataSignalManager.delete_handler, sender=model)
+        if not settings.DISABLE_SOCIAL:
+            post_save.connect(DataSignalManager.save_handler, sender=model)
+            pre_delete.connect(DataSignalManager.delete_handler, sender=model)
 
     @staticmethod
     def register(processor):
