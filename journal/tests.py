@@ -82,18 +82,18 @@ class TagTest(TestCase):
         pass
 
     def test_user_tag(self):
-        t1 = 'sci-fi'
-        t2 = 'private'
-        t3 = 'public'
+        t1 = 'tag-1'
+        t2 = 'tag-2'
+        t3 = 'tag-3'
         TagManager.tag_item_by_user(self.book1, self.user2, [t1, t3])
-        self.assertEqual(self.book1.tags.sort(), [t1, t3].sort())
+        self.assertEqual(self.book1.tags, [t1, t3])
         TagManager.tag_item_by_user(self.book1, self.user2, [t2, t3])
-        self.assertEqual(self.book1.tags.sort(), [t3, t2].sort())
+        self.assertEqual(self.book1.tags, [t2, t3])
 
     def test_tag(self):
-        t1 = 'sci-fi'
-        t2 = 'private'
-        t3 = 'public'
+        t1 = 'tag-1'
+        t2 = 'tag-2'
+        t3 = 'tag-3'
         TagManager.add_tag_by_user(self.book1, t3, self.user2)
         TagManager.add_tag_by_user(self.book1, t1, self.user1)
         TagManager.add_tag_by_user(self.book1, t1, self.user2)
@@ -102,7 +102,7 @@ class TagTest(TestCase):
         self.assertEqual(self.book1.tags, [t1, t3])
         TagManager.add_tag_by_user(self.book1, t3, self.user1)
         TagManager.add_tag_by_user(self.book1, t3, self.user3)
-        self.assertEqual(self.book1.tags, [t3, t1])
+        self.assertEqual(self.book1.tags, [t1, t3])
         TagManager.add_tag_by_user(self.book1, t3, self.user3)
         TagManager.add_tag_by_user(self.book1, t3, self.user3)
         self.assertEqual(Tag.objects.count(), 6)
@@ -110,7 +110,7 @@ class TagTest(TestCase):
         self.assertEqual(self.user2.tags, [t1, t3])
         TagManager.add_tag_by_user(self.book2, t3, self.user2)
         TagManager.add_tag_by_user(self.movie1, t3, self.user2)
-        self.assertEqual(self.user2.tags, [t3, t1])
+        self.assertEqual(self.user2.tags, [t1, t3])
 
 
 class MarkTest(TestCase):
@@ -146,4 +146,4 @@ class MarkTest(TestCase):
 
         TagManager.tag_item_by_user(self.book1, self.user1, [' Sci-Fi ', ' fic '])
         mark = Mark(self.user1, self.book1)
-        self.assertEqual(mark.tags, ['sci-fi', 'fic'])
+        self.assertEqual(mark.tags, ['fic', 'sci-fi'])

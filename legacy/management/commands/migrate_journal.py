@@ -68,10 +68,15 @@ class Command(BaseCommand):
                 for user in tqdm(User.objects.filter(is_active=True)):
                     user.shelf_manager.initialize()
             return
+
         if options['clear']:
             print("Deleting all migrated user pieces")
-            Piece.objects.all().delete()
+            # Piece.objects.all().delete()
+            for cls in [Review, Comment, Rating, Tag, ShelfLogEntry, ShelfMember, Shelf]:  # Collection
+                print(cls)
+                cls.objects.all().delete()
             return
+
         types = options['types'] or [GameMark, AlbumMark, MovieMark, BookMark]
         for typ in types:
             print(typ)

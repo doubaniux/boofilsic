@@ -102,7 +102,7 @@ class Rating(Content):
 
     @staticmethod
     def rate_item_by_user(item, user, rating_grade, visibility=0):
-        if not rating_grade and (rating_grade < 1 or rating_grade > 10):
+        if rating_grade and (rating_grade < 1 or rating_grade > 10):
             raise ValueError(f'Invalid rating grade: {rating_grade}')
         rating = Rating.objects.filter(owner=user, item=item).first()
         if not rating_grade:
@@ -446,12 +446,12 @@ class TagManager:
     @staticmethod
     def public_tags_for_item(item):
         tags = item.tag_set.all().filter(visibility=0).values('title').annotate(frequency=Count('owner')).order_by('-frequency')
-        return list(map(lambda t: t['title'], tags))
+        return sorted(list(map(lambda t: t['title'], tags)))
 
     @staticmethod
     def all_tags_for_user(user):
         tags = user.tag_set.all().values('title').annotate(frequency=Count('members')).order_by('-frequency')
-        return list(map(lambda t: t['title'], tags))
+        return sorted(list(map(lambda t: t['title'], tags)))
 
     @staticmethod
     def tag_item_by_user(item, user, tag_titles, default_visibility=0):
@@ -489,7 +489,7 @@ class TagManager:
             TagManager.add_tag_by_user(item, tag, self.owner, visibility)
 
     def get_item_tags(self, item):
-        return [m['_tag__title'] for m in TagMember.objects.filter(_tag__owner=self.owner, item=item).values('_tag__title')]
+        return sorted([m['_tag__title'] for m in TagMember.objects.filter(_tag__owner=self.owner, item=item).values('_tag__title')])
 
 
 Item.tags = property(TagManager.public_tags_for_item)
