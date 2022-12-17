@@ -1,15 +1,4 @@
 {% load static %}
-{% if sentry_dsn %}
-<script src="https://browser.sentry-cdn.com/7.7.0/bundle.min.js"></script>
-<script>
-    if (window.Sentry) Sentry.init({
-      dsn: "{{ sentry_dsn }}",
-      release: "{{ version_hash }}",
-      environment: "{{ settings_module }}",
-      tracesSampleRate: 1.0,
-    });
-</script>
-{% endif %}
 {% if jquery %}
 <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
 {% else %}
