@@ -195,7 +195,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         self.primary_lookup_id_type = None
 
     def __str__(self):
-        return f"{self.id}|{self.url_id}{' ' + self.primary_lookup_id_type + ':' + self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
+        return f"{self.id}|{self.uuid}{' ' + self.primary_lookup_id_type + ':' + self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
 
     @classmethod
     def get_best_lookup_id(cls, lookup_ids):
@@ -222,12 +222,16 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             self.merged_to_item = to_item
 
     @property
-    def url_id(self):
+    def uuid(self):
         return base62.encode(self.uid.int)
 
     @property
     def url(self):
-        return f'/{self.url_path}/{self.url_id}/'
+        return f'/{self.url_path}/{self.uuid}/'
+
+    @property
+    def api_url(self):
+        return '/api' + self.url
 
     @property
     def class_name(self):

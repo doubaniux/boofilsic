@@ -57,16 +57,16 @@ class Edition(Item):
     orig_title = jsondata.CharField(null=True, blank=True, default=None)
     author = jsondata.ArrayField(_('作者'), null=False, blank=False, default=list)
     translator = jsondata.ArrayField(_('译者'), null=True, blank=True, default=list)
-    language = jsondata.ArrayField(_("语言"), null=True, blank=True, default=list)
-    pub_house = jsondata.ArrayField(_('出版方'), null=True, blank=True, default=list)
+    language = jsondata.CharField(_("语言"), null=True, blank=True, default=None)
+    pub_house = jsondata.CharField(_('出版方'), null=True, blank=True, default=None)
     pub_year = jsondata.IntegerField(_("发表年份"), null=True, blank=True)
     pub_month = jsondata.IntegerField(_("发表月份"), null=True, blank=True)
     binding = jsondata.CharField(null=True, blank=True, default=None)
     pages = jsondata.IntegerField(blank=True, default=None)
     series = jsondata.CharField(null=True, blank=True, default=None)
     contents = jsondata.CharField(null=True, blank=True, default=None)
-    price = jsondata.FloatField(_("发表月份"), null=True, blank=True)
-    imprint = jsondata.FloatField(_("发表月份"), null=True, blank=True)
+    price = jsondata.CharField(_("价格"), null=True, blank=True)
+    imprint = jsondata.CharField(_("发表月份"), null=True, blank=True)
 
     @property
     def isbn10(self):

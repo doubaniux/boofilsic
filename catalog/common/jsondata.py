@@ -123,6 +123,8 @@ class BooleanField(JSONFieldMixin, fields.BooleanField):
 
 
 class CharField(JSONFieldMixin, fields.CharField):
+    def from_json(self, value):  # TODO workaound some bad data in migration, should be removed after clean up
+        return value if isinstance(value, str) else None
     pass
 
 
