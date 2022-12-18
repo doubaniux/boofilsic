@@ -128,6 +128,7 @@ class Indexer:
 
     @classmethod
     def obj_to_dict(self, obj):
+        print(obj.id)
         pk = f'{obj.__class__.__name__}-{obj.id}'
         item = {
             '_class': obj.__class__.__name__,
@@ -145,7 +146,7 @@ class Indexer:
                 item.update(d)
         item = {k: v for k, v in item.items() if v and (
             k in SEARCHABLE_ATTRIBUTES or k in FILTERABLE_ATTRIBUTES or k == 'id')}
-        item['_id'] = item['id']
+        item['_id'] = obj.id
         # typesense requires primary key to be named 'id', type string
         item['id'] = pk
         return item
