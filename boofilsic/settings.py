@@ -252,8 +252,6 @@ MASTODON_CLIENT_SCOPE = 'read write follow'
 #use the following if it's a new site
 #MASTODON_CLIENT_SCOPE = 'read:accounts read:follows read:search read:blocks read:mutes write:statuses write:media'
 
-MASTODON_LEGACY_CLIENT_SCOPE = 'read write follow'
-
 # Tags for toots posted from this site
 MASTODON_TAGS = '#NiceDB #NiceDB%(category)s #NiceDB%(category)s%(type)s'
 
