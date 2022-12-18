@@ -7,6 +7,7 @@
 {% load truncate %}
 {% load thumb %}
 {% load prettydate %}
+{% load user_item %}
 
 {% for activity in activities %}
 {% current_user_marked_item activity.target.item as marked %}
