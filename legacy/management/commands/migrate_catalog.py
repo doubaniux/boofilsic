@@ -178,39 +178,40 @@ class Command(BaseCommand):
             pg = Paginator(qs, BATCH_SIZE)
             for p in tqdm(pg.page_range):
                 links = []
-                for entity in pg.get_page(p).object_list:
-                    try:
-                        content = entity.convert()
-                        site = SiteManager.get_site_by_url(entity.source_url)
-                        item = None
-                        if site:
-                            if not site.DEFAULT_MODEL and not content.metadata.get('preferred_model'):
-                                if model_map[typ] == Movie and entity.is_series:
-                                    content.metadata['preferred_model'] = 'TVSeason' if entity.season else 'TVShow'
-                                else:
-                                    content.metadata['preferred_model'] = model_map[typ].__name__
-                            item = site.get_resource_ready(preloaded_content=content, ignore_existing_content=reload).item
-                        else:
-                            # not known site, try save item without external resource
+                with transaction.atomic():
+                    for entity in pg.get_page(p).object_list:
+                        try:
+                            content = entity.convert()
+                            site = SiteManager.get_site_by_url(entity.source_url)
                             item = None
-                            model = Edition
-                            t, v = None, None
-                            if content.lookup_ids:
-                                t, v = Item.get_best_lookup_id(content.lookup_ids)
-                                item = model.objects.filter(primary_lookup_id_type=t, primary_lookup_id_value=v).first()
-                            if not item:
-                                obj = model.copy_metadata(content.metadata)
-                                obj['primary_lookup_id_type'] = t
-                                obj['primary_lookup_id_value'] = v
-                                item = model.objects.create(**obj)
-                            item.cover = content.metadata['cover_image_path']
-                            item.save()
-                        links.append(LinkModel(old_id=entity.id, new_uid=item.uid))
-                        # pprint.pp(site.get_item())
-                    except Exception as e:
-                        print(f'Convert failed for {typ} {entity.id}: {e}')
-                        if options['failstop']:
-                            raise(e)
-                    # return
+                            if site:
+                                if not site.DEFAULT_MODEL and not content.metadata.get('preferred_model'):
+                                    if model_map[typ] == Movie and entity.is_series:
+                                        content.metadata['preferred_model'] = 'TVSeason' if entity.season else 'TVShow'
+                                    else:
+                                        content.metadata['preferred_model'] = model_map[typ].__name__
+                                item = site.get_resource_ready(preloaded_content=content, ignore_existing_content=reload).item
+                            else:
+                                # not known site, try save item without external resource
+                                item = None
+                                model = Edition
+                                t, v = None, None
+                                if content.lookup_ids:
+                                    t, v = Item.get_best_lookup_id(content.lookup_ids)
+                                    item = model.objects.filter(primary_lookup_id_type=t, primary_lookup_id_value=v).first()
+                                if not item:
+                                    obj = model.copy_metadata(content.metadata)
+                                    obj['primary_lookup_id_type'] = t
+                                    obj['primary_lookup_id_value'] = v
+                                    item = model.objects.create(**obj)
+                                item.cover = content.metadata['cover_image_path']
+                                item.save()
+                            links.append(LinkModel(old_id=entity.id, new_uid=item.uid))
+                            # pprint.pp(site.get_item())
+                        except Exception as e:
+                            print(f'Convert failed for {typ} {entity.id}: {e}')
+                            if options['failstop']:
+                                raise(e)
+                        # return
                 LinkModel.objects.bulk_create(links)
         self.stdout.write(self.style.SUCCESS(f'Done.'))

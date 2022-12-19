@@ -34,9 +34,9 @@ model_link = {
 }
 
 shelf_map = {
-    MarkStatusEnum.WISH: ShelfType.WISHLIST,
-    MarkStatusEnum.DO: ShelfType.PROGRESS,
-    MarkStatusEnum.COLLECT: ShelfType.COMPLETE,
+    ShelfType.WISHLIST: MarkStatusEnum.WISH,
+    ShelfType.PROGRESS: MarkStatusEnum.DO,
+    ShelfType.COMPLETE: MarkStatusEnum.COLLECT,
 }
 
 tag_map = {
@@ -72,12 +72,16 @@ class Command(BaseCommand):
         if options['clear']:
             print("Deleting all migrated user pieces")
             # Piece.objects.all().delete()
-            for cls in [Review, Comment, Rating, Tag, ShelfLogEntry, ShelfMember, Shelf]:  # Collection
+            for cls in [Review, Comment, Rating, TagMember, Tag, ShelfLogEntry, ShelfMember]:  # Collection
                 print(cls)
                 cls.objects.all().delete()
             return
 
         types = options['types'] or [GameMark, AlbumMark, MovieMark, BookMark]
+        print('Preparing cache')
+        tag_cache = {f'{t.owner_id}_{t.title}': t.id for t in Tag.objects.all()}
+        shelf_cache = {f'{s.owner_id}_{s.item_category}_{shelf_map[s.shelf_type]}': s.id for s in Shelf.objects.all()}
+
         for typ in types:
             print(typ)
             LinkModel = model_link[typ]
@@ -96,6 +100,8 @@ class Command(BaseCommand):
                         try:
                             item_link = LinkModel.objects.get(old_id=entity.item.id)
                             item = Item.objects.get(uid=item_link.new_uid)
+                            tags = [t.content for t in getattr(entity, tag_field).all()]
+                            """
                             mark = Mark(entity.owner, item)
                             mark.update(
                                 shelf_type=shelf_map[entity.status],
@@ -105,8 +111,38 @@ class Command(BaseCommand):
                                 metadata={'shared_link': entity.shared_link},
                                 created_time=entity.created_time
                             )
-                            tags = [t.content for t in getattr(entity, tag_field).all()]
                             TagManager.tag_item_by_user(item, entity.owner, tags)
+                            """  # rewrote above with direct create to speed up
+                            user_id = entity.owner_id
+                            item_id = item.id
+                            visibility = entity.visibility
+                            created_time = entity.created_time
+                            if entity.rating:
+                                Rating.objects.create(owner_id=user_id, item_id=item_id, grade=entity.rating, visibility=visibility)
+                            if entity.text:
+                                Comment.objects.create(owner_id=user_id, item_id=item_id, text=entity.text, visibility=visibility)
+                            shelf = shelf_cache[f'{user_id}_{item.category}_{entity.status}']
+                            ShelfMember.objects.create(
+                                _shelf_id=shelf,
+                                owner_id=user_id,
+                                position=0,
+                                item_id=item_id,
+                                metadata={'shared_link': entity.shared_link},
+                                created_time=created_time)
+                            ShelfLogEntry.objects.create(owner_id=user_id, shelf_id=shelf, item_id=item_id, timestamp=created_time)
+                            for title in tags:
+                                tag_key = f'{user_id}_{title}'
+                                if tag_key not in tag_cache:
+                                    tag = Tag.objects.create(owner_id=user_id, title=title, visibility=0).id
+                                    tag_cache[tag_key] = tag
+                                else:
+                                    tag = tag_cache[tag_key]
+                                TagMember.objects.create(
+                                    _tag_id=tag,
+                                    owner_id=user_id,
+                                    position=0,
+                                    item_id=item_id,
+                                    created_time=created_time)
                         except Exception as e:
                             print(f'Convert failed for {typ} {entity.id}: {e}')
                             if options['failstop']:

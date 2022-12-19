@@ -290,7 +290,7 @@ class Shelf(List):
 
 class ShelfLogEntry(models.Model):
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
-    shelf = models.ForeignKey(Shelf, on_delete=models.PROTECT, related_name='entries', null=True)  # None means removed from any shelf
+    shelf = models.ForeignKey(Shelf, on_delete=models.CASCADE, related_name='entries', null=True)  # None means removed from any shelf
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     timestamp = models.DateTimeField(default=timezone.now)  # this may later be changed by user
     metadata = models.JSONField(default=dict)
@@ -511,7 +511,7 @@ class Mark:
 
     @property
     def id(self):
-        return self.item.id if self.shelfmember else None
+        return self.shelfmember.id if self.shelfmember else None
 
     @property
     def shelf_type(self):
@@ -524,6 +524,10 @@ class Mark:
     @property
     def created_time(self):
         return self.shelfmember.created_time if self.shelfmember else None
+
+    @property
+    def metadata(self):
+        return self.shelfmember.metadata if self.shelfmember else None
 
     @property
     def visibility(self):
@@ -551,21 +555,12 @@ class Mark:
 
     def update(self, shelf_type, comment_text, rating_grade, visibility, metadata=None, created_time=None):
         if shelf_type != self.shelf_type or visibility != self.visibility:
-            self.shelfmember = self.owner.shelf_manager.move_item(self.item, shelf_type, visibility=visibility)
-            if self.shelfmember and (created_time or metadata is not None):
-                if created_time:
-                    self.shelfmember.created_time = created_time
-                if metadata is not None:
-                    self.shelfmember.metadata = metadata
+            self.shelfmember = self.owner.shelf_manager.move_item(self.item, shelf_type, visibility=visibility, metadata=metadata)
+            if self.shelfmember and created_time:
+                self.shelfmember.created_time = created_time
                 self.shelfmember.save()
         if comment_text != self.text or visibility != self.visibility:
             self.comment = Comment.comment_item_by_user(self.item, self.owner, comment_text, visibility)
-            if self.comment and created_time:
-                self.comment.created_time = created_time
-                self.comment.save(update_fields=['created_time'])
         if rating_grade != self.rating or visibility != self.visibility:
-            rating_content = Rating.rate_item_by_user(self.item, self.owner, rating_grade, visibility)
+            Rating.rate_item_by_user(self.item, self.owner, rating_grade, visibility)
             self.rating = rating_grade
-            if rating_content and created_time:
-                rating_content.created_time = created_time
-                rating_content.save(update_fields=['created_time'])

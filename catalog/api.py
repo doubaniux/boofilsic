@@ -60,7 +60,7 @@ class EditionOut(ItemOut):
 
 
 @api.post("/catalog/fetch", response=ItemOut)
-def fetch_edition(request, url: str):
+def fetch_item(request, url: str):
     site = SiteManager.get_site_by_url(url)
     if not site:
         return Http404()
