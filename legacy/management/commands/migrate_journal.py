@@ -1,12 +1,14 @@
 from books.models import Book as Legacy_Book
 from movies.models import Movie as Legacy_Movie
 from music.models import Album as Legacy_Album
+from music.models import Song as Legacy_Song
 from games.models import Game as Legacy_Game
 from common.models import MarkStatusEnum
 from books.models import BookMark, BookReview
 from movies.models import MovieMark, MovieReview
 from music.models import AlbumMark, AlbumReview
 from games.models import GameMark, GameReview
+from collection.models import Collection as Legacy_Collection
 from catalog.common import *
 from catalog.models import *
 from catalog.sites import *
@@ -35,6 +37,10 @@ model_link = {
     MovieReview: MovieLink,
     AlbumReview: AlbumLink,
     GameReview: GameLink,
+    Legacy_Book: BookLink,
+    Legacy_Movie: MovieLink,
+    Legacy_Album: AlbumLink,
+    Legacy_Game: GameLink,
 }
 
 shelf_map = {
@@ -82,7 +88,38 @@ class Command(BaseCommand):
             cls.objects.all().delete()
 
     def collection(self, options):
-        pass
+        qs = Legacy_Collection.objects.all().filter(owner__is_active=True).order_by('id')
+        if options['id']:
+            if options['maxid']:
+                qs = qs.filter(id__gte=int(options['id']), id__lte=int(options['maxid']))
+            else:
+                qs = qs.filter(id=int(options['id']))
+        with transaction.atomic():
+            for entity in tqdm(qs):
+                c = Collection.objects.create(
+                    owner_id=entity.owner_id,
+                    title=entity.title,
+                    brief=entity.description,
+                    collaborative=entity.collaborative,
+                    created_time=entity.created_time,
+                    edited_time=entity.edited_time,
+                )
+                c.catalog_item.cover = entity.cover
+                c.catalog_item.save()
+                for citem in entity.collectionitem_list:
+                    if citem.song:
+                        LinkModel = AlbumLink
+                        old_id = citem.song.album_id
+                    else:
+                        LinkModel = model_link[citem.item.__class__]
+                        old_id = citem.item.id
+                    if old_id:
+                        item_link = LinkModel.objects.get(old_id=old_id)
+                        item = Item.objects.get(uid=item_link.new_uid)
+                        c.append_item(item, metadata={'comment': citem.comment})
+                    else:
+                        # TODO convert song to album
+                        print(f'{c.owner} {c.id} {c.title} {citem.item} were skipped')
 
     def review(self, options):
         for typ in [GameReview, AlbumReview, BookReview, MovieReview]:
