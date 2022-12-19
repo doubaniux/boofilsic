@@ -28,7 +28,8 @@ migrations/
 /log
 log
 
-# conf folder for neodb
+# conf folders
+/conf
 /neodb
 
 # typesense folder
