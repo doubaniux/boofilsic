@@ -31,7 +31,7 @@ $(document).ready( function() {
                 $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
                 $("#userInfoCard .mast-displayname").html(userName);
                 $("#userInfoCard .mast-brief").text($(userData.note).text());
-                $(userInfoSpinner).remove();
+                // $(userInfoSpinner).remove();
             }
         );
 
@@ -224,7 +224,7 @@ $(document).ready( function() {
                     if (data.failed_urls.length > 0) {
                         $(".import-panel__fail-urls").show();
                         data.failed_urls.forEach((v, i) => {
-                            console.log(v)
+                            // console.log(v)
                             $("#failedUrls").append($("<li>" + v + "</li>"));
                         });
                     }

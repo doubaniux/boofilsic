@@ -155,7 +155,7 @@ function getEmojiDict(emoji_list) {
 }
 
 function translateEmojis(text, emoji_list, large) {
-    console.log(text)
+    // console.log(text)
     let dict = getEmojiDict(emoji_list);
     let regex = /:(.*?):/g;
     let translation = null
