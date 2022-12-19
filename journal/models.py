@@ -67,9 +67,9 @@ class Review(Content):
     body = MarkdownxField()
 
     @staticmethod
-    def review_item_by_user(item, user, title, body, visibility=0):
+    def review_item_by_user(item, user, title, body, metadata={}, visibility=0):
         # allow multiple reviews per item per user.
-        review = Review.objects.create(owner=user, item=item, title=title, body=body, visibility=visibility)
+        review = Review.objects.create(owner=user, item=item, title=title, body=body, metadata=metadata, visibility=visibility)
         """
         review = Review.objects.filter(owner=user, item=item).first()
         if title is None:
