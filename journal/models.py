@@ -39,6 +39,10 @@ class Content(Piece):
         abstract = True
 
 
+class Like(Piece):
+    target = models.ForeignKey(Piece, on_delete=models.CASCADE, related_name='likes')
+
+
 class Note(Content):
     pass
 
@@ -127,8 +131,8 @@ Item.rating = property(Rating.get_rating_for_item)
 Item.rating_count = property(Rating.get_rating_count_for_item)
 
 
-class Reply(Content):
-    reply_to_content = models.ForeignKey(Piece, on_delete=models.PROTECT, related_name='replies')
+class Reply(Piece):
+    reply_to_content = models.ForeignKey(Piece, on_delete=models.SET_NULL, related_name='replies', null=True)
     title = models.CharField(max_length=500, null=True)
     body = MarkdownxField()
     pass

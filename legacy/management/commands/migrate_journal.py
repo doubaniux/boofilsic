@@ -9,6 +9,7 @@ from movies.models import MovieMark, MovieReview
 from music.models import AlbumMark, AlbumReview
 from games.models import GameMark, GameReview
 from collection.models import Collection as Legacy_Collection
+from collection.models import CollectionMark as Legacy_CollectionMark
 from catalog.common import *
 from catalog.models import *
 from catalog.sites import *
@@ -88,13 +89,9 @@ class Command(BaseCommand):
             cls.objects.all().delete()
 
     def collection(self, options):
-        qs = Legacy_Collection.objects.all().filter(owner__is_active=True).order_by('id')
-        if options['id']:
-            if options['maxid']:
-                qs = qs.filter(id__gte=int(options['id']), id__lte=int(options['maxid']))
-            else:
-                qs = qs.filter(id=int(options['id']))
+        collection_map = {}
         with transaction.atomic():
+            qs = Legacy_Collection.objects.all().filter(owner__is_active=True).order_by('id')
             for entity in tqdm(qs):
                 c = Collection.objects.create(
                     owner_id=entity.owner_id,
@@ -104,6 +101,7 @@ class Command(BaseCommand):
                     created_time=entity.created_time,
                     edited_time=entity.edited_time,
                 )
+                collection_map[entity.id] = c.id
                 c.catalog_item.cover = entity.cover
                 c.catalog_item.save()
                 for citem in entity.collectionitem_list:
@@ -120,6 +118,14 @@ class Command(BaseCommand):
                     else:
                         # TODO convert song to album
                         print(f'{c.owner} {c.id} {c.title} {citem.item} were skipped')
+            qs = Legacy_CollectionMark.objects.all().filter(owner__is_active=True).order_by('id')
+            for entity in tqdm(qs):
+                Like.objects.create(
+                    owner_id=entity.owner_id,
+                    target_id=collection_map[entity.collection_id],
+                    created_time=entity.created_time,
+                    edited_time=entity.edited_time,
+                )
 
     def review(self, options):
         for typ in [GameReview, AlbumReview, BookReview, MovieReview]:

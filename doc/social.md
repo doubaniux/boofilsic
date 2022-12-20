@@ -15,10 +15,7 @@ User .. Activity
 class Activity {
     +User owner
     +int visibility
-    +Enum action_type
     +Piece action_object
-    +Item target
-    +Bool is_viewable
 }
 Activity .. Piece
 Activity .. Item
@@ -38,6 +35,18 @@ Activity data may be used for:
 
 However, 2 is currently implemented separately via `ShelfLogManager` in `journal` app, because users may want to change these records manually.
 
+Local Timeline
+--------------
+| Local Timeline Activities | action object class |
+| ------------------------- | ------------------- |
+| Add an Item to Shelf      | ShelfMember         |
+| Create a Collection       | Collection          |
+| Like a Collection         | Like                |
+| Create a Review           | Review              |
+
+
+Activity Streams
+----------------
 These are list of activities should be either shown in the site or delivered as ActivityStreams or both:
 
  - `Add` / `Remove` an *Item* to / from a *List*:
