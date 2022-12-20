@@ -80,10 +80,10 @@ class Command(BaseCommand):
             for user in tqdm(User.objects.filter(is_active=True)):
                 user.shelf_manager.initialize()
 
-    def clear(self):
-        print("Deleting all migrated user pieces")
+    def clear(self, classes):
+        print("Deleting migrated user pieces")
         # Piece.objects.all().delete()
-        for cls in [Review, Comment, Rating, TagMember, Tag, ShelfLogEntry, ShelfMember]:  # Collection
+        for cls in classes:  # Collection
             print(cls)
             cls.objects.all().delete()
 
@@ -138,7 +138,7 @@ class Command(BaseCommand):
                         try:
                             item_link = LinkModel.objects.get(old_id=entity.item.id)
                             item = Item.objects.get(uid=item_link.new_uid)
-                            Review.review_item_by_user(item, entity.owner, entity.title, entity.content, {'shared_link': entity.shared_link}, entity.visibility)
+                            Review.objects.create(owner=entity.owner, item=item, title=entity.title, body=entity.content, metadata={'shared_link': entity.shared_link}, visibility=entity.visibility, created_time=entity.created_time, edited_time=entity.edited_time)
                         except Exception as e:
                             print(f'Convert failed for {typ} {entity.id}: {e}')
                             if options['failstop']:
@@ -219,12 +219,19 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         if options['initshelf']:
             self.initshelf()
-        elif options['clear']:
-            self.clear()
         elif options['collection']:
-            self.collection(options)
+            if options['clear']:
+                self.clear([Collection])
+            else:
+                self.collection(options)
         elif options['review']:
-            self.review(options)
+            if options['clear']:
+                self.clear([Review])
+            else:
+                self.review(options)
         elif options['mark']:
-            self.mark(options)
+            if options['clear']:
+                self.clear([Comment, Rating, TagMember, Tag, ShelfLogEntry, ShelfMember])
+            else:
+                self.mark(options)
         self.stdout.write(self.style.SUCCESS(f'Done.'))

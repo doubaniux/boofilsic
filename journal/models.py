@@ -23,8 +23,8 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
-    created_time = models.DateTimeField(auto_now_add=True)
-    edited_time = models.DateTimeField(auto_now=True)
+    created_time = models.DateTimeField(default=timezone.now)  # auto_now_add=True  FIXME revert this after migration
+    edited_time = models.DateTimeField(default=timezone.now)  # auto_now=True   FIXME revert this after migration
     metadata = models.JSONField(default=dict)
     attached_to = models.ForeignKey(User, null=True, default=None, on_delete=models.SET_NULL, related_name="attached_with")
 
