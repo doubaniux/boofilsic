@@ -36,6 +36,9 @@ class LocalActivity(models.Model, UserOwnedObjectMixin):
     action_object = models.ForeignKey(Piece, on_delete=models.CASCADE)
     created_time = models.DateTimeField(default=timezone.now, db_index=True)
 
+    def __str__(self):
+        return f'Activity [{self.owner}:{self.template}:{self.action_object}]'
+
 
 class ActivityManager:
     def __init__(self, user):
@@ -45,7 +48,7 @@ class ActivityManager:
         q = Q(owner_id__in=self.owner.following, visibility__lt=2) | Q(owner=self.owner)
         if before_time:
             q = q & Q(created_time__lt=before_time)
-        return LocalActivity.objects.filter(q)
+        return LocalActivity.objects.filter(q).order_by('-created_time')  # .select_related() https://github.com/django-polymorphic/django-polymorphic/pull/531
 
     @staticmethod
     def get_manager_for_user(user):
@@ -105,6 +108,7 @@ class DefaultActivityProcessor:
             'template': self.template,
             'action_object': self.action_object,
         }
+        print(params)
         LocalActivity.objects.create(**params)
 
     def updated(self):
@@ -140,9 +144,9 @@ class LikeCollectionProcessor(DefaultActivityProcessor):
     template = ActivityTemplate.LikeCollection
 
     def created(self):
-        if isinstance(self.action_object, Collection):
-            super.created()
+        if isinstance(self.action_object.target, Collection):
+            super().created()
 
     def updated(self):
-        if isinstance(self.action_object, Collection):
-            super.update()
+        if isinstance(self.action_object.target, Collection):
+            super().update()

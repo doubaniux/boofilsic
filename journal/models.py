@@ -17,6 +17,8 @@ from django.db.models import Count, Avg
 import django.dispatch
 import math
 import uuid
+from catalog.common.utils import DEFAULT_ITEM_COVER, item_cover_path
+from django.utils.baseconv import base62
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
@@ -27,6 +29,10 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     edited_time = models.DateTimeField(default=timezone.now)  # auto_now=True   FIXME revert this after migration
     metadata = models.JSONField(default=dict)
     attached_to = models.ForeignKey(User, null=True, default=None, on_delete=models.SET_NULL, related_name="attached_with")
+
+    @property
+    def uuid(self):
+        return base62.encode(self.uid.int)
 
 
 class Content(Piece):
@@ -41,6 +47,15 @@ class Content(Piece):
 
 class Like(Piece):
     target = models.ForeignKey(Piece, on_delete=models.CASCADE, related_name='likes')
+
+    @staticmethod
+    def user_like_piece(user, piece):
+        if not piece or piece.__class__ not in [Collection]:
+            return
+        like = Like.objects.filter(owner=user, target=piece).first()
+        if not like:
+            like = Like.objects.create(owner=user, target=piece)
+        return like
 
 
 class Note(Content):
@@ -176,7 +191,7 @@ class List(Piece):
             return None
         else:
             ml = self.ordered_members
-            p = {'_' + self.__class__.__name__.lower(): self}
+            p = {'parent': self}
             p.update(params)
             member = self.MEMBER_CLASS.objects.create(owner=self.owner, position=ml.last().position + 1 if ml.count() else 1, item=item, **p)
             list_add.send(sender=self.__class__, instance=self, item=item, member=member)
@@ -267,7 +282,7 @@ ShelfTypeNames = [
 
 
 class ShelfMember(ListMember):
-    _shelf = models.ForeignKey('Shelf', related_name='members', on_delete=models.CASCADE)
+    parent = models.ForeignKey('Shelf', related_name='members', on_delete=models.CASCADE)
 
 
 class Shelf(List):
@@ -322,7 +337,7 @@ class ShelfManager:
                 Shelf.objects.create(owner=self.owner, item_category=ic, shelf_type=qt)
 
     def _shelf_member_for_item(self, item):
-        return ShelfMember.objects.filter(item=item, _shelf__in=self.owner.shelf_set.all()).first()
+        return ShelfMember.objects.filter(item=item, parent__in=self.owner.shelf_set.all()).first()
 
     def _shelf_for_item_and_type(item, shelf_type):
         if not item or not shelf_type:
@@ -331,7 +346,7 @@ class ShelfManager:
 
     def locate_item(self, item):
         member = ShelfMember.objects.filter(owner=self.owner, item=item).first()
-        return member  # ._shelf if member else None
+        return member  # .parent if member else None
 
     def move_item(self, item, shelf_type, visibility=0, metadata=None):
         # shelf_type=None means remove from current shelf
@@ -340,7 +355,7 @@ class ShelfManager:
             raise ValueError('empty item')
         new_shelfmember = None
         last_shelfmember = self._shelf_member_for_item(item)
-        last_shelf = last_shelfmember._shelf if last_shelfmember else None
+        last_shelf = last_shelfmember.parent if last_shelfmember else None
         last_metadata = last_shelfmember.metadata if last_shelfmember else None
         last_visibility = last_shelfmember.visibility if last_shelfmember else None
         shelf = self.get_shelf(item.category, shelf_type) if shelf_type else None
@@ -393,7 +408,7 @@ Collection
 
 
 class CollectionMember(ListMember):
-    _collection = models.ForeignKey('Collection', related_name='members', on_delete=models.CASCADE)
+    parent = models.ForeignKey('Collection', related_name='members', on_delete=models.CASCADE)
 
 
 class Collection(List):
@@ -401,6 +416,7 @@ class Collection(List):
     catalog_item = models.OneToOneField(CatalogCollection, on_delete=models.PROTECT)
     title = models.CharField(_("title in primary language"), max_length=1000, default="")
     brief = models.TextField(_("简介"), blank=True, default="")
+    cover = models.ImageField(upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True)
     items = models.ManyToManyField(Item, through='CollectionMember', related_name="collections")
     collaborative = models.PositiveSmallIntegerField(default=0)  # 0: Editable by owner only / 1: Editable by bi-direction followers
 
@@ -415,6 +431,7 @@ class Collection(List):
         if self.catalog_item.title != self.title or self.catalog_item.brief != self.brief:
             self.catalog_item.title = self.title
             self.catalog_item.brief = self.brief
+            self.catalog_item.cover = self.cover
             self.catalog_item.save()
         super().save(*args, **kwargs)
 
@@ -425,7 +442,7 @@ Tag
 
 
 class TagMember(ListMember):
-    _tag = models.ForeignKey('Tag', related_name='members', on_delete=models.CASCADE)
+    parent = models.ForeignKey('Tag', related_name='members', on_delete=models.CASCADE)
 
 
 TagValidators = [RegexValidator(regex=r'\s+', inverse_match=True)]
@@ -460,7 +477,7 @@ class TagManager:
     @staticmethod
     def tag_item_by_user(item, user, tag_titles, default_visibility=0):
         titles = set([Tag.cleanup_title(tag_title) for tag_title in tag_titles])
-        current_titles = set([m._tag.title for m in TagMember.objects.filter(owner=user, item=item)])
+        current_titles = set([m.parent.title for m in TagMember.objects.filter(owner=user, item=item)])
         for title in titles - current_titles:
             tag = Tag.objects.filter(owner=user, title=title).first()
             if not tag:
@@ -485,6 +502,7 @@ class TagManager:
     def __init__(self, user):
         self.owner = user
 
+    @property
     def all_tags(self):
         return TagManager.all_tags_for_user(self.owner)
 
@@ -493,7 +511,7 @@ class TagManager:
             TagManager.add_tag_by_user(item, tag, self.owner, visibility)
 
     def get_item_tags(self, item):
-        return sorted([m['_tag__title'] for m in TagMember.objects.filter(_tag__owner=self.owner, item=item).values('_tag__title')])
+        return sorted([m['parent__title'] for m in TagMember.objects.filter(parent__owner=self.owner, item=item).values('parent__title')])
 
 
 Item.tags = property(TagManager.public_tags_for_item)
@@ -519,11 +537,11 @@ class Mark:
 
     @property
     def shelf_type(self):
-        return self.shelfmember._shelf.shelf_type if self.shelfmember else None
+        return self.shelfmember.parent.shelf_type if self.shelfmember else None
 
     @property
     def shelf_label(self):
-        return self.shelfmember._shelf.shelf_label if self.shelfmember else None
+        return self.shelfmember.parent.shelf_label if self.shelfmember else None
 
     @property
     def created_time(self):

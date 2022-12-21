@@ -97,6 +97,7 @@ class Command(BaseCommand):
                     owner_id=entity.owner_id,
                     title=entity.title,
                     brief=entity.description,
+                    cover=entity.cover,
                     collaborative=entity.collaborative,
                     created_time=entity.created_time,
                     edited_time=entity.edited_time,
@@ -197,7 +198,7 @@ class Command(BaseCommand):
                                 Comment.objects.create(owner_id=user_id, item_id=item_id, text=entity.text, visibility=visibility)
                             shelf = shelf_cache[f'{user_id}_{item.category}_{entity.status}']
                             ShelfMember.objects.create(
-                                _shelf_id=shelf,
+                                parent_id=shelf,
                                 owner_id=user_id,
                                 position=0,
                                 item_id=item_id,
@@ -212,7 +213,7 @@ class Command(BaseCommand):
                                 else:
                                     tag = tag_cache[tag_key]
                                 TagMember.objects.create(
-                                    _tag_id=tag,
+                                    parent_id=tag,
                                     owner_id=user_id,
                                     position=0,
                                     item_id=item_id,
