@@ -227,7 +227,7 @@ class Command(BaseCommand):
             self.initshelf()
         elif options['collection']:
             if options['clear']:
-                self.clear([Collection])
+                self.clear([Collection, Like])
             else:
                 self.collection(options)
         elif options['review']:
