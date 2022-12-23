@@ -20,9 +20,13 @@ migrations/
 *.sqlite3
 
 # deployed media and static files
-/media/
-/static/
+/media
+/static
 /scripts/
+
+# generated css
+/common/static/css/boofilsic.min.css
+/common/static/css/boofilsic.css
 
 # debug log file
 /log
