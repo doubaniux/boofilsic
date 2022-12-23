@@ -19,6 +19,7 @@ from management.models import Announcement
 from django.utils.baseconv import base62
 
 
+_logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
 
 
@@ -44,3 +45,61 @@ def like(request, piece_uuid):
         return HttpResponse("✔️")
     else:
         return HttpResponseBadRequest("invalid request")
+
+
+@login_required
+def add_to_collection(request, item_uuid):
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    if request.method == 'GET':
+        collections = Collection.objects.filter(owner=request.user)
+        return render(
+            request,
+            'add_to_collection.html',
+            {
+                'item': item,
+                'collections': collections,
+            }
+        )
+    else:
+        cid = int(request.POST.get('collection_id', default=0))
+        if not cid:
+            cid = Collection.objects.create(owner=request.user, title=f'{request.user.username}的收藏单').id
+        collection = Collection.objects.get(owner=request.user, id=cid)
+        collection.append_item(item, metadata={'comment': request.POST.get('comment')})
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def go_relogin(request):
+    return render(request, 'common/error.html', {
+        'url': reverse("users:connect") + '?domain=' + request.user.mastodon_site,
+        'msg': _("信息已保存，但是未能分享到联邦网络"),
+        'secondary_msg': _("可能是你在联邦网络(Mastodon/Pleroma/...)的登录状态过期了，正在跳转到联邦网络重新登录😼")})
+
+
+@login_required
+def mark(request, item_uuid):
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    mark = Mark(request.user, item)
+    if request.method == 'GET':
+        tags = TagManager.get_item_tags_by_user(item, request.user)
+        shelf_types = [(n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category]
+        return render(request, 'mark.html', {
+            'item': item,
+            'mark': mark,
+            'tags': ','.join(tags),
+            'shelf_types': shelf_types,
+        })
+    elif request.method == 'POST':
+        visibility = int(request.POST.get('visibility', default=0))
+        rating = int(request.POST.get('rating', default=0))
+        status = ShelfType(request.POST.get('status'))
+        text = request.POST.get('text')
+        tags = request.POST.get('tags')
+        tags = tags.split(',') if tags else []
+        share_to_mastodon = bool(request.POST.get('share_to_mastodon', default=False))
+        TagManager.tag_item_by_user(item, request.user, tags, visibility)
+        try:
+            mark.update(status, text, rating, visibility, share_to_mastodon=share_to_mastodon)
+        except Exception:
+            go_relogin(request)
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

@@ -108,7 +108,6 @@ class DefaultActivityProcessor:
             'template': self.template,
             'action_object': self.action_object,
         }
-        print(params)
         LocalActivity.objects.create(**params)
 
     def updated(self):

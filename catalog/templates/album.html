@@ -96,7 +96,7 @@
 		{% endif %}
 	</div>
 
-	{% if item.last_editor and item.last_editor.preference.show_last_edit or user.is_staff %}
+	{% if item.last_editor and item.last_editor.preference.show_last_edit %}
 	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
 	{% endif %}
 

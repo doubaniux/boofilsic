@@ -78,3 +78,16 @@ hx-swap="outerHTML">
 {% empty %}
 <div>{% trans '目前没有更多内容了' %}</div>
 {% endfor %}
+<script>
+  // readonly star rating at aside section
+  ratingLabels = $(".rating-star");
+  $(ratingLabels).each( function(index, value) {
+    console.log($(this).data("rating-score"))
+      let ratingScore = $(this).data("rating-score") / 2;
+      $(this).starRating({
+          initialRating: ratingScore,
+          readOnly: true,
+          starSize: 15,
+      });
+  });
+</script>

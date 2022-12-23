@@ -10,7 +10,7 @@ from simple_history.models import HistoricalRecords
 import uuid
 from .utils import DEFAULT_ITEM_COVER, item_cover_path
 from .mixins import SoftDeleteMixin
-# from django.conf import settings
+from django.conf import settings
 
 
 class SiteName(models.TextChoices):
@@ -228,6 +228,10 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @property
     def url(self):
         return f'/{self.url_path}/{self.uuid}/'
+
+    @property
+    def absolute_url(self):
+        return settings.APP_WEBSITE + self.url
 
     @property
     def api_url(self):

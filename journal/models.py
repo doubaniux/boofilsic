@@ -19,6 +19,11 @@ import math
 import uuid
 from catalog.common.utils import DEFAULT_ITEM_COVER, item_cover_path
 from django.utils.baseconv import base62
+from django.db.models import Q
+
+
+def query_visible(user):
+    return Q(visibility=0) | Q(owner_id__in=user.following, visibility__lt=2) | Q(owner_id=user.id)
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
@@ -276,13 +281,15 @@ ShelfTypeNames = [
     [ItemCategory.Game, ShelfType.WISHLIST, _('想玩')],
     [ItemCategory.Game, ShelfType.PROGRESS, _('在玩')],
     [ItemCategory.Game, ShelfType.COMPLETE, _('玩过')],
-    [ItemCategory.Collection, ShelfType.WISHLIST, _('关注')],
-    # TODO add more combinations
 ]
 
 
 class ShelfMember(ListMember):
     parent = models.ForeignKey('Shelf', related_name='members', on_delete=models.CASCADE)
+
+    @cached_property
+    def mark(self):
+        return Mark(self.owner, self.item)
 
 
 class Shelf(List):
@@ -488,6 +495,11 @@ class TagManager:
             tag.remove_item(item)
 
     @staticmethod
+    def get_item_tags_by_user(item, user):
+        current_titles = [m.parent.title for m in TagMember.objects.filter(owner=user, item=item)]
+        return current_titles
+
+    @staticmethod
     def add_tag_by_user(item, tag_title, user, default_visibility=0):
         title = Tag.cleanup_title(tag_title)
         tag = Tag.objects.filter(owner=user, title=title).first()
@@ -536,6 +548,10 @@ class Mark:
         return self.shelfmember.id if self.shelfmember else None
 
     @property
+    def shelf(self):
+        return self.shelfmember.parent if self.shelfmember else None
+
+    @property
     def shelf_type(self):
         return self.shelfmember.parent.shelf_type if self.shelfmember else None
 
@@ -575,7 +591,8 @@ class Mark:
     def review(self):
         return Review.objects.filter(owner=self.owner, item=self.item).first()
 
-    def update(self, shelf_type, comment_text, rating_grade, visibility, metadata=None, created_time=None):
+    def update(self, shelf_type, comment_text, rating_grade, visibility, metadata=None, created_time=None, share_to_mastodon=False):
+        share = share_to_mastodon and shelf_type is not None and (shelf_type != self.shelf_type or comment_text != self.text or rating_grade != self.rating)
         if shelf_type != self.shelf_type or visibility != self.visibility:
             self.shelfmember = self.owner.shelf_manager.move_item(self.item, shelf_type, visibility=visibility, metadata=metadata)
             if self.shelfmember and created_time:
@@ -586,3 +603,17 @@ class Mark:
         if rating_grade != self.rating or visibility != self.visibility:
             Rating.rate_item_by_user(self.item, self.owner, rating_grade, visibility)
             self.rating = rating_grade
+        if share:
+            # this is a bit hacky but let's keep it until move to implement ActivityPub,
+            # by then, we'll just change this to boost
+            from mastodon.api import share_mark
+            self.shared_link = self.shelfmember.metadata.get('shared_link') if self.shelfmember.metadata else None
+            self.translated_status = self.shelf_label
+            self.save = lambda **args: None
+            if not share_mark(self):
+                raise ValueError("sharing failed")
+            if not self.shelfmember.metadata:
+                self.shelfmember.metadata = {}
+            if self.shelfmember.metadata.get('shared_link') != self.shared_link:
+                self.shelfmember.metadata['shared_link'] = self.shared_link
+                self.shelfmember.save()

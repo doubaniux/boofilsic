@@ -1,0 +1,128 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+
+<div id="modal" _="on closeModal add .closing then wait for animationend then remove me">
+  <div class="modal-underlay" _="on click trigger closeModal"></div>
+  <div class="modal-content">
+    <div class="add-to-list-modal__head">
+      <span class="add-to-list-modal__title">{% trans '标记' %} {{ item.title }}</span>
+      <span class="add-to-list-modal__close-button modal-close" _="on click trigger closeModal">
+        <span class="icon-cross">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <polygon
+            points="20 2.61 17.39 0 10 7.39 2.61 0 0 2.61 7.39 10 0 17.39 2.61 20 10 12.61 17.39 20 20 17.39 12.61 10 20 2.61">
+          </polygon>
+        </svg>
+      </span>
+    </span>
+  </div>
+  <div class="add-to-list-modal__body">
+    <form action="{% url 'journal:mark' item.uuid  %}" method="post">
+      {% csrf_token %}
+
+      <div id="statusSelection" class="mark-modal__status-radio float-right">
+        <ul id="id_status">
+          {% for k, v in shelf_types %}
+          <li><label for="id_status_{{ k }}"><input type="radio" name="status" value="{{ k }}" required="" id="id_status_{{ k }}" {% if mark.shelf_type == k %}checked=""{% endif %}> {{ v }}</label></li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div class="mark-modal__rating-star rating-star-edit"></div>
+      <input type="hidden" name="rating" id="id_rating" value="{{ mark.rating }}">
+
+      <div class="mark-modal__clear"></div>
+
+      <textarea name="text" cols="40" rows="10" placeholder="超过360字部分实例可能无法显示" maxlength="360" id="id_text">{{ mark.text }}</textarea>
+
+      <div class="mark-modal__tag">
+        <label>标签</label>
+        <div class="tag-input">
+          <input name="tags" type="text" placeholder="回车增加标签" id="id_tags" value="">
+        </div>
+      </div>
+
+      <div class="mark-modal__share-checkbox float-right">
+        <input type="checkbox" name="share_to_mastodon" id="id_share_to_mastodon" value="1" checked>分享到联邦网络
+      </div>
+
+      <div class="mark-modal__option">
+        <div class="mark-modal__visibility-radio">
+          <span>可见性:
+            <ul id="id_visibility">
+              <li><label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" {% if mark.visibility == 0 %}checked{% endif %}> 公开</label> </li>
+              <li><label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1" {% if mark.visibility == 1 %}checked{% endif %}> 仅关注者</label> </li>
+              <li><label for="id_visibility_2"><input type="radio" name="visibility" value="2" required="" id="id_visibility_2" {% if mark.visibility == 2 %}checked{% endif %}> 仅自己</label> </li>
+            </ul>
+          </span>
+        </div>
+
+      </div>
+      <div class="mark-modal__confirm-button">
+        <input type="submit" class="button float-right" value="保存">
+      </div>
+    </form>
+  </div>
+  <script>
+    (function(){
+      new inputTags({
+        container: document.getElementsByClassName("tag-input")[0],
+        tags : "{{ tags }}".split(","),
+        allowDuplicateTags : false,
+        duplicateTime: 300,
+        onTagRemove : function (tag) {},
+      });
+    // editable rating star in modal
+      ratingLabels = $("#modal .rating-star-edit");
+      $(ratingLabels).each( function(index, value) {
+        let ratingScore = $("input[type='hidden'][name='rating']").val() / 2;
+        let label = $(this);
+        label.starRating({
+          initialRating: ratingScore,
+          starSize: 20,
+          onHover: function(currentIndex, currentRating, $el){
+            $("input[type='hidden'][name='rating']").val(currentIndex);
+          },
+          onLeave: function(currentIndex, currentRating, $el){
+            $("input[type='hidden'][name='rating']").val(currentRating * 2);
+          }            
+        });
+      });
+
+    // hide rating star when select wish
+      const WISH_CODE = "wishlist";
+      if ($("#statusSelection input[type='radio']:checked").val() == WISH_CODE) {
+        $("#model .rating-star-edit").hide();
+      }
+      $("#statusSelection input[type='radio']").on('click', function() {
+        if ($(this).val() == WISH_CODE) {
+          $("#model .rating-star-edit").hide();
+        } else {
+          $("#model .rating-star-edit").show();
+        }
+        
+      });
+
+    // show confirm modal
+      $("#model a.delete").on('click', function(e) {
+        e.preventDefault();
+        $(".confirm-modal").show();
+        $(".bg-mask").show();
+      });
+
+    // confirm modal
+      $(".confirm-modal input[type='submit']").on('click', function(e) {
+        e.preventDefault();
+        $("#model form").submit();
+      });
+    })();
+  </script>
+</div>
