@@ -30,8 +30,8 @@ $(document).ready( function() {
                 }
                 $("#userInfoCard .mast-avatar").attr("src", userData.avatar);
                 $("#userInfoCard .mast-displayname").html(userName);
-                $("#userInfoCard .mast-brief").text($(userData.note).text());
-                $(userInfoSpinner).remove();
+                $("#userInfoCard .mast-brief").text($('<p>'+userData.note+'</p>').text());
+                // $(userInfoSpinner).remove();
             }
         );
 
