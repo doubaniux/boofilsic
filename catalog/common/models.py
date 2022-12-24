@@ -227,15 +227,15 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def url(self):
-        return f'/{self.url_path}/{self.uuid}/'
+        return f'/{self.url_path}/{self.uuid}' if self.url_path else None
 
     @property
     def absolute_url(self):
-        return settings.APP_WEBSITE + self.url
+        return (settings.APP_WEBSITE + self.url) if self.url_path else None
 
     @property
     def api_url(self):
-        return '/api' + self.url
+        return ('/api/' + self.url) if self.url_path else None
 
     @property
     def class_name(self):

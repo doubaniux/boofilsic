@@ -127,14 +127,47 @@
 
               <div class="entity-marks">
                 <h5 class="entity-marks__title">{% trans '标记' %}</h5>
-                <a href="{% url 'books:retrieve_mark_list' item.id %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
-                <a href="{% url 'books:retrieve_mark_list' item.id 1 %}" class="entity-marks__more-link">关注的人的标记</a>
-                {% include "partial/mark_list.html" with mark_list=mark_list current_item=book %}
+                {% if mark_list %}
+                <a href="{% url 'catalog:mark_list' item.url_path item.uuid %}" class="entity-marks__more-link">{% trans '全部标记' %}</a>
+                <a href="{% url 'catalog:mark_list' item.url_path item.uuid 'following' %}" class="entity-marks__more-link">关注的人的标记</a>
+                {% endif %}
+                
+                <ul class="entity-marks__mark-list">
+                {% for others_mark in mark_list %}
+                <li class="entity-marks__mark">
+                    <a href="{% url 'users:home' others_mark.owner.mastodon_username %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
+
+                    <span>{{ others_mark.shelf_label }}</span>
+
+                    {% if others_mark.rating %}
+                    <span class="entity-marks__rating-star rating-star" data-rating-score="{{ others_mark.rating }}"></span>
+                    {% endif %}
+
+                    {% if others_mark.visibility > 0 %}
+                    <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
+                    {% endif %}
+
+                    {% if others_mark.shelfmember.metadata.shared_link %}
+                    <a href="{{ others_mark.shelfmember.metadata.shared_link }}" target="_blank"><span class="entity-marks__mark-time">{{ others_mark.created_time }}</span></a>
+                    {% else %}
+                    <span class="entity-marks__mark-time">{{ others_mark.created_time }}</span>
+                    {% endif %}
+
+                    {% if others_mark.text %}
+                    <p class="entity-marks__mark-content">{{ others_mark.text }}</p>
+                    {% endif %}
+                </li>
+                {% empty %}
+
+                <div> {% trans '暂无标记' %} </div>
+
+                {% endfor %}
+                </ul>
               </div>
               <div class="entity-reviews">
                 <h5 class="entity-reviews__title">{% trans '评论' %}</h5>
-                {% if review_list_more %}
-                <a href="{% url 'books:retrieve_review_list' item.id %}" class="entity-reviews__more-link">{% trans '全部评论' %}</a>
+                {% if review_list %}
+                <a href="{% url 'catalog:review_list' item.url_path item.uuid %}" class="entity-reviews__more-link">{% trans '全部评论' %}</a>
                 {% endif %}
                 {% if review_list %}
                 <ul class="entity-reviews__review-list">
@@ -145,10 +178,7 @@
                     <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                     {% endif %}
                     <span class="entity-reviews__review-time">{{ others_review.edited_time }}</span>
-                    {% if others_review.book != book %}
-                    <span class="entity-reviews__review-time source-label"><a class="entity-reviews__review-time" href="{% url 'books:retrieve' others_review.item.id %}">{{ others_review.item.get_source_site_display }}</a></span>
-                    {% endif %}
-                    <span class="entity-reviews__review-title"> <a href="{% url 'books:retrieve_review' others_review.id %}">{{ others_review.title }}</a></span>
+                    <span class="entity-reviews__review-title"> <a href="{% url 'journal:review_retrieve' others_review.uuid %}">{{ others_review.title }}</a></span>
                     <span>{{ others_review.get_plain_content | truncate:100 }}</span>
                   </li>
                   {% endfor %}
@@ -228,7 +258,7 @@
 
                 <div class="review-panel__time">{{ review.edited_time }}</div>
 
-                <a href="{% url 'books:retrieve_review' review.id %}" class="review-panel__review-title">
+                <a href="{% url 'journal:review_retrieve' review.uuid %}" class="review-panel__review-title">
                   {{ review.title }}
                 </a>
               </div>

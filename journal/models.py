@@ -20,13 +20,19 @@ import uuid
 from catalog.common.utils import DEFAULT_ITEM_COVER, item_cover_path
 from django.utils.baseconv import base62
 from django.db.models import Q
+import mistune
 
 
 def query_visible(user):
     return Q(visibility=0) | Q(owner_id__in=user.following, visibility__lt=2) | Q(owner_id=user.id)
 
 
+def query_following(user):
+    return Q(owner_id__in=user.following, visibility__lt=2) | Q(owner_id=user.id)
+
+
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
+    url_path = 'piece'  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
     owner = models.ForeignKey(User, on_delete=models.PROTECT)
     visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
@@ -38,6 +44,18 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
     @property
     def uuid(self):
         return base62.encode(self.uid.int)
+
+    @property
+    def url(self):
+        return f'/{self.url_path}/{self.uuid}/' if self.url_path else None
+
+    @property
+    def absolute_url(self):
+        return (settings.APP_WEBSITE + self.url) if self.url_path else None
+
+    @property
+    def api_url(self):
+        return ('/api/' + self.url) if self.url_path else None
 
 
 class Content(Piece):
@@ -87,10 +105,15 @@ class Comment(Content):
 
 
 class Review(Content):
+    url_path = 'review'
     title = models.CharField(max_length=500, blank=False, null=False)
     body = MarkdownxField()
 
-    @staticmethod
+    @property
+    def html_content(self):
+        return mistune.html(self.body)
+
+    @ staticmethod
     def review_item_by_user(item, user, title, body, metadata={}, visibility=0):
         # allow multiple reviews per item per user.
         review = Review.objects.create(owner=user, item=item, title=title, body=body, metadata=metadata, visibility=visibility)
@@ -114,17 +137,17 @@ class Review(Content):
 class Rating(Content):
     grade = models.PositiveSmallIntegerField(default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True)
 
-    @staticmethod
+    @ staticmethod
     def get_rating_for_item(item):
         stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(average=Avg('grade'), count=Count('item'))
-        return math.ceil(stat['average']) if stat['count'] >= 5 else None
+        return stat['average'] if stat['count'] >= 5 else None
 
-    @staticmethod
+    @ staticmethod
     def get_rating_count_for_item(item):
         stat = Rating.objects.filter(item=item, grade__isnull=False).aggregate(count=Count('item'))
         return stat['count']
 
-    @staticmethod
+    @ staticmethod
     def rate_item_by_user(item, user, rating_grade, visibility=0):
         if rating_grade and (rating_grade < 1 or rating_grade > 10):
             raise ValueError(f'Invalid rating grade: {rating_grade}')
@@ -141,7 +164,7 @@ class Rating(Content):
             rating.save()
         return rating
 
-    @staticmethod
+    @ staticmethod
     def get_item_rating_by_user(item, user):
         rating = Rating.objects.filter(owner=user, item=item).first()
         return rating.grade if rating else None
@@ -180,11 +203,11 @@ class List(Piece):
     # subclass must add this:
     # items = models.ManyToManyField(Item, through='ListMember')
 
-    @property
+    @ property
     def ordered_members(self):
         return self.members.all().order_by('position', 'item_id')
 
-    @property
+    @ property
     def ordered_items(self):
         return self.items.all().order_by(self.MEMBER_CLASS.__name__.lower() + '__position')
 
@@ -281,15 +304,19 @@ ShelfTypeNames = [
     [ItemCategory.Game, ShelfType.WISHLIST, _('想玩')],
     [ItemCategory.Game, ShelfType.PROGRESS, _('在玩')],
     [ItemCategory.Game, ShelfType.COMPLETE, _('玩过')],
+
+
 ]
 
 
 class ShelfMember(ListMember):
     parent = models.ForeignKey('Shelf', related_name='members', on_delete=models.CASCADE)
 
-    @cached_property
+    @ cached_property
     def mark(self):
-        return Mark(self.owner, self.item)
+        m = Mark(self.owner, self.item)
+        m.shelfmember = self
+        return m
 
 
 class Shelf(List):
@@ -304,11 +331,11 @@ class Shelf(List):
     def __str__(self):
         return f'{self.id} {self.title}'
 
-    @cached_property
+    @ cached_property
     def shelf_label(self):
         return next(iter([n[2] for n in iter(ShelfTypeNames) if n[0] == self.item_category and n[1] == self.shelf_type]), self.shelf_type)
 
-    @cached_property
+    @ cached_property
     def title(self):
         q = _("{item_category} {shelf_label} list").format(shelf_label=self.shelf_label, item_category=self.item_category)
         return _("{user}'s {shelf_name}").format(user=self.owner.mastodon_username, shelf_name=q)
@@ -400,7 +427,7 @@ class ShelfManager:
     def get_shelf(self, item_category, shelf_type):
         return self.owner.shelf_set.all().filter(item_category=item_category, shelf_type=shelf_type).first()
 
-    @staticmethod
+    @ staticmethod
     def get_manager_for_user(user):
         return ShelfManager(user)
 
@@ -427,7 +454,7 @@ class Collection(List):
     items = models.ManyToManyField(Item, through='CollectionMember', related_name="collections")
     collaborative = models.PositiveSmallIntegerField(default=0)  # 0: Editable by owner only / 1: Editable by bi-direction followers
 
-    @property
+    @ property
     def plain_description(self):
         html = markdown(self.description)
         return RE_HTML_TAG.sub(' ', html)
@@ -465,23 +492,23 @@ class Tag(List):
     class Meta:
         unique_together = [['_owner', 'title']]
 
-    @staticmethod
+    @ staticmethod
     def cleanup_title(title):
         return title.strip().lower()
 
 
 class TagManager:
-    @staticmethod
+    @ staticmethod
     def public_tags_for_item(item):
-        tags = item.tag_set.all().filter(visibility=0).values('title').annotate(frequency=Count('owner')).order_by('-frequency')
+        tags = item.tag_set.all().filter(visibility=0).values('title').annotate(frequency=Count('owner')).order_by('-frequency')[: 20]
         return sorted(list(map(lambda t: t['title'], tags)))
 
-    @staticmethod
+    @ staticmethod
     def all_tags_for_user(user):
         tags = user.tag_set.all().values('title').annotate(frequency=Count('members')).order_by('-frequency')
         return sorted(list(map(lambda t: t['title'], tags)))
 
-    @staticmethod
+    @ staticmethod
     def tag_item_by_user(item, user, tag_titles, default_visibility=0):
         titles = set([Tag.cleanup_title(tag_title) for tag_title in tag_titles])
         current_titles = set([m.parent.title for m in TagMember.objects.filter(owner=user, item=item)])
@@ -494,12 +521,12 @@ class TagManager:
             tag = Tag.objects.filter(owner=user, title=title).first()
             tag.remove_item(item)
 
-    @staticmethod
+    @ staticmethod
     def get_item_tags_by_user(item, user):
         current_titles = [m.parent.title for m in TagMember.objects.filter(owner=user, item=item)]
         return current_titles
 
-    @staticmethod
+    @ staticmethod
     def add_tag_by_user(item, tag_title, user, default_visibility=0):
         title = Tag.cleanup_title(tag_title)
         tag = Tag.objects.filter(owner=user, title=title).first()
@@ -507,14 +534,14 @@ class TagManager:
             tag = Tag.objects.create(owner=user, title=title, visibility=default_visibility)
         tag.append_item(item)
 
-    @staticmethod
+    @ staticmethod
     def get_manager_for_user(user):
         return TagManager(user)
 
     def __init__(self, user):
         self.owner = user
 
-    @property
+    @ property
     def all_tags(self):
         return TagManager.all_tags_for_user(self.owner)
 
@@ -539,55 +566,55 @@ class Mark:
         self.owner = user
         self.item = item
 
-    @cached_property
+    @ cached_property
     def shelfmember(self):
         return self.owner.shelf_manager.locate_item(self.item)
 
-    @property
+    @ property
     def id(self):
         return self.shelfmember.id if self.shelfmember else None
 
-    @property
+    @ property
     def shelf(self):
         return self.shelfmember.parent if self.shelfmember else None
 
-    @property
+    @ property
     def shelf_type(self):
         return self.shelfmember.parent.shelf_type if self.shelfmember else None
 
-    @property
+    @ property
     def shelf_label(self):
         return self.shelfmember.parent.shelf_label if self.shelfmember else None
 
-    @property
+    @ property
     def created_time(self):
         return self.shelfmember.created_time if self.shelfmember else None
 
-    @property
+    @ property
     def metadata(self):
         return self.shelfmember.metadata if self.shelfmember else None
 
-    @property
+    @ property
     def visibility(self):
         return self.shelfmember.visibility if self.shelfmember else None
 
-    @cached_property
+    @ cached_property
     def tags(self):
         return self.owner.tag_manager.get_item_tags(self.item)
 
-    @cached_property
+    @ cached_property
     def rating(self):
         return Rating.get_item_rating_by_user(self.item, self.owner)
 
-    @cached_property
+    @ cached_property
     def comment(self):
         return Comment.objects.filter(owner=self.owner, item=self.item).first()
 
-    @property
+    @ property
     def text(self):
         return self.comment.text if self.comment else None
 
-    @cached_property
+    @ cached_property
     def review(self):
         return Review.objects.filter(owner=self.owner, item=self.item).first()
 

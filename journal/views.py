@@ -18,7 +18,6 @@ import time
 from management.models import Announcement
 from django.utils.baseconv import base62
 
-
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
 
@@ -103,3 +102,36 @@ def mark(request, item_uuid):
         except Exception:
             go_relogin(request)
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+
+
+def review_retrieve(request, piece_uuid):
+    piece = get_object_or_404(Review, uid=base62.decode(piece_uuid))
+    if not piece:
+        return HttpResponseNotFound("piece not found")
+    if not piece.is_visible_to(request.user):
+        raise PermissionDenied()
+    return render(request, 'review.html', {'review': piece})
+
+
+def review_edit(request, piece_uuid):
+    pass
+
+
+def review_create(request):
+    pass
+
+
+def mark_list(request, shelf_type, item_category):
+    pass
+
+
+def review_list(request):
+    pass
+
+
+def collection_list(request):
+    pass
+
+
+def liked_list(request):
+    pass

@@ -25,3 +25,4 @@ dnspython
 typesense
 markdownify
 igdb-api-v4
+mistune
