@@ -243,7 +243,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @classmethod
     def get_by_url(cls, url_or_b62):
-        b62 = url_or_b62.strip().split('/')[-2]
+        b62 = url_or_b62.strip().split('/')[-1]
         return cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
 
     # def get_lookup_id(self, id_type: str) -> str:
