@@ -17,6 +17,9 @@ from django.db.models import Q
 import time
 from management.models import Announcement
 from django.utils.baseconv import base62
+from .forms import *
+from mastodon.api import share_review
+
 
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -82,43 +85,85 @@ def mark(request, item_uuid):
     if request.method == 'GET':
         tags = TagManager.get_item_tags_by_user(item, request.user)
         shelf_types = [(n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category]
+        shelf_type = request.GET.get('shelf_type', mark.shelf_type)
         return render(request, 'mark.html', {
             'item': item,
             'mark': mark,
+            'shelf_type': shelf_type,
             'tags': ','.join(tags),
             'shelf_types': shelf_types,
         })
     elif request.method == 'POST':
-        visibility = int(request.POST.get('visibility', default=0))
-        rating = int(request.POST.get('rating', default=0))
-        status = ShelfType(request.POST.get('status'))
-        text = request.POST.get('text')
-        tags = request.POST.get('tags')
-        tags = tags.split(',') if tags else []
-        share_to_mastodon = bool(request.POST.get('share_to_mastodon', default=False))
-        TagManager.tag_item_by_user(item, request.user, tags, visibility)
-        try:
-            mark.update(status, text, rating, visibility, share_to_mastodon=share_to_mastodon)
-        except Exception:
-            go_relogin(request)
-        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        if request.POST.get('delete', default=False):
+            mark.delete()
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+        else:
+            visibility = int(request.POST.get('visibility', default=0))
+            rating = request.POST.get('rating', default=0)
+            rating = int(rating) if rating else None
+            status = ShelfType(request.POST.get('status'))
+            text = request.POST.get('text')
+            tags = request.POST.get('tags')
+            tags = tags.split(',') if tags else []
+            share_to_mastodon = bool(request.POST.get('share_to_mastodon', default=False))
+            TagManager.tag_item_by_user(item, request.user, tags, visibility)
+            try:
+                mark.update(status, text, rating, visibility, share_to_mastodon=share_to_mastodon)
+            except Exception:
+                go_relogin(request)
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-def review_retrieve(request, piece_uuid):
-    piece = get_object_or_404(Review, uid=base62.decode(piece_uuid))
-    if not piece:
-        return HttpResponseNotFound("piece not found")
+def review_retrieve(request, review_uuid):
+    piece = get_object_or_404(Review, uid=base62.decode(review_uuid))
     if not piece.is_visible_to(request.user):
         raise PermissionDenied()
     return render(request, 'review.html', {'review': piece})
 
 
-def review_edit(request, piece_uuid):
-    pass
+@login_required
+def review_edit(request, item_uuid, review_uuid=None):
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    review = get_object_or_404(Review, uid=base62.decode(review_uuid)) if review_uuid else None
+    if review and not review.is_editable_by(request.user):
+        raise PermissionDenied()
+    if request.method == 'GET':
+        form = ReviewForm(instance=review) if review else ReviewForm(initial={'item': item.id})
+        return render(request, 'review_edit.html', {'form': form, 'item': item})
+    elif request.method == 'POST':
+        form = ReviewForm(request.POST, instance=review) if review else ReviewForm(request.POST)
+        if form.is_valid():
+            if not review:
+                form.instance.owner = request.user
+            form.instance.edited_time = timezone.now()
+            form.save()
+            if form.cleaned_data['share_to_mastodon']:
+                form.instance.save = lambda **args: None
+                form.instance.shared_link = None
+                if not share_review(form.instance):
+                    return go_relogin(request)
+            return redirect(reverse("journal:review_retrieve", args=[form.instance.uuid]))
+        else:
+            return HttpResponseBadRequest(form.errors)
+    else:
+        return HttpResponseBadRequest()
 
 
-def review_create(request):
-    pass
+@login_required
+def review_delete(request, review_uuid):
+    review = get_object_or_404(Review, uid=base62.decode(review_uuid))
+    if not review.is_editable_by(request.user):
+        raise PermissionDenied()
+    if request.method == 'GET':
+        review_form = ReviewForm(instance=review)
+        return render(request, 'review_delete.html', {'form': review_form, 'review': review})
+    elif request.method == 'POST':
+        item = review.item
+        print(review)
+        review.delete()
+        return redirect(item.url)
+    else:
+        return HttpResponseBadRequest()
 
 
 def mark_list(request, shelf_type, item_category):
@@ -133,5 +178,6 @@ def collection_list(request):
     pass
 
 
+@login_required
 def liked_list(request):
     pass

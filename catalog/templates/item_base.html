@@ -16,23 +16,15 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta property="og:title" content="{{ site_name }}{% trans item.category.label %} - {{ item.title }}">
-  <meta property="og:type" content="book">
+  <meta property="og:type" content="{{ item.category }}">
   <meta property="og:url" content="{{ request.build_absolute_uri }}">
   <meta property="og:image" content="{{ request.scheme }}://{{ request.get_host }}{{ item.cover.url }}">
   <meta property="og:site_name" content="{{ site_name }}">
   <meta property="og:description" content="{{ item.brief }}">
-  {% if item.author %}
-  <meta property="og:book:author" content="{% for author in item.author %}{{ author }}{% if not forloop.last %},{% endif %}{% endfor %}">
-  {% endif %}
-  {% if item.isbn %}
-  <meta property="og:book:isbn" content="{{ item.isbn }}">
-  {% endif %}
-
+  {% block opengraph %}
+  {% endblock %}
   <title>{{ site_name }} - {% trans item.category.label %} | {{ item.title }}</title>
-
-  {% include "partial/_common_libs.html" with jquery=1 %}
-
-  <script src="{% static 'lib/js/rating-star.js' %}"></script>
+  {% include "common_libs.html" with jquery=1 %}
   <script src="{% static 'lib/js/tag-input.js' %}"></script>
   <link href="{% static 'lib/css/tag-input.css' %}" type="text/css" media="all" rel="stylesheet">
 </head>
@@ -204,9 +196,10 @@
                 {% endif %}
                 <span class="mark-panel__actions">
                   <a href="#" hx-get="{% url 'journal:mark' item.uuid %}" class="edit" hx-target="body" hx-swap="beforeend">{% trans '修改' %}</a>
-                  <form action="{% url 'books:delete_mark' mark.id %}" method="post">
+                  <form id="mark_delete" action="{% url 'journal:mark' item.uuid %}" method="post">
                     {% csrf_token %}
-                    <a href="" class="delete">{% trans '删除' %}</a>
+                    <input type="hidden" name="delete" value="1">
+                    <a href="javascript:$('#mark_delete').submit()" class="delete">{% trans '删除' %}</a>
                   </form>
                 </span>
                 <div class="mark-panel__clear"></div>
@@ -234,26 +227,24 @@
               <div class="action-panel" id="addMarkPanel">
                 <div class="action-panel__label">{% trans '标记' %}{% trans item.demonstrative %}</div>
                 <div class="action-panel__button-group">
-                  <button class="action-panel__button" data-status="{{ status_enum.WISH.value }}" id="wishButton">{% trans '想读' %}</button>
-                  <button class="action-panel__button" data-status="{{ status_enum.DO.value }}">{% trans '在读' %}</button>
-                  <button class="action-panel__button" data-status="{{ status_enum.COLLECT.value }}">{% trans '读过' %}</button>
+                  {% for k, v in shelf_types %}
+                  <button class="action-panel__button" data-status="{{ k }}" hx-get="{% url 'journal:mark' item.uuid %}?shelf_type={{ k }}" class="edit" hx-target="body" hx-swap="beforeend">{% trans v %}</button>
+                  {% endfor %}
                 </div>
               </div>
               {% endif %}
             </div>
 
             <div class="aside-section-wrapper">
-              {% if review %}
-              <div class="review-panel">
-
+              <div class="review-panel action-panel">
+                {% if review %}
                 <span class="review-panel__label">{% trans '我的评论' %}</span>
                 {% if review.visibility > 0 %}
                 <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20"><path d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z"/></svg></span>
                 {% endif %}
-
                 <span class="review-panel__actions">
-                  <a href="{% url 'books:update_review' review.id %}">{% trans '编辑' %}</a>
-                  <a href="{% url 'books:delete_review' review.id %}">{% trans '删除' %}</a>
+                  <a href="{% url 'journal:review_edit' item.uuid review.uuid %}">{% trans '编辑' %}</a>
+                  <a href="{% url 'journal:review_delete' review.uuid %}">{% trans '删除' %}</a>
                 </span>
 
                 <div class="review-panel__time">{{ review.edited_time }}</div>
@@ -261,20 +252,14 @@
                 <a href="{% url 'journal:review_retrieve' review.uuid %}" class="review-panel__review-title">
                   {{ review.title }}
                 </a>
-              </div>
-              {% else %}
-
-              <div class="action-panel">
-                <div class="action-panel__label">{% trans '我的评论' %}</div>
+                {% else %}
                 <div class="action-panel__button-group action-panel__button-group--center">
-
-                  <a href="{% url 'books:create_review' item.id %}">
-                    <button class="action-panel__button">{% trans '去写评论' %}</button>
+                  <a href="{% url 'journal:review_create' item.uuid %}">
+                    <button class="action-panel__button">{% trans '撰写评论' %}</button>
                   </a>
                 </div>
+                {% endif %}
               </div>
-
-              {% endif %}
             </div>
             {% endblock %}
 
@@ -308,44 +293,5 @@
     </div>
     {% include "partial/_footer.html" %}
   </div>
-  <script>
-    // readonly star rating of detail display section
-    let ratingLabels = $("#main .rating-star");
-    $(ratingLabels).each( function(index, value) {
-        let ratingScore = $(this).data("rating-score") / 2;
-        $(this).starRating({
-            initialRating: ratingScore,
-            readOnly: true,
-        });
-    });
-    // readonly star rating at aside section
-    ratingLabels = $("#aside .rating-star");
-    $(ratingLabels).each( function(index, value) {
-        let ratingScore = $(this).data("rating-score") / 2;
-        $(this).starRating({
-            initialRating: ratingScore,
-            readOnly: true,
-            starSize: 15,
-        });
-    });
-    // hide long text
-    $(".entity-desc__content").each(function() {
-        let copy = $(this).clone()
-            .addClass('entity-desc__content--folded')
-            .css("visibility", "hidden");
-        $(this).after(copy);
-        if ($(this).height() > copy.height()) {
-            $(this).addClass('entity-desc__content--folded');
-            $(this).siblings(".entity-desc__unfold-button").removeClass("entity-desc__unfold-button--hidden");
-        }
-        copy.remove();        
-    });
-
-    // expand hidden long text
-    $(".entity-desc__unfold-button a").on('click', function() {
-        $(this).parent().siblings(".entity-desc__content").removeClass('entity-desc__content--folded');
-        $(this).parent(".entity-desc__unfold-button").remove();
-    });
-  </script>
 </body>
 </html>

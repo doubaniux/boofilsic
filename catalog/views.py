@@ -19,6 +19,7 @@ from journal.models import Mark, ShelfMember, Review
 from journal.models import query_visible, query_following
 from common.utils import PageLinksGenerator
 from common.views import PAGE_LINK_NUMBER
+from journal.models import ShelfTypeNames
 
 _logger = logging.getLogger(__name__)
 
@@ -43,6 +44,7 @@ def retrieve(request, item_path, item_uuid):
         mark_list = None
         review_list = None
         collection_list = []
+        shelf_types = [(n[1], n[2]) for n in iter(ShelfTypeNames) if n[0] == item.category]
         if request.user.is_authenticated:
             visible = query_visible(request.user)
             mark = Mark(request.user, item)
@@ -60,6 +62,7 @@ def retrieve(request, item_path, item_uuid):
             'mark_list': mark_list,
             'review_list': review_list,
             'collection_list': collection_list,
+            'shelf_types': shelf_types,
         }
         )
     else:

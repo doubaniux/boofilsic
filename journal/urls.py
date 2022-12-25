@@ -9,6 +9,8 @@ urlpatterns = [
     path('mark/<str:item_uuid>', mark, name='mark'),
     path('add_to_collection/<str:item_uuid>', add_to_collection, name='add_to_collection'),
 
-    path('review/<str:piece_uuid>', review_retrieve, name='review_retrieve'),
-    path('review/create', review_create, name='review_create'),
+    path('review/<str:review_uuid>', review_retrieve, name='review_retrieve'),
+    path('review/create/<str:item_uuid>/', review_edit, name='review_create'),
+    path('review/edit/<str:item_uuid>/<str:review_uuid>', review_edit, name='review_edit'),
+    path('review/delete/<str:review_uuid>', review_delete, name='review_delete'),
 ]

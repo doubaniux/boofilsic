@@ -23,6 +23,12 @@ from django.db.models import Q
 import mistune
 
 
+class VisibilityType(models.IntegerChoices):
+    Public = 0, _('公开')
+    Follower_Only = 1, _('仅关注者')
+    Private = 2, _('仅自己')
+
+
 def query_visible(user):
     return Q(visibility=0) | Q(owner_id__in=user.following, visibility__lt=2) | Q(owner_id=user.id)
 
@@ -47,7 +53,7 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def url(self):
-        return f'/{self.url_path}/{self.uuid}/' if self.url_path else None
+        return f'/{self.url_path}/{self.uuid}' if self.url_path else None
 
     @property
     def absolute_url(self):
@@ -62,7 +68,7 @@ class Content(Piece):
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
 
     def __str__(self):
-        return f"{self.id}({self.item})"
+        return f"{self.uuid}@{self.item}"
 
     class Meta:
         abstract = True
@@ -644,3 +650,6 @@ class Mark:
             if self.shelfmember.metadata.get('shared_link') != self.shared_link:
                 self.shelfmember.metadata['shared_link'] = self.shared_link
                 self.shelfmember.save()
+
+    def delete(self):
+        self.update(None, None, None, 0)

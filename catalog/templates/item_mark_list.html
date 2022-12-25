@@ -13,11 +13,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{{ site_name }} - {{ item.title }}{% trans '的标记' %}</title>
-  <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
-  <script src="{% static 'lib/js/rating-star.js' %}"></script>
-  <script src="{% static 'js/rating-star-readonly.js' %}"></script>
-  <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
-  <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+  {% include "common_libs.html" with jquery=1 %}
 </head>
 
 <body>
@@ -105,47 +101,5 @@
     </div>
     {% include "partial/_footer.html" %}
   </div>
-
-  <script>
-      // readonly star rating of detail display section
-    let ratingLabels = $("#main .rating-star");
-    $(ratingLabels).each( function(index, value) {
-      let ratingScore = $(this).data("rating-score") / 2;
-      $(this).starRating({
-        initialRating: ratingScore,
-        readOnly: true,
-      });
-    });
-      // readonly star rating at aside section
-    ratingLabels = $("#aside .rating-star");
-    $(ratingLabels).each( function(index, value) {
-      let ratingScore = $(this).data("rating-score") / 2;
-      $(this).starRating({
-        initialRating: ratingScore,
-        readOnly: true,
-        starSize: 15,
-      });
-    });
-      // hide long text
-    $(".entity-desc__content").each(function() {
-      let copy = $(this).clone()
-      .addClass('entity-desc__content--folded')
-      .css("visibility", "hidden");
-      $(this).after(copy);
-      if ($(this).height() > copy.height()) {
-        $(this).addClass('entity-desc__content--folded');
-        $(this).siblings(".entity-desc__unfold-button").removeClass("entity-desc__unfold-button--hidden");
-      }
-      copy.remove();        
-    });
-
-      // expand hidden long text
-    $(".entity-desc__unfold-button a").on('click', function() {
-      $(this).parent().siblings(".entity-desc__content").removeClass('entity-desc__content--folded');
-      $(this).parent(".entity-desc__unfold-button").remove();
-    });
-  </script>
 </body>
-
-
 </html>

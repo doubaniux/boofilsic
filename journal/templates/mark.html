@@ -31,17 +31,17 @@
       <div id="statusSelection" class="mark-modal__status-radio float-right">
         <ul id="id_status">
           {% for k, v in shelf_types %}
-          <li><label for="id_status_{{ k }}"><input type="radio" name="status" value="{{ k }}" required="" id="id_status_{{ k }}" {% if mark.shelf_type == k %}checked=""{% endif %}> {{ v }}</label></li>
+          <li><label for="id_status_{{ k }}"><input type="radio" name="status" value="{{ k }}" required="" id="id_status_{{ k }}" {% if shelf_type == k %}checked=""{% endif %}> {{ v }}</label></li>
           {% endfor %}
         </ul>
       </div>
 
       <div class="mark-modal__rating-star rating-star-edit"></div>
-      <input type="hidden" name="rating" id="id_rating" value="{{ mark.rating }}">
+      <input type="hidden" name="rating" id="id_rating" value="{{ mark.rating|floatformat:0 }}">
 
       <div class="mark-modal__clear"></div>
 
-      <textarea name="text" cols="40" rows="10" placeholder="超过360字部分实例可能无法显示" maxlength="360" id="id_text">{{ mark.text }}</textarea>
+      <textarea name="text" cols="40" rows="10" placeholder="超过360字部分实例可能无法显示" maxlength="360" id="id_text">{% if mark.text %}{{ mark.text }}{% endif %}</textarea>
 
       <div class="mark-modal__tag">
         <label>标签</label>
@@ -100,19 +100,19 @@
     // hide rating star when select wish
       const WISH_CODE = "wishlist";
       if ($("#statusSelection input[type='radio']:checked").val() == WISH_CODE) {
-        $("#model .rating-star-edit").hide();
+        $("#modal .rating-star-edit").hide();
       }
       $("#statusSelection input[type='radio']").on('click', function() {
         if ($(this).val() == WISH_CODE) {
-          $("#model .rating-star-edit").hide();
+          $("#modal .rating-star-edit").hide();
         } else {
-          $("#model .rating-star-edit").show();
+          $("#modal .rating-star-edit").show();
         }
         
       });
 
     // show confirm modal
-      $("#model a.delete").on('click', function(e) {
+      $("#modal a.delete").on('click', function(e) {
         e.preventDefault();
         $(".confirm-modal").show();
         $(".bg-mask").show();
@@ -121,7 +121,7 @@
     // confirm modal
       $(".confirm-modal input[type='submit']").on('click', function(e) {
         e.preventDefault();
-        $("#model form").submit();
+        $("#modal form").submit();
       });
     })();
   </script>
