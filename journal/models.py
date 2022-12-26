@@ -119,6 +119,10 @@ class Review(Content):
     def html_content(self):
         return mistune.html(self.body)
 
+    @cached_property
+    def rating_grade(self):
+        return Rating.get_item_rating_by_user(self.item, self.owner)
+
     @ staticmethod
     def review_item_by_user(item, user, title, body, metadata={}, visibility=0):
         # allow multiple reviews per item per user.

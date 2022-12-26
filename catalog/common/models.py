@@ -11,6 +11,7 @@ import uuid
 from .utils import DEFAULT_ITEM_COVER, item_cover_path
 from .mixins import SoftDeleteMixin
 from django.conf import settings
+from users.models import User
 
 
 class SiteName(models.TextChoices):
@@ -186,6 +187,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     is_deleted = models.BooleanField(default=False, db_index=True)
     history = HistoricalRecords()
     merged_to_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, default=None, related_name="merged_from_items")
+    last_editor = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='+', null=True, blank=False)
 
     class Meta:
         unique_together = [['polymorphic_ctype_id', 'primary_lookup_id_type', 'primary_lookup_id_value']]

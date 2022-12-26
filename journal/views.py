@@ -159,7 +159,6 @@ def review_delete(request, review_uuid):
         return render(request, 'review_delete.html', {'form': review_form, 'review': review})
     elif request.method == 'POST':
         item = review.item
-        print(review)
         review.delete()
         return redirect(item.url)
     else:

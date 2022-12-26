@@ -82,7 +82,6 @@ hx-swap="outerHTML">
   // readonly star rating at aside section
   ratingLabels = $(".rating-star");
   $(ratingLabels).each( function(index, value) {
-    console.log($(this).data("rating-score"))
       let ratingScore = $(this).data("rating-score") / 2;
       $(this).starRating({
           initialRating: ratingScore,

@@ -205,7 +205,8 @@ class Command(BaseCommand):
                                     obj['primary_lookup_id_value'] = v
                                     item = model.objects.create(**obj)
                                 item.cover = content.metadata['cover_image_path']
-                                item.save()
+                            item.last_editor = entity.last_editor
+                            item.save()
                             links.append(LinkModel(old_id=entity.id, new_uid=item.uid))
                             # pprint.pp(site.get_item())
                         except Exception as e:
