@@ -56,6 +56,17 @@ def render_user_not_found(request):
     )
 
 
+def render_user_blocked(request):
+    msg = _("你没有访问TA主页的权限😥")
+    return render(
+        request,
+        'common/error.html',
+        {
+            'msg': msg,
+        }
+    )
+
+
 def home_redirect(request, id):
     try:
         query_kwargs = {'pk': id}
@@ -93,7 +104,7 @@ def home(request, id):
             reports = Report.objects.order_by(
                 '-submitted_time').filter(is_read=False)
             unread_announcements = Announcement.objects.filter(
-                    pk__gt=request.user.read_announcement_index).order_by('-pk')
+                pk__gt=request.user.read_announcement_index).order_by('-pk')
             try:
                 request.user.read_announcement_index = Announcement.objects.latest(
                     'pk').pk
@@ -510,14 +521,7 @@ def music_list(request, id, status):
         tag = request.GET.get('t', default='')
         if not user == request.user:
             if request.user.is_blocked_by(user) or request.user.is_blocking(user):
-                msg = _("你没有访问TA主页的权限😥")
-                return render(
-                    request,
-                    'common/error.html',
-                    {
-                        'msg': msg,
-                    }
-                )
+                return render_user_blocked(request)
             is_following = request.user.is_following(user)
             if status == 'reviewed':
                 queryset = list(AlbumReview.get_available_by_user(user, is_following).order_by("-edited_time")) + \
@@ -527,7 +531,7 @@ def music_list(request, id, status):
             else:
                 queryset = list(AlbumMark.get_available_by_user(user, is_following).filter(
                     status=MarkStatusEnum[status.upper()])) \
-                        + list(SongMark.get_available_by_user(user, is_following).filter(
+                    + list(SongMark.get_available_by_user(user, is_following).filter(
                         status=MarkStatusEnum[status.upper()]))
         else:
             if status == 'reviewed':

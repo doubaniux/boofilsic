@@ -34,7 +34,7 @@ def feed(request):
         request,
         'feed.html',
         {
-            'tags': user.tag_manager.all_tags[:10],
+            'top_tags': user.tag_manager.all_tags[:10],
             'unread_announcements': unread,
         }
     )

@@ -1,6 +1,6 @@
 function catalog_init(context) {
     // readonly star rating of detail display section
-    let ratingLabels = $("#main .rating-star", context);
+    let ratingLabels = $(".grid__main .rating-star", context);
     $(ratingLabels).each( function(index, value) {
         let ratingScore = $(this).data("rating-score") / 2;
         $(this).starRating({

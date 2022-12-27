@@ -87,8 +87,8 @@
                     </h5>
                     <a href="{% url 'users:tag_list' user.mastodon_username %}">{% trans '更多' %}</a>
                     <div class="tag-collection" style="margin-left: 0;">
-                        {% if tags %}
-                        {% for t in tags %}
+                        {% if top_tags %}
+                        {% for t in top_tags %}
                         <span class="tag-collection__tag">
                             <a href="/users/{{ user.mastodon_username }}/tag/{{ t }}/">{{ t }}</a>
                         </span>

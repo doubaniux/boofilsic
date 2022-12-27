@@ -19,6 +19,7 @@ from management.models import Announcement
 from django.utils.baseconv import base62
 from .forms import *
 from mastodon.api import share_review
+from users.views import render_user_blocked, render_user_not_found
 
 
 _logger = logging.getLogger(__name__)
@@ -71,7 +72,7 @@ def add_to_collection(request, item_uuid):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
-def go_relogin(request):
+def render_relogin(request):
     return render(request, 'common/error.html', {
         'url': reverse("users:connect") + '?domain=' + request.user.mastodon_site,
         'msg': _("信息已保存，但是未能分享到联邦网络"),
@@ -110,7 +111,7 @@ def mark(request, item_uuid):
             try:
                 mark.update(status, text, rating, visibility, share_to_mastodon=share_to_mastodon)
             except Exception:
-                go_relogin(request)
+                return render_relogin(request)
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
@@ -141,7 +142,7 @@ def review_edit(request, item_uuid, review_uuid=None):
                 form.instance.save = lambda **args: None
                 form.instance.shared_link = None
                 if not share_review(form.instance):
-                    return go_relogin(request)
+                    return render_relogin(request)
             return redirect(reverse("journal:review_retrieve", args=[form.instance.uuid]))
         else:
             return HttpResponseBadRequest(form.errors)
@@ -165,18 +166,115 @@ def review_delete(request, review_uuid):
         return HttpResponseBadRequest()
 
 
-def mark_list(request, shelf_type, item_category):
-    pass
+def render_list_not_fount(request):
+    msg = _("相关列表不存在")
+    return render(
+        request,
+        'common/error.html',
+        {
+            'msg': msg,
+        }
+    )
 
 
-def review_list(request):
-    pass
-
-
-def collection_list(request):
-    pass
+def _render_list(request, user_name, type, shelf_type=None, item_category=None, tag_title=None):
+    user = User.get(user_name)
+    if user is None:
+        return render_user_not_found(request)
+    if user != request.user and (request.user.is_blocked_by(user) or request.user.is_blocking(user)):
+        return render_user_blocked(request)
+    if type == 'mark':
+        shelf = user.shelf_manager.get_shelf(item_category, shelf_type)
+        queryset = ShelfMember.objects.filter(owner=user, parent=shelf)
+    elif type == 'tagmember':
+        tag = Tag.objects.filter(owner=user, title=tag_title).first()
+        if not tag:
+            return render_list_not_fount(request)
+        if tag.visibility != 0 and user != request.user:
+            return render_list_not_fount(request)
+        queryset = TagMember.objects.filter(parent=tag)
+    elif type == 'review':
+        queryset = Review.objects.filter(owner=user)
+        queryset = queryset.filter(query_item_category(item_category))
+    else:
+        return HttpResponseBadRequest()
+    if user != request.user:
+        if request.user.is_following(user):
+            queryset = queryset.filter(visibility__ne=2)
+        else:
+            queryset = queryset.filter(visibility=0)
+    paginator = Paginator(queryset, PAGE_SIZE)
+    page_number = request.GET.get('page', default=1)
+    members = paginator.get_page(page_number)
+    return render(request, f'user_{type}_list.html', {
+        'user': user,
+        'members': members,
+    })
 
 
 @login_required
-def liked_list(request):
-    pass
+def user_mark_list(request, user_name, shelf_type, item_category):
+    return _render_list(request, user_name, 'mark', shelf_type=shelf_type, item_category=item_category)
+
+
+@login_required
+def user_tag_member_list(request, user_name, tag_title):
+    return _render_list(request, user_name, 'tagmember', tag_title=tag_title)
+
+
+@login_required
+def user_review_list(request, user_name, item_category):
+    return _render_list(request, user_name, 'review', item_category=item_category)
+
+
+@login_required
+def user_tag_list(request, user_name):
+    user = User.get(user_name)
+    if user is None:
+        return render_user_not_found(request)
+    if user != request.user and (request.user.is_blocked_by(user) or request.user.is_blocking(user)):
+        return render_user_blocked(request)
+    tags = Tag.objects.filter(owner=user)
+    tags = user.tag_set.all()
+    if user != request.user:
+        tags = tags.filter(visibility=0)
+    tags = tags.values('title').annotate(total=Count('members')).order_by('-total')
+    return render(request, f'user_tag_list.html', {
+        'user': user,
+        'tags': tags,
+    })
+
+
+@login_required
+def user_collection_list(request, user_name):
+    user = User.get(user_name)
+    if user is None:
+        return render_user_not_found(request)
+    if user != request.user and (request.user.is_blocked_by(user) or request.user.is_blocking(user)):
+        return render_user_blocked(request)
+    collections = Tag.objects.filter(owner=user)
+    if user != request.user:
+        if request.user.is_following(user):
+            collections = collections.filter(visibility__ne=2)
+        else:
+            collections = collections.filter(visibility=0)
+    return render(request, f'user_collection_list.html', {
+        'user': user,
+        'collections': collections,
+    })
+
+
+@login_required
+def user_liked_collection_list(request, user_name):
+    user = User.get(user_name)
+    if user is None:
+        return render_user_not_found(request)
+    if user != request.user and (request.user.is_blocked_by(user) or request.user.is_blocking(user)):
+        return render_user_blocked(request)
+    collections = Collection.objects.filter(likes__owner=user)
+    if user != request.user:
+        collections = collections.filter(query_visible(request.user))
+    return render(request, f'user_collection_list.html', {
+        'user': user,
+        'collections': collections,
+    })

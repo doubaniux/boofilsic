@@ -36,10 +36,10 @@
 {% block details %}
 <div class="entity-detail__fields">
 	<div class="entity-detail__rating">
-		{% if item.rating and item.rating_number >= 5 %}
+		{% if item.rating and item.rating_count >= 5 %}
 		<span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:"0" }}"></span>
 		<span class="entity-detail__rating-score"> {{ item.rating }} </span>
-		<small>({{ item.rating_number }}人评分)</small>
+		<small>({{ item.rating_count }}人评分)</small>
 		{% else %}
 		<span> {% trans '评分：评分人数不足' %}</span>
 		{% endif %}
@@ -155,7 +155,7 @@
 	{% endif %}
 
 
-	{% if item.last_editor and item.last_editor.preference.show_last_edit or user.is_staff %}
+	{% if item.last_editor and item.last_editor.preference.show_last_edit  %}
 	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
 	{% endif %}
 

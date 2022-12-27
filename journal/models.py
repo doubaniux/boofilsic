@@ -20,7 +20,9 @@ import uuid
 from catalog.common.utils import DEFAULT_ITEM_COVER, item_cover_path
 from django.utils.baseconv import base62
 from django.db.models import Q
+from catalog.models import *
 import mistune
+from django.contrib.contenttypes.models import ContentType
 
 
 class VisibilityType(models.IntegerChoices):
@@ -35,6 +37,16 @@ def query_visible(user):
 
 def query_following(user):
     return Q(owner_id__in=user.following, visibility__lt=2) | Q(owner_id=user.id)
+
+
+def query_item_category(item_category):
+    classes = CATEGORY_LIST[item_category]
+    # q = Q(item__instance_of=classes[0])
+    # for cls in classes[1:]:
+    #     q = q | Q(instance_of=cls)
+    # return q
+    contenttype_ids = [CONTENT_TYPE_LIST[cls] for cls in classes]
+    return Q(item__polymorphic_ctype__in=sorted(contenttype_ids))
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
@@ -66,6 +78,12 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
 class Content(Piece):
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
+
+    @cached_property
+    def mark(self):
+        m = Mark(self.owner, self.item)
+        m.review = self
+        return m
 
     def __str__(self):
         return f"{self.uuid}@{self.item}"
@@ -271,13 +289,16 @@ class ListMember(Piece):
     ListMember - List class's member class
     It's an abstract class, subclass must add this:
 
-    _list = models.ForeignKey('ListClass', related_name='members', on_delete=models.CASCADE)
-
-    it starts with _ bc Django internally created OneToOne Field on Piece
-    https://docs.djangoproject.com/en/3.2/topics/db/models/#specifying-the-parent-link-field
+    parent = models.ForeignKey('List', related_name='members', on_delete=models.CASCADE)
     """
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     position = models.PositiveIntegerField()
+
+    @cached_property
+    def mark(self):
+        m = Mark(self.owner, self.item)
+        m.shelfmember = self
+        return m
 
     class Meta:
         abstract = True
@@ -321,12 +342,6 @@ ShelfTypeNames = [
 
 class ShelfMember(ListMember):
     parent = models.ForeignKey('Shelf', related_name='members', on_delete=models.CASCADE)
-
-    @ cached_property
-    def mark(self):
-        m = Mark(self.owner, self.item)
-        m.shelfmember = self
-        return m
 
 
 class Shelf(List):
@@ -515,8 +530,8 @@ class TagManager:
 
     @ staticmethod
     def all_tags_for_user(user):
-        tags = user.tag_set.all().values('title').annotate(frequency=Count('members')).order_by('-frequency')
-        return sorted(list(map(lambda t: t['title'], tags)))
+        tags = user.tag_set.all().values('title').annotate(frequency=Count('members__id')).order_by('-frequency')
+        return list(map(lambda t: t['title'], tags))
 
     @ staticmethod
     def tag_item_by_user(item, user, tag_titles, default_visibility=0):

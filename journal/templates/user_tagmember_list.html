@@ -1,0 +1,10 @@
+{% extends "user_item_list_base.html" %}
+{% load i18n %}
+
+{% block title%}
+<title>{{ site_name }} - {{ user.mastodon_username }} - {% trans '标签' %}</title>
+{% endblock %}
+
+{% block head %}
+{{ user.mastodon_username }} - {% trans '标签' %}
+{% endblock %}

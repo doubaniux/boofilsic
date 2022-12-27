@@ -136,6 +136,7 @@ class TMDB_Movie(AbstractSite):
 
 @SiteManager.register
 class TMDB_TV(AbstractSite):
+    SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_TV
     URL_PATTERNS = [r'\w+://www.themoviedb.org/tv/(\d+)[^/]*$', r'\w+://www.themoviedb.org/tv/(\d+)[^/]*/seasons']
     WIKI_PROPERTY_ID = '?'
@@ -246,6 +247,7 @@ class TMDB_TV(AbstractSite):
 
 @SiteManager.register
 class TMDB_TVSeason(AbstractSite):
+    SITE_NAME = SiteName.TMDB
     ID_TYPE = IdType.TMDB_TVSeason
     URL_PATTERNS = [r'\w+://www.themoviedb.org/tv/(\d+)[^/]*/season/(\d+)[^/]*$']
     WIKI_PROPERTY_ID = '?'

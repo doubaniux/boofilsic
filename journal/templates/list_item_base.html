@@ -1,0 +1,136 @@
+{# parameters: item, collection_edit, hide_category #}
+{% load thumb %}
+{% load highlight %}
+{% load i18n %}
+{% load l10n %}
+{% load user_actions %}
+{% wish_item_action item as action %}
+<li class="entity-list__entity">
+  <div class="entity-list__entity-img-wrapper">
+    <a href="{{ item.url }}">
+      <img src="{{ item.cover|thumb:'normal' }}" alt="" class="entity-list__entity-img">
+    </a>
+    {% if not action.taken %}
+    <a class="entity-list__entity-action-icon" hx-post="{{ action.url }}" title="加入想读">➕</a>
+    {% endif %}
+  </div>
+
+  <div class="entity-list__entity-text">
+    {% if collection_edit %}
+    <div class="collection-item-position-edit">
+      {% if not forloop.first %}
+      <a hx-target=".entity-list" hx-post="{% url 'collection:move_up_item' form.instance.id collectionitem.id %}">▲</a>
+      {% endif %}
+      {% if not forloop.last %}
+      <a hx-target=".entity-list" hx-post="{% url 'collection:move_down_item' form.instance.id collectionitem.id %}">▼</a>
+      {% endif %}
+      <a hx-target=".entity-list" hx-post="{% url 'collection:delete_item' form.instance.id collectionitem.id %}">✖</a>
+    </div>
+    {% endif %}
+
+    <div class="entity-list__entity-title">
+
+      <a href="{{ item.url }}" class="entity-list__entity-link">
+        {% if request.GET.q %}
+        {{ item.title | highlight:request.GET.q }}
+        {% else %}
+        {{ item.title }}
+        {% endif %}
+      </a>
+      {% if not request.GET.c and not hide_category %}
+      <span class="entity-list__entity-category">[{{item.category.label}}]</span>
+      {% endif %}
+      {% for res in item.external_resources.all %}
+      <a href="{{ res.url }}">
+        <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
+      </a>
+      {% endfor %}
+    </div>
+
+    {% if item.rating %}
+    <div class="rating-star entity-list__rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></div>
+    <span class="entity-list__rating-score rating-score">{{ item.rating | floatformat:1 }}</span>
+    {% else %}
+    <div class="entity-list__rating entity-list__rating--empty"> {% trans '暂无评分' %}</div>
+    {% endif %}
+
+    <span class="entity-list__entity-info">
+    {% block info %}
+    {% endblock %}
+    </span>
+    <span class="entity-list__entity-info entity-list__entity-info--full-length">
+      {% block info_full %}
+      {% endblock %}
+    </span>
+    <p class="entity-list__entity-brief">
+      {{ item.brief }}
+    </p>
+
+    <div class="tag-collection">
+      {% for tag_dict in item.tags %}
+      <span class="tag-collection__tag">
+        <a href="{% url 'common:search' %}?tag={{ tag_dict }}">{{ tag_dict }}</a>
+      </span>
+      {% endfor %}
+    </div>
+
+    {% if mark %}
+    <div class="clearfix"></div>
+    <div class="dividing-line dividing-line--dashed"></div>
+    <div class="entity-marks" style="margin-bottom: 0;">
+      <ul class="entity-marks__mark-list">
+        <li class="entity-marks__mark">
+          {% if mark.rating %}
+          <span class="entity-marks__rating-star rating-star"
+          data-rating-score="{{ mark.rating | floatformat:0 }}" style="left: -4px;"></span>
+          {% endif %}
+          {% if mark.visibility > 0 %}
+          <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+            <path
+            d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+          </svg></span>
+          {% endif %}
+          <span class="entity-marks__mark-time" style="float:right;">
+            {% trans '标记于' %} {{ member.created_time }}
+          </span>
+          <p class="entity-marks__mark-content">&nbsp;
+          {% if mark.text %}
+          {{ mark.text }}
+          {% endif %}
+          </p>
+        </li>
+        {% if mark.review %}
+        <li class="entity-marks__mark">
+          <span class="entity-marks__mark-time" style="float:right;">
+            {% trans '评论于' %} {{ mark.review.created_time }}
+          </span>
+          <p class="entity-marks__mark-content">
+            <a href="{{ mark.review.url }}">{{ mark.review.title }}</a>
+            {% if mark.review.visibility > 0 %}
+            <span class="icon-lock"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+              <path
+              d="M17,8.48h-.73V6.27a6.27,6.27,0,1,0-12.53,0V8.48H3a.67.67,0,0,0-.67.67V19.33A.67.67,0,0,0,3,20H17a.67.67,0,0,0,.67-.67V9.15A.67.67,0,0,0,17,8.48ZM6.42,6.27h0a3.57,3.57,0,0,1,7.14,0h0V8.48H6.42Z" />
+            </svg></span>
+            {% endif %}
+          </p>
+        </li>
+        {% endif %}
+      </ul>
+    </div>
+    {% endif %}
+
+    {% if collectionitem %}
+    <div class="clearfix"></div>
+    <div class="dividing-line dividing-line--dashed"></div>
+    <div class="entity-marks" style="margin-bottom: 0;">
+      <ul class="entity-marks__mark-list">
+        <li class="entity-marks__mark">
+          <p class="entity-marks__mark-content" hx-target="this" hx-swap="innerHTML">
+            {% include "show_item_comment.html" %}
+          </p>
+        </li>
+      </ul>
+    </div>
+    {% endif %}
+  </div>
+</li>
