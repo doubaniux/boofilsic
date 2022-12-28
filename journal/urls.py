@@ -26,11 +26,24 @@ urlpatterns = [
     path('review/edit/<str:item_uuid>/<str:review_uuid>', review_edit, name='review_edit'),
     path('review/delete/<str:review_uuid>', review_delete, name='review_delete'),
 
-    re_path(r'^user/(?P<user_name>[A-Za-z0-0_\-.@]+)/(?P<shelf_type>' + _get_all_shelf_types() + ')/(?P<item_category>' + _get_all_categories() + ')/$', user_mark_list, name='user_mark_list'),
-    re_path(r'^user/(?P<user_name>[A-Za-z0-0_\-.@]+)/reviews/(?P<item_category>' + _get_all_categories() + ')/$', user_review_list, name='user_review_list'),
-    re_path(r'^user/(?P<user_name>[A-Za-z0-0_\-.@]+)/tags/(?P<tag_title>[^/]+)/$', user_tag_member_list, name='user_tag_member_list'),
-    re_path(r'^user/(?P<user_name>[A-Za-z0-0_\-.@]+)/collections/$', user_collection_list, name='user_collection_list'),
-    re_path(r'^user/(?P<user_name>[A-Za-z0-0_\-.@]+)/like/collections/$', user_liked_collection_list, name='user_liked_collection_list'),
-    re_path(r'^user/(?P<user_name>[A-Za-z0-0_\-.@]+)/tags/$', user_tag_list, name='user_tag_list'),
+    path('collection/<str:collection_uuid>', collection_retrieve, name='collection_retrieve'),
+    path('collection/create/', collection_edit, name='collection_create'),
+    path('collection/edit/<str:collection_uuid>', collection_edit, name='collection_edit'),
+    path('collection/delete/<str:collection_uuid>', collection_delete, name='collection_delete'),
+    path('collection/<str:collection_uuid>/items', collection_retrieve_items, name='collection_retrieve_items'),
+    path('collection/<str:collection_uuid>/append_item', collection_append_item, name='collection_append_item'),
+    path('collection/<str:collection_uuid>/delete_item/<str:collection_member_uuid>', collection_delete_item, name='collection_delete_item'),
+    path('collection/<str:collection_uuid>/move_up_item/<str:collection_member_uuid>', collection_move_up_item, name='collection_move_up_item'),
+    path('collection/<str:collection_uuid>/move_down_item/<str:collection_member_uuid>', collection_move_down_item, name='collection_move_down_item'),
+    path('collection/<str:collection_uuid>/update_item_note/<str:collection_member_uuid>', collection_update_item_note, name='collection_update_item_note'),
+
+    re_path(r'^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/(?P<shelf_type>' + _get_all_shelf_types() + ')/(?P<item_category>' + _get_all_categories() + ')/$', user_mark_list, name='user_mark_list'),
+    re_path(r'^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>' + _get_all_categories() + ')/$', user_review_list, name='user_review_list'),
+    re_path(r'^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>[^/]+)/$', user_tag_member_list, name='user_tag_member_list'),
+    re_path(r'^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/collections/$', user_collection_list, name='user_collection_list'),
+    re_path(r'^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/like/collections/$', user_liked_collection_list, name='user_liked_collection_list'),
+    re_path(r'^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/$', user_tag_list, name='user_tag_list'),
+
+    re_path(r'^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/$', home, name='user_profile'),
 
 ]

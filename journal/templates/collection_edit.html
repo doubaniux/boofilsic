@@ -1,0 +1,45 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site_name }} - {{ title }}</title>
+  {% include "partial/_common_libs.html" with jquery=1 %}
+  <style type="text/css">
+    #id_collaborative li, #id_visibility li {display: inline-block !important;}
+  </style>
+</head>
+
+<body>
+  <div id="page-wrapper">
+    {% include "partial/_navbar.html" %}
+    <div id="content-wrapper">
+      <section id="content" class="container">
+        <div class="grid">
+          <div class="single-section-wrapper" id="main">
+            <form class="entity-form" method="post" enctype="multipart/form-data">
+              {% csrf_token %}
+              {{ form }}
+              <input class="button" type="submit" value="{% trans '提交' %}">
+            </form>
+            {{ form.media }}
+            <div class="dividing-line"></div>
+          </div>
+          <div class="single-section-wrapper">
+            <div class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1" hx-trigger="load"></div>
+          </div>
+        </div>
+      </section>
+    </div>
+    {% include "partial/_footer.html" %}
+  </div>
+
+</body>
+</html>

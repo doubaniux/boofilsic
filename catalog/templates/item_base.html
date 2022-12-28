@@ -274,7 +274,7 @@
                   {% if collection_list %}
                   {% for c in collection_list %}
                   <p>
-                    <a href="{% url 'collection:retrieve' c.id %}">{{ c.title }}</a>
+                    <a href="{{ c.url }}">{{ c.title }}</a>
                   </p>
                   {% endfor %}
                   {% endif %}

@@ -25,7 +25,7 @@ class UserOwnedObjectMixin:
             return True
 
     def is_editable_by(self, viewer):
-        return True if viewer.is_staff or viewer.is_superuser or viewer == self.owner else False
+        return viewer.is_authenticated and (viewer.is_staff or viewer.is_superuser or viewer == self.owner)
 
     @classmethod
     def get_available(cls, entity, request_user, following_only=False):

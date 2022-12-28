@@ -110,7 +110,7 @@ class TagTest(TestCase):
         self.assertEqual(self.user2.tags, [t1, t3])
         TagManager.add_tag_by_user(self.book2, t3, self.user2)
         TagManager.add_tag_by_user(self.movie1, t3, self.user2)
-        self.assertEqual(self.user2.tags, [t1, t3])
+        self.assertEqual(sorted(self.user2.tags), [t1, t3])
 
 
 class MarkTest(TestCase):

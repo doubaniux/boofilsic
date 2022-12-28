@@ -48,7 +48,7 @@ class ActivityManager:
         q = Q(owner_id__in=self.owner.following, visibility__lt=2) | Q(owner=self.owner)
         if before_time:
             q = q & Q(created_time__lt=before_time)
-        return LocalActivity.objects.filter(q).order_by('-created_time')  # .select_related() https://github.com/django-polymorphic/django-polymorphic/pull/531
+        return LocalActivity.objects.filter(q).order_by('-created_time').prefetch_related('action_object')  # .select_related() https://github.com/django-polymorphic/django-polymorphic/pull/531
 
     @staticmethod
     def get_manager_for_user(user):

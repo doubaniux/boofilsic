@@ -11,7 +11,6 @@ from django.core.paginator import Paginator
 from .models import *
 from django.conf import settings
 import re
-from users.models import User
 from django.http import HttpResponseRedirect
 from django.db.models import Q
 import time
@@ -20,7 +19,7 @@ from django.utils.baseconv import base62
 from .forms import *
 from mastodon.api import share_review
 from users.views import render_user_blocked, render_user_not_found
-
+from users.models import User, Report, Preference
 
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -115,6 +114,101 @@ def mark(request, item_uuid):
             return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 
+def collection_retrieve(request, collection_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_visible_to(request.user):
+        raise PermissionDenied()
+    return render(request, 'collection.html', {'collection': collection})
+
+
+def collection_retrieve_items(request, collection_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_visible_to(request.user):
+        raise PermissionDenied()
+    form = CollectionForm(instance=collection)
+    return render(
+        request,
+        'collection_items.html',
+        {
+            'collection': collection,
+            'form': form,
+            'collection_edit': request.GET.get('edit'),  # collection.is_editable_by(request.user),
+        }
+    )
+
+
+@login_required
+def collection_update_item_note(request, collection_uuid, collection_member_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+
+
+@login_required
+def collection_append_item(request, collection_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+
+
+@login_required
+def collection_delete_item(request, collection_uuid, collection_member_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+
+
+@login_required
+def collection_move_up_item(request, collection_uuid, collection_member_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+
+
+@login_required
+def collection_move_down_item(request, collection_uuid, collection_member_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+
+
+@login_required
+def collection_edit(request, collection_uuid=None):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid)) if collection_uuid else None
+    if collection and not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+    if request.method == 'GET':
+        form = CollectionForm(instance=collection) if collection else CollectionForm()
+        return render(request, 'collection_edit.html', {'form': form, 'collection': collection})
+    elif request.method == 'POST':
+        form = CollectionForm(request.POST, instance=collection) if collection else CollectionForm(request.POST)
+        if form.is_valid():
+            if not collection:
+                form.instance.owner = request.user
+            form.instance.edited_time = timezone.now()
+            form.save()
+            return redirect(reverse("journal:collection_retrieve", args=[form.instance.uuid]))
+        else:
+            return HttpResponseBadRequest(form.errors)
+    else:
+        return HttpResponseBadRequest()
+
+
+@login_required
+def collection_delete(request, collection_uuid):
+    collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
+    if not collection.is_editable_by(request.user):
+        raise PermissionDenied()
+    if request.method == 'GET':
+        collection_form = CollectionForm(instance=collection)
+        return render(request, 'collection_delete.html', {'form': collection_form, 'collection': collection})
+    elif request.method == 'POST':
+        collection.delete()
+        return redirect(reverse("users:home"))
+    else:
+        return HttpResponseBadRequest()
+
+
 def review_retrieve(request, review_uuid):
     piece = get_object_or_404(Review, uid=base62.decode(review_uuid))
     if not piece.is_visible_to(request.user):
@@ -198,11 +292,7 @@ def _render_list(request, user_name, type, shelf_type=None, item_category=None, 
         queryset = queryset.filter(query_item_category(item_category))
     else:
         return HttpResponseBadRequest()
-    if user != request.user:
-        if request.user.is_following(user):
-            queryset = queryset.filter(visibility__ne=2)
-        else:
-            queryset = queryset.filter(visibility=0)
+    queryset = queryset.filter(q_visible_to(request.user, user))
     paginator = Paginator(queryset, PAGE_SIZE)
     page_number = request.GET.get('page', default=1)
     members = paginator.get_page(page_number)
@@ -239,7 +329,7 @@ def user_tag_list(request, user_name):
     if user != request.user:
         tags = tags.filter(visibility=0)
     tags = tags.values('title').annotate(total=Count('members')).order_by('-total')
-    return render(request, f'user_tag_list.html', {
+    return render(request, 'user_tag_list.html', {
         'user': user,
         'tags': tags,
     })
@@ -258,7 +348,7 @@ def user_collection_list(request, user_name):
             collections = collections.filter(visibility__ne=2)
         else:
             collections = collections.filter(visibility=0)
-    return render(request, f'user_collection_list.html', {
+    return render(request, 'user_collection_list.html', {
         'user': user,
         'collections': collections,
     })
@@ -274,7 +364,94 @@ def user_liked_collection_list(request, user_name):
     collections = Collection.objects.filter(likes__owner=user)
     if user != request.user:
         collections = collections.filter(query_visible(request.user))
-    return render(request, f'user_collection_list.html', {
+    return render(request, 'user_collection_list.html', {
         'user': user,
         'collections': collections,
     })
+
+
+def home_anonymous(request, id):
+    login_url = settings.LOGIN_URL + "?next=" + request.get_full_path()
+    try:
+        username = id.split('@')[0]
+        site = id.split('@')[1]
+        return render(request, 'users/home_anonymous.html', {
+                      'login_url': login_url,
+                      'username': username,
+                      'site': site,
+                      })
+    except Exception:
+        return redirect(login_url)
+
+
+def home(request, user_name):
+    if not request.user.is_authenticated:
+        return home_anonymous(request, user_name)
+    if request.method != 'GET':
+        return HttpResponseBadRequest()
+    user = User.get(user_name)
+    if user is None:
+        return render_user_not_found(request)
+
+    # access one's own home page
+    if user == request.user:
+        reports = Report.objects.order_by(
+            '-submitted_time').filter(is_read=False)
+        unread_announcements = Announcement.objects.filter(
+            pk__gt=request.user.read_announcement_index).order_by('-pk')
+        try:
+            request.user.read_announcement_index = Announcement.objects.latest(
+                'pk').pk
+            request.user.save(update_fields=['read_announcement_index'])
+        except ObjectDoesNotExist:
+            # when there is no annoucenment
+            pass
+    # visit other's home page
+    else:
+        if request.user.is_blocked_by(user) or request.user.is_blocking(user):
+            return render_user_blocked(request)
+        # no these value on other's home page
+        reports = None
+        unread_announcements = None
+
+    qv = q_visible_to(request.user, user)
+    shelf_list = {}
+    visbile_categories = [ItemCategory.Book, ItemCategory.Movie, ItemCategory.TV, ItemCategory.Music, ItemCategory.Game]
+    for category in visbile_categories:
+        shelf_list[category] = {}
+        for shelf_type in ShelfType:
+            shelf = user.shelf_manager.get_shelf(category, shelf_type)
+            members = shelf.recent_members.filter(qv)
+            shelf_list[category][shelf_type] = {
+                'title': shelf.title,
+                'count': members.count(),
+                'members': members[:5].prefetch_related('item'),
+            }
+        reviews = Review.objects.filter(owner=user).filter(qv)
+        shelf_list[category]['reviewed'] = {
+            'title': '评论过的' + category.label,
+            'count': reviews.count(),
+            'members': reviews[:5].prefetch_related('item'),
+        }
+    collections = Collection.objects.filter(owner=user).filter(qv).order_by("-edited_time")
+    liked_collections = Collection.objects.filter(likes__owner=user).order_by("-edited_time")
+    if user != request.user:
+        liked_collections = liked_collections.filter(query_visible(request.user))
+
+    layout = user.get_preference().get_serialized_home_layout()
+
+    return render(
+        request,
+        'profile.html',
+        {
+            'user': user,
+            'shelf_list': shelf_list,
+            'collections': collections[:5],
+            'collections_count': collections.count(),
+            'liked_collections': liked_collections.order_by("-edited_time")[:5],
+            'liked_collections_count': liked_collections.count(),
+            'layout': layout,
+            'reports': reports,
+            'unread_announcements': unread_announcements,
+        }
+    )

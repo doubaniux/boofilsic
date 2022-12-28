@@ -26,7 +26,7 @@
           <div class="grid__main" id="main">
             <div class="single-section-wrapper">
 
-              <form action="{{ submit_url }}" method="post" class="review-form">
+              <form method="post" class="review-form">
                 {% csrf_token %}
                 {{ form.item }}
                 <div>

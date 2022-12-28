@@ -23,6 +23,7 @@ from django.db.models import Q
 from catalog.models import *
 import mistune
 from django.contrib.contenttypes.models import ContentType
+from markdown import markdown
 
 
 class VisibilityType(models.IntegerChoices):
@@ -31,8 +32,19 @@ class VisibilityType(models.IntegerChoices):
     Private = 2, _('仅自己')
 
 
+def q_visible_to(viewer, owner):
+    if viewer == owner:
+        return Q()
+    # elif viewer.is_blocked_by(owner):
+    #     return Q(pk__in=[])
+    elif viewer.is_following(owner):
+        return Q(visibility__ne=2)
+    else:
+        return Q(visibility=0)
+
+
 def query_visible(user):
-    return Q(visibility=0) | Q(owner_id__in=user.following, visibility__lt=2) | Q(owner_id=user.id)
+    return Q(visibility=0) | Q(owner_id__in=user.following, visibility=1) | Q(owner_id=user.id)
 
 
 def query_following(user):
@@ -231,13 +243,21 @@ class List(Piece):
     # subclass must add this:
     # items = models.ManyToManyField(Item, through='ListMember')
 
-    @ property
+    @property
     def ordered_members(self):
         return self.members.all().order_by('position', 'item_id')
 
-    @ property
+    @property
     def ordered_items(self):
         return self.items.all().order_by(self.MEMBER_CLASS.__name__.lower() + '__position')
+
+    @property
+    def recent_items(self):
+        return self.items.all().order_by('-' + self.MEMBER_CLASS.__name__.lower() + '__created_time')
+
+    @property
+    def recent_members(self):
+        return self.members.all().order_by('-created_time')
 
     def has_item(self, item):
         return self.members.filter(item=item).count() > 0
@@ -356,14 +376,19 @@ class Shelf(List):
     def __str__(self):
         return f'{self.id} {self.title}'
 
-    @ cached_property
+    @cached_property
+    def item_category_label(self):
+        return ItemCategory(self.item_category).label
+
+    @cached_property
     def shelf_label(self):
         return next(iter([n[2] for n in iter(ShelfTypeNames) if n[0] == self.item_category and n[1] == self.shelf_type]), self.shelf_type)
 
-    @ cached_property
+    @cached_property
     def title(self):
-        q = _("{item_category} {shelf_label} list").format(shelf_label=self.shelf_label, item_category=self.item_category)
-        return _("{user}'s {shelf_name}").format(user=self.owner.mastodon_username, shelf_name=q)
+        q = _("{shelf_label}的{item_category}").format(shelf_label=self.shelf_label, item_category=self.item_category_label)
+        return q
+        # return _("{user}'s {shelf_name}").format(user=self.owner.mastodon_username, shelf_name=q)
 
 
 class ShelfLogEntry(models.Model):
@@ -452,6 +477,10 @@ class ShelfManager:
     def get_shelf(self, item_category, shelf_type):
         return self.owner.shelf_set.all().filter(item_category=item_category, shelf_type=shelf_type).first()
 
+    def get_items_on_shelf(self, item_category, shelf_type):
+        shelf = self.owner.shelf_set.all().filter(item_category=item_category, shelf_type=shelf_type).first()
+        return shelf.members.all().order_by
+
     @ staticmethod
     def get_manager_for_user(user):
         return ShelfManager(user)
@@ -469,8 +498,13 @@ Collection
 class CollectionMember(ListMember):
     parent = models.ForeignKey('Collection', related_name='members', on_delete=models.CASCADE)
 
+    @property
+    def note(self):
+        return self.metadata.get('comment')
+
 
 class Collection(List):
+    url_path = 'collection'
     MEMBER_CLASS = CollectionMember
     catalog_item = models.OneToOneField(CatalogCollection, on_delete=models.PROTECT)
     title = models.CharField(_("title in primary language"), max_length=1000, default="")
@@ -479,9 +513,14 @@ class Collection(List):
     items = models.ManyToManyField(Item, through='CollectionMember', related_name="collections")
     collaborative = models.PositiveSmallIntegerField(default=0)  # 0: Editable by owner only / 1: Editable by bi-direction followers
 
-    @ property
+    @property
+    def html(self):
+        html = markdown(self.brief)
+        return html
+
+    @property
     def plain_description(self):
-        html = markdown(self.description)
+        html = markdown(self.brief)
         return RE_HTML_TAG.sub(' ', html)
 
     def save(self, *args, **kwargs):
