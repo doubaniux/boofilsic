@@ -52,12 +52,13 @@ def query_following(user):
 
 
 def query_item_category(item_category):
-    classes = CATEGORY_LIST[item_category]
+    classes = all_categories()[item_category]
     # q = Q(item__instance_of=classes[0])
     # for cls in classes[1:]:
     #     q = q | Q(instance_of=cls)
     # return q
-    contenttype_ids = [CONTENT_TYPE_LIST[cls] for cls in classes]
+    ct = all_content_types()
+    contenttype_ids = [ct[cls] for cls in classes]
     return Q(item__polymorphic_ctype__in=sorted(contenttype_ids))
 
 

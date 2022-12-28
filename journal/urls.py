@@ -7,7 +7,7 @@ app_name = 'journal'
 
 
 def _get_all_categories():
-    res = "|".join(CATEGORY_LIST.keys())
+    res = "|".join(all_categories().keys())
     return res
 
 

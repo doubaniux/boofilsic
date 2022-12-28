@@ -28,18 +28,27 @@ from django.contrib.contenttypes.models import ContentType
 #         proxy = True
 
 
-CATEGORY_LIST = {}
-CONTENT_TYPE_LIST = {}
+_CATEGORY_LIST = None
+_CONTENT_TYPE_LIST = None
 
 
-def _init_item_subclasses():
-    for cls in Item.__subclasses__():
-        c = getattr(cls, 'category', None)
-        if c not in CATEGORY_LIST:
-            CATEGORY_LIST[c] = [cls]
-        else:
-            CATEGORY_LIST[c].append(cls)
-        CONTENT_TYPE_LIST[cls] = ContentType.objects.get(app_label='catalog', model=cls.__name__.lower()).id
+def all_content_types():
+    global _CONTENT_TYPE_LIST
+    if _CONTENT_TYPE_LIST is None:
+        _CONTENT_TYPE_LIST = {}
+        for cls in Item.__subclasses__():
+            _CONTENT_TYPE_LIST[cls] = ContentType.objects.get(app_label='catalog', model=cls.__name__.lower()).id
+    return _CONTENT_TYPE_LIST
 
 
-_init_item_subclasses()
+def all_categories():
+    global _CATEGORY_LIST
+    if _CATEGORY_LIST is None:
+        _CATEGORY_LIST = {}
+        for cls in Item.__subclasses__():
+            c = getattr(cls, 'category', None)
+            if c not in _CATEGORY_LIST:
+                _CATEGORY_LIST[c] = [cls]
+            else:
+                _CATEGORY_LIST[c].append(cls)
+    return _CATEGORY_LIST
