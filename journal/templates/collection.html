@@ -96,12 +96,12 @@
               <div class="action-panel">
                 <div class="action-panel__button-group action-panel__button-group--center">
                   {% if following %}
-                  <form action="{% url 'collection:unfollow' collection.id %}" method="post">
+                  <form action="{% url 'journal:unlike' collection.uuid %}?back=1" method="post">
                     {% csrf_token %}
                     <button class="action-panel__button">{% trans '取消关注' %}</button>
                   </form>
                   {% else %}
-                  <form action="{% url 'collection:follow' collection.id %}" method="post">
+                  <form action="{% url 'journal:like' collection.uuid %}?back=1" method="post">
                     {% csrf_token %}
                     <button class="action-panel__button">{% trans '关注' %}</button>
                   </form>

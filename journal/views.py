@@ -33,42 +33,41 @@ _checkmark = "✔️".encode("utf-8")
 
 @login_required
 def wish(request, item_uuid):
-    if request.method == "POST":
-        item = get_object_or_404(Item, uid=base62.decode(item_uuid))
-        if not item:
-            return HttpResponseNotFound(b"item not found")
-        request.user.shelf_manager.move_item(item, ShelfType.WISHLIST)
-        if request.GET.get("back"):
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-        return HttpResponse(_checkmark)
-    else:
+    if request.method != "POST":
         return HttpResponseBadRequest(b"invalid request")
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    if not item:
+        return HttpResponseNotFound(b"item not found")
+    request.user.shelf_manager.move_item(item, ShelfType.WISHLIST)
+    if request.GET.get("back"):
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponse(_checkmark)
 
 
 @login_required
 def like(request, piece_uuid):
-    if request.method == "POST":
-        piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
-        if not piece:
-            return HttpResponseNotFound(b"piece not found")
-        Like.user_like_piece(request.user, piece)
-        return HttpResponse(_checkmark)
-    else:
+    if request.method != "POST":
         return HttpResponseBadRequest(b"invalid request")
+    piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
+    if not piece:
+        return HttpResponseNotFound(b"piece not found")
+    Like.user_like_piece(request.user, piece)
+    if request.GET.get("back"):
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponse(_checkmark)
 
 
 @login_required
 def unlike(request, piece_uuid):
-    if request.method == "POST":
-        piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
-        if not piece:
-            return HttpResponseNotFound(b"piece not found")
-        Like.user_unlike_piece(request.user, piece)
-        if request.GET.get("back"):
-            return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
-        return HttpResponse(_checkmark)
-    else:
+    if request.method != "POST":
         return HttpResponseBadRequest(b"invalid request")
+    piece = get_object_or_404(Collection, uid=base62.decode(piece_uuid))
+    if not piece:
+        return HttpResponseNotFound(b"piece not found")
+    Like.user_unlike_piece(request.user, piece)
+    if request.GET.get("back"):
+        return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponse(_checkmark)
 
 
 @login_required
@@ -163,7 +162,17 @@ def collection_retrieve(request, collection_uuid):
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
-    return render(request, "collection.html", {"collection": collection})
+    follower_count = collection.likes.all().count()
+    following = Like.user_liked_piece(request.user, collection) is not None
+    return render(
+        request,
+        "collection.html",
+        {
+            "collection": collection,
+            "follower_count": follower_count,
+            "following": following,
+        },
+    )
 
 
 def collection_retrieve_items(request, collection_uuid, edit=False):
@@ -563,7 +572,9 @@ def home(request, user_name):
         Collection.objects.filter(owner=user).filter(qv).order_by("-edited_time")
     )
     liked_collections = (
-        Collection.objects.none().filter(likes__owner=user).order_by("-edited_time")
+        Like.user_likes_by_class(user, Collection)
+        .order_by("-edited_time")
+        .values_list("target_id", flat=True)
     )
     if user != request.user:
         liked_collections = liked_collections.filter(query_visible(request.user))
@@ -577,7 +588,10 @@ def home(request, user_name):
             "shelf_list": shelf_list,
             "collections": collections[:5],
             "collections_count": collections.count(),
-            "liked_collections": liked_collections.order_by("-edited_time")[:5],
+            "liked_collections": [
+                Collection.objects.get(id=i)
+                for i in liked_collections.order_by("-edited_time")[:5]
+            ],
             "liked_collections_count": liked_collections.count(),
             "layout": layout,
             "reports": reports,

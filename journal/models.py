@@ -13,9 +13,11 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import RegexValidator
 from functools import cached_property
 from django.db.models import Count, Avg
+from django.contrib.contenttypes.models import ContentType
 import django.dispatch
 import math
 import uuid
+import re
 from catalog.common.utils import DEFAULT_ITEM_COVER, item_cover_path
 from django.utils.baseconv import base62
 from django.db.models import Q
@@ -69,24 +71,6 @@ def query_item_category(item_category):
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
     url_path = "piece"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
-    owner = models.ForeignKey(User, on_delete=models.PROTECT)
-    visibility = models.PositiveSmallIntegerField(
-        default=0
-    )  # 0: Public / 1: Follower only / 2: Self only
-    created_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now_add=True  FIXME revert this after migration
-    edited_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now=True   FIXME revert this after migration
-    metadata = models.JSONField(default=dict)
-    attached_to = models.ForeignKey(
-        User,
-        null=True,
-        default=None,
-        on_delete=models.SET_NULL,
-        related_name="attached_with",
-    )
 
     @property
     def uuid(self):
@@ -102,10 +86,21 @@ class Piece(PolymorphicModel, UserOwnedObjectMixin):
 
     @property
     def api_url(self):
-        return ("/api/" + self.url) if self.url_path else None
+        return f"/api/{self.url}" if self.url_path else None
 
 
 class Content(Piece):
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    visibility = models.PositiveSmallIntegerField(
+        default=0
+    )  # 0: Public / 1: Follower only / 2: Self only
+    created_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now_add=True  FIXME revert this after migration
+    edited_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now=True   FIXME revert this after migration
+    metadata = models.JSONField(default=dict)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
 
     @cached_property
@@ -122,7 +117,21 @@ class Content(Piece):
 
 
 class Like(Piece):
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    visibility = models.PositiveSmallIntegerField(
+        default=0
+    )  # 0: Public / 1: Follower only / 2: Self only
+    created_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now_add=True  FIXME revert this after migration
+    edited_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now=True   FIXME revert this after migration
     target = models.ForeignKey(Piece, on_delete=models.CASCADE, related_name="likes")
+
+    @staticmethod
+    def user_liked_piece(user, piece):
+        return Like.objects.filter(owner=user, target=piece).first()
 
     @staticmethod
     def user_like_piece(user, piece):
@@ -138,6 +147,11 @@ class Like(Piece):
         if not piece:
             return
         Like.objects.filter(owner=user, target=piece).delete()
+
+    @staticmethod
+    def user_likes_by_class(user, cls):
+        ctype_id = ContentType.objects.get_for_model(cls)
+        return Like.objects.filter(owner=user, target__polymorphic_ctype=ctype_id)
 
 
 class Memo(Content):
@@ -272,16 +286,20 @@ list_remove = django.dispatch.Signal()
 
 
 class List(Piece):
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    visibility = models.PositiveSmallIntegerField(
+        default=0
+    )  # 0: Public / 1: Follower only / 2: Self only
+    created_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now_add=True  FIXME revert this after migration
+    edited_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now=True   FIXME revert this after migration
+    metadata = models.JSONField(default=dict)
+
     class Meta:
         abstract = True
-
-    _owner = models.ForeignKey(
-        User, on_delete=models.PROTECT
-    )  # duplicated owner field to make unique key possible for subclasses
-
-    def save(self, *args, **kwargs):
-        self._owner = self.owner
-        super().save(*args, **kwargs)
 
     # MEMBER_CLASS = None  # subclass must override this
     # subclass must add this:
@@ -375,6 +393,17 @@ class ListMember(Piece):
     parent = models.ForeignKey('List', related_name='members', on_delete=models.CASCADE)
     """
 
+    owner = models.ForeignKey(User, on_delete=models.PROTECT)
+    visibility = models.PositiveSmallIntegerField(
+        default=0
+    )  # 0: Public / 1: Follower only / 2: Self only
+    created_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now_add=True  FIXME revert this after migration
+    edited_time = models.DateTimeField(
+        default=timezone.now
+    )  # auto_now=True   FIXME revert this after migration
+    metadata = models.JSONField(default=dict)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     position = models.PositiveIntegerField()
 
@@ -430,7 +459,7 @@ class ShelfMember(ListMember):
 
 class Shelf(List):
     class Meta:
-        unique_together = [["_owner", "item_category", "shelf_type"]]
+        unique_together = [["owner", "item_category", "shelf_type"]]
 
     MEMBER_CLASS = ShelfMember
     items = models.ManyToManyField(Item, through="ShelfMember", related_name="+")
@@ -508,7 +537,7 @@ class ShelfManager:
             item=item, parent__in=self.owner.shelf_set.all()
         ).first()
 
-    def _shelf_for_item_and_type(item, shelf_type):
+    def _shelf_for_item_and_type(self, item, shelf_type):
         if not item or not shelf_type:
             return None
         return self.owner.shelf_set.all().filter(
@@ -604,6 +633,9 @@ class CollectionMember(ListMember):
     note = jsondata.CharField(_("备注"), null=True, blank=True)
 
 
+_RE_HTML_TAG = re.compile(r"<[^>]*>")
+
+
 class Collection(List):
     url_path = "collection"
     MEMBER_CLASS = CollectionMember
@@ -630,7 +662,7 @@ class Collection(List):
     @property
     def plain_description(self):
         html = markdown(self.brief)
-        return RE_HTML_TAG.sub(" ", html)
+        return _RE_HTML_TAG.sub(" ", html)
 
     def save(self, *args, **kwargs):
         if getattr(self, "catalog_item", None) is None:
@@ -668,7 +700,7 @@ class Tag(List):
     # TODO check on save
 
     class Meta:
-        unique_together = [["_owner", "title"]]
+        unique_together = [["owner", "title"]]
 
     @staticmethod
     def cleanup_title(title):
