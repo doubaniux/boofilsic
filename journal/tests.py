@@ -15,13 +15,17 @@ class CollectionTest(TestCase):
         collection = Collection.objects.create(title="test", owner=self.user)
         collection = Collection.objects.filter(title="test", owner=self.user).first()
         self.assertEqual(collection.catalog_item.title, "test")
-        collection.append_item(self.book1)
+        member1 = collection.append_item(self.book1)
+        member1.note = "my notes"
+        member1.save()
         collection.append_item(self.book2)
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
         collection.move_up_item(self.book1)
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
         collection.move_up_item(self.book2)
         self.assertEqual(list(collection.ordered_items), [self.book2, self.book1])
+        member1 = collection.get_member_for_item(self.book1)
+        self.assertEqual(member1.note, "my notes")
 
 
 class ShelfTest(TestCase):
@@ -47,26 +51,28 @@ class ShelfTest(TestCase):
         shelf_manager.move_item(book1, ShelfType.PROGRESS)
         self.assertEqual(q1.members.all().count(), 1)
         self.assertEqual(q2.members.all().count(), 1)
-        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={'progress': 1})
+        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 1})
         self.assertEqual(q1.members.all().count(), 1)
         self.assertEqual(q2.members.all().count(), 1)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 3)
-        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={'progress': 1})
+        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 1})
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 3)
-        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={'progress': 10})
+        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 10})
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 4)
         shelf_manager.move_item(book1, ShelfType.PROGRESS)
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 4)
-        self.assertEqual(log.last().metadata, {'progress': 10})
-        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={'progress': 90})
+        self.assertEqual(log.last().metadata, {"progress": 10})
+        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={"progress": 90})
         log = shelf_manager.get_log_for_item(book1)
         self.assertEqual(log.count(), 5)
         self.assertEqual(Mark(user, book1).visibility, 0)
-        shelf_manager.move_item(book1, ShelfType.PROGRESS, metadata={'progress': 90}, visibility=1)
+        shelf_manager.move_item(
+            book1, ShelfType.PROGRESS, metadata={"progress": 90}, visibility=1
+        )
         self.assertEqual(Mark(user, book1).visibility, 1)
         self.assertEqual(shelf_manager.get_log_for_item(book1).count(), 5)
 
@@ -82,18 +88,18 @@ class TagTest(TestCase):
         pass
 
     def test_user_tag(self):
-        t1 = 'tag-1'
-        t2 = 'tag-2'
-        t3 = 'tag-3'
+        t1 = "tag-1"
+        t2 = "tag-2"
+        t3 = "tag-3"
         TagManager.tag_item_by_user(self.book1, self.user2, [t1, t3])
         self.assertEqual(self.book1.tags, [t1, t3])
         TagManager.tag_item_by_user(self.book1, self.user2, [t2, t3])
         self.assertEqual(self.book1.tags, [t2, t3])
 
     def test_tag(self):
-        t1 = 'tag-1'
-        t2 = 'tag-2'
-        t3 = 'tag-3'
+        t1 = "tag-1"
+        t2 = "tag-2"
+        t3 = "tag-3"
         TagManager.add_tag_by_user(self.book1, t3, self.user2)
         TagManager.add_tag_by_user(self.book1, t1, self.user1)
         TagManager.add_tag_by_user(self.book1, t1, self.user2)
@@ -129,21 +135,21 @@ class MarkTest(TestCase):
         self.assertEqual(mark.visibility, None)
         self.assertEqual(mark.review, None)
         self.assertEqual(mark.tags, [])
-        mark.update(ShelfType.WISHLIST, 'a gentle comment', 9, 1)
+        mark.update(ShelfType.WISHLIST, "a gentle comment", 9, 1)
 
         mark = Mark(self.user1, self.book1)
         self.assertEqual(mark.shelf_type, ShelfType.WISHLIST)
-        self.assertEqual(mark.shelf_label, '想读')
-        self.assertEqual(mark.text, 'a gentle comment')
+        self.assertEqual(mark.shelf_label, "想读")
+        self.assertEqual(mark.text, "a gentle comment")
         self.assertEqual(mark.rating, 9)
         self.assertEqual(mark.visibility, 1)
         self.assertEqual(mark.review, None)
         self.assertEqual(mark.tags, [])
 
-        review = Review.review_item_by_user(self.book1, self.user1, 'Critic', 'Review')
+        review = Review.review_item_by_user(self.book1, self.user1, "Critic", "Review")
         mark = Mark(self.user1, self.book1)
         self.assertEqual(mark.review, review)
 
-        TagManager.tag_item_by_user(self.book1, self.user1, [' Sci-Fi ', ' fic '])
+        TagManager.tag_item_by_user(self.book1, self.user1, [" Sci-Fi ", " fic "])
         mark = Mark(self.user1, self.book1)
-        self.assertEqual(mark.tags, ['fic', 'sci-fi'])
+        self.assertEqual(mark.tags, ["fic", "sci-fi"])

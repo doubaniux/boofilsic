@@ -15,94 +15,95 @@ from users.models import User
 
 
 class SiteName(models.TextChoices):
-    Douban = 'douban', _('豆瓣')
-    Goodreads = 'goodreads', _('Goodreads')
-    GoogleBooks = 'googlebooks', _('谷歌图书')
-    IMDB = 'imdb', _('IMDB')
-    TMDB = 'tmdb', _('The Movie Database')
-    Bandcamp = 'bandcamp', _('Bandcamp')
-    Spotify = 'spotify', _('Spotify')
-    IGDB = 'igdb', _('IGDB')
-    Steam = 'steam', _('Steam')
-    Bangumi = 'bangumi', _('Bangumi')
-    ApplePodcast = 'apple_podcast', _('苹果播客')
+    Douban = "douban", _("豆瓣")
+    Goodreads = "goodreads", _("Goodreads")
+    GoogleBooks = "googlebooks", _("谷歌图书")
+    IMDB = "imdb", _("IMDB")
+    TMDB = "tmdb", _("The Movie Database")
+    Bandcamp = "bandcamp", _("Bandcamp")
+    Spotify = "spotify", _("Spotify")
+    IGDB = "igdb", _("IGDB")
+    Steam = "steam", _("Steam")
+    Bangumi = "bangumi", _("Bangumi")
+    ApplePodcast = "apple_podcast", _("苹果播客")
 
 
 class IdType(models.TextChoices):
-    WikiData = 'wikidata', _('维基数据')
-    ISBN10 = 'isbn10', _('ISBN10')
-    ISBN = 'isbn', _('ISBN')  # ISBN 13
-    ASIN = 'asin', _('ASIN')
-    ISSN = 'issn', _('ISSN')
-    CUBN = 'cubn', _('统一书号')
-    ISRC = 'isrc', _('ISRC')  # only for songs
-    GTIN = 'gtin', _('GTIN UPC EAN码')  # ISBN is separate
-    Feed = 'feed', _('Feed URL')
-    IMDB = 'imdb', _('IMDb')
-    TMDB_TV = 'tmdb_tv', _('TMDB剧集')
-    TMDB_TVSeason = 'tmdb_tvseason', _('TMDB剧集')
-    TMDB_TVEpisode = 'tmdb_tvepisode', _('TMDB剧集')
-    TMDB_Movie = 'tmdb_movie', _('TMDB电影')
-    Goodreads = 'goodreads', _('Goodreads')
-    Goodreads_Work = 'goodreads_work', _('Goodreads著作')
-    GoogleBooks = 'googlebooks', _('谷歌图书')
-    DoubanBook = 'doubanbook', _('豆瓣读书')
-    DoubanBook_Work = 'doubanbook_work', _('豆瓣读书著作')
-    DoubanMovie = 'doubanmovie', _('豆瓣电影')
-    DoubanMusic = 'doubanmusic', _('豆瓣音乐')
-    DoubanGame = 'doubangame', _('豆瓣游戏')
-    DoubanDrama = 'doubandrama', _('豆瓣舞台剧')
-    Bandcamp = 'bandcamp', _('Bandcamp')
-    Spotify_Album = 'spotify_album', _('Spotify专辑')
-    Spotify_Show = 'spotify_show', _('Spotify播客')
-    Discogs_Release = 'discogs_release', ('Discogs Release')
-    Discogs_Master = 'discogs_master', ('Discogs Master')
-    MusicBrainz = 'musicbrainz', ('MusicBrainz ID')
-    DoubanBook_Author = 'doubanbook_author', _('豆瓣读书作者')
-    DoubanCelebrity = 'doubanmovie_celebrity', _('豆瓣电影影人')
-    Goodreads_Author = 'goodreads_author', _('Goodreads作者')
-    Spotify_Artist = 'spotify_artist', _('Spotify艺术家')
-    TMDB_Person = 'tmdb_person', _('TMDB影人')
-    IGDB = 'igdb', _('IGDB游戏')
-    Steam = 'steam', _('Steam游戏')
-    Bangumi = 'bangumi', _('Bangumi')
-    ApplePodcast = 'apple_podcast', _('苹果播客')
+    WikiData = "wikidata", _("维基数据")
+    ISBN10 = "isbn10", _("ISBN10")
+    ISBN = "isbn", _("ISBN")  # ISBN 13
+    ASIN = "asin", _("ASIN")
+    ISSN = "issn", _("ISSN")
+    CUBN = "cubn", _("统一书号")
+    ISRC = "isrc", _("ISRC")  # only for songs
+    GTIN = "gtin", _("GTIN UPC EAN码")  # ISBN is separate
+    Feed = "feed", _("Feed URL")
+    IMDB = "imdb", _("IMDb")
+    TMDB_TV = "tmdb_tv", _("TMDB剧集")
+    TMDB_TVSeason = "tmdb_tvseason", _("TMDB剧集")
+    TMDB_TVEpisode = "tmdb_tvepisode", _("TMDB剧集")
+    TMDB_Movie = "tmdb_movie", _("TMDB电影")
+    Goodreads = "goodreads", _("Goodreads")
+    Goodreads_Work = "goodreads_work", _("Goodreads著作")
+    GoogleBooks = "googlebooks", _("谷歌图书")
+    DoubanBook = "doubanbook", _("豆瓣读书")
+    DoubanBook_Work = "doubanbook_work", _("豆瓣读书著作")
+    DoubanMovie = "doubanmovie", _("豆瓣电影")
+    DoubanMusic = "doubanmusic", _("豆瓣音乐")
+    DoubanGame = "doubangame", _("豆瓣游戏")
+    DoubanDrama = "doubandrama", _("豆瓣舞台剧")
+    Bandcamp = "bandcamp", _("Bandcamp")
+    Spotify_Album = "spotify_album", _("Spotify专辑")
+    Spotify_Show = "spotify_show", _("Spotify播客")
+    Discogs_Release = "discogs_release", ("Discogs Release")
+    Discogs_Master = "discogs_master", ("Discogs Master")
+    MusicBrainz = "musicbrainz", ("MusicBrainz ID")
+    DoubanBook_Author = "doubanbook_author", _("豆瓣读书作者")
+    DoubanCelebrity = "doubanmovie_celebrity", _("豆瓣电影影人")
+    Goodreads_Author = "goodreads_author", _("Goodreads作者")
+    Spotify_Artist = "spotify_artist", _("Spotify艺术家")
+    TMDB_Person = "tmdb_person", _("TMDB影人")
+    IGDB = "igdb", _("IGDB游戏")
+    Steam = "steam", _("Steam游戏")
+    Bangumi = "bangumi", _("Bangumi")
+    ApplePodcast = "apple_podcast", _("苹果播客")
 
 
 class ItemType(models.TextChoices):
-    Book = 'book', _('书')
-    TV = 'tv', _('剧集')
-    TVSeason = 'tvseason', _('剧集分季')
-    TVEpisode = 'tvepisode', _('剧集分集')
-    Movie = 'movie', _('电影')
-    Music = 'music', _('音乐')
-    Game = 'game', _('游戏')
-    Boardgame = 'boardgame', _('桌游')
-    Podcast = 'podcast', _('播客')
-    FanFic = 'fanfic', _('网文')
-    Performance = 'performance', _('演出')
-    Exhibition = 'exhibition', _('展览')
-    Collection = 'collection', _('收藏单')
+    Book = "book", _("书")
+    TV = "tv", _("剧集")
+    TVSeason = "tvseason", _("剧集分季")
+    TVEpisode = "tvepisode", _("剧集分集")
+    Movie = "movie", _("电影")
+    Music = "music", _("音乐")
+    Game = "game", _("游戏")
+    Boardgame = "boardgame", _("桌游")
+    Podcast = "podcast", _("播客")
+    FanFic = "fanfic", _("网文")
+    Performance = "performance", _("演出")
+    Exhibition = "exhibition", _("展览")
+    Collection = "collection", _("收藏单")
 
 
 class ItemCategory(models.TextChoices):
-    Book = 'book', _('书')
-    Movie = 'movie', _('电影')
-    TV = 'tv', _('剧集')
-    Music = 'music', _('音乐')
-    Game = 'game', _('游戏')
-    Boardgame = 'boardgame', _('桌游')
-    Podcast = 'podcast', _('播客')
-    FanFic = 'fanfic', _('网文')
-    Performance = 'performance', _('演出')
-    Exhibition = 'exhibition', _('展览')
-    Collection = 'collection', _('收藏单')
+    Book = "book", _("书")
+    Movie = "movie", _("电影")
+    TV = "tv", _("剧集")
+    Music = "music", _("音乐")
+    Game = "game", _("游戏")
+    Boardgame = "boardgame", _("桌游")
+    Podcast = "podcast", _("播客")
+    FanFic = "fanfic", _("网文")
+    Performance = "performance", _("演出")
+    Exhibition = "exhibition", _("展览")
+    Collection = "collection", _("收藏单")
 
 
 class SubItemType(models.TextChoices):
-    Season = 'season', _('剧集分季')
-    Episode = 'episode', _('剧集分集')
-    Version = 'version', _('版本')
+    Season = "season", _("剧集分季")
+    Episode = "episode", _("剧集分集")
+    Version = "version", _("版本")
+
 
 # class CreditType(models.TextChoices):
 #     Author = 'author', _('作者')
@@ -176,37 +177,64 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     category = None  # subclass must specify this
     demonstrative = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
-    title = models.CharField(_("title in primary language"), max_length=1000, default="")
+    title = models.CharField(
+        _("title in primary language"), max_length=1000, default=""
+    )
     brief = models.TextField(_("简介"), blank=True, default="")
-    primary_lookup_id_type = models.CharField(_("isbn/cubn/imdb"), blank=False, null=True, max_length=50)
-    primary_lookup_id_value = models.CharField(_("1234/tt789"), blank=False, null=True, max_length=1000)
+    primary_lookup_id_type = models.CharField(
+        _("isbn/cubn/imdb"), blank=False, null=True, max_length=50
+    )
+    primary_lookup_id_value = models.CharField(
+        _("1234/tt789"), blank=False, null=True, max_length=1000
+    )
     metadata = models.JSONField(_("其他信息"), blank=True, null=True, default=dict)
-    cover = models.ImageField(upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True)
+    cover = models.ImageField(
+        upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+    )
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
     is_deleted = models.BooleanField(default=False, db_index=True)
     history = HistoricalRecords()
-    merged_to_item = models.ForeignKey('Item', null=True, on_delete=models.SET_NULL, default=None, related_name="merged_from_items")
-    last_editor = models.ForeignKey(User, on_delete=models.SET_NULL, related_name='+', null=True, blank=False)
+    merged_to_item = models.ForeignKey(
+        "Item",
+        null=True,
+        on_delete=models.SET_NULL,
+        default=None,
+        related_name="merged_from_items",
+    )
+    last_editor = models.ForeignKey(
+        User, on_delete=models.SET_NULL, related_name="+", null=True, blank=False
+    )
 
     class Meta:
-        unique_together = [['polymorphic_ctype_id', 'primary_lookup_id_type', 'primary_lookup_id_value']]
+        unique_together = [
+            [
+                "polymorphic_ctype_id",
+                "primary_lookup_id_type",
+                "primary_lookup_id_value",
+            ]
+        ]
 
     def clear(self):
         self.primary_lookup_id_value = None
         self.primary_lookup_id_type = None
 
     def __str__(self):
-        return f"{self.id}|{self.uuid}{' ' + self.primary_lookup_id_type + ':' + self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
+        return f"{self.id}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
 
     @classmethod
     def get_best_lookup_id(cls, lookup_ids):
-        """ get best available lookup id, ideally commonly used """
+        """get best available lookup id, ideally commonly used"""
         best_id_types = [
-            IdType.ISBN, IdType.CUBN, IdType.ASIN,
-            IdType.GTIN, IdType.ISRC, IdType.MusicBrainz,
+            IdType.ISBN,
+            IdType.CUBN,
+            IdType.ASIN,
+            IdType.GTIN,
+            IdType.ISRC,
+            IdType.MusicBrainz,
             IdType.Feed,
-            IdType.IMDB, IdType.TMDB_TVSeason
+            IdType.IMDB,
+            IdType.TMDB_TVSeason,
         ]
         for t in best_id_types:
             if lookup_ids.get(t):
@@ -215,11 +243,11 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     def merge(self, to_item):
         if to_item is None:
-            raise(ValueError('cannot merge to an empty item'))
+            raise (ValueError("cannot merge to an empty item"))
         elif to_item.merged_to_item is not None:
-            raise(ValueError('cannot merge with an item aleady merged'))
+            raise (ValueError("cannot merge with an item aleady merged"))
         elif to_item.__class__ != self.__class__:
-            raise(ValueError('cannot merge with an item in different class'))
+            raise (ValueError("cannot merge with an item in different class"))
         else:
             self.merged_to_item = to_item
 
@@ -229,15 +257,15 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @property
     def url(self):
-        return f'/{self.url_path}/{self.uuid}' if self.url_path else None
+        return f"/{self.url_path}/{self.uuid}" if self.url_path else None
 
     @property
     def absolute_url(self):
-        return (settings.APP_WEBSITE + self.url) if self.url_path else None
+        return f"{settings.APP_WEBSITE}{self.url}" if self.url_path else None
 
     @property
     def api_url(self):
-        return ('/api/' + self.url) if self.url_path else None
+        return f"/api/{self.url}" if self.url_path else None
 
     @property
     def class_name(self):
@@ -245,7 +273,7 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     @classmethod
     def get_by_url(cls, url_or_b62):
-        b62 = url_or_b62.strip().split('/')[-1]
+        b62 = url_or_b62.strip().split("/")[-1]
         return cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
 
     # def get_lookup_id(self, id_type: str) -> str:
@@ -258,11 +286,18 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         # ll = list(filter(lambda a, b: b, ll))
         pass
 
-    METADATA_COPY_LIST = ['title', 'brief']  # list of metadata keys to copy from resource to item
+    METADATA_COPY_LIST = [
+        "title",
+        "brief",
+    ]  # list of metadata keys to copy from resource to item
 
     @classmethod
     def copy_metadata(cls, metadata):
-        return dict((k, v) for k, v in metadata.items() if k in cls.METADATA_COPY_LIST and v is not None)
+        return dict(
+            (k, v)
+            for k, v in metadata.items()
+            if k in cls.METADATA_COPY_LIST and v is not None
+        )
 
     def has_cover(self):
         return self.cover and self.cover != DEFAULT_ITEM_COVER
@@ -286,21 +321,38 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
 
 class ItemLookupId(models.Model):
-    item = models.ForeignKey(Item, null=True, on_delete=models.SET_NULL, related_name='lookup_ids')
-    id_type = models.CharField(_("源网站"), blank=True, choices=IdType.choices, max_length=50)
+    item = models.ForeignKey(
+        Item, null=True, on_delete=models.SET_NULL, related_name="lookup_ids"
+    )
+    id_type = models.CharField(
+        _("源网站"), blank=True, choices=IdType.choices, max_length=50
+    )
     id_value = models.CharField(_("源网站ID"), blank=True, max_length=1000)
     raw_url = models.CharField(_("源网站ID"), blank=True, max_length=1000, unique=True)
 
     class Meta:
-        unique_together = [['id_type', 'id_value']]
+        unique_together = [["id_type", "id_value"]]
 
 
 class ExternalResource(models.Model):
-    item = models.ForeignKey(Item, null=True, on_delete=models.SET_NULL, related_name='external_resources')
-    id_type = models.CharField(_("IdType of the source site"), blank=False, choices=IdType.choices, max_length=50)
-    id_value = models.CharField(_("Primary Id on the source site"), blank=False, max_length=1000)
-    url = models.CharField(_("url to the resource"), blank=False, max_length=1000, unique=True)
-    cover = models.ImageField(upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True)
+    item = models.ForeignKey(
+        Item, null=True, on_delete=models.SET_NULL, related_name="external_resources"
+    )
+    id_type = models.CharField(
+        _("IdType of the source site"),
+        blank=False,
+        choices=IdType.choices,
+        max_length=50,
+    )
+    id_value = models.CharField(
+        _("Primary Id on the source site"), blank=False, max_length=1000
+    )
+    url = models.CharField(
+        _("url to the resource"), blank=False, max_length=1000, unique=True
+    )
+    cover = models.ImageField(
+        upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+    )
     other_lookup_ids = models.JSONField(default=dict)
     metadata = models.JSONField(default=dict)
     scraped_time = models.DateTimeField(null=True)
@@ -310,10 +362,10 @@ class ExternalResource(models.Model):
     related_resources = jsondata.ArrayField(null=False, blank=False, default=list)
 
     class Meta:
-        unique_together = [['id_type', 'id_value']]
+        unique_together = [["id_type", "id_value"]]
 
     def __str__(self):
-        return f"{self.id}{':' + self.id_type + ':' + self.id_value if self.id_value else ''} ({self.url})"
+        return f"{self.id}:{self.id_type}:{self.id_value if self.id_value else ''} ({self.url})"
 
     @property
     def site_name(self):
@@ -323,9 +375,12 @@ class ExternalResource(models.Model):
         self.other_lookup_ids = resource_content.lookup_ids
         self.metadata = resource_content.metadata
         if resource_content.cover_image and resource_content.cover_image_extention:
-            self.cover = SimpleUploadedFile('temp.' + resource_content.cover_image_extention, resource_content.cover_image)
+            self.cover = SimpleUploadedFile(
+                "temp." + resource_content.cover_image_extention,
+                resource_content.cover_image,
+            )
         else:
-            self.cover = resource_content.metadata.get('cover_image_path')
+            self.cover = resource_content.metadata.get("cover_image_path")
         self.scraped_time = timezone.now()
         self.save()
 
@@ -340,11 +395,13 @@ class ExternalResource(models.Model):
         return d
 
     def get_preferred_model(self):
-        model = self.metadata.get('preferred_model')
+        model = self.metadata.get("preferred_model")
         if model:
-            m = ContentType.objects.filter(app_label='catalog', model=model.lower()).first()
+            m = ContentType.objects.filter(
+                app_label="catalog", model=model.lower()
+            ).first()
             if m:
                 return m.model_class()
             else:
-                raise ValueError(f'preferred model {model} does not exist')
+                raise ValueError(f"preferred model {model} does not exist")
         return None

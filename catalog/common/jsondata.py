@@ -12,7 +12,23 @@ from functools import partialmethod
 from django.db.models import JSONField
 
 
-__all__ = ('BooleanField', 'CharField', 'DateField', 'DateTimeField', 'DecimalField', 'EmailField', 'FloatField', 'IntegerField', 'IPAddressField', 'GenericIPAddressField', 'NullBooleanField', 'TextField', 'TimeField', 'URLField', 'ArrayField')
+__all__ = (
+    "BooleanField",
+    "CharField",
+    "DateField",
+    "DateTimeField",
+    "DecimalField",
+    "EmailField",
+    "FloatField",
+    "IntegerField",
+    "IPAddressField",
+    "GenericIPAddressField",
+    "NullBooleanField",
+    "TextField",
+    "TimeField",
+    "URLField",
+    "ArrayField",
+)
 
 
 class JSONFieldDescriptor(object):
@@ -26,12 +42,12 @@ class JSONFieldDescriptor(object):
         if isinstance(json_value, dict):
             if self.field.attname in json_value or not self.field.has_default():
                 value = json_value.get(self.field.attname, None)
-                if hasattr(self.field, 'from_json'):
+                if hasattr(self.field, "from_json"):
                     value = self.field.from_json(value)
                 return value
             else:
                 default = self.field.get_default()
-                if hasattr(self.field, 'to_json'):
+                if hasattr(self.field, "to_json"):
                     json_value[self.field.attname] = self.field.to_json(default)
                 else:
                     json_value[self.field.attname] = default
@@ -45,7 +61,7 @@ class JSONFieldDescriptor(object):
         else:
             json_value = {}
 
-        if hasattr(self.field, 'to_json'):
+        if hasattr(self.field, "to_json"):
             value = self.field.to_json(value)
 
         if not value and self.field.blank and not self.field.null:
@@ -66,7 +82,7 @@ class JSONFieldMixin(object):
     """
 
     def __init__(self, *args, **kwargs):
-        self.json_field_name = kwargs.pop('json_field_name', 'metadata')
+        self.json_field_name = kwargs.pop("json_field_name", "metadata")
         super(JSONFieldMixin, self).__init__(*args, **kwargs)
 
     def contribute_to_class(self, cls, name, private_only=False):
@@ -81,8 +97,11 @@ class JSONFieldMixin(object):
             setattr(cls, self.attname, descriptor)
 
         if self.choices is not None:
-            setattr(cls, 'get_%s_display' % self.name,
-                    partialmethod(cls._get_FIELD_display, field=self))
+            setattr(
+                cls,
+                "get_%s_display" % self.name,
+                partialmethod(cls._get_FIELD_display, field=self),
+            )
 
     def get_lookup(self, lookup_name):
         # Always return None, to make get_transform been called
@@ -101,15 +120,17 @@ class JSONFieldMixin(object):
                 lhs.output_field = self.json_field
                 transform = self.transform(lhs, **kwargs)
                 transform._original_get_lookup = transform.get_lookup
-                transform.get_lookup = lambda name: transform._original_get_lookup(self.original_lookup)
+                transform.get_lookup = lambda name: transform._original_get_lookup(
+                    self.original_lookup
+                )
                 return transform
 
         json_field = self.model._meta.get_field(self.json_field_name)
         transform = json_field.get_transform(self.name)
         if transform is None:
             raise FieldError(
-                "JSONField '%s' has no support for key '%s' %s lookup" %
-                (self.json_field_name, self.name, name)
+                "JSONField '%s' has no support for key '%s' %s lookup"
+                % (self.json_field_name, self.name, name)
             )
 
         return TransformFactoryWrapper(json_field, transform, name)
@@ -118,13 +139,16 @@ class JSONFieldMixin(object):
 class BooleanField(JSONFieldMixin, fields.BooleanField):
     def __init__(self, *args, **kwargs):
         super(BooleanField, self).__init__(*args, **kwargs)
-        if django.VERSION < (2, ):
+        if django.VERSION < (2,):
             self.blank = False
 
 
 class CharField(JSONFieldMixin, fields.CharField):
-    def from_json(self, value):  # TODO workaound some bad data in migration, should be removed after clean up
+    def from_json(
+        self, value
+    ):  # TODO workaound some bad data in migration, should be removed after clean up
         return value if isinstance(value, str) else None
+
     pass
 
 
@@ -133,7 +157,7 @@ class DateField(JSONFieldMixin, fields.DateField):
         if value:
             if not isinstance(value, (datetime, date)):
                 value = dateparse.parse_date(value)
-            return value.strftime('%Y-%m-%d')
+            return value.strftime("%Y-%m-%d")
 
     def from_json(self, value):
         if value is not None:

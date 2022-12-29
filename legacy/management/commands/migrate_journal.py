@@ -14,6 +14,7 @@ from catalog.common import *
 from catalog.models import *
 from catalog.sites import *
 from journal.models import *
+
 # from social import models as social_models
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
@@ -51,29 +52,53 @@ shelf_map = {
 }
 
 tag_map = {
-    BookMark: 'bookmark_tags',
-    MovieMark: 'moviemark_tags',
-    AlbumMark: 'albummark_tags',
-    GameMark: 'gamemark_tags',
+    BookMark: "bookmark_tags",
+    MovieMark: "moviemark_tags",
+    AlbumMark: "albummark_tags",
+    GameMark: "gamemark_tags",
 }
 
 
 class Command(BaseCommand):
-    help = 'Migrate legacy marks to user journal'
+    help = "Migrate legacy marks to user journal"
 
     def add_arguments(self, parser):
-        parser.add_argument('--book', dest='types', action='append_const', const=BookMark)
-        parser.add_argument('--movie', dest='types', action='append_const', const=MovieMark)
-        parser.add_argument('--album', dest='types', action='append_const', const=AlbumMark)
-        parser.add_argument('--game', dest='types', action='append_const', const=GameMark)
-        parser.add_argument('--mark', help='migrate shelves/tags/ratings, then exit', action='store_true')
-        parser.add_argument('--review', help='migrate reviews, then exit', action='store_true')
-        parser.add_argument('--collection', help='migrate collections, then exit', action='store_true')
-        parser.add_argument('--id', help='id to convert; or, if using with --max-id, the min id')
-        parser.add_argument('--maxid', help='max id to convert')
-        parser.add_argument('--failstop', help='stop on fail', action='store_true')
-        parser.add_argument('--initshelf', help='initialize shelves for users, then exit', action='store_true')
-        parser.add_argument('--clear', help='clear all user pieces, then exit', action='store_true')
+        parser.add_argument(
+            "--book", dest="types", action="append_const", const=BookMark
+        )
+        parser.add_argument(
+            "--movie", dest="types", action="append_const", const=MovieMark
+        )
+        parser.add_argument(
+            "--album", dest="types", action="append_const", const=AlbumMark
+        )
+        parser.add_argument(
+            "--game", dest="types", action="append_const", const=GameMark
+        )
+        parser.add_argument(
+            "--mark",
+            help="migrate shelves/tags/ratings, then exit",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--review", help="migrate reviews, then exit", action="store_true"
+        )
+        parser.add_argument(
+            "--collection", help="migrate collections, then exit", action="store_true"
+        )
+        parser.add_argument(
+            "--id", help="id to convert; or, if using with --max-id, the min id"
+        )
+        parser.add_argument("--maxid", help="max id to convert")
+        parser.add_argument("--failstop", help="stop on fail", action="store_true")
+        parser.add_argument(
+            "--initshelf",
+            help="initialize shelves for users, then exit",
+            action="store_true",
+        )
+        parser.add_argument(
+            "--clear", help="clear all user pieces, then exit", action="store_true"
+        )
 
     def initshelf(self):
         print("Initialize shelves")
@@ -91,7 +116,11 @@ class Command(BaseCommand):
     def collection(self, options):
         collection_map = {}
         with transaction.atomic():
-            qs = Legacy_Collection.objects.all().filter(owner__is_active=True).order_by('id')
+            qs = (
+                Legacy_Collection.objects.all()
+                .filter(owner__is_active=True)
+                .order_by("id")
+            )
             for entity in tqdm(qs):
                 c = Collection.objects.create(
                     owner_id=entity.owner_id,
@@ -115,11 +144,15 @@ class Command(BaseCommand):
                     if old_id:
                         item_link = LinkModel.objects.get(old_id=old_id)
                         item = Item.objects.get(uid=item_link.new_uid)
-                        c.append_item(item, metadata={'comment': citem.comment})
+                        c.append_item(item, metadata={"note": citem.comment})
                     else:
                         # TODO convert song to album
-                        print(f'{c.owner} {c.id} {c.title} {citem.item} were skipped')
-            qs = Legacy_CollectionMark.objects.all().filter(owner__is_active=True).order_by('id')
+                        print(f"{c.owner} {c.id} {c.title} {citem.item} were skipped")
+            qs = (
+                Legacy_CollectionMark.objects.all()
+                .filter(owner__is_active=True)
+                .order_by("id")
+            )
             for entity in tqdm(qs):
                 Like.objects.create(
                     owner_id=entity.owner_id,
@@ -132,12 +165,14 @@ class Command(BaseCommand):
         for typ in [GameReview, AlbumReview, BookReview, MovieReview]:
             print(typ)
             LinkModel = model_link[typ]
-            qs = typ.objects.all().filter(owner__is_active=True).order_by('id')
-            if options['id']:
-                if options['maxid']:
-                    qs = qs.filter(id__gte=int(options['id']), id__lte=int(options['maxid']))
+            qs = typ.objects.all().filter(owner__is_active=True).order_by("id")
+            if options["id"]:
+                if options["maxid"]:
+                    qs = qs.filter(
+                        id__gte=int(options["id"]), id__lte=int(options["maxid"])
+                    )
                 else:
-                    qs = qs.filter(id=int(options['id']))
+                    qs = qs.filter(id=int(options["id"]))
             pg = Paginator(qs, BATCH_SIZE)
             for p in tqdm(pg.page_range):
                 with transaction.atomic():
@@ -145,28 +180,42 @@ class Command(BaseCommand):
                         try:
                             item_link = LinkModel.objects.get(old_id=entity.item.id)
                             item = Item.objects.get(uid=item_link.new_uid)
-                            Review.objects.create(owner=entity.owner, item=item, title=entity.title, body=entity.content, metadata={'shared_link': entity.shared_link}, visibility=entity.visibility, created_time=entity.created_time, edited_time=entity.edited_time)
+                            Review.objects.create(
+                                owner=entity.owner,
+                                item=item,
+                                title=entity.title,
+                                body=entity.content,
+                                metadata={"shared_link": entity.shared_link},
+                                visibility=entity.visibility,
+                                created_time=entity.created_time,
+                                edited_time=entity.edited_time,
+                            )
                         except Exception as e:
-                            print(f'Convert failed for {typ} {entity.id}: {e}')
-                            if options['failstop']:
-                                raise(e)
+                            print(f"Convert failed for {typ} {entity.id}: {e}")
+                            if options["failstop"]:
+                                raise (e)
 
     def mark(self, options):
-        types = options['types'] or [GameMark, AlbumMark, MovieMark, BookMark]
-        print('Preparing cache')
-        tag_cache = {f'{t.owner_id}_{t.title}': t.id for t in Tag.objects.all()}
-        shelf_cache = {f'{s.owner_id}_{s.item_category}_{shelf_map[s.shelf_type]}': s.id for s in Shelf.objects.all()}
+        types = options["types"] or [GameMark, AlbumMark, MovieMark, BookMark]
+        print("Preparing cache")
+        tag_cache = {f"{t.owner_id}_{t.title}": t.id for t in Tag.objects.all()}
+        shelf_cache = {
+            f"{s.owner_id}_{s.item_category}_{shelf_map[s.shelf_type]}": s.id
+            for s in Shelf.objects.all()
+        }
 
         for typ in types:
             print(typ)
             LinkModel = model_link[typ]
             tag_field = tag_map[typ]
-            qs = typ.objects.all().filter(owner__is_active=True).order_by('id')
-            if options['id']:
-                if options['maxid']:
-                    qs = qs.filter(id__gte=int(options['id']), id__lte=int(options['maxid']))
+            qs = typ.objects.all().filter(owner__is_active=True).order_by("id")
+            if options["id"]:
+                if options["maxid"]:
+                    qs = qs.filter(
+                        id__gte=int(options["id"]), id__lte=int(options["maxid"])
+                    )
                 else:
-                    qs = qs.filter(id=int(options['id']))
+                    qs = qs.filter(id=int(options["id"]))
 
             pg = Paginator(qs, BATCH_SIZE)
             for p in tqdm(pg.page_range):
@@ -193,22 +242,42 @@ class Command(BaseCommand):
                             visibility = entity.visibility
                             created_time = entity.created_time
                             if entity.rating:
-                                Rating.objects.create(owner_id=user_id, item_id=item_id, grade=entity.rating, visibility=visibility)
+                                Rating.objects.create(
+                                    owner_id=user_id,
+                                    item_id=item_id,
+                                    grade=entity.rating,
+                                    visibility=visibility,
+                                )
                             if entity.text:
-                                Comment.objects.create(owner_id=user_id, item_id=item_id, text=entity.text, visibility=visibility)
-                            shelf = shelf_cache[f'{user_id}_{item.category}_{entity.status}']
+                                Comment.objects.create(
+                                    owner_id=user_id,
+                                    item_id=item_id,
+                                    text=entity.text,
+                                    visibility=visibility,
+                                )
+                            shelf = shelf_cache[
+                                f"{user_id}_{item.category}_{entity.status}"
+                            ]
                             ShelfMember.objects.create(
                                 parent_id=shelf,
                                 owner_id=user_id,
                                 position=0,
                                 item_id=item_id,
-                                metadata={'shared_link': entity.shared_link},
-                                created_time=created_time)
-                            ShelfLogEntry.objects.create(owner_id=user_id, shelf_id=shelf, item_id=item_id, timestamp=created_time)
+                                metadata={"shared_link": entity.shared_link},
+                                created_time=created_time,
+                            )
+                            ShelfLogEntry.objects.create(
+                                owner_id=user_id,
+                                shelf_id=shelf,
+                                item_id=item_id,
+                                timestamp=created_time,
+                            )
                             for title in tags:
-                                tag_key = f'{user_id}_{title}'
+                                tag_key = f"{user_id}_{title}"
                                 if tag_key not in tag_cache:
-                                    tag = Tag.objects.create(owner_id=user_id, title=title, visibility=0).id
+                                    tag = Tag.objects.create(
+                                        owner_id=user_id, title=title, visibility=0
+                                    ).id
                                     tag_cache[tag_key] = tag
                                 else:
                                     tag = tag_cache[tag_key]
@@ -217,28 +286,31 @@ class Command(BaseCommand):
                                     owner_id=user_id,
                                     position=0,
                                     item_id=item_id,
-                                    created_time=created_time)
+                                    created_time=created_time,
+                                )
                         except Exception as e:
-                            print(f'Convert failed for {typ} {entity.id}: {e}')
-                            if options['failstop']:
-                                raise(e)
+                            print(f"Convert failed for {typ} {entity.id}: {e}")
+                            if options["failstop"]:
+                                raise (e)
 
     def handle(self, *args, **options):
-        if options['initshelf']:
+        if options["initshelf"]:
             self.initshelf()
-        elif options['collection']:
-            if options['clear']:
+        elif options["collection"]:
+            if options["clear"]:
                 self.clear([Collection, Like])
             else:
                 self.collection(options)
-        elif options['review']:
-            if options['clear']:
+        elif options["review"]:
+            if options["clear"]:
                 self.clear([Review])
             else:
                 self.review(options)
-        elif options['mark']:
-            if options['clear']:
-                self.clear([Comment, Rating, TagMember, Tag, ShelfLogEntry, ShelfMember])
+        elif options["mark"]:
+            if options["clear"]:
+                self.clear(
+                    [Comment, Rating, TagMember, Tag, ShelfLogEntry, ShelfMember]
+                )
             else:
                 self.mark(options)
-        self.stdout.write(self.style.SUCCESS(f'Done.'))
+        self.stdout.write(self.style.SUCCESS(f"Done."))

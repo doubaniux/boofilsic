@@ -244,7 +244,7 @@
                 {% endif %}
                 <span class="review-panel__actions">
                   <a href="{% url 'journal:review_edit' item.uuid review.uuid %}">{% trans '编辑' %}</a>
-                  <a href="{% url 'journal:review_delete' review.uuid %}">{% trans '删除' %}</a>
+                  <a href="{% url 'journal:review_delete' review.uuid %}?return_url={{ item.url }}">{% trans '删除' %}</a>
                 </span>
 
                 <div class="review-panel__time">{{ review.edited_time }}</div>

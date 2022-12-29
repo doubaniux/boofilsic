@@ -52,12 +52,9 @@
                 <ul class="entity-sort__entity-list">
                   {% for member in shelf.members %}
                   <li class="entity-sort__entity">
-
                     <a href="{{ member.item.url }}">
-                      <img src="{{ member.item.cover|thumb:'normal' }}"
-                      alt="{{ member.item.title }}" class="entity-sort__entity-img">
-                      <div class="entity-sort__entity-name" title="{{ member.item.title }}">
-                      {{ member.item.title }}</div>
+                      <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}" class="entity-sort__entity-img"> 
+                      <div class="entity-sort__entity-name" title="{{ member.item.title }}"> {{ member.item.title }}</div>
                     </a>
                   </li>
                   {% empty %}

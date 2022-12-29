@@ -33,13 +33,17 @@
             <div class="dividing-line"></div>
           </div>
           <div class="single-section-wrapper">
-            <div class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1" hx-trigger="load"></div>
+            <div id="collection_items" class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1" hx-trigger="load"></div>
           </div>
         </div>
       </section>
     </div>
     {% include "partial/_footer.html" %}
   </div>
-
+  <script>
+    document.body.addEventListener('htmx:configRequest', (event) => {
+      event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+    })
+  </script>
 </body>
 </html>
