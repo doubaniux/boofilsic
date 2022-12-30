@@ -14,7 +14,7 @@ class GoodreadsDownloader(RetryDownloader):
         if response is None:
             return RESPONSE_NETWORK_ERROR
         elif response.status_code == 200:
-            if response.text.find('__NEXT_DATA__') != -1:
+            if response.text.find("__NEXT_DATA__") != -1:
                 return RESPONSE_OK
             else:
                 # Goodreads may return legacy version for a/b testing
@@ -28,9 +28,12 @@ class GoodreadsDownloader(RetryDownloader):
 class Goodreads(AbstractSite):
     SITE_NAME = SiteName.Goodreads
     ID_TYPE = IdType.Goodreads
-    WIKI_PROPERTY_ID = 'P2968'
+    WIKI_PROPERTY_ID = "P2968"
     DEFAULT_MODEL = Edition
-    URL_PATTERNS = [r".+goodreads.com/.*book/show/(\d+)", r".+goodreads.com/.*book/(\d+)"]
+    URL_PATTERNS = [
+        r".+goodreads.com/.*book/show/(\d+)",
+        r".+goodreads.com/.*book/(\d+)",
+    ]
 
     @classmethod
     def id_to_url(self, id_value):
@@ -48,39 +51,41 @@ class Goodreads(AbstractSite):
         elem = h.xpath('//script[@id="__NEXT_DATA__"]/text()')
         src = elem[0].strip() if elem else None
         if not src:
-            raise ParseError(self, '__NEXT_DATA__ element')
-        d = json.loads(src)['props']['pageProps']['apolloState']
-        o = {'Book': [], 'Work': [], 'Series': [], 'Contributor': []}
+            raise ParseError(self, "__NEXT_DATA__ element")
+        d = json.loads(src)["props"]["pageProps"]["apolloState"]
+        o = {"Book": [], "Work": [], "Series": [], "Contributor": []}
         for v in d.values():
-            t = v.get('__typename')
+            t = v.get("__typename")
             if t and t in o:
                 o[t].append(v)
-        b = next(filter(lambda x: x.get('title'), o['Book']), None)
+        b = next(filter(lambda x: x.get("title"), o["Book"]), None)
         if not b:
             # Goodreads may return empty page template when internal service timeouts
-            raise ParseError(self, 'Book in __NEXT_DATA__ json')
-        data['title'] = b['title']
-        data['brief'] = b['description']
+            raise ParseError(self, "Book in __NEXT_DATA__ json")
+        data["title"] = b["title"]
+        data["brief"] = b["description"]
         ids = {}
-        t, n = detect_isbn_asin(b['details'].get('asin'))
+        t, n = detect_isbn_asin(b["details"].get("asin"))
         if t:
             ids[t] = n
-        t, n = detect_isbn_asin(b['details'].get('isbn13'))
+        t, n = detect_isbn_asin(b["details"].get("isbn13"))
         if t:
             ids[t] = n
         # amazon has a known problem to use another book's isbn as asin
         # so we alway overwrite asin-converted isbn with real isbn
-        data['pages'] = b['details'].get('numPages')
-        data['cover_image_url'] = b['imageUrl']
-        w = next(filter(lambda x: x.get('details'), o['Work']), None)
+        data["pages"] = b["details"].get("numPages")
+        data["cover_image_url"] = b["imageUrl"]
+        w = next(filter(lambda x: x.get("details"), o["Work"]), None)
         if w:
-            data['required_resources'] = [{
-                'model': 'Work',
-                'id_type': IdType.Goodreads_Work,
-                'id_value': str(w['legacyId']),
-                'title': w['details']['originalTitle'],
-                'url': w['editions']['webUrl'],
-            }]
+            data["required_resources"] = [
+                {
+                    "model": "Work",
+                    "id_type": IdType.Goodreads_Work,
+                    "id_value": str(w["legacyId"]),
+                    "title": w["details"]["originalTitle"],
+                    "url": w["editions"]["webUrl"],
+                }
+            ]
         pd = ResourceContent(metadata=data)
         pd.lookup_ids[IdType.ISBN] = ids.get(IdType.ISBN)
         pd.lookup_ids[IdType.ASIN] = ids.get(IdType.ASIN)
@@ -90,7 +95,9 @@ class Goodreads(AbstractSite):
                 pd.cover_image = imgdl.download().content
                 pd.cover_image_extention = imgdl.extention
             except Exception:
-                _logger.debug(f'failed to download cover for {self.url} from {data["cover_image_url"]}')
+                _logger.debug(
+                    f'failed to download cover for {self.url} from {data["cover_image_url"]}'
+                )
         return pd
 
 
@@ -98,7 +105,7 @@ class Goodreads(AbstractSite):
 class Goodreads_Work(AbstractSite):
     SITE_NAME = SiteName.Goodreads
     ID_TYPE = IdType.Goodreads_Work
-    WIKI_PROPERTY_ID = ''
+    WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = Work
     URL_PATTERNS = [r".+goodreads.com/work/editions/(\d+)"]
 
@@ -111,14 +118,18 @@ class Goodreads_Work(AbstractSite):
         title_elem = content.xpath("//h1/a/text()")
         title = title_elem[0].strip() if title_elem else None
         if not title:
-            raise ParseError(self, 'title')
+            raise ParseError(self, "title")
         author_elem = content.xpath("//h2/a/text()")
         author = author_elem[0].strip() if author_elem else None
         first_published_elem = content.xpath("//h2/span/text()")
-        first_published = first_published_elem[0].strip() if first_published_elem else None
-        pd = ResourceContent(metadata={
-            'title': title,
-            'author': author,
-            'first_published': first_published
-        })
+        first_published = (
+            first_published_elem[0].strip() if first_published_elem else None
+        )
+        pd = ResourceContent(
+            metadata={
+                "title": title,
+                "author": author,
+                "first_published": first_published,
+            }
+        )
         return pd

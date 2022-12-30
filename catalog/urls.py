@@ -3,13 +3,13 @@ from .api import api
 from .views import *
 from .models import *
 
-app_name = 'catalog'
+app_name = "catalog"
 
 
 def _get_all_url_paths():
-    paths = ['item']
+    paths = ["item"]
     for cls in Item.__subclasses__():
-        p = getattr(cls, 'url_path', None)
+        p = getattr(cls, "url_path", None)
         if p:
             paths.append(p)
     res = "|".join(paths)
@@ -17,9 +17,31 @@ def _get_all_url_paths():
 
 
 urlpatterns = [
-    re_path(r'^item/(?P<item_uid>[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})?$', retrieve_by_uuid, name='retrieve_by_uuid'),
-    re_path(r'^(?P<item_path>' + _get_all_url_paths() + ')/(?P<item_uuid>[A-Za-z0-9]{21,22})$', retrieve, name='retrieve'),
-    re_path(r'^(?P<item_path>' + _get_all_url_paths() + ')/(?P<item_uuid>[A-Za-z0-9]{21,22})/reviews', review_list, name='review_list'),
-    re_path(r'^(?P<item_path>' + _get_all_url_paths() + ')/(?P<item_uuid>[A-Za-z0-9]{21,22})/marks(?:/(?P<following_only>\\w+))?', mark_list, name='mark_list'),
+    re_path(
+        r"^item/(?P<item_uid>[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})?$",
+        retrieve_by_uuid,
+        name="retrieve_by_uuid",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})$",
+        retrieve,
+        name="retrieve",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/reviews",
+        review_list,
+        name="review_list",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/marks(?:/(?P<following_only>\\w+))?",
+        mark_list,
+        name="mark_list",
+    ),
     path("api/", api.urls),
 ]

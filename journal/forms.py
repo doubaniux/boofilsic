@@ -12,27 +12,23 @@ from common.forms import PreviewImageInput
 class ReviewForm(forms.ModelForm):
     class Meta:
         model = Review
-        fields = [
-            'id',
-            'item',
-            'title',
-            'body',
-            'visibility'
-        ]
+        fields = ["id", "item", "title", "body", "visibility"]
         widgets = {
-            'item': forms.TextInput(attrs={"hidden": ""}),
+            "item": forms.TextInput(attrs={"hidden": ""}),
         }
+
     title = forms.CharField(label=_("评论标题"))
     body = MarkdownxFormField(label=_("评论正文 (Markdown)"))
     share_to_mastodon = forms.BooleanField(
-        label=_("分享到联邦网络"), initial=True, required=False)
+        label=_("分享到联邦网络"), initial=True, required=False
+    )
     id = forms.IntegerField(required=False, widget=forms.HiddenInput())
     visibility = forms.TypedChoiceField(
         label=_("可见性"),
         initial=0,
         coerce=int,
         choices=VisibilityType.choices,
-        widget=forms.RadioSelect
+        widget=forms.RadioSelect,
     )
 
 
@@ -52,26 +48,26 @@ class CollectionForm(forms.ModelForm):
         initial=0,
         coerce=int,
         choices=VisibilityType.choices,
-        widget=forms.RadioSelect
+        widget=forms.RadioSelect,
     )
     collaborative = forms.TypedChoiceField(
         label=_("协作整理权限"),
         initial=0,
         coerce=int,
         choices=COLLABORATIVE_CHOICES,
-        widget=forms.RadioSelect
+        widget=forms.RadioSelect,
     )
 
     class Meta:
         model = Collection
         fields = [
-            'title',
-            'cover',
-            'visibility',
-            'collaborative',
-            'brief',
+            "title",
+            "cover",
+            "visibility",
+            "collaborative",
+            "brief",
         ]
 
         widgets = {
-            'cover': PreviewImageInput(),
+            "cover": PreviewImageInput(),
         }

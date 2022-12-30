@@ -7,8 +7,8 @@ class DoubanDramaTestCase(TestCase):
         pass
 
     def test_parse(self):
-        t_id = '24849279'
-        t_url = 'https://www.douban.com/location/drama/24849279/'
+        t_id = "24849279"
+        t_url = "https://www.douban.com/location/drama/24849279/"
         p1 = SiteManager.get_site_by_id_type(IdType.DoubanDrama)
         self.assertIsNotNone(p1)
         p1 = SiteManager.get_site_by_url(t_url)
@@ -19,14 +19,14 @@ class DoubanDramaTestCase(TestCase):
 
     @use_local_response
     def test_scrape(self):
-        t_url = 'https://www.douban.com/location/drama/24849279/'
+        t_url = "https://www.douban.com/location/drama/24849279/"
         site = SiteManager.get_site_by_url(t_url)
         self.assertEqual(site.ready, False)
         resource = site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(resource.metadata['title'], '红花侠')
+        self.assertEqual(resource.metadata["title"], "红花侠")
         item = site.get_item()
-        self.assertEqual(item.title, '红花侠')
+        self.assertEqual(item.title, "红花侠")
 
         # self.assertEqual(i.other_titles, ['スカーレットピンパーネル', 'THE SCARLET PIMPERNEL'])
         # self.assertEqual(len(i.brief), 545)

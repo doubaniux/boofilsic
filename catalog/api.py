@@ -10,7 +10,11 @@ from django.utils.baseconv import base62
 from django.shortcuts import render, get_object_or_404, redirect, reverse
 from django.http import Http404
 
-api = NinjaAPI(title=settings.SITE_INFO['site_name'], version="1.0.0", description=f"{settings.SITE_INFO['site_name']} API <hr/><a href='{settings.APP_WEBSITE}'>Learn more</a>")
+api = NinjaAPI(
+    title=settings.SITE_INFO["site_name"],
+    version="1.0.0",
+    description=f"{settings.SITE_INFO['site_name']} API <hr/><a href='{settings.APP_WEBSITE}'>Learn more</a>",
+)
 
 
 class ItemIn(Schema):

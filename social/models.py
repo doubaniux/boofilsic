@@ -21,23 +21,27 @@ _logger = logging.getLogger(__name__)
 
 
 class ActivityTemplate(models.TextChoices):
-    """
-    """
-    MarkItem = 'mark_item'
-    ReviewItem = 'review_item'
-    CreateCollection = 'create_collection'
-    LikeCollection = 'like_collection'
+    """ """
+
+    MarkItem = "mark_item"
+    ReviewItem = "review_item"
+    CreateCollection = "create_collection"
+    LikeCollection = "like_collection"
 
 
 class LocalActivity(models.Model, UserOwnedObjectMixin):
     owner = models.ForeignKey(User, on_delete=models.CASCADE)
-    visibility = models.PositiveSmallIntegerField(default=0)  # 0: Public / 1: Follower only / 2: Self only
-    template = models.CharField(blank=False, choices=ActivityTemplate.choices, max_length=50)
+    visibility = models.PositiveSmallIntegerField(
+        default=0
+    )  # 0: Public / 1: Follower only / 2: Self only
+    template = models.CharField(
+        blank=False, choices=ActivityTemplate.choices, max_length=50
+    )
     action_object = models.ForeignKey(Piece, on_delete=models.CASCADE)
     created_time = models.DateTimeField(default=timezone.now, db_index=True)
 
     def __str__(self):
-        return f'Activity [{self.owner}:{self.template}:{self.action_object}]'
+        return f"Activity [{self.owner}:{self.template}:{self.action_object}]"
 
 
 class ActivityManager:
@@ -48,7 +52,11 @@ class ActivityManager:
         q = Q(owner_id__in=self.owner.following, visibility__lt=2) | Q(owner=self.owner)
         if before_time:
             q = q & Q(created_time__lt=before_time)
-        return LocalActivity.objects.filter(q).order_by('-created_time').prefetch_related('action_object')  # .select_related() https://github.com/django-polymorphic/django-polymorphic/pull/531
+        return (
+            LocalActivity.objects.filter(q)
+            .order_by("-created_time")
+            .prefetch_related("action_object")
+        )  # .select_related() https://github.com/django-polymorphic/django-polymorphic/pull/531
 
     @staticmethod
     def get_manager_for_user(user):
@@ -56,7 +64,7 @@ class ActivityManager:
 
 
 User.activity_manager = cached_property(ActivityManager.get_manager_for_user)
-User.activity_manager.__set_name__(User, 'activity_manager')
+User.activity_manager.__set_name__(User, "activity_manager")
 
 
 class DataSignalManager:
@@ -68,9 +76,9 @@ class DataSignalManager:
         if processor_class:
             processor = processor_class(instance)
             if created:
-                if hasattr(processor, 'created'):
+                if hasattr(processor, "created"):
                     processor.created()
-            elif hasattr(processor, 'updated'):
+            elif hasattr(processor, "updated"):
                 processor.updated()
 
     @staticmethod
@@ -78,7 +86,7 @@ class DataSignalManager:
         processor_class = DataSignalManager.processors.get(instance.__class__)
         if processor_class:
             processor = processor_class(instance)
-            if hasattr(processor, 'deleted'):
+            if hasattr(processor, "deleted"):
                 processor.deleted()
 
     @staticmethod
@@ -103,15 +111,17 @@ class DefaultActivityProcessor:
 
     def created(self):
         params = {
-            'owner': self.action_object.owner,
-            'visibility': self.action_object.visibility,
-            'template': self.template,
-            'action_object': self.action_object,
+            "owner": self.action_object.owner,
+            "visibility": self.action_object.visibility,
+            "template": self.template,
+            "action_object": self.action_object,
         }
         LocalActivity.objects.create(**params)
 
     def updated(self):
-        activity = LocalActivity.objects.filter(action_object=self.action_object).first()
+        activity = LocalActivity.objects.filter(
+            action_object=self.action_object
+        ).first()
         if not activity:
             self.created()
         elif activity.visibility != self.action_object.visibility:

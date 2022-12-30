@@ -24,25 +24,29 @@ class ResourceContent:
     cover_image_extention: str = None
 
     def dict(self):
-        return {'metadata': self.metadata, 'lookup_ids': self.lookup_ids}
+        return {"metadata": self.metadata, "lookup_ids": self.lookup_ids}
 
     def to_json(self) -> str:
-        return json.dumps({'metadata': self.metadata, 'lookup_ids': self.lookup_ids})
+        return json.dumps({"metadata": self.metadata, "lookup_ids": self.lookup_ids})
 
 
 class AbstractSite:
     """
     Abstract class to represent a site
     """
+
     SITE_NAME = None
     ID_TYPE = None
-    WIKI_PROPERTY_ID = 'P0undefined0'
+    WIKI_PROPERTY_ID = "P0undefined0"
     DEFAULT_MODEL = None
     URL_PATTERNS = [r"\w+://undefined/(\d+)"]
 
     @classmethod
     def validate_url(self, url: str):
-        u = next(iter([re.match(p, url) for p in self.URL_PATTERNS if re.match(p, url)]), None)
+        u = next(
+            iter([re.match(p, url) for p in self.URL_PATTERNS if re.match(p, url)]),
+            None,
+        )
         return u is not None
 
     @classmethod
@@ -51,15 +55,18 @@ class AbstractSite:
 
     @classmethod
     def id_to_url(self, id_value):
-        return 'https://undefined/' + id_value
+        return "https://undefined/" + id_value
 
     @classmethod
     def url_to_id(self, url: str):
-        u = next(iter([re.match(p, url) for p in self.URL_PATTERNS if re.match(p, url)]), None)
+        u = next(
+            iter([re.match(p, url) for p in self.URL_PATTERNS if re.match(p, url)]),
+            None,
+        )
         return u[1] if u else None
 
     def __str__(self):
-        return f'<{self.__class__.__name__}: {self.url}>'
+        return f"<{self.__class__.__name__}: {self.url}>"
 
     def __init__(self, url=None):
         self.id_value = self.url_to_id(url) if url else None
@@ -70,7 +77,9 @@ class AbstractSite:
         if not self.resource:
             self.resource = ExternalResource.objects.filter(url=self.url).first()
             if self.resource is None:
-                self.resource = ExternalResource(id_type=self.ID_TYPE, id_value=self.id_value, url=self.url)
+                self.resource = ExternalResource(
+                    id_type=self.ID_TYPE, id_value=self.id_value, url=self.url
+                )
         return self.resource
 
     def scrape(self) -> ResourceContent:
@@ -91,11 +100,13 @@ class AbstractSite:
             model = self.DEFAULT_MODEL
         t, v = model.get_best_lookup_id(p.get_all_lookup_ids())
         if t is not None:
-            p.item = model.objects.filter(primary_lookup_id_type=t, primary_lookup_id_value=v).first()
+            p.item = model.objects.filter(
+                primary_lookup_id_type=t, primary_lookup_id_value=v
+            ).first()
         if p.item is None:
             obj = model.copy_metadata(p.metadata)
-            obj['primary_lookup_id_type'] = t
-            obj['primary_lookup_id_value'] = v
+            obj["primary_lookup_id_type"] = t
+            obj["primary_lookup_id_value"] = v
             p.item = model.objects.create(**obj)
         return p.item
 
@@ -103,10 +114,17 @@ class AbstractSite:
     def ready(self):
         return bool(self.resource and self.resource.ready)
 
-    def get_resource_ready(self, auto_save=True, auto_create=True, auto_link=True, preloaded_content=None, ignore_existing_content=False):
+    def get_resource_ready(
+        self,
+        auto_save=True,
+        auto_create=True,
+        auto_link=True,
+        preloaded_content=None,
+        ignore_existing_content=False,
+    ):
         """
         Returns an ExternalResource in scraped state if possible
-        
+
         Parameters
         ----------
         auto_save : bool
@@ -137,7 +155,7 @@ class AbstractSite:
                 resource_content = self.scrape()
             p.update_content(resource_content)
         if not p.ready:
-            _logger.error(f'unable to get resource {self.url} ready')
+            _logger.error(f"unable to get resource {self.url} ready")
             return None
         if auto_create and p.item is None:
             self.get_item()
@@ -148,9 +166,12 @@ class AbstractSite:
                 p.item.save()
         if auto_link:
             for linked_resource in p.required_resources:
-                linked_site = SiteManager.get_site_by_url(linked_resource['url'])
+                linked_site = SiteManager.get_site_by_url(linked_resource["url"])
                 if linked_site:
-                    linked_site.get_resource_ready(auto_link=False, preloaded_content=linked_resource.get('content'))
+                    linked_site.get_resource_ready(
+                        auto_link=False,
+                        preloaded_content=linked_resource.get("content"),
+                    )
                 else:
                     _logger.error(f'unable to get site for {linked_resource["url"]}')
             p.item.update_linked_items_from_external_resource(p)
@@ -165,7 +186,7 @@ class SiteManager:
     def register(target) -> Callable:
         id_type = target.ID_TYPE
         if id_type in SiteManager.registry:
-            raise ValueError(f'Site for {id_type} already exists')
+            raise ValueError(f"Site for {id_type} already exists")
         SiteManager.registry[id_type] = target
         return target
 
@@ -175,9 +196,17 @@ class SiteManager:
 
     @staticmethod
     def get_site_by_url(url: str):
-        cls = next(filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None)
+        cls = next(
+            filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
+        )
         if cls is None:
-            cls = next(filter(lambda p: p.validate_url_fallback(url), SiteManager.registry.values()), None)
+            cls = next(
+                filter(
+                    lambda p: p.validate_url_fallback(url),
+                    SiteManager.registry.values(),
+                ),
+                None,
+            )
         return cls(url) if cls else None
 
     @staticmethod
@@ -190,5 +219,7 @@ class SiteManager:
         return SiteManager.get_site_by_id_type(resource.id_type)
 
 
-ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(resource.id_type)
+ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(
+    resource.id_type
+)
 # ExternalResource.get_site = SiteManager.get_site_by_resource

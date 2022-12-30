@@ -13,7 +13,7 @@ class Bangumi(AbstractSite):
     URL_PATTERNS = [
         r"https://bgm\.tv/subject/(\d+)",
     ]
-    WIKI_PROPERTY_ID = ''
+    WIKI_PROPERTY_ID = ""
     DEFAULT_MODEL = None
 
     @classmethod

@@ -25,8 +25,8 @@ from .utils import *
 
 class Edition(Item):
     category = ItemCategory.Book
-    url_path = 'book'
-    demonstrative = _('这本书')
+    url_path = "book"
+    demonstrative = _("这本书")
 
     isbn = PrimaryLookupIdDescriptor(IdType.ISBN)
     asin = PrimaryLookupIdDescriptor(IdType.ASIN)
@@ -35,30 +35,30 @@ class Edition(Item):
     # goodreads = LookupIdDescriptor(IdType.Goodreads)
 
     METADATA_COPY_LIST = [
-        'title',
-        'brief',
+        "title",
+        "brief",
         # legacy fields
-        'subtitle',
-        'orig_title',
-        'author',
-        'translator',
-        'language',
-        'pub_house',
-        'pub_year',
-        'pub_month',
-        'binding',
-        'price',
-        'pages',
-        'contents',
-        'series',
-        'imprint',
+        "subtitle",
+        "orig_title",
+        "author",
+        "translator",
+        "language",
+        "pub_house",
+        "pub_year",
+        "pub_month",
+        "binding",
+        "price",
+        "pages",
+        "contents",
+        "series",
+        "imprint",
     ]
     subtitle = jsondata.CharField(null=True, blank=True, default=None)
     orig_title = jsondata.CharField(null=True, blank=True, default=None)
-    author = jsondata.ArrayField(_('作者'), null=False, blank=False, default=list)
-    translator = jsondata.ArrayField(_('译者'), null=True, blank=True, default=list)
+    author = jsondata.ArrayField(_("作者"), null=False, blank=False, default=list)
+    translator = jsondata.ArrayField(_("译者"), null=True, blank=True, default=list)
     language = jsondata.CharField(_("语言"), null=True, blank=True, default=None)
-    pub_house = jsondata.CharField(_('出版方'), null=True, blank=True, default=None)
+    pub_house = jsondata.CharField(_("出版方"), null=True, blank=True, default=None)
     pub_year = jsondata.IntegerField(_("发表年份"), null=True, blank=True)
     pub_month = jsondata.IntegerField(_("发表月份"), null=True, blank=True)
     binding = jsondata.CharField(null=True, blank=True, default=None)
@@ -80,8 +80,11 @@ class Edition(Item):
         """add Work from resource.metadata['work'] if not yet"""
         links = resource.required_resources + resource.related_resources
         for w in links:
-            if w['model'] == 'Work':
-                work = Work.objects.filter(primary_lookup_id_type=w['id_type'], primary_lookup_id_value=w['id_value']).first()
+            if w["model"] == "Work":
+                work = Work.objects.filter(
+                    primary_lookup_id_type=w["id_type"],
+                    primary_lookup_id_value=w["id_value"],
+                ).first()
                 if work and work not in self.works.all():
                     self.works.add(work)
                 # if not work:
@@ -90,15 +93,15 @@ class Edition(Item):
 
 class Work(Item):
     category = ItemCategory.Book
-    url_path = 'book/work'
+    url_path = "book/work"
     douban_work = PrimaryLookupIdDescriptor(IdType.DoubanBook_Work)
     goodreads_work = PrimaryLookupIdDescriptor(IdType.Goodreads_Work)
-    editions = models.ManyToManyField(Edition, related_name='works')
+    editions = models.ManyToManyField(Edition, related_name="works")
 
 
 class Series(Item):
     category = ItemCategory.Book
-    url_path = 'book/series'
+    url_path = "book/series"
     # douban_serie = LookupIdDescriptor(IdType.DoubanBook_Serie)
     # goodreads_serie = LookupIdDescriptor(IdType.Goodreads_Serie)
 

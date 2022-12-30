@@ -37,7 +37,9 @@ def all_content_types():
     if _CONTENT_TYPE_LIST is None:
         _CONTENT_TYPE_LIST = {}
         for cls in Item.__subclasses__():
-            _CONTENT_TYPE_LIST[cls] = ContentType.objects.get(app_label='catalog', model=cls.__name__.lower()).id
+            _CONTENT_TYPE_LIST[cls] = ContentType.objects.get(
+                app_label="catalog", model=cls.__name__.lower()
+            ).id
     return _CONTENT_TYPE_LIST
 
 
@@ -46,7 +48,7 @@ def all_categories():
     if _CATEGORY_LIST is None:
         _CATEGORY_LIST = {}
         for cls in Item.__subclasses__():
-            c = getattr(cls, 'category', None)
+            c = getattr(cls, "category", None)
             if c not in _CATEGORY_LIST:
                 _CATEGORY_LIST[c] = [cls]
             else:

@@ -7,21 +7,21 @@ register = template.Library()
 
 @register.simple_tag(takes_context=True)
 def wish_item_action(context, item):
-    user = context['request'].user
+    user = context["request"].user
     if user and user.is_authenticated:
         action = {
-            'taken': user.shelf_manager.locate_item(item) is not None,
-            'url': reverse("journal:wish", args=[item.uuid]),
+            "taken": user.shelf_manager.locate_item(item) is not None,
+            "url": reverse("journal:wish", args=[item.uuid]),
         }
         return action
 
 
 @register.simple_tag(takes_context=True)
 def like_piece_action(context, piece):
-    user = context['request'].user
+    user = context["request"].user
     if user and user.is_authenticated:
         action = {
-            'taken': Like.objects.filter(target=piece, owner=user).first() is not None,
-            'url': reverse("journal:like", args=[piece.uuid]),
+            "taken": Like.objects.filter(target=piece, owner=user).first() is not None,
+            "url": reverse("journal:like", args=[piece.uuid]),
         }
         return action
