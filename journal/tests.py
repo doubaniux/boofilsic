@@ -35,12 +35,11 @@ class ShelfTest(TestCase):
     def test_shelf(self):
         user = User.objects.create(mastodon_site="site", username="name")
         shelf_manager = ShelfManager(user=user)
-        shelf_manager.initialize()
-        self.assertEqual(user.shelf_set.all().count(), 33)
+        self.assertEqual(user.shelf_set.all().count(), 3)
         book1 = Edition.objects.create(title="Hyperion")
         book2 = Edition.objects.create(title="Andymion")
-        q1 = shelf_manager.get_shelf(ItemCategory.Book, ShelfType.WISHLIST)
-        q2 = shelf_manager.get_shelf(ItemCategory.Book, ShelfType.PROGRESS)
+        q1 = shelf_manager.get_shelf(ShelfType.WISHLIST)
+        q2 = shelf_manager.get_shelf(ShelfType.PROGRESS)
         self.assertIsNotNone(q1)
         self.assertIsNotNone(q2)
         self.assertEqual(q1.members.all().count(), 0)
@@ -123,7 +122,6 @@ class MarkTest(TestCase):
     def setUp(self):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.user1 = User.objects.create(mastodon_site="site", username="name")
-        self.user1.shelf_manager.initialize()
         pass
 
     def test_mark(self):
@@ -139,7 +137,7 @@ class MarkTest(TestCase):
 
         mark = Mark(self.user1, self.book1)
         self.assertEqual(mark.shelf_type, ShelfType.WISHLIST)
-        self.assertEqual(mark.shelf_label, "想读")
+        self.assertEqual(mark.shelf_label, "想读的书")
         self.assertEqual(mark.text, "a gentle comment")
         self.assertEqual(mark.rating, 9)
         self.assertEqual(mark.visibility, 1)

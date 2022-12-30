@@ -380,8 +380,7 @@ def _render_list(
     ):
         return render_user_blocked(request)
     if type == "mark":
-        shelf = user.shelf_manager.get_shelf(item_category, shelf_type)
-        queryset = ShelfMember.objects.filter(owner=user, parent=shelf)
+        queryset = user.shelf_manager.get_members(shelf_type, item_category)
     elif type == "tagmember":
         tag = Tag.objects.filter(owner=user, title=tag_title).first()
         if not tag:
@@ -555,10 +554,9 @@ def home(request, user_name):
     for category in visbile_categories:
         shelf_list[category] = {}
         for shelf_type in ShelfType:
-            shelf = user.shelf_manager.get_shelf(category, shelf_type)
-            members = shelf.recent_members.filter(qv)
+            members = user.shelf_manager.get_members(shelf_type, category).filter(qv)
             shelf_list[category][shelf_type] = {
-                "title": shelf.title,
+                "title": user.shelf_manager.get_title(shelf_type, category),
                 "count": members.count(),
                 "members": members[:5].prefetch_related("item"),
             }

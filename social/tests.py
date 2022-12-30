@@ -11,9 +11,7 @@ class SocialTest(TestCase):
         self.book2 = Edition.objects.create(title="Andymion")
         self.movie = Edition.objects.create(title="Fight Club")
         self.alice = User.objects.create(mastodon_site="MySpace", username="Alice")
-        self.alice.shelf_manager.initialize()
         self.bob = User.objects.create(mastodon_site="KKCity", username="Bob")
-        self.bob.shelf_manager.initialize()
 
     def test_timeline(self):
         # alice see 0 activity in timeline in the beginning
@@ -40,8 +38,8 @@ class SocialTest(TestCase):
         self.assertEqual(len(timeline2), 0)
 
         # bob follows alice, see 2 activities
-        self.bob.mastodon_following = ['Alice@MySpace']
-        self.alice.mastodon_follower = ['Bob@KKCity']
+        self.bob.mastodon_following = ["Alice@MySpace"]
+        self.alice.mastodon_follower = ["Bob@KKCity"]
         self.bob.following = self.bob.get_following_ids()
         timeline2 = self.bob.activity_manager.get_timeline()
         self.assertEqual(len(timeline2), 2)

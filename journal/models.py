@@ -65,7 +65,7 @@ def query_item_category(item_category):
     # return q
     ct = all_content_types()
     contenttype_ids = [ct[cls] for cls in classes]
-    return Q(item__polymorphic_ctype__in=sorted(contenttype_ids))
+    return Q(item__polymorphic_ctype__in=contenttype_ids)
 
 
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
@@ -325,6 +325,9 @@ class List(Piece):
     def recent_members(self):
         return self.members.all().order_by("-created_time")
 
+    def get_members_in_category(self, item_category):
+        return self.members.all().filter(query_item_category(item_category))
+
     def get_member_for_item(self, item):
         return self.members.filter(item=item).first()
 
@@ -459,44 +462,16 @@ class ShelfMember(ListMember):
 
 class Shelf(List):
     class Meta:
-        unique_together = [["owner", "item_category", "shelf_type"]]
+        unique_together = [["owner", "shelf_type"]]
 
     MEMBER_CLASS = ShelfMember
     items = models.ManyToManyField(Item, through="ShelfMember", related_name="+")
-    item_category = models.CharField(
-        choices=ItemCategory.choices, max_length=100, null=False, blank=False
-    )
     shelf_type = models.CharField(
         choices=ShelfType.choices, max_length=100, null=False, blank=False
     )
 
     def __str__(self):
-        return f"{self.id} {self.title}"
-
-    @cached_property
-    def item_category_label(self):
-        return ItemCategory(self.item_category).label
-
-    @cached_property
-    def shelf_label(self):
-        return next(
-            iter(
-                [
-                    n[2]
-                    for n in iter(ShelfTypeNames)
-                    if n[0] == self.item_category and n[1] == self.shelf_type
-                ]
-            ),
-            self.shelf_type,
-        )
-
-    @cached_property
-    def title(self):
-        q = _("{shelf_label}的{item_category}").format(
-            shelf_label=self.shelf_label, item_category=self.item_category_label
-        )
-        return q
-        # return _("{user}'s {shelf_name}").format(user=self.owner.mastodon_username, shelf_name=q)
+        return f"{self.id} [{self.owner} {self.shelf_type} list]"
 
 
 class ShelfLogEntry(models.Model):
@@ -526,27 +501,19 @@ class ShelfManager:
 
     def __init__(self, user):
         self.owner = user
+        qs = Shelf.objects.filter(owner=self.owner)
+        self.shelf_list = {v.shelf_type: v for v in qs}
+        if len(self.shelf_list) == 0:
+            self.initialize()
 
     def initialize(self):
-        for ic in ItemCategory:
-            for qt in ShelfType:
-                Shelf.objects.create(owner=self.owner, item_category=ic, shelf_type=qt)
+        for qt in ShelfType:
+            self.shelf_list[qt] = Shelf.objects.create(owner=self.owner, shelf_type=qt)
 
-    def _shelf_member_for_item(self, item):
+    def locate_item(self, item) -> ShelfMember:
         return ShelfMember.objects.filter(
-            item=item, parent__in=self.owner.shelf_set.all()
+            item=item, parent__in=list(self.shelf_list.values())
         ).first()
-
-    def _shelf_for_item_and_type(self, item, shelf_type):
-        if not item or not shelf_type:
-            return None
-        return self.owner.shelf_set.all().filter(
-            item_category=item.category, shelf_type=shelf_type
-        )
-
-    def locate_item(self, item):
-        member = ShelfMember.objects.filter(owner=self.owner, item=item).first()
-        return member  # .parent if member else None
 
     def move_item(self, item, shelf_type, visibility=0, metadata=None):
         # shelf_type=None means remove from current shelf
@@ -554,11 +521,11 @@ class ShelfManager:
         if not item:
             raise ValueError("empty item")
         new_shelfmember = None
-        last_shelfmember = self._shelf_member_for_item(item)
+        last_shelfmember = self.locate_item(item)
         last_shelf = last_shelfmember.parent if last_shelfmember else None
         last_metadata = last_shelfmember.metadata if last_shelfmember else None
         last_visibility = last_shelfmember.visibility if last_shelfmember else None
-        shelf = self.get_shelf(item.category, shelf_type) if shelf_type else None
+        shelf = self.shelf_list[shelf_type] if shelf_type else None
         changed = False
         if last_shelf != shelf:  # change shelf
             changed = True
@@ -596,20 +563,29 @@ class ShelfManager:
             "timestamp"
         )
 
-    def get_shelf(self, item_category, shelf_type):
-        return (
-            self.owner.shelf_set.all()
-            .filter(item_category=item_category, shelf_type=shelf_type)
-            .first()
-        )
+    def get_shelf(self, shelf_type):
+        return self.shelf_list[shelf_type]
 
-    def get_items_on_shelf(self, item_category, shelf_type):
-        shelf = (
-            self.owner.shelf_set.all()
-            .filter(item_category=item_category, shelf_type=shelf_type)
-            .first()
+    def get_members(self, shelf_type, item_category):
+        return self.shelf_list[shelf_type].get_members_in_category(item_category)
+
+    # def get_items_on_shelf(self, item_category, shelf_type):
+    #     shelf = (
+    #         self.owner.shelf_set.all()
+    #         .filter(item_category=item_category, shelf_type=shelf_type)
+    #         .first()
+    #     )
+    #     return shelf.members.all().order_by
+
+    def get_title(self, shelf_type, item_category):
+        ic = ItemCategory(item_category).label
+        sts = [
+            n[2] for n in ShelfTypeNames if n[0] == item_category and n[1] == shelf_type
+        ]
+        st = sts[0] if sts else shelf_type
+        return _("{shelf_label}的{item_category}").format(
+            shelf_label=st, item_category=ic
         )
-        return shelf.members.all().order_by
 
     @staticmethod
     def get_manager_for_user(user):
@@ -820,7 +796,11 @@ class Mark:
 
     @property
     def shelf_label(self):
-        return self.shelfmember.parent.shelf_label if self.shelfmember else None
+        return (
+            self.owner.shelf_manager.get_title(self.shelf_type, self.item.category)
+            if self.shelfmember
+            else None
+        )
 
     @property
     def created_time(self):

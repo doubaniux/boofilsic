@@ -6,7 +6,7 @@ from games.models import Game as Legacy_Game
 from common.models import MarkStatusEnum
 from books.models import BookMark, BookReview
 from movies.models import MovieMark, MovieReview
-from music.models import AlbumMark, AlbumReview
+from music.models import AlbumMark, AlbumReview, SongMark, SongReview
 from games.models import GameMark, GameReview
 from collection.models import Collection as Legacy_Collection
 from collection.models import CollectionMark as Legacy_CollectionMark
@@ -35,14 +35,17 @@ model_link = {
     MovieMark: MovieLink,
     AlbumMark: AlbumLink,
     GameMark: GameLink,
+    SongMark: SongLink,
     BookReview: BookLink,
     MovieReview: MovieLink,
     AlbumReview: AlbumLink,
     GameReview: GameLink,
+    SongReview: SongLink,
     Legacy_Book: BookLink,
     Legacy_Movie: MovieLink,
     Legacy_Album: AlbumLink,
     Legacy_Game: GameLink,
+    Legacy_Song: SongLink,
 }
 
 shelf_map = {
@@ -55,6 +58,7 @@ tag_map = {
     BookMark: "bookmark_tags",
     MovieMark: "moviemark_tags",
     AlbumMark: "albummark_tags",
+    SongMark: "songmark_tags",
     GameMark: "gamemark_tags",
 }
 
@@ -74,6 +78,9 @@ class Command(BaseCommand):
         )
         parser.add_argument(
             "--game", dest="types", action="append_const", const=GameMark
+        )
+        parser.add_argument(
+            "--song", dest="types", action="append_const", const=SongMark
         )
         parser.add_argument(
             "--mark",
@@ -104,7 +111,7 @@ class Command(BaseCommand):
         print("Initialize shelves")
         with transaction.atomic():
             for user in tqdm(User.objects.filter(is_active=True)):
-                user.shelf_manager.initialize()
+                temp = user.shelf_manager
 
     def clear(self, classes):
         print("Deleting migrated user pieces")
@@ -196,12 +203,11 @@ class Command(BaseCommand):
                                 raise (e)
 
     def mark(self, options):
-        types = options["types"] or [GameMark, AlbumMark, MovieMark, BookMark]
+        types = options["types"] or [GameMark, SongMark, AlbumMark, MovieMark, BookMark]
         print("Preparing cache")
         tag_cache = {f"{t.owner_id}_{t.title}": t.id for t in Tag.objects.all()}
         shelf_cache = {
-            f"{s.owner_id}_{s.item_category}_{shelf_map[s.shelf_type]}": s.id
-            for s in Shelf.objects.all()
+            f"{s.owner_id}_{shelf_map[s.shelf_type]}": s.id for s in Shelf.objects.all()
         }
 
         for typ in types:
@@ -255,9 +261,7 @@ class Command(BaseCommand):
                                     text=entity.text,
                                     visibility=visibility,
                                 )
-                            shelf = shelf_cache[
-                                f"{user_id}_{item.category}_{entity.status}"
-                            ]
+                            shelf = shelf_cache[f"{user_id}_{entity.status}"]
                             ShelfMember.objects.create(
                                 parent_id=shelf,
                                 owner_id=user_id,
@@ -309,7 +313,7 @@ class Command(BaseCommand):
         elif options["mark"]:
             if options["clear"]:
                 self.clear(
-                    [Comment, Rating, TagMember, Tag, ShelfLogEntry, ShelfMember]
+                    [Comment, Rating, TagMember, Tag, ShelfLogEntry, ShelfMember, Shelf]
                 )
             else:
                 self.mark(options)

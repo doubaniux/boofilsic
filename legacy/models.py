@@ -16,6 +16,11 @@ class AlbumLink(models.Model):
     new_uid = models.UUIDField()
 
 
+class SongLink(models.Model):
+    old_id = models.IntegerField(db_index=True)
+    new_uid = models.UUIDField()
+
+
 class GameLink(models.Model):
     old_id = models.IntegerField(db_index=True)
     new_uid = models.UUIDField()
