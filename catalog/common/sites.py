@@ -6,11 +6,12 @@ a Site should map to a unique set of url patterns.
 a Site may scrape a url and store result in ResourceContent
 ResourceContent persists as an ExternalResource which may link to an Item
 """
-from typing import *
+from typing import Callable
 import re
 from .models import ExternalResource
 from dataclasses import dataclass, field
 import logging
+import json
 
 
 _logger = logging.getLogger(__name__)
@@ -20,8 +21,8 @@ _logger = logging.getLogger(__name__)
 class ResourceContent:
     lookup_ids: dict = field(default_factory=dict)
     metadata: dict = field(default_factory=dict)
-    cover_image: bytes = None
-    cover_image_extention: str = None
+    cover_image: bytes | None = None
+    cover_image_extention: str | None = None
 
     def dict(self):
         return {"metadata": self.metadata, "lookup_ids": self.lookup_ids}
@@ -42,25 +43,25 @@ class AbstractSite:
     URL_PATTERNS = [r"\w+://undefined/(\d+)"]
 
     @classmethod
-    def validate_url(self, url: str):
+    def validate_url(cls, url: str):
         u = next(
-            iter([re.match(p, url) for p in self.URL_PATTERNS if re.match(p, url)]),
+            iter([re.match(p, url) for p in cls.URL_PATTERNS if re.match(p, url)]),
             None,
         )
         return u is not None
 
     @classmethod
-    def validate_url_fallback(self, url: str):
+    def validate_url_fallback(cls, url: str):
         return False
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://undefined/" + id_value
 
     @classmethod
-    def url_to_id(self, url: str):
+    def url_to_id(cls, url: str):
         u = next(
-            iter([re.match(p, url) for p in self.URL_PATTERNS if re.match(p, url)]),
+            iter([re.match(p, url) for p in cls.URL_PATTERNS if re.match(p, url)]),
             None,
         )
         return u[1] if u else None
@@ -121,7 +122,7 @@ class AbstractSite:
         auto_link=True,
         preloaded_content=None,
         ignore_existing_content=False,
-    ):
+    ) -> ExternalResource | None:
         """
         Returns an ExternalResource in scraped state if possible
 
@@ -195,7 +196,9 @@ class SiteManager:
         return SiteManager.registry[typ]() if typ in SiteManager.registry else None
 
     @staticmethod
-    def get_site_by_url(url: str):
+    def get_site_by_url(url: str) -> AbstractSite | None:
+        if not url:
+            return None
         cls = next(
             filter(lambda p: p.validate_url(url), SiteManager.registry.values()), None
         )

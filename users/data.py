@@ -41,75 +41,110 @@ from music.models import AlbumMark, SongMark, AlbumReview, SongReview
 from timeline.models import Activity
 from collection.models import Collection
 from common.importers.goodreads import GoodreadsImporter
-from common.importers.douban import DoubanImporter
+
+if settings.ENABLE_NEW_MODEL:
+    from journal.importers.douban import DoubanImporter
+else:
+    from common.importers.douban import DoubanImporter
 
 
 @mastodon_request_included
 @login_required
 def preferences(request):
     preference = request.user.get_preference()
-    if request.method == 'POST':
-        preference.default_visibility = int(request.POST.get('default_visibility'))
-        preference.classic_homepage = bool(request.POST.get('classic_homepage'))
-        preference.mastodon_publish_public = bool(request.POST.get('mastodon_publish_public'))
-        preference.show_last_edit = bool(request.POST.get('show_last_edit'))
-        preference.mastodon_append_tag = request.POST.get('mastodon_append_tag', '').strip()
-        preference.save(update_fields=['default_visibility', 'classic_homepage', 'mastodon_publish_public', 'mastodon_append_tag', 'show_last_edit'])
-    return render(request, 'users/preferences.html')
+    if request.method == "POST":
+        preference.default_visibility = int(request.POST.get("default_visibility"))
+        preference.classic_homepage = bool(request.POST.get("classic_homepage"))
+        preference.mastodon_publish_public = bool(
+            request.POST.get("mastodon_publish_public")
+        )
+        preference.show_last_edit = bool(request.POST.get("show_last_edit"))
+        preference.mastodon_append_tag = request.POST.get(
+            "mastodon_append_tag", ""
+        ).strip()
+        preference.save(
+            update_fields=[
+                "default_visibility",
+                "classic_homepage",
+                "mastodon_publish_public",
+                "mastodon_append_tag",
+                "show_last_edit",
+            ]
+        )
+    return render(request, "users/preferences.html")
 
 
 @mastodon_request_included
 @login_required
 def data(request):
-    return render(request, 'users/data.html', {
-        'allow_any_site': settings.MASTODON_ALLOW_ANY_SITE,
-        'latest_task': request.user.user_synctasks.order_by("-id").first(),
-        'import_status': request.user.get_preference().import_status,
-        'export_status': request.user.get_preference().export_status
-    })
+    return render(
+        request,
+        "users/data.html",
+        {
+            "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
+            "latest_task": request.user.user_synctasks.order_by("-id").first(),
+            "import_status": request.user.get_preference().import_status,
+            "export_status": request.user.get_preference().export_status,
+        },
+    )
+
+
+@login_required
+def data_import_status(request):
+    return render(
+        request,
+        "users/data_import_status.html",
+        {
+            "import_status": request.user.get_preference().import_status,
+        },
+    )
 
 
 @mastodon_request_included
 @login_required
 def export_reviews(request):
-    if request.method != 'POST':
+    if request.method != "POST":
         return redirect(reverse("users:data"))
-    return render(request, 'users/data.html')
+    return render(request, "users/data.html")
 
 
 @mastodon_request_included
 @login_required
 def export_marks(request):
-    if request.method == 'POST':
-        if not request.user.preference.export_status.get('marks_pending'):
-            django_rq.get_queue('export').enqueue(export_marks_task, request.user)
-            request.user.preference.export_status['marks_pending'] = True
+    if request.method == "POST":
+        if not request.user.preference.export_status.get("marks_pending"):
+            django_rq.get_queue("export").enqueue(export_marks_task, request.user)
+            request.user.preference.export_status["marks_pending"] = True
             request.user.preference.save()
-        messages.add_message(request, messages.INFO, _('导出已开始。'))
+        messages.add_message(request, messages.INFO, _("导出已开始。"))
         return redirect(reverse("users:data"))
     else:
         try:
-            with open(request.user.preference.export_status['marks_file'], 'rb') as fh:
-                response = HttpResponse(fh.read(), content_type="application/vnd.ms-excel")
-                response['Content-Disposition'] = 'attachment;filename="marks.xlsx"'
+            with open(request.user.preference.export_status["marks_file"], "rb") as fh:
+                response = HttpResponse(
+                    fh.read(), content_type="application/vnd.ms-excel"
+                )
+                response["Content-Disposition"] = 'attachment;filename="marks.xlsx"'
                 return response
         except Exception:
-            messages.add_message(request, messages.ERROR, _('导出文件已过期，请重新导出'))
+            messages.add_message(request, messages.ERROR, _("导出文件已过期，请重新导出"))
             return redirect(reverse("users:data"))
 
 
 @login_required
 def sync_mastodon(request):
-    if request.method == 'POST':
-        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, request.user)
-        messages.add_message(request, messages.INFO, _('同步已开始。'))
+    if request.method == "POST":
+        django_rq.get_queue("mastodon").enqueue(
+            refresh_mastodon_data_task, request.user
+        )
+        messages.add_message(request, messages.INFO, _("同步已开始。"))
     return redirect(reverse("users:data"))
 
 
 @login_required
 def reset_visibility(request):
-    if request.method == 'POST':
-        visibility = int(request.POST.get('visibility'))
+    if request.method == "POST":
+        visibility = int(request.POST.get("visibility"))
         visibility = visibility if visibility >= 0 and visibility <= 2 else 0
         BookMark.objects.filter(owner=request.user).update(visibility=visibility)
         MovieMark.objects.filter(owner=request.user).update(visibility=visibility)
@@ -117,27 +152,27 @@ def reset_visibility(request):
         AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
         SongMark.objects.filter(owner=request.user).update(visibility=visibility)
         Activity.objects.filter(owner=request.user).update(visibility=visibility)
-        messages.add_message(request, messages.INFO, _('已重置。'))
+        messages.add_message(request, messages.INFO, _("已重置。"))
     return redirect(reverse("users:data"))
 
 
 @login_required
 def import_goodreads(request):
-    if request.method == 'POST':
-        raw_url = request.POST.get('url')
+    if request.method == "POST":
+        raw_url = request.POST.get("url")
         if GoodreadsImporter.import_from_url(raw_url, request.user):
-            messages.add_message(request, messages.INFO, _('链接已保存，等待后台导入。'))
+            messages.add_message(request, messages.INFO, _("链接已保存，等待后台导入。"))
         else:
-            messages.add_message(request, messages.ERROR, _('无法识别链接。'))
+            messages.add_message(request, messages.ERROR, _("无法识别链接。"))
     return redirect(reverse("users:data"))
 
 
 @login_required
 def import_douban(request):
-    if request.method == 'POST':
-        importer = DoubanImporter(request.user, request.POST.get('visibility'))
-        if importer.import_from_file(request.FILES['file']):
-            messages.add_message(request, messages.INFO, _('文件上传成功，等待后台导入。'))
+    if request.method == "POST":
+        importer = DoubanImporter(request.user, request.POST.get("visibility"))
+        if importer.import_from_file(request.FILES["file"]):
+            messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
         else:
-            messages.add_message(request, messages.ERROR, _('无法识别文件。'))
+            messages.add_message(request, messages.ERROR, _("无法识别文件。"))
     return redirect(reverse("users:data"))

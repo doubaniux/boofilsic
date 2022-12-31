@@ -61,8 +61,8 @@
                   <div class="entity-detail__fields">
                     <div class="entity-detail__rating">
                       {% if item.rating %}
-                      <span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:'0' }}"></span>
-                      <span class="entity-detail__rating-score"> {{ item.rating }} </span>
+                      <span class="entity-detail__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></span>
+                      <span class="entity-detail__rating-score"> {{ item.rating | floatformat:1 }} </span>
                       <small>({{ item.rating_count }}人评分)</small>
                       {% else %}
                       <span> {% trans '评分：评分人数不足' %}</span>

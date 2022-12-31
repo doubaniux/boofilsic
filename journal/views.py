@@ -24,6 +24,7 @@ from .forms import *
 from mastodon.api import share_review
 from users.views import render_user_blocked, render_user_not_found
 from users.models import User, Report, Preference
+from common.utils import PageLinksGenerator
 
 _logger = logging.getLogger(__name__)
 PAGE_SIZE = 10
@@ -397,6 +398,7 @@ def _render_list(
     paginator = Paginator(queryset, PAGE_SIZE)
     page_number = request.GET.get("page", default=1)
     members = paginator.get_page(page_number)
+    members.pagination = PageLinksGenerator(PAGE_SIZE, page_number, paginator.num_pages)
     return render(
         request,
         f"user_{type}_list.html",
@@ -560,7 +562,11 @@ def home(request, user_name):
                 "count": members.count(),
                 "members": members[:5].prefetch_related("item"),
             }
-        reviews = Review.objects.filter(owner=user).filter(qv)
+        reviews = (
+            Review.objects.filter(owner=user)
+            .filter(qv)
+            .filter(query_item_category(category))
+        )
         shelf_list[category]["reviewed"] = {
             "title": "评论过的" + category.label,
             "count": reviews.count(),

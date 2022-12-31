@@ -148,6 +148,9 @@
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
+                                            <div>
+                                                请在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」；已经存在的评论不会被覆盖。
+                                            </div>
                                             <div class="import-panel__checkbox">
                                                 <p>从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
                                                     <input type="file" name="file" id="excel" required accept=".xlsx">
@@ -166,20 +169,11 @@
                                                 <input type="submit" class="import-panel__button" value="{% trans '导入' %}"/>
                                                 {% endif %}
 
-                                                {% if import_status.douban_pending == 2 %}
-                                                正在等待
-                                                {% elif import_status.douban_pending == 1 %}
-                                                正在导入
-                                                    {% if import_status.douban_total %}
-                                                    共{{ import_status.douban_total }}篇，目前已处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
-                                                    {% endif %}
-                                                {% elif import_status.douban_file %}
-                                                    上次结果
-                                                    共计{{ import_status.douban_total }}篇，处理{{ import_status.douban_processed }}篇，其中已存在{{ import_status.douban_skipped }}篇，新增{{ import_status.douban_imported }}篇
-                                                {% endif %}
-                                            </div>
-                                            <div>
-                                                请务必在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」；已经存在的评论不会被覆盖。
+                                                <div hx-get="{% url 'users:import_status' %}"
+                                                    hx-trigger="load delay:1s"
+                                                    hx-swap="outerHTML"
+                                                >
+                                                </div>
                                             </div>
                                         </form>
                                     </div>

@@ -46,13 +46,12 @@
                   {{ shelf.count }}
                 </span>
                 {% if shelf.count > 5 %}
-                <a href="{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}"
-                class="entity-sort__more-link">{% trans '更多' %}</a>
+                <a href="{% if shelf_type == 'reviewed' %}{% url 'journal:user_review_list' user.mastodon_username  category %}{% else %}{% url 'journal:user_mark_list' user.mastodon_username shelf_type category %}{% endif %}" class="entity-sort__more-link">{% trans '更多' %}</a>
                 {% endif %}
                 <ul class="entity-sort__entity-list">
                   {% for member in shelf.members %}
                   <li class="entity-sort__entity">
-                    <a href="{{ member.item.url }}">
+                    <a href="{% if shelf_type == 'reviewed' %}{{ member.url }}{% else %}{{ member.item.url }}{% endif %}">
                       <img src="{{ member.item.cover.url }}" alt="{{ member.item.title }}" class="entity-sort__entity-img"> 
                       <div class="entity-sort__entity-name" title="{{ member.item.title }}"> {{ member.item.title }}</div>
                     </a>

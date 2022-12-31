@@ -68,6 +68,33 @@ def query_item_category(item_category):
     return Q(item__polymorphic_ctype__in=contenttype_ids)
 
 
+# class ImportStatus(Enum):
+#     QUEUED = 0
+#     PROCESSING = 1
+#     FINISHED = 2
+
+
+# class ImportSession(models.Model):
+#     owner = models.ForeignKey(User, on_delete=models.CASCADE)
+#     status = models.PositiveSmallIntegerField(default=ImportStatus.QUEUED)
+#     importer = models.CharField(max_length=50)
+#     file = models.CharField()
+#     default_visibility = models.PositiveSmallIntegerField()
+#     total = models.PositiveIntegerField()
+#     processed = models.PositiveIntegerField()
+#     skipped = models.PositiveIntegerField()
+#     imported = models.PositiveIntegerField()
+#     failed = models.PositiveIntegerField()
+#     logs = models.JSONField(default=list)
+#     created_time = models.DateTimeField(auto_now_add=True)
+#     edited_time = models.DateTimeField(auto_now=True)
+
+#     class Meta:
+#         indexes = [
+#             models.Index(fields=["owner", "importer", "created_time"]),
+#         ]
+
+
 class Piece(PolymorphicModel, UserOwnedObjectMixin):
     url_path = "piece"  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
@@ -274,7 +301,6 @@ class Reply(Piece):
     )
     title = models.CharField(max_length=500, null=True)
     body = MarkdownxField()
-    pass
 
 
 """

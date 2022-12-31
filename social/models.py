@@ -115,6 +115,7 @@ class DefaultActivityProcessor:
             "visibility": self.action_object.visibility,
             "template": self.template,
             "action_object": self.action_object,
+            "created_time": self.action_object.created_time,
         }
         LocalActivity.objects.create(**params)
 
