@@ -267,5 +267,6 @@ def search(request):
                 PAGE_LINK_NUMBER, page_number, result.num_pages
             ),
             "categories": ["book", "movie", "music", "game"],
+            "hide_category": category is not None,
         },
     )

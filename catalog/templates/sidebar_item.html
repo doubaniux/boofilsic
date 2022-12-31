@@ -22,7 +22,7 @@
       
       <div>{% if item.pub_house %}{% trans '出版社：' %}{{ item.pub_house }}{% endif %}</div>
       {% if item.rating %}
-      {% trans '评分: ' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ item.rating }}"></span>
+      {% trans '评分: ' %}<span class="entity-card__rating-star rating-star" data-rating-score="{{ item.rating | floatformat:0 }}"></span>
       <span class="entity-card__rating-score rating-score">{{ item.rating | floatformat:1 }}</span>
       {% endif %}
     </div>

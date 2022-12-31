@@ -75,8 +75,7 @@ class Indexer:
         return cls._instance
 
     @classmethod
-    def init(cls):
-        # cls.instance().collections[INDEX_NAME].delete()
+    def config(cls):
         # fields = [
         #     {"name": "_class", "type": "string", "facet": True},
         #     {"name": "source_site", "type": "string", "facet": True},
@@ -122,14 +121,20 @@ class Indexer:
             {"name": "tags", "optional": True, "locale": "zh", "type": "string[]"},
             {"name": ".*", "optional": True, "locale": "zh", "type": "auto"},
         ]
+        return {
+            "name": INDEX_NAME,
+            "fields": fields,
+            # "default_sorting_field": "rating_count",
+        }
 
-        cls.instance().collections.create({"name": INDEX_NAME, "fields": fields})
+    @classmethod
+    def init(cls):
+        # cls.instance().collections[INDEX_NAME].delete()
+        cls.instance().collections.create(cls.config())
 
     @classmethod
     def update_settings(cls):
-        # https://github.com/typesense/typesense/issues/96
-        # FIXME
-        pass
+        cls.instance().collections[INDEX_NAME].update(cls.config())
 
     @classmethod
     def get_stats(cls):
@@ -227,6 +232,7 @@ class Indexer:
             "per_page": SEARCH_PAGE_SIZE,
             "query_by": ",".join(SEARCHABLE_ATTRIBUTES),
             "filter_by": filters,
+            "sort_by": "_text_match:desc,rating_count:desc"
             # 'facetsDistribution': ['_class'],
             # 'sort_by': None,
         }

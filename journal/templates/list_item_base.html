@@ -36,15 +36,16 @@
         {% else %}
         {{ item.title }}
         {% endif %}
+        {% if item.year %}<small style="font-weight: lighter">({{ item.year }})</small>{% endif %}
       </a>
-      {% if not request.GET.c and not hide_category %}
-      <span class="entity-list__entity-category">[{{item.category.label}}]</span>
-      {% endif %}
       {% for res in item.external_resources.all %}
       <a href="{{ res.url }}">
         <span class="source-label source-label__{{ res.site_name }}">{{ res.site_name.label }}</span>
       </a>
       {% endfor %}
+      {% if not hide_category %}
+      <span class="entity-list__entity-category">[{{item.category.label}}]</span>
+      {% endif %}
     </div>
 
     {% if item.rating %}
