@@ -21,8 +21,8 @@ _logger = logging.getLogger(__name__)
 class ResourceContent:
     lookup_ids: dict = field(default_factory=dict)
     metadata: dict = field(default_factory=dict)
-    cover_image: bytes | None = None
-    cover_image_extention: str | None = None
+    cover_image: bytes = None
+    cover_image_extention: str = None
 
     def dict(self):
         return {"metadata": self.metadata, "lookup_ids": self.lookup_ids}
@@ -122,7 +122,7 @@ class AbstractSite:
         auto_link=True,
         preloaded_content=None,
         ignore_existing_content=False,
-    ) -> ExternalResource | None:
+    ) -> ExternalResource:
         """
         Returns an ExternalResource in scraped state if possible
 
@@ -196,7 +196,7 @@ class SiteManager:
         return SiteManager.registry[typ]() if typ in SiteManager.registry else None
 
     @staticmethod
-    def get_site_by_url(url: str) -> AbstractSite | None:
+    def get_site_by_url(url: str) -> AbstractSite:
         if not url:
             return None
         cls = next(

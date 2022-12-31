@@ -43,5 +43,7 @@ urlpatterns = [
         mark_list,
         name="mark_list",
     ),
+    path("search2/", search, name="search"),
+    path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),
     path("api/", api.urls),
 ]

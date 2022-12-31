@@ -1,0 +1,82 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans '搜索结果' %}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.8.4/htmx.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/collection.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include 'partial/_navbar.html' %}
+        
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main">
+                        <div class="main-section-wrapper">
+                            <div>
+                                {% trans '正在连线' %}{{ site.SITE_NAME }}
+                                <div hx-get="{% url 'catalog:fetch_refresh' job_id %}" hx-trigger="load delay:2s" hx-swap="outerHTML"></div>
+                                <div id="spinner">
+                                    <div class="spinner">
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                        <div></div>
+                                    </div>
+                                </div>
+                            </div>
+        
+                        </div>
+           
+                    </div>
+        
+                    <div class="grid__aside">
+                        <div class="aside-section-wrapper">
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        {% include 'partial/_footer.html' %}
+    </div>
+
+    
+        
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+    </script>
+</body>
+
+
+</html>
