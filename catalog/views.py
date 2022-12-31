@@ -167,8 +167,6 @@ def fetch_task(url):
 def fetch_refresh(request, job_id):
     retry = request.GET
     job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
-    print(job_id)
-    print(job)
     item_url = job.result if job else "-"  # FIXME job.return_value() in rq 1.12
     if item_url:
         if item_url == "-":
@@ -250,9 +248,8 @@ def search(request):
         elif key not in keys:
             keys.append(key)
             items.append(i)
-        urls.append(i.source_url)
-        i.tag_list = i.all_tag_list[:TAG_NUMBER_ON_LIST]
-
+        for res in i.external_resources.all():
+            urls.append(res.url)
     if request.path.endswith(".json/"):
         return JsonResponse(
             {
@@ -260,11 +257,10 @@ def search(request):
                 "items": list(map(lambda i: i.get_json(), items)),
             }
         )
-
     request.session["search_dedupe_urls"] = urls
     return render(
         request,
-        "common/search_result.html",
+        "search_results.html",
         {
             "items": items,
             "pagination": PageLinksGenerator(

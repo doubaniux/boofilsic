@@ -1,0 +1,245 @@
+{% load static %}
+{% load i18n %}
+{% load l10n %}
+{% load humanize %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+{% load highlight %}
+{% load thumb %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ site_name }} - {% trans '搜索结果' %}</title>
+    <script src="https://cdn.staticfile.org/jquery/3.6.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/htmx/1.8.4/htmx.min.js"></script>
+    <script src="{% static 'lib/js/rating-star.js' %}"></script>
+    <script src="{% static 'js/rating-star-readonly.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/boofilsic.min.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/rating-star.css' %}">
+    <link rel="stylesheet" href="{% static 'lib/css/collection.css' %}">
+</head>
+
+<body>
+    <div id="page-wrapper">
+        <div id="content-wrapper">
+            {% include 'partial/_navbar.html' %}
+        
+            <section id="content">
+                <div class="grid">
+                    <div class="grid__main">
+                        <div class="main-section-wrapper">
+
+                            <div class="entity-list">
+                                {% if request.GET.q %}
+                                <h5 class="entity-list__title">“{{ request.GET.q }}” {% trans '的搜索结果' %}</h5>
+                                {% endif %}
+                                
+                                {% if request.GET.tag %}
+                                <h5 class="entity-list__title">{% trans '含有标签' %} “{{ request.GET.tag }}” {% trans '的结果' %}</h5>
+                                {% endif %}
+                                    
+                                <ul class="entity-list__entities">
+                                    {% for item in items %}
+                                    {% with "list_item_"|add:item.class_name|add:".html" as template %}
+                                    {% include template %}
+                                    {% endwith %}
+                                    {% empty %}
+                                    <li class="entity-list__entity">
+                                    {% trans '无站内条目匹配' %}
+                                    </li>
+                                    {% endfor %}
+                                    {% if request.GET.q and user.is_authenticated %}
+                                    <li class="entity-list__entity" hx-get="{% url 'common:external_search' %}?q={{ request.GET.q }}&c={{ request.GET.c }}&page={% if pagination.current_page %}{{ pagination.current_page }}{% else %}1{% endif %}" hx-trigger="load" hx-swap="outerHTML">
+                                    {% trans '正在实时搜索站外条目' %}
+                                    <div id="spinner">
+                                        <div class="spinner">
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                            <div></div>
+                                        </div>
+                                    </div>
+                                    </li>
+                                    {% endif %}
+                                </ul>
+                            </div>
+                            <div class="pagination" >
+                                
+                                {% if pagination.has_prev %}
+                                    <a href="?page=1&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link">&laquo;</a>
+                                    <a href="?page={{ pagination.previous_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link--right-margin pagination__nav-link">&lsaquo;</a>
+                                {% endif %}
+                                    
+                                {% for page in pagination.page_range %}
+                                    
+                                    {% if page == pagination.current_page %}
+                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__page-link pagination__page-link--current">{{ page }}</a>
+                                    {% else %}
+                                    <a href="?page={{ page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__page-link">{{ page }}</a>
+                                    {% endif %}
+                                        
+                                {% endfor %}
+                                    
+                                {% if pagination.has_next %}
+                                    <a href="?page={{ pagination.next_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link pagination__nav-link--left-margin">&rsaquo;</a>
+                                    <a href="?page={{ pagination.last_page }}&{% if request.GET.q %}q={{ request.GET.q }}{% elif request.GET.tag %}tag={{ request.GET.tag }}{% endif %}{% if request.GET.c %}&c={{ request.GET.c }}{% endif %}" class="pagination__nav-link">&raquo;</a>
+                                {% endif %}           
+                              
+                            </div>            
+                        </div>
+           
+                    </div>
+        
+                    <div class="grid__aside">
+                        <div class="aside-section-wrapper">
+                            
+                            <div class="add-entity-entries">
+                                <div class="add-entity-entries__entry">
+                                    <div class="add-entity-entries__label">
+                                        {% trans '没有想要的结果？' %}
+                                    </div>
+                                    {% if request.GET.c and request.GET.c in categories %}
+                                    
+                                        {% if request.GET.c|lower == 'book' %}
+                                            
+                                        <a href="{% url 'books:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加书' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'movie' %}
+                                        
+                                        <a href="{% url 'movies:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加电影/剧集' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'music' %}
+                                        
+                                        <a href="{% url 'music:create_album' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加专辑' %}</button>
+                                        </a>
+                                        <a href="{% url 'music:create_song' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加单曲' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'game' %}
+                                        
+                                        <a href="{% url 'games:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加游戏' %}</button>
+                                        </a>
+                                        
+                                        {% endif %}
+                                        
+                                    {% else %}
+                                        <a href="{% url 'books:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加书' %}</button>
+                                        </a>
+                                        <a href="{% url 'movies:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加电影/剧集' %}</button>
+                                        </a>
+                                        <a href="{% url 'music:create_album' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加专辑' %}</button>
+                                        </a>
+                                        <a href="{% url 'music:create_song' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加单曲' %}</button>
+                                        </a>
+                                        <a href="{% url 'games:create' %}">
+                                            <button class="add-entity-entries__button">{% trans '添加游戏' %}</button>
+                                        </a>
+                                    {% endif %}
+                                </div>
+                                <!-- div class="add-entity-entries__entry">
+                                    {% if request.GET.c and request.GET.c in categories %}
+                                    
+                                        {% if request.GET.c|lower == 'book' %}
+
+                                        <div class="add-entity-entries__label">
+                                            {% trans '或者(≖ ◡ ≖)✧' %}
+                                        </div>
+                                        <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '从表瓣剽取数据' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'movie' %}
+                                        
+                                        <div class="add-entity-entries__label">
+                                            {% trans '或者(≖ ◡ ≖)✧' %}
+                                        </div>
+                                        <a href="{% url 'movies:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '从表瓣剽取数据' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'game' %}
+                                        
+                                        <div class="add-entity-entries__label">
+                                            {% trans '或者(≖ ◡ ≖)✧' %}
+                                        </div>
+                                        <a href="{% url 'games:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '从表瓣剽取数据' %}</button>
+                                        </a>
+                                        
+                                        {% elif request.GET.c|lower == 'music' %}
+                                        
+                                        <div class="add-entity-entries__label">
+                                            {% trans '或者(≖ ◡ ≖)✧' %}
+                                        </div>
+                                        <a href="{% url 'music:scrape_album' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                            <button class="add-entity-entries__button">{% trans '从表瓣剽取数据' %}</button>
+                                        </a>
+                                                                                
+                                        {% endif %}
+                                        
+                                    {% else %}
+                                        
+                                    <div class="add-entity-entries__label">
+                                        {% trans '或从表瓣剽取' %}
+                                    </div>
+                                    <a href="{% url 'books:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                        <button class="add-entity-entries__button">{% trans '书' %}</button>
+                                    </a>
+                                    <a href="{% url 'movies:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                        <button class="add-entity-entries__button">{% trans '电影/剧集' %}</button>
+                                    </a>
+                                    <a href="{% url 'music:scrape_album' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                        <button class="add-entity-entries__button">{% trans '专辑' %}</button>
+                                    </a>
+                                    <a href="{% url 'games:scrape' %}{% if request.GET.q %}?q={{ request.GET.q }}{% endif %}">
+                                        <button class="add-entity-entries__button">{% trans '游戏' %}</button>
+                                    </a>
+
+                                    {% endif %}
+                                </div -->
+
+                            </div>
+
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+        {% include 'partial/_footer.html' %}
+    </div>
+
+    
+        
+    <script>
+      document.body.addEventListener('htmx:configRequest', (event) => {
+        event.detail.headers['X-CSRFToken'] = '{{ csrf_token }}';
+      })
+    </script>
+</body>
+
+
+</html>

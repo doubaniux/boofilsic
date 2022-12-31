@@ -8,6 +8,19 @@ from .podcast.models import Podcast
 from .performance.models import Performance
 from .collection.models import Collection as CatalogCollection
 from django.contrib.contenttypes.models import ContentType
+from django.conf import settings
+
+
+if settings.SEARCH_BACKEND == "MEILISEARCH":
+    from .search.meilisearch import Indexer
+elif settings.SEARCH_BACKEND == "TYPESENSE":
+    from .search.typesense import Indexer
+else:
+
+    class Indexer:
+        @classmethod
+        def update_model_indexable(cls, model):
+            pass
 
 
 # class Exhibition(Item):
@@ -54,3 +67,13 @@ def all_categories():
             else:
                 _CATEGORY_LIST[c].append(cls)
     return _CATEGORY_LIST
+
+
+def init_catalog_search_models():
+    Indexer.update_model_indexable(Edition)
+    Indexer.update_model_indexable(Work)
+    Indexer.update_model_indexable(Movie)
+    Indexer.update_model_indexable(TVShow)
+    Indexer.update_model_indexable(TVSeason)
+    Indexer.update_model_indexable(Album)
+    Indexer.update_model_indexable(Game)
