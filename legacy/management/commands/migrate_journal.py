@@ -155,6 +155,7 @@ class Command(BaseCommand):
                     else:
                         # TODO convert song to album
                         print(f"{c.owner} {c.id} {c.title} {citem.item} were skipped")
+                CollectionLink.objects.create(old_id=entity.id, new_uid=c.uid)
             qs = (
                 Legacy_CollectionMark.objects.all()
                 .filter(owner__is_active=True)
@@ -187,7 +188,7 @@ class Command(BaseCommand):
                         try:
                             item_link = LinkModel.objects.get(old_id=entity.item.id)
                             item = Item.objects.get(uid=item_link.new_uid)
-                            Review.objects.create(
+                            review = Review.objects.create(
                                 owner=entity.owner,
                                 item=item,
                                 title=entity.title,
@@ -196,6 +197,9 @@ class Command(BaseCommand):
                                 visibility=entity.visibility,
                                 created_time=entity.created_time,
                                 edited_time=entity.edited_time,
+                            )
+                            ReviewLink.objects.create(
+                                old_id=entity.id, new_uid=review.uid
                             )
                         except Exception as e:
                             print(f"Convert failed for {typ} {entity.id}: {e}")

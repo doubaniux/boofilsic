@@ -1,48 +1,13 @@
-from django.shortcuts import reverse, redirect, render, get_object_or_404
-from django.http import HttpResponseBadRequest, HttpResponse
-from django.contrib.auth.decorators import login_required
-from django.contrib import auth
-from django.contrib.auth import authenticate
-from django.core.paginator import Paginator
 from django.utils.translation import gettext_lazy as _
-from django.core.exceptions import ObjectDoesNotExist
-from django.db.models import Count
-from .models import User, Report, Preference
-from .forms import ReportForm
-from mastodon.api import *
-from mastodon import mastodon_request_included
-from common.config import *
-from common.models import MarkStatusEnum
-from common.utils import PageLinksGenerator
-from management.models import Announcement
-from books.models import *
-from movies.models import *
-from music.models import *
-from games.models import *
-from books.forms import BookMarkStatusTranslator
-from movies.forms import MovieMarkStatusTranslator
-from music.forms import MusicMarkStatusTranslator
-from games.forms import GameMarkStatusTranslator
-from mastodon.models import MastodonApplication
 from django.conf import settings
-from urllib.parse import quote
 from openpyxl import Workbook
 from common.utils import GenerateDateUUIDMediaFilePath
 from datetime import datetime
 import os
+from journal.models import *
 
 
-def refresh_mastodon_data_task(user, token=None):
-    if token:
-        user.mastodon_token = token
-    if user.refresh_mastodon_data():
-        user.save()
-        print(f"{user} mastodon data refreshed")
-    else:
-        print(f"{user} mastodon data refresh failed")
-
-
-def export_marks_task(user):
+def export_marks_task(user):  # FIXME
     user.preference.export_status["marks_pending"] = True
     user.preference.save(update_fields=["export_status"])
     filename = GenerateDateUUIDMediaFilePath(
@@ -51,17 +16,21 @@ def export_marks_task(user):
     if not os.path.exists(os.path.dirname(filename)):
         os.makedirs(os.path.dirname(filename))
     heading = ["标题", "简介", "豆瓣评分", "链接", "创建时间", "我的评分", "标签", "评论", "NeoDB链接", "其它ID"]
-    wb = (
-        Workbook()
-    )  # adding write_only=True will speed up but corrupt the xlsx and won't be importable
-    for status, label in [("collect", "看过"), ("do", "在看"), ("wish", "想看")]:
+    wb = Workbook()
+    # adding write_only=True will speed up but corrupt the xlsx and won't be importable
+    for status, label in [
+        (ShelfType.COMPLETE, "看过"),
+        (ShelfType.PROGRESS, "在看"),
+        (ShelfType.WISHLIST, "想看"),
+    ]:
         ws = wb.create_sheet(title=label)
-        marks = MovieMark.objects.filter(owner=user, status=status).order_by(
+        marks = user.shelf_manager.get_members(ItemCategory.Movie, status).order_by(
             "-edited_time"
         )
         ws.append(heading)
-        for mark in marks:
-            movie = mark.movie
+        for mm in marks:
+            mark = mm.mark
+            movie = mark.item
             title = movie.title
             summary = (
                 str(movie.year)
@@ -80,7 +49,7 @@ def export_marks_task(user):
             my_rating = (mark.rating / 2) if mark.rating else None
             text = mark.text
             source_url = movie.source_url
-            url = settings.APP_WEBSITE + movie.get_absolute_url()
+            url = settings.APP_WEBSITE + movie.url
             line = [
                 title,
                 summary,
@@ -95,7 +64,11 @@ def export_marks_task(user):
             ]
             ws.append(line)
 
-    for status, label in [("collect", "听过"), ("do", "在听"), ("wish", "想听")]:
+    for status, label in [
+        (ShelfType.COMPLETE, "听过"),
+        (ShelfType.PROGRESS, "在听"),
+        (ShelfType.WISHLIST, "想听"),
+    ]:
         ws = wb.create_sheet(title=label)
         marks = AlbumMark.objects.filter(owner=user, status=status).order_by(
             "-edited_time"
@@ -130,7 +103,11 @@ def export_marks_task(user):
             ]
             ws.append(line)
 
-    for status, label in [("collect", "读过"), ("do", "在读"), ("wish", "想读")]:
+    for status, label in [
+        (ShelfType.COMPLETE, "读过"),
+        (ShelfType.PROGRESS, "在读"),
+        (ShelfType.WISHLIST, "想读"),
+    ]:
         ws = wb.create_sheet(title=label)
         marks = BookMark.objects.filter(owner=user, status=status).order_by(
             "-edited_time"
@@ -167,7 +144,11 @@ def export_marks_task(user):
             ]
             ws.append(line)
 
-    for status, label in [("collect", "玩过"), ("do", "在玩"), ("wish", "想玩")]:
+    for status, label in [
+        (ShelfType.COMPLETE, "玩过"),
+        (ShelfType.PROGRESS, "在玩"),
+        (ShelfType.WISHLIST, "想玩"),
+    ]:
         ws = wb.create_sheet(title=label)
         marks = GameMark.objects.filter(owner=user, status=status).order_by(
             "-edited_time"
@@ -215,14 +196,14 @@ def export_marks_task(user):
         "评论对象原始链接",
         "评论对象NeoDB链接",
     ]
-    for ReviewModel, label in [
-        (MovieReview, "影评"),
-        (BookReview, "书评"),
-        (AlbumReview, "乐评"),
-        (GameReview, "游戏评论"),
+    for category, label in [
+        (ItemCategory.Movie, "影评"),
+        (ItemCategory.Book, "书评"),
+        (ItemCategory.Music, "乐评"),
+        (ItemCategory.Game, "游戏评论"),
     ]:
         ws = wb.create_sheet(title=label)
-        reviews = ReviewModel.objects.filter(owner=user).order_by("-edited_time")
+        reviews = Review.objects.filter(owner=user).order_by("-edited_time")
         ws.append(review_heading)
         for review in reviews:
             title = review.title

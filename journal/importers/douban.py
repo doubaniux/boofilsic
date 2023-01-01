@@ -283,6 +283,8 @@ class DoubanImporter:
                 print(f"fetching {url}")
                 site.get_resource_ready()
                 item = site.get_item()
+                item.last_editor = user
+                item.save()
             else:
                 print(f"matched {url}")
         except Exception as e:

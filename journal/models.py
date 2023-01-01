@@ -439,7 +439,6 @@ class ListMember(Piece):
     @cached_property
     def mark(self):
         m = Mark(self.owner, self.item)
-        m.shelfmember = self
         return m
 
     class Meta:
@@ -484,6 +483,12 @@ class ShelfMember(ListMember):
     parent = models.ForeignKey(
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
+
+    @cached_property
+    def mark(self):
+        m = Mark(self.owner, self.item)
+        m.shelfmember = self
+        return m
 
 
 class Shelf(List):
@@ -915,3 +920,10 @@ class Mark:
 
     def delete(self):
         self.update(None, None, None, 0)
+
+
+def reset_visibility_for_user(user: User, visibility: int):
+    ShelfMember.objects.filter(owner=user).update(visibility=visibility)
+    Comment.objects.filter(owner=user).update(visibility=visibility)
+    Rating.objects.filter(owner=user).update(visibility=visibility)
+    Review.objects.filter(owner=user).update(visibility=visibility)

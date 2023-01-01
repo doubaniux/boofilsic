@@ -40,12 +40,14 @@ from games.models import GameMark, GameReview
 from music.models import AlbumMark, SongMark, AlbumReview, SongReview
 from timeline.models import Activity
 from collection.models import Collection
-from common.importers.goodreads import GoodreadsImporter
 
 if settings.ENABLE_NEW_MODEL:
     from journal.importers.douban import DoubanImporter
+    from journal.importers.goodreads import GoodreadsImporter
+    from journal.models import reset_visibility_for_user
 else:
     from common.importers.douban import DoubanImporter
+    from common.importers.goodreads import GoodreadsImporter
 
 
 @mastodon_request_included
@@ -146,12 +148,15 @@ def reset_visibility(request):
     if request.method == "POST":
         visibility = int(request.POST.get("visibility"))
         visibility = visibility if visibility >= 0 and visibility <= 2 else 0
-        BookMark.objects.filter(owner=request.user).update(visibility=visibility)
-        MovieMark.objects.filter(owner=request.user).update(visibility=visibility)
-        GameMark.objects.filter(owner=request.user).update(visibility=visibility)
-        AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
-        SongMark.objects.filter(owner=request.user).update(visibility=visibility)
-        Activity.objects.filter(owner=request.user).update(visibility=visibility)
+        if settings.ENABLE_NEW_MODEL:
+            reset_visibility_for_user(request.user, visibility)
+        else:
+            BookMark.objects.filter(owner=request.user).update(visibility=visibility)
+            MovieMark.objects.filter(owner=request.user).update(visibility=visibility)
+            GameMark.objects.filter(owner=request.user).update(visibility=visibility)
+            AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
+            SongMark.objects.filter(owner=request.user).update(visibility=visibility)
+            Activity.objects.filter(owner=request.user).update(visibility=visibility)
         messages.add_message(request, messages.INFO, _("已重置。"))
     return redirect(reverse("users:data"))
 
