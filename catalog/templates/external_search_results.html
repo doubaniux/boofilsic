@@ -13,7 +13,9 @@
 <li class="entity-list__entity">
     <div class="entity-list__entity-img-wrapper">
         <a href="{{ item.link }}">
+            {% if item.cover_url %}
             <img src="{{ item.cover_url }}" alt="" class="entity-list__entity-img">
+            {% endif %}
         </a>
     </div>
     <div class="entity-list__entity-text">

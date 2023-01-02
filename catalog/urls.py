@@ -32,6 +32,20 @@ urlpatterns = [
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/edit$",
+        edit,
+        name="edit",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
+        + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/delete$",
+        delete,
+        name="delete",
+    ),
+    re_path(
+        r"^(?P<item_path>"
+        + _get_all_url_paths()
         + ")/(?P<item_uuid>[A-Za-z0-9]{21,22})/reviews",
         review_list,
         name="review_list",
@@ -43,7 +57,8 @@ urlpatterns = [
         mark_list,
         name="mark_list",
     ),
-    path("search2/", search, name="search"),
+    path("search/", search, name="search"),
+    path("search/external/", external_search, name="external_search"),
     path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),
     path("api/", api.urls),
 ]

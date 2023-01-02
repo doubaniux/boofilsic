@@ -45,7 +45,13 @@
                                             <span>{% trans '登录后显示个人主页：' %}</span>
                                             <div class="import-panel__checkbox import-panel__checkbox--last">
                                                 <input type="checkbox" name="classic_homepage" id="classic_homepage" {%if request.user.preference.classic_homepage %}checked{% endif %} style="margin-bottom:1.5em">
-                                                <label for="classic_homepage">{% trans '默认登录后显示好友动态，如果希望登录后显示原版风格个人主页可选中此处' %}</label>
+                                                <label for="classic_homepage">{% trans '默认登录后显示好友动态，如果希望登录后显示本人主页可选中此处' %}</label>
+                                            </div>
+                                            <br>
+                                            <span>{% trans '不允许未登录用户访问个人主页和RSS：' %}</span>
+                                            <div class="import-panel__checkbox import-panel__checkbox--last">
+                                                <input type="checkbox" name="no_anonymous_view" id="no_anonymous_view" {%if request.user.preference.no_anonymous_view %}checked{% endif %}>
+                                                <label for="no_anonymous_view">{% trans '选中此选项后，未登录访客不能看到你的个人主页，或通过RSS订阅你的评论' %}</label>
                                             </div>
                                             <br>
                                             <span>{% trans '显示最近编辑者：' %}</span>

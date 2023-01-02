@@ -31,7 +31,7 @@
       </span>
     </div>
     <span class="entity-list__entity-info" style="top:0px;">
-      <a href="{% url 'users:home' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '创建了收藏单' %}
+      <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '创建了收藏单' %}
     </span>
     <div class="entity-list__entity-title">
       <a href="{{ activity.action_object.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.action_object.title }}

@@ -27,9 +27,9 @@
                         
                         {% for report in reports %}
                             <div class="report">
-                                <a href="{% url 'users:home' report.submit_user.mastodon_username %}">{{ report.submit_user.username }}</a>
+                                <a href="{% url 'journal:user_profile' report.submit_user.mastodon_username %}">{{ report.submit_user.username }}</a>
                                 {% trans '举报了' %}
-                                <a href="{% url 'users:home' report.reported_user.mastodon_username %}">{{ report.reported_user.username }}</a>
+                                <a href="{% url 'journal:user_profile' report.reported_user.mastodon_username %}">{{ report.reported_user.username }}</a>
                                 @{{ report.submitted_time }}
                                 
                                 {% if report.image %}

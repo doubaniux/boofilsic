@@ -1,9 +1,0 @@
-{% if item.category_name|lower == 'book' %}
-{% include "partial/list_item_book.html" with book=item %}
-{% elif item.category_name|lower == 'movie' %}    
-{% include "partial/list_item_movie.html" with movie=item %}
-{% elif item.category_name|lower == 'game' %}    
-{% include "partial/list_item_game.html" with game=item %}
-{% elif item.category_name|lower == 'album' or item.category_name|lower == 'song' %}    
-{% include "partial/list_item_music.html" with music=item %}
-{% endif %}

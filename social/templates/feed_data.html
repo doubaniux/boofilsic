@@ -76,7 +76,11 @@ hx-swap="outerHTML">
 </div>
 {% endif %}
 {% empty %}
+{% if request.GET.last %}
 <div>{% trans '目前没有更多内容了' %}</div>
+{% else %}
+<div>{% trans '在NeoDB导入或标记一些书影音，去联邦宇宙（长毛象）关注一些正在使用NeoDB的用户，这里就会显示你和她们的近期动态。' %}</div>
+{% endif %}
 {% endfor %}
 <script>
   // readonly star rating at aside section

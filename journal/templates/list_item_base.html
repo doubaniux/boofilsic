@@ -70,7 +70,7 @@
     <div class="tag-collection">
       {% for tag_dict in item.tags %}
       <span class="tag-collection__tag">
-        <a href="{% url 'common:search' %}?tag={{ tag_dict }}">{{ tag_dict }}</a>
+        <a href="{% url 'catalog:search' %}?tag={{ tag_dict }}">{{ tag_dict }}</a>
       </span>
       {% endfor %}
     </div>

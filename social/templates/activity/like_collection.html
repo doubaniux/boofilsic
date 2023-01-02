@@ -31,8 +31,8 @@
       </span>
     </div>
     <span class="entity-list__entity-info" style="top:0px;">
-      <a href="{% url 'users:home' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> 关注了
-      <a href="{% url 'users:home' activity.action_object.target.owner.mastodon_username %}">{{ activity.action_object.target.owner.display_name }}</a>
+      <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> 关注了
+      <a href="{% url 'journal:user_profile' activity.action_object.target.owner.mastodon_username %}">{{ activity.action_object.target.owner.display_name }}</a>
       的收藏单
     </span>
     <div class="entity-list__entity-title">

@@ -4,7 +4,7 @@ import typesense
 from typesense.exceptions import ObjectNotFound
 from django.conf import settings
 from django.db.models.signals import post_save, post_delete
-
+from catalog.models import Item
 
 INDEX_NAME = "catalog"
 SEARCHABLE_ATTRIBUTES = [
@@ -257,7 +257,8 @@ class Indexer:
     @classmethod
     def item_to_obj(cls, item):
         try:
-            return cls.class_map[item["class_name"]].get_by_url(item["id"])
+            return Item.get_by_url(item["id"])
         except Exception as e:
+            print(e)
             logger.error(f"unable to load search result item from db:\n{item}")
             return None

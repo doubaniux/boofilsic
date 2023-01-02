@@ -42,7 +42,7 @@
                 <div class="review-head__body">
                   <div class="review-head__info">
 
-                    <a href="{% url 'users:home' review.owner.mastodon_username %}" class="review-head__owner-link">{{ review.owner.username }}</a>
+                    <a href="{% url 'journal:user_profile' review.owner.mastodon_username %}" class="review-head__owner-link">{{ review.owner.username }}</a>
 
                     {% if mark %}    
 

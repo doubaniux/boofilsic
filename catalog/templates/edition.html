@@ -63,13 +63,13 @@
 
 
 	{% if item.last_editor and item.last_editor.preference.show_last_edit %}
-	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
 	{% endif %}
 
 	<div>
-		<a href="{% url 'books:update' item.id %}">{% trans '编辑这本书' %}</a>
+		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑这本书' %}</a>
 		{% if user.is_staff %}
-		/<a href="{% url 'books:delete' item.id %}"> {% trans '删除' %}</a>
+		/<a href="{% url 'catalog:delete' item.url_path item.uuid %}"> {% trans '删除' %}</a>
 		{% endif %}
 	</div>
 </div>
@@ -84,7 +84,7 @@
 		<div >
 			{% for b in item.get_related_books %}
 			<p>
-				<a href="{% url 'books:retrieve' b.id %}">{{ b.title }}</a>
+				<a href="{{ b.url }}">{{ b.title }}</a>
 				<small>({{ b.pub_house }} {{ b.pub_year }})</small>
 				<span class="source-label source-label__{{ b.source_site }}">{{ b.get_source_site_display }}</span>
 			</p>

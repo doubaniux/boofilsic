@@ -92,14 +92,13 @@
 
 
 	{% if item.last_editor and item.last_editor.preference.show_last_edit  %}
-	<div>{% trans '最近编辑者：' %}<a href="{% url 'users:home' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
 	{% endif %}
 
 	<div>
-		<a href="{% url 'games:update' item.id %}">{% trans '编辑这个游戏' %}</a>
-
+		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑这个游戏' %}</a>
 		{% if user.is_staff %}
-		/<a href="{% url 'games:delete' item.id %}"> {% trans '删除' %}</a>
+		/<a href="{% url 'catalog:delete' item.url_path item.uuid %}"> {% trans '删除' %}</a>
 		{% endif %}
 	</div>
 </div>

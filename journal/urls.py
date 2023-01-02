@@ -1,5 +1,6 @@
 from django.urls import path, re_path
 from .views import *
+from .feeds import ReviewFeed
 from catalog.models import *
 
 
@@ -65,7 +66,7 @@ urlpatterns = [
         name="collection_update_item_note",
     ),
     re_path(
-        r"^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/(?P<shelf_type>"
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/(?P<shelf_type>"
         + _get_all_shelf_types()
         + ")/(?P<item_category>"
         + _get_all_categories()
@@ -74,31 +75,32 @@ urlpatterns = [
         name="user_mark_list",
     ),
     re_path(
-        r"^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>"
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/reviews/(?P<item_category>"
         + _get_all_categories()
         + ")/$",
         user_review_list,
         name="user_review_list",
     ),
     re_path(
-        r"^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>[^/]+)/$",
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>[^/]+)/$",
         user_tag_member_list,
         name="user_tag_member_list",
     ),
     re_path(
-        r"^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/collections/$",
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/collections/$",
         user_collection_list,
         name="user_collection_list",
     ),
     re_path(
-        r"^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/like/collections/$",
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/like/collections/$",
         user_liked_collection_list,
         name="user_liked_collection_list",
     ),
     re_path(
-        r"^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/$",
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/$",
         user_tag_list,
         name="user_tag_list",
     ),
-    re_path(r"^user/(?P<user_name>[A-Za-z0-9_\-.@]+)/$", home, name="user_profile"),
+    re_path(r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/$", profile, name="user_profile"),
+    path("users/<str:id>/feed/reviews/", ReviewFeed(), name="review_feed"),
 ]

@@ -1,11 +1,11 @@
 import logging
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render, get_object_or_404, redirect
+from django.urls import reverse
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
 from django.http import (
     HttpResponse,
     HttpResponseBadRequest,
-    HttpResponseServerError,
     HttpResponseNotFound,
 )
 from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
@@ -14,10 +14,8 @@ from django.utils import timezone
 from django.core.paginator import Paginator
 from .models import *
 from django.conf import settings
-import re
 from django.http import HttpResponseRedirect
 from django.db.models import Q
-import time
 from management.models import Announcement
 from django.utils.baseconv import base62
 from .forms import *
@@ -157,6 +155,7 @@ def mark(request, item_uuid):
             except Exception:
                 return render_relogin(request)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
+    return HttpResponseBadRequest()
 
 
 def collection_retrieve(request, collection_uuid):
@@ -436,7 +435,6 @@ def user_tag_list(request, user_name):
     ):
         return render_user_blocked(request)
     tags = Tag.objects.filter(owner=user)
-    tags = user.tag_set.all()
     if user != request.user:
         tags = tags.filter(visibility=0)
     tags = tags.values("title").annotate(total=Count("members")).order_by("-total")
@@ -497,7 +495,7 @@ def user_liked_collection_list(request, user_name):
     )
 
 
-def home_anonymous(request, id):
+def profile_anonymous(request, id):
     login_url = settings.LOGIN_URL + "?next=" + request.get_full_path()
     try:
         username = id.split("@")[0]
@@ -515,15 +513,14 @@ def home_anonymous(request, id):
         return redirect(login_url)
 
 
-def home(request, user_name):
-    if not request.user.is_authenticated:
-        return home_anonymous(request, user_name)
+def profile(request, user_name):
     if request.method != "GET":
         return HttpResponseBadRequest()
     user = User.get(user_name)
     if user is None:
         return render_user_not_found(request)
-
+    if not request.user.is_authenticated and user.get_preference().no_anonymous_view:
+        return profile_anonymous(request, user_name)
     # access one's own home page
     if user == request.user:
         reports = Report.objects.order_by("-submitted_time").filter(is_read=False)
@@ -538,7 +535,7 @@ def home(request, user_name):
             pass
     # visit other's home page
     else:
-        if request.user.is_blocked_by(user) or request.user.is_blocking(user):
+        if user.is_blocked_by(request.user) or user.is_blocking(request.user):
             return render_user_blocked(request)
         # no these value on other's home page
         reports = None
@@ -583,12 +580,13 @@ def home(request, user_name):
     if user != request.user:
         liked_collections = liked_collections.filter(query_visible(request.user))
 
-    layout = user.get_preference().get_serialized_home_layout()
+    layout = user.get_preference().get_serialized_profile_layout()
     return render(
         request,
         "profile.html",
         {
             "user": user,
+            "top_tags": user.tag_manager.all_tags[:10],
             "shelf_list": shelf_list,
             "collections": collections[:5],
             "collections_count": collections.count(),

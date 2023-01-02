@@ -90,6 +90,10 @@ class Edition(Item):
                 # if not work:
                 #     _logger.info(f'Unable to find link for {w["url"]}')
 
+    def get_related_books(self):
+        # TODO
+        return []
+
 
 class Work(Item):
     category = ItemCategory.Book

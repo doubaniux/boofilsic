@@ -64,7 +64,7 @@
                                 <div class="user-profile__header">
                                     <!-- <img src="" class="user-profile__avatar mast-avatar" alt="{{ user.username }}"> -->
                                     <img src="" class="user-profile__avatar mast-avatar">
-                                    <a href="{% url 'users:home' user.mastodon_username %}">
+                                    <a href="{% url 'journal:user_profile' user.mastodon_username %}">
                                         <h5 class="user-profile__username mast-displayname"></h5>
                                     </a>
                                 </div>
@@ -142,7 +142,7 @@
     {% else %}
     <div id="userMastodonID" hidden="true"></div>
     {% endif %}
-    <div id="userPageURL" hidden="true">{% url 'users:home' 0 %}</div>
+    <div id="userPageURL" hidden="true">{% url 'journal:user_profile' 0 %}</div>
     <div id="spinner" hidden>
         <div class="spinner">
             <div></div>

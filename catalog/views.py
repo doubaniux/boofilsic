@@ -1,6 +1,6 @@
 import uuid
 import logging
-from django.shortcuts import render, get_object_or_404, redirect, reverse
+from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required, permission_required
 from django.utils.translation import gettext_lazy as _
 from django.http import (
@@ -8,8 +8,10 @@ from django.http import (
     HttpResponseServerError,
     HttpResponse,
     HttpResponseRedirect,
+    HttpResponseNotFound,
 )
-from django.core.exceptions import BadRequest, ObjectDoesNotExist, PermissionDenied
+from django.contrib.auth.decorators import login_required, permission_required
+from django.core.exceptions import ObjectDoesNotExist, PermissionDenied
 from django.db import IntegrityError, transaction
 from django.db.models import Count
 from django.utils import timezone
@@ -21,15 +23,15 @@ from mastodon.models import MastodonApplication
 from mastodon.api import share_mark, share_review
 from .models import *
 from django.conf import settings
-from common.scraper import get_scraper_by_url, get_normalized_url
 from django.utils.baseconv import base62
 from journal.models import Mark, ShelfMember, Review
 from journal.models import query_visible, query_following
 from common.utils import PageLinksGenerator
-from common.views import PAGE_LINK_NUMBER
+from common.config import PAGE_LINK_NUMBER
 from journal.models import ShelfTypeNames
 import django_rq
 from rq.job import Job
+from .search.external import ExternalSources
 
 _logger = logging.getLogger(__name__)
 
@@ -107,10 +109,11 @@ def retrieve(request, item_path, item_uuid):
         return HttpResponseBadRequest()
 
 
+@login_required
 def mark_list(request, item_path, item_uuid, following_only=False):
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if not item:
-        return HttpResponseNotFound("item not found")
+        return HttpResponseNotFound(b"item not found")
     queryset = ShelfMember.objects.filter(item=item).order_by("-created_time")
     if following_only:
         queryset = queryset.filter(query_following(request.user))
@@ -135,7 +138,7 @@ def mark_list(request, item_path, item_uuid, following_only=False):
 def review_list(request, item_path, item_uuid):
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if not item:
-        return HttpResponseNotFound("item not found")
+        return HttpResponseNotFound(b"item not found")
     queryset = Review.objects.filter(item=item).order_by("-created_time")
     queryset = queryset.filter(query_visible(request.user))
     paginator = Paginator(queryset, NUM_REVIEWS_ON_LIST_PAGE)
@@ -164,6 +167,7 @@ def fetch_task(url):
         return "-"
 
 
+@login_required
 def fetch_refresh(request, job_id):
     retry = request.GET
     job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
@@ -185,9 +189,10 @@ def fetch_refresh(request, job_id):
             )
 
 
+@login_required
 def fetch(request, url, site: AbstractSite = None):
     if not site:
-        site = SiteManager.get_site_by_url(keywords)
+        site = SiteManager.get_site_by_url(url)
         if not site:
             return HttpResponseBadRequest()
     item = site.get_item()
@@ -250,13 +255,13 @@ def search(request):
             items.append(i)
         for res in i.external_resources.all():
             urls.append(res.url)
-    if request.path.endswith(".json/"):
-        return JsonResponse(
-            {
-                "num_pages": result.num_pages,
-                "items": list(map(lambda i: i.get_json(), items)),
-            }
-        )
+    # if request.path.endswith(".json/"):
+    #     return JsonResponse(
+    #         {
+    #             "num_pages": result.num_pages,
+    #             "items": list(map(lambda i: i.get_json(), items)),
+    #         }
+    #     )
     request.session["search_dedupe_urls"] = urls
     return render(
         request,
@@ -270,3 +275,33 @@ def search(request):
             "hide_category": category is not None,
         },
     )
+
+
+@login_required
+def external_search(request):
+    category = request.GET.get("c", default="all").strip().lower()
+    if category == "all":
+        category = None
+    keywords = request.GET.get("q", default="").strip()
+    page_number = int(request.GET.get("page", default=1))
+    items = ExternalSources.search(category, keywords, page_number) if keywords else []
+    dedupe_urls = request.session.get("search_dedupe_urls", [])
+    items = [i for i in items if i.source_url not in dedupe_urls]
+
+    return render(
+        request,
+        "external_search_results.html",
+        {
+            "external_items": items,
+        },
+    )
+
+
+@login_required
+def edit(request, item_uuid):
+    return HttpResponseBadRequest()
+
+
+@login_required
+def delete(request, item_uuid):
+    return HttpResponseBadRequest()

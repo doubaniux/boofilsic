@@ -1,6 +1,5 @@
 from django.urls import path
 from .views import *
-from .feeds import ReviewFeed
 
 app_name = "users"
 urlpatterns = [
@@ -9,7 +8,7 @@ urlpatterns = [
     path("connect/", connect, name="connect"),
     path("reconnect/", reconnect, name="reconnect"),
     path("data/", data, name="data"),
-    path("data/import_status/", data_import_status, name="import_status"),
+    path("data/import_status", data_import_status, name="import_status"),
     path("data/import_goodreads", import_goodreads, name="import_goodreads"),
     path("data/import_douban", import_douban, name="import_douban"),
     path("data/export_reviews", export_reviews, name="export_reviews"),
@@ -21,29 +20,8 @@ urlpatterns = [
     path("logout/", logout, name="logout"),
     path("layout/", set_layout, name="set_layout"),
     path("OAuth2_login/", OAuth2_login, name="OAuth2_login"),
-    path("<int:id>/", home_redirect, name="home_redirect"),
-    # path('<int:id>/followers/', followers, name='followers'),
-    # path('<int:id>/following/', following, name='following'),
-    # path('<int:id>/collections/', collection_list, name='collection_list'),
-    # path('<int:id>/book/<str:status>/', book_list, name='book_list'),
-    # path('<int:id>/movie/<str:status>/', movie_list, name='movie_list'),
-    # path('<int:id>/music/<str:status>/', music_list, name='music_list'),
-    # path('<int:id>/game/<str:status>/', game_list, name='game_list'),
-    path("<str:id>/", home, name="home"),
     path("<str:id>/followers/", followers, name="followers"),
     path("<str:id>/following/", following, name="following"),
-    path("<str:id>/tags/", tag_list, name="tag_list"),
-    path("<str:id>/collections/", collection_list, name="collection_list"),
-    path(
-        "<str:id>/collections/marked/",
-        marked_collection_list,
-        name="marked_collection_list",
-    ),
-    path("<str:id>/book/<str:status>/", book_list, name="book_list"),
-    path("<str:id>/movie/<str:status>/", movie_list, name="movie_list"),
-    path("<str:id>/music/<str:status>/", music_list, name="music_list"),
-    path("<str:id>/game/<str:status>/", game_list, name="game_list"),
-    path("<str:id>/feed/reviews/", ReviewFeed(), name="review_feed"),
     path("report/", report, name="report"),
     path("manage_report/", manage_report, name="manage_report"),
 ]

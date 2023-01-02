@@ -25,131 +25,25 @@
             <section id="content">
                 <div class="grid grid--reverse-order">
                     <div class="grid__main grid__main--reverse-order">
+                        {% if messages %}
                         <div class="main-section-wrapper">
-                            {% if messages %}
                             <ul class="messages">
                                 {% for message in messages %}
                                 <li{% if message.tags %} class="{{ message.tags }}"{% endif %}>{{ message }}</li>
                                 {% endfor %}
                             </ul>
-                            {% endif %}
                         </div>
+                        {% endif %}
 
                         <div class="main-section-wrapper">
                             <div class="tools-section-wrapper">
                                 <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导入豆瓣标记和短评' %}</h5>
-                                    <div class="import-panel__body">
-                                        <form action="{% url 'sync:douban' %}" method="POST" enctype="multipart/form-data" >
-                                            {% csrf_token %}
-                                            <input type="hidden" name="user" value="{{ request.user.id }}">
-                                            <span>{% trans '导入：' %}</span>
-                                            <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_book" id="syncBook" checked>
-                                                <label for="syncBook">{% trans '书' %}</label>
-                                            </div>
-                                            <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_movie" id="syncMovie" checked>
-                                                <label for="syncMovie">{% trans '电影' %}</label>
-                                            </div>
-                                            <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_music" id="syncMusic" checked>
-                                                <label for="syncMusic">{% trans '音乐' %}</label>
-                                            </div>
-                                            <div class="import-panel__checkbox">
-                                                <input type="checkbox" name="sync_game" id="syncGame" checked>
-                                                <label for="syncGame">{% trans '游戏' %}</label>
-                                            </div>
-                                            <div></div>
-                                            <span>{% trans '覆盖：' %}</span>
-                                            <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="overwrite" id="overwrite">
-                                                <label for="overwrite">{% trans '选中会覆盖现有标记' %}</label>
-                                            </div>
-                                            <div></div>
-                                            <span>{% trans '可见性：' %}</span>
-                                            <div class="import-panel__checkbox import-panel__checkbox--last">
-                                                <input type="checkbox" name="default_public" id="visibility" checked>
-                                                <label for="visibility">{% trans '选中后导入标记对其他用户可见；标记可见性在导入后也可更改。' %}</label>
-                                            </div>
-                                            <div></div>
-                                            <div class="import-panel__file-input">
-                                                从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件，<strong>请勿手动修改该文件</strong>:
-                                                <input type="file" name="file" id="excelFile" required accept=".xlsx"> 
-                                            </div>
-                                            <input type="submit" class="import-panel__button" value="{% trans '导入' %}" id="uploadBtn"
-                                                {% if not latest_task is None and not latest_task.is_finished %}
-                                                disabled
-                                                {% endif %}
-                                            >
-                                        </form>
-                                        <div class="import-panel__progress"
-                                            {% if latest_task.is_finished or latest_task is None %}
-                                            style="display: none;"
-                                            {% endif %}
-                                        >
-                                            <label for="importProgress">{% trans '进度' %}</label>
-                                            <progress id="importProgress" value="{{ latest_task.finished_items }}" max="{{ latest_task.total_items }}"></progress>
-                                            <span class="float-right" id="progressPercent">{{ latest_task.get_progress | floatformat:"0" }}%</span>
-                                            <span class="clearfix"></span>
-                                        </div>
-                                        <div class="import-panel__last-task"
-                                            {% if not latest_task.is_finished %}`
-                                            style="display: none;"
-                                            {% endif %}
-                                        >
-                                            {% trans '上次导入：' %}
-                                            <span class="index">{% trans '总数' %} <span id="lastTaskTotalItems">{{ latest_task.total_items }}</span></span>
-                                            <span class="index">{% trans '同步' %} <span id="lastTaskSuccessItems">{{ latest_task.success_items }}</span></span>
-                                            <span class="index">{% trans '状态' %} <span id="lastTaskStatus">{{ latest_task.get_status_emoji }}</span></span>
-                                            <div class="import-panel__fail-urls"
-                                            {% if not latest_task.failed_urls %}
-                                                style="display: none;"
-                                            {% endif %}
-                                            >
-                                                <span>
-                                                    {% trans '失败条目链接' %}
-                                                </span>
-                                                <a class="float-right" style="cursor: pointer;" id="failedUrlsBtn">
-                                                    ▶
-                                                </a>
-                                                <script>
-                                                    $("#failedUrlsBtn").data("collapse", true);
-                                                    $("#failedUrlsBtn").on('click', ()=>{
-                                                        const btn = $("#failedUrlsBtn");
-                                                        if(btn.data("collapse") == true) {
-                                                            btn.data("collapse", false);
-                                                            btn.text("▼");
-                                                            $("#failedUrls").show();
-                                                        } else {
-                                                            btn.data("collapse", true);
-                                                            btn.text("▶");
-                                                            $("#failedUrls").hide();
-                                                        }
-                                                    });
-                                                </script>
-                                                <span class="clearfix"></span>
-                                                <ul id="failedUrls" style="display: none;">
-                                                    {% for url in latest_task.failed_urls %}
-                                                    <li>{{ url }}</li>
-                                                    {% endfor %}
-                                                </ul>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="main-section-wrapper">
-                            <div class="tools-section-wrapper">
-                                <div class="import-panel">
-                                    <h5 class="import-panel__label">{% trans '导入豆瓣评论' %}</h5>
+                                    <h5 class="import-panel__label">{% trans '导入豆瓣标记和评论' %}</h5>
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
                                             <div>
-                                                请在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」；已经存在的评论不会被覆盖。
+                                                请在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」。正向变化（想读->在读->已读）的标记会更新，其它已经存在的标记和评论不会被覆盖。
                                             </div>
                                             <div class="import-panel__checkbox">
                                                 <p>从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
@@ -323,8 +217,6 @@
         {% include "partial/_footer.html" %}
     </div>
 
-    <div id="queryProgressURL" data-url="{% url 'sync:progress' %}"></div>
-    <div id="querySyncInfoURL" data-url="{% url 'sync:last' %}"></div>
 </body>
 
 

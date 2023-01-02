@@ -39,7 +39,7 @@ def q_visible_to(viewer, owner):
         return Q()
     # elif viewer.is_blocked_by(owner):
     #     return Q(pk__in=[])
-    elif viewer.is_following(owner):
+    elif viewer.is_authenticated and viewer.is_following(owner):
         return Q(visibility__ne=2)
     else:
         return Q(visibility=0)
@@ -48,7 +48,7 @@ def q_visible_to(viewer, owner):
 def query_visible(user):
     return (
         Q(visibility=0)
-        | Q(owner_id__in=user.following, visibility=1)
+        | Q(owner_id__in=user.following if user.is_authenticated else [], visibility=1)
         | Q(owner_id=user.id)
     )
 
@@ -927,3 +927,10 @@ def reset_visibility_for_user(user: User, visibility: int):
     Comment.objects.filter(owner=user).update(visibility=visibility)
     Rating.objects.filter(owner=user).update(visibility=visibility)
     Review.objects.filter(owner=user).update(visibility=visibility)
+
+
+def remove_data_by_user(user: User):
+    ShelfMember.objects.filter(owner=user).delete()
+    Comment.objects.filter(owner=user).delete()
+    Rating.objects.filter(owner=user).delete()
+    Review.objects.filter(owner=user).delete()

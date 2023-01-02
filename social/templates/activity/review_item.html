@@ -32,7 +32,7 @@
       </span>
     </div>
     <span class="entity-list__entity-info" style="top:0px;">
-      <a href="{% url 'users:home' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '评论了' %}
+      <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {% trans '评论了' %}
       <a href="{{ activity.action_object.item.url }}">{{ activity.action_object.item.title }}
         {% if activity.action_object.item.year %}<small style="font-weight: lighter">({{ activity.action_object.item.year }})</small>{% endif %}
       </a>

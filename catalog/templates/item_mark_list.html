@@ -32,7 +32,7 @@
                 <ul class="entity-marks__mark-list">
                   {% for others_mark in marks %}
                   <li class="entity-marks__mark">
-                    <a href="{% url 'users:home' others_mark.owner.mastodon_username %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
+                    <a href="{% url 'journal:user_profile' others_mark.owner.mastodon_username %}" class="entity-marks__owner-link">{{ others_mark.owner.username }}</a>
 
                     <span>{{ others_mark.mark.get_status_display }}</span>
 

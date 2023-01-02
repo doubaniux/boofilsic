@@ -12,17 +12,8 @@ from .forms import ReportForm
 from mastodon.api import *
 from mastodon import mastodon_request_included
 from common.config import *
-from common.models import MarkStatusEnum
 from common.utils import PageLinksGenerator
 from management.models import Announcement
-from books.models import *
-from movies.models import *
-from music.models import *
-from games.models import *
-from books.forms import BookMarkStatusTranslator
-from movies.forms import MovieMarkStatusTranslator
-from music.forms import MusicMarkStatusTranslator
-from games.forms import GameMarkStatusTranslator
 from mastodon.models import MastodonApplication
 from mastodon.api import verify_account
 from django.conf import settings
@@ -34,20 +25,10 @@ from datetime import timedelta
 from django.utils import timezone
 import json
 from django.contrib import messages
-from books.models import BookMark, BookReview
-from movies.models import MovieMark, MovieReview
-from games.models import GameMark, GameReview
-from music.models import AlbumMark, SongMark, AlbumReview, SongReview
-from timeline.models import Activity
-from collection.models import Collection
 
-if settings.ENABLE_NEW_MODEL:
-    from journal.importers.douban import DoubanImporter
-    from journal.importers.goodreads import GoodreadsImporter
-    from journal.models import reset_visibility_for_user
-else:
-    from common.importers.douban import DoubanImporter
-    from common.importers.goodreads import GoodreadsImporter
+from journal.importers.douban import DoubanImporter
+from journal.importers.goodreads import GoodreadsImporter
+from journal.models import reset_visibility_for_user
 
 
 @mastodon_request_included
@@ -84,7 +65,6 @@ def data(request):
         "users/data.html",
         {
             "allow_any_site": settings.MASTODON_ALLOW_ANY_SITE,
-            "latest_task": request.user.user_synctasks.order_by("-id").first(),
             "import_status": request.user.get_preference().import_status,
             "export_status": request.user.get_preference().export_status,
         },

@@ -30,11 +30,13 @@
               <input class="button" type="submit" value="{% trans '提交' %}">
             </form>
             {{ form.media }}
-            <div class="dividing-line"></div>
           </div>
+          {% if collection %}
+          <div class="dividing-line"></div>
           <div class="single-section-wrapper">
             <div id="collection_items" class="entity-list" hx-get="{% url 'journal:collection_retrieve_items' collection.uuid %}?edit=1" hx-trigger="load"></div>
           </div>
+          {% endif %}
         </div>
       </section>
     </div>

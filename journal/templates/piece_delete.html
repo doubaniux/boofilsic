@@ -37,7 +37,7 @@
             {% endif %}
             <div class="review-head__body">
               <div class="review-head__info">
-                <a href="{% url 'users:home' piece.owner.mastodon_username %}" class="review-head__owner-link">{{ piece.owner.username }}</a>
+                <a href="{% url 'journal:user_profile' piece.owner.mastodon_username %}" class="review-head__owner-link">{{ piece.owner.username }}</a>
                 <span class="review-head__time">{{ piece.edited_time }}</span>
               </div>
             </div>

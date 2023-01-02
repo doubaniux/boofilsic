@@ -70,6 +70,8 @@ def all_categories():
 
 
 def init_catalog_search_models():
+    if settings.DISABLE_MODEL_SIGNAL:
+        return
     Indexer.update_model_indexable(Edition)
     Indexer.update_model_indexable(Work)
     Indexer.update_model_indexable(Movie)
