@@ -19,27 +19,21 @@ from django.conf import settings
 from users.views import login
 
 urlpatterns = [
-    path(settings.ADMIN_URL + '/', admin.site.urls),
-    path('login/', login),
-    path('markdownx/', include('markdownx.urls')),
-    path('users/', include('users.urls')),
-    path('books/', include('books.urls')),
-    path('movies/', include('movies.urls')),
-    path('music/', include('music.urls')),
-    path('games/', include('games.urls')),
-    path('collections/', include('collection.urls')),
-    path('timeline/', include('timeline.urls')),
-    path('sync/', include('sync.urls')),
-    path('announcement/', include('management.urls')),
-    path('hijack/', include('hijack.urls')),
-    path('', include('common.urls')),
+    path(settings.ADMIN_URL + "/", admin.site.urls),
+    path("login/", login),
+    path("markdownx/", include("markdownx.urls")),
+    path("users/", include("users.urls")),
+    path("", include("catalog.urls")),
+    path("", include("journal.urls")),
+    path("feed/", include("social.urls")),
+    path("announcement/", include("management.urls")),
+    path("hijack/", include("hijack.urls")),
+    path("", include("common.urls")),
 ]
 
-urlpatterns += [
-    path(settings.ADMIN_URL + '-rq/', include('django_rq.urls'))
-]
+urlpatterns += [path(settings.ADMIN_URL + "-rq/", include("django_rq.urls"))]
 
 if settings.DEBUG:
     from django.conf.urls.static import static
-    urlpatterns += static(settings.MEDIA_URL,
-                          document_root=settings.MEDIA_ROOT)
+
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
