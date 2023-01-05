@@ -647,9 +647,7 @@ class Collection(List):
     url_path = "collection"
     MEMBER_CLASS = CollectionMember
     catalog_item = models.OneToOneField(CatalogCollection, on_delete=models.PROTECT)
-    title = models.CharField(
-        _("title in primary language"), max_length=1000, default=""
-    )
+    title = models.CharField(_("标题"), max_length=1000, default="")
     brief = models.TextField(_("简介"), blank=True, default="")
     cover = models.ImageField(
         upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True

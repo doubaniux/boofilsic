@@ -24,44 +24,64 @@ class Game(Item):
     ]
 
     other_title = jsondata.ArrayField(
-        models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("其他标题"),
         null=True,
         blank=True,
         default=list,
     )
 
     developer = jsondata.ArrayField(
-        models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("开发商"),
         null=True,
         blank=True,
         default=list,
     )
 
     publisher = jsondata.ArrayField(
-        models.CharField(blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("发行商"),
         null=True,
         blank=True,
         default=list,
     )
 
     release_date = jsondata.DateField(
-        auto_now=False, auto_now_add=False, null=True, blank=True
+        verbose_name=_("发布日期"),
+        auto_now=False,
+        auto_now_add=False,
+        null=True,
+        blank=True,
     )
 
     genre = jsondata.ArrayField(
-        models.CharField(blank=True, default="", max_length=200),
+        verbose_name=_("类型"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
 
     platform = jsondata.ArrayField(
-        models.CharField(blank=True, default="", max_length=200),
+        verbose_name=_("平台"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
 
     official_site = jsondata.CharField(
+        verbose_name=_("官方网站"),
         default="",
     )
+
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.IGDB,
+            IdType.Steam,
+            IdType.DoubanGame,
+            IdType.Bangumi,
+        ]
+        return [(i.value, i.label) for i in id_types]

@@ -1,15 +1,18 @@
 import copy
 from datetime import date, datetime
 from importlib import import_module
+from functools import partialmethod
+from django.utils.translation import gettext_lazy as _
 
 import django
-from django.conf import settings
 from django.core.exceptions import FieldError
 from django.db.models import fields
 from django.utils import dateparse, timezone
 
-from functools import partialmethod
-from django.db.models import JSONField
+from django.contrib.postgres.fields import ArrayField as DJANGO_ArrayField
+
+# from django.db.models import JSONField as DJANGO_JSONField
+from jsoneditor.fields.django3_jsonfield import JSONField as DJANGO_JSONField
 
 
 __all__ = (
@@ -18,6 +21,7 @@ __all__ = (
     "DateField",
     "DateTimeField",
     "DecimalField",
+    "DurationField",
     "EmailField",
     "FloatField",
     "IntegerField",
@@ -28,6 +32,7 @@ __all__ = (
     "TimeField",
     "URLField",
     "ArrayField",
+    "JSONField",
 )
 
 
@@ -226,5 +231,17 @@ class URLField(JSONFieldMixin, fields.URLField):
     pass
 
 
-class ArrayField(JSONFieldMixin, JSONField):
+class ArrayField(JSONFieldMixin, DJANGO_ArrayField):
+    def __init__(self, *args, **kwargs):
+        kwargs["help_text"] = _("多项之间以英文逗号分隔")
+        super().__init__(*args, **kwargs)
+
+    pass
+
+
+class JSONField(JSONFieldMixin, DJANGO_JSONField):
+    pass
+
+
+class DurationField(JSONFieldMixin, fields.DurationField):
     pass

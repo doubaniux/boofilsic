@@ -34,7 +34,7 @@
                     <div class="grid__main">
                         <div class="main-section-wrapper">
                             <div>
-                                {% trans '正在连线' %}{{ site.SITE_NAME }}
+                                {% trans '正在连线' %}{{ site.SITE_NAME.label }}
                                 <div hx-get="{% url 'catalog:fetch_refresh' job_id %}" hx-trigger="load delay:2s" hx-swap="outerHTML"></div>
                                 <div id="spinner">
                                     <div class="spinner">

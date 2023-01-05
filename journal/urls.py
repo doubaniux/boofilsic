@@ -41,6 +41,11 @@ urlpatterns = [
     ),
     path("collection/delete/<str:piece_uuid>", piece_delete, name="collection_delete"),
     path(
+        "collection/share/<str:collection_uuid>",
+        collection_share,
+        name="collection_share",
+    ),
+    path(
         "collection/<str:collection_uuid>/items",
         collection_retrieve_items,
         name="collection_retrieve_items",

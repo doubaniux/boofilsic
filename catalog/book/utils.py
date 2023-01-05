@@ -38,15 +38,15 @@ def isbn_13_to_10(isbn):
 
 
 def is_isbn_13(isbn):
-    return re.match(r"\d{13}", isbn) is not None
+    return re.match(r"^\d{13}$", isbn) is not None
 
 
 def is_isbn_10(isbn):
-    return re.match(r"\d{9}[X0-9]", isbn) is not None
+    return re.match(r"^\d{9}[X0-9]$", isbn) is not None
 
 
 def is_asin(asin):
-    return re.match(r"B[A-Z0-9]{9}", asin) is not None
+    return re.match(r"^B[A-Z0-9]{9}$", asin) is not None
 
 
 def detect_isbn_asin(s):

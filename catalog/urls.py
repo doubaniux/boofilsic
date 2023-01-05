@@ -18,7 +18,7 @@ def _get_all_url_paths():
 
 urlpatterns = [
     re_path(
-        r"^item/(?P<item_uid>[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})?$",
+        r"^item/(?P<item_uid>[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12})$",
         retrieve_by_uuid,
         name="retrieve_by_uuid",
     ),
@@ -29,6 +29,7 @@ urlpatterns = [
         retrieve,
         name="retrieve",
     ),
+    path("catalog/create/<str:item_model>", create, name="create"),
     re_path(
         r"^(?P<item_path>"
         + _get_all_url_paths()
@@ -60,5 +61,6 @@ urlpatterns = [
     path("search/", search, name="search"),
     path("search/external/", external_search, name="external_search"),
     path("fetch_refresh/<str:job_id>", fetch_refresh, name="fetch_refresh"),
+    path("refetch", refetch, name="refetch"),
     path("api/", api.urls),
 ]

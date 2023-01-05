@@ -30,6 +30,18 @@
     cursor: pointer;
 }
 
+.helptext{
+    position: relative;
+    top: -1em;
+}
+/*** django-jsoneditor ***/
+div.jsoneditor {
+    border-color: #ccc !important;;
+}
+div.jsoneditor-menu {
+  background-color: #606c76 !important;;
+  border-color: #606c76 !important;
+}
 
 /***** MODAL DIALOG ****/
 #modal {

@@ -8,7 +8,7 @@ from django.contrib.contenttypes.models import ContentType
 from django.utils.baseconv import base62
 from simple_history.models import HistoricalRecords
 import uuid
-from .utils import DEFAULT_ITEM_COVER, item_cover_path
+from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 from .mixins import SoftDeleteMixin
 from django.conf import settings
 from users.models import User
@@ -177,19 +177,17 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     category = None  # subclass must specify this
     demonstrative = None  # subclass must specify this
     uid = models.UUIDField(default=uuid.uuid4, editable=False, db_index=True)
-    title = models.CharField(
-        _("title in primary language"), max_length=1000, default=""
-    )
+    title = models.CharField(_("标题"), max_length=1000, default="")
     brief = models.TextField(_("简介"), blank=True, default="")
     primary_lookup_id_type = models.CharField(
-        _("isbn/cubn/imdb"), blank=False, null=True, max_length=50
+        _("主要标识类型"), blank=False, null=True, max_length=50
     )
     primary_lookup_id_value = models.CharField(
-        _("1234/tt789"), blank=False, null=True, max_length=1000
+        _("主要标识数值"), blank=False, null=True, max_length=1000
     )
-    metadata = models.JSONField(_("其他信息"), blank=True, null=True, default=dict)
+    metadata = models.JSONField(_("其它信息"), blank=True, null=True, default=dict)
     cover = models.ImageField(
-        upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+        _("封面"), upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
     )
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
@@ -221,6 +219,16 @@ class Item(SoftDeleteMixin, PolymorphicModel):
 
     def __str__(self):
         return f"{self.id}|{self.uuid} {self.primary_lookup_id_type}:{self.primary_lookup_id_value if self.primary_lookup_id_value else ''} ({self.title})"
+
+    @classmethod
+    def lookup_id_type_choices(cls):
+        return IdType.choices
+
+    @classmethod
+    def lookup_id_cleanup(cls, lookup_id_type, lookup_id_value):
+        if not lookup_id_type or not lookup_id_value or not lookup_id_value.strip():
+            return None, None
+        return lookup_id_type, lookup_id_value.strip()
 
     @classmethod
     def get_best_lookup_id(cls, lookup_ids):
@@ -302,16 +310,18 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     def has_cover(self):
         return self.cover and self.cover != DEFAULT_ITEM_COVER
 
-    def merge_data_from_external_resources(self):
+    def merge_data_from_external_resources(self, ignore_existing_content=False):
         """Subclass may override this"""
         lookup_ids = []
         for p in self.external_resources.all():
             lookup_ids.append((p.id_type, p.id_value))
             lookup_ids += p.other_lookup_ids.items()
             for k in self.METADATA_COPY_LIST:
-                if not getattr(self, k) and p.metadata.get(k):
+                if p.metadata.get(k) and (
+                    not getattr(self, k) or ignore_existing_content
+                ):
                     setattr(self, k, p.metadata.get(k))
-            if not self.has_cover() and p.cover:
+            if p.cover and (not self.has_cover() or ignore_existing_content):
                 self.cover = p.cover
         self.update_lookup_ids(lookup_ids)
 
@@ -351,15 +361,19 @@ class ExternalResource(models.Model):
         _("url to the resource"), blank=False, max_length=1000, unique=True
     )
     cover = models.ImageField(
-        upload_to=item_cover_path, default=DEFAULT_ITEM_COVER, blank=True
+        upload_to=resource_cover_path, default=DEFAULT_ITEM_COVER, blank=True
     )
     other_lookup_ids = models.JSONField(default=dict)
     metadata = models.JSONField(default=dict)
     scraped_time = models.DateTimeField(null=True)
     created_time = models.DateTimeField(auto_now_add=True)
     edited_time = models.DateTimeField(auto_now=True)
-    required_resources = jsondata.ArrayField(null=False, blank=False, default=list)
-    related_resources = jsondata.ArrayField(null=False, blank=False, default=list)
+    required_resources = jsondata.ArrayField(
+        models.CharField(), null=False, blank=False, default=list
+    )
+    related_resources = jsondata.ArrayField(
+        models.CharField(), null=False, blank=False, default=list
+    )
 
     class Meta:
         unique_together = [["id_type", "id_value"]]

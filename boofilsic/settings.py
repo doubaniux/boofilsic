@@ -62,6 +62,7 @@ INSTALLED_APPS = [
     "legacy.apps.LegacyConfig",
     "easy_thumbnails",
     "user_messages",
+    "jsoneditor",
 ]
 
 MIDDLEWARE = [

@@ -9,6 +9,7 @@
 {% load truncate %}
 {% load strip_scheme %}
 {% load thumb %}
+{% load duration %}
 
 <!-- class specific details -->
 {% block details %}
@@ -65,7 +66,7 @@
 		{% endif %}
 	</div>
 	<div>{% if item.duration %}
-		{% trans '时长：' %}{{ item.get_duration_display }}
+		{% trans '时长：' %}{{ item.duration|duration_format }}
 		{% endif %}
 	</div>
 	<div>{% if item.genre %}

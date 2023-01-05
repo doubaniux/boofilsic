@@ -175,6 +175,10 @@ def collection_retrieve(request, collection_uuid):
     )
 
 
+def collection_share(request, collection_uuid):
+    pass
+
+
 def collection_retrieve_items(request, collection_uuid, edit=False):
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_visible_to(request.user):

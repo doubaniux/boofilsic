@@ -32,20 +32,15 @@ from journal.models import ShelfTypeNames
 import django_rq
 from rq.job import Job
 from .search.external import ExternalSources
+from .forms import *
+from .search.views import *
+from pprint import pprint
 
 _logger = logging.getLogger(__name__)
 
 
 NUM_REVIEWS_ON_ITEM_PAGE = 5
 NUM_REVIEWS_ON_LIST_PAGE = 20
-
-
-class HTTPResponseHXRedirect(HttpResponseRedirect):
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self["HX-Redirect"] = self["Location"]
-
-    status_code = 200
 
 
 def retrieve_by_uuid(request, item_uid):
@@ -110,6 +105,74 @@ def retrieve(request, item_path, item_uuid):
 
 
 @login_required
+def create(request, item_model):
+    if request.method == "GET":
+        form_cls = CatalogForms[item_model]
+        form = form_cls()
+        return render(
+            request,
+            "catalog_edit.html",
+            {
+                "form": form,
+            },
+        )
+    elif request.method == "POST":
+        form_cls = CatalogForms[item_model]
+        form = form_cls(request.POST, request.FILES)
+        if form.is_valid():
+            form.instance.last_editor = request.user
+            form.instance.edited_time = timezone.now()
+            form.instance.save()
+            return redirect(form.instance.url)
+        else:
+            pprint(form.errors)
+            return HttpResponseBadRequest(form.errors)
+    else:
+        return HttpResponseBadRequest()
+
+
+@login_required
+def edit(request, item_path, item_uuid):
+    if request.method == "GET":
+        item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+        form_cls = CatalogForms[item.__class__.__name__]
+        form = form_cls(instance=item)
+        if item.external_resources.all().count() > 0:
+            form.fields["primary_lookup_id_type"].disabled = True
+            form.fields["primary_lookup_id_value"].disabled = True
+        return render(
+            request,
+            "catalog_edit.html",
+            {
+                "form": form,
+                "is_update": True,
+            },
+        )
+    elif request.method == "POST":
+        item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+        form_cls = CatalogForms[item.__class__.__name__]
+        form = form_cls(request.POST, request.FILES, instance=item)
+        if item.external_resources.all().count() > 0:
+            form.fields["primary_lookup_id_type"].disabled = True
+            form.fields["primary_lookup_id_value"].disabled = True
+        if form.is_valid():
+            form.instance.last_editor = request.user
+            form.instance.edited_time = timezone.now()
+            form.instance.save()
+            return redirect(form.instance.url)
+        else:
+            pprint(form.errors)
+            return HttpResponseBadRequest(form.errors)
+    else:
+        return HttpResponseBadRequest()
+
+
+@login_required
+def delete(request, item_path, item_uuid):
+    return HttpResponseBadRequest()
+
+
+@login_required
 def mark_list(request, item_path, item_uuid, following_only=False):
     item = get_object_or_404(Item, uid=base62.decode(item_uuid))
     if not item:
@@ -155,153 +218,3 @@ def review_list(request, item_path, item_uuid):
             "item": item,
         },
     )
-
-
-def fetch_task(url):
-    try:
-        site = SiteManager.get_site_by_url(url)
-        site.get_resource_ready()
-        item = site.get_item()
-        return item.url if item else "-"
-    except Exception:
-        return "-"
-
-
-@login_required
-def fetch_refresh(request, job_id):
-    retry = request.GET
-    job = Job.fetch(id=job_id, connection=django_rq.get_connection("fetch"))
-    item_url = job.result if job else "-"  # FIXME job.return_value() in rq 1.12
-    if item_url:
-        if item_url == "-":
-            return render(request, "fetch_failed.html")
-        else:
-            return HTTPResponseHXRedirect(item_url)
-    else:
-        retry = int(request.GET.get("retry", 0)) + 1
-        if retry > 10:
-            return render(request, "fetch_failed.html")
-        else:
-            return render(
-                request,
-                "fetch_refresh.html",
-                {"job_id": job_id, "retry": retry, "delay": retry * 2},
-            )
-
-
-@login_required
-def fetch(request, url, site: AbstractSite = None):
-    if not site:
-        site = SiteManager.get_site_by_url(url)
-        if not site:
-            return HttpResponseBadRequest()
-    item = site.get_item()
-    if item:
-        return redirect(item.url)
-    job_id = uuid.uuid4().hex
-    django_rq.get_queue("fetch").enqueue(fetch_task, url, job_id=job_id)
-    return render(
-        request,
-        "fetch_pending.html",
-        {
-            "site": site,
-            "job_id": job_id,
-        },
-    )
-
-
-def search(request):
-    category = request.GET.get("c", default="all").strip().lower()
-    if category == "all":
-        category = None
-    keywords = request.GET.get("q", default="").strip()
-    tag = request.GET.get("tag", default="").strip()
-    p = request.GET.get("page", default="1")
-    page_number = int(p) if p.isdigit() else 1
-    if not (keywords or tag):
-        return render(
-            request,
-            "common/search_result.html",
-            {
-                "items": None,
-            },
-        )
-
-    if request.user.is_authenticated and keywords.find("://") > 0:
-        site = SiteManager.get_site_by_url(keywords)
-        if site:
-            return fetch(request, keywords, site)
-    if settings.SEARCH_BACKEND is None:
-        # return limited results if no SEARCH_BACKEND
-        result = {
-            "items": Items.objects.filter(title__like=f"%{keywords}%")[:10],
-            "num_pages": 1,
-        }
-    else:
-        result = Indexer.search(keywords, page=page_number, category=category, tag=tag)
-    keys = []
-    items = []
-    urls = []
-    for i in result.items:
-        key = (
-            i.isbn
-            if hasattr(i, "isbn")
-            else (i.imdb_code if hasattr(i, "imdb_code") else None)
-        )
-        if key is None:
-            items.append(i)
-        elif key not in keys:
-            keys.append(key)
-            items.append(i)
-        for res in i.external_resources.all():
-            urls.append(res.url)
-    # if request.path.endswith(".json/"):
-    #     return JsonResponse(
-    #         {
-    #             "num_pages": result.num_pages,
-    #             "items": list(map(lambda i: i.get_json(), items)),
-    #         }
-    #     )
-    request.session["search_dedupe_urls"] = urls
-    return render(
-        request,
-        "search_results.html",
-        {
-            "items": items,
-            "pagination": PageLinksGenerator(
-                PAGE_LINK_NUMBER, page_number, result.num_pages
-            ),
-            "categories": ["book", "movie", "music", "game"],
-            "hide_category": category is not None,
-        },
-    )
-
-
-@login_required
-def external_search(request):
-    category = request.GET.get("c", default="all").strip().lower()
-    if category == "all":
-        category = None
-    keywords = request.GET.get("q", default="").strip()
-    page_number = int(request.GET.get("page", default=1))
-    items = ExternalSources.search(category, keywords, page_number) if keywords else []
-    dedupe_urls = request.session.get("search_dedupe_urls", [])
-    items = [i for i in items if i.source_url not in dedupe_urls]
-
-    return render(
-        request,
-        "external_search_results.html",
-        {
-            "external_items": items,
-        },
-    )
-
-
-@login_required
-def edit(request, item_uuid):
-    return HttpResponseBadRequest()
-
-
-@login_required
-def delete(request, item_uuid):
-    return HttpResponseBadRequest()

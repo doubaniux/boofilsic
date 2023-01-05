@@ -4,13 +4,12 @@ This is a very basic guide with limited detail, contributions welcomed
 
 Install
 -------
-Install PostgreSQL, Redis and Python if not yet
+Install PostgreSQL, Redis and Python (3.10 or above) if not yet
 
 Setup database
 ```
 CREATE DATABASE neodb ENCODING 'UTF8' LC_COLLATE='en_US.UTF-8' LC_CTYPE='en_US.UTF-8' TEMPLATE template0;
 \c neodb;
-CREATE EXTENSION hstore WITH SCHEMA public;
 CREATE ROLE neodb with LOGIN ENCRYPTED PASSWORD 'abadface';
 GRANT ALL ON DATABASE neodb TO neodb;
 ```
@@ -102,13 +101,11 @@ rq requeue --all --queue doufen
 Run in Docker
 ```
 docker-compose build
-docker-compose up db && docker exec -it app_db_1 psql -U postgres postgres -c 'CREATE EXTENSION hstore WITH SCHEMA public;'  # first time only
 docker-compose up
 ```
 
 Run Tests
 ```
-psql template1 -c 'create extension hstore;'  # first time only
 coverage run --source='.' manage.py test
 coverage report
 ```

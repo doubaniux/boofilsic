@@ -1,0 +1,60 @@
+{% load static %}
+{% load i18n %}
+{% load admin_url %}
+{% load mastodon %}
+{% load oauth_token %}
+{% load truncate %}
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{{ site_name }} - {% if form.instance.id %}{% trans '编辑' %} {{ form.instance.title }} {% else %}{% trans '添加' %}{% endif %}</title>
+  {% include "common_libs.html" with jquery=1 %}
+</head>
+
+<body>
+  <div id="page-wrapper">
+    <div id="content-wrapper">
+      {% include "partial/_navbar.html" %}
+
+      <section id="content" class="container">
+        <div class="grid">
+          <div style="float:right;padding-left:16px">
+            <div class="aside-section-wrapper">
+              {% for res in form.instance.external_resources.all %}
+              <div class="action-panel">
+                <div class="action-panel__label">{% trans '源网站' %}: <a href="{{ res.url }}">{{ res.site_name.label }}</a></div>
+                <div class="action-panel__button-group">
+                  <form method="post" action="{% url 'catalog:refetch' %}">
+                    {% csrf_token %}
+                    <input type="hidden" name="id" value="{{ res.id }}" >
+                    <input type="hidden" name="url" value="{{ res.url }}" >
+                    <input class="button" type="submit" value="{% trans '从源网站重新抓取' %}">
+                  </form>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          <div class="single-section-wrapper" id="main">
+              <form class="entity-form" action="{{ submit_url }}" method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                {{ form.media }}
+                {{ form }}
+                <hr/>
+                <input class="button" type="submit" value="{% trans '提交' %}">
+                <a href="javascript:history.go(-1)" style="float:right;">返回</a>
+              </form>
+            </div>
+
+          </section>
+        </div>
+        {% include "partial/_footer.html" %}
+      </div>
+    </body>
+
+
+    </html>

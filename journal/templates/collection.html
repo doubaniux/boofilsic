@@ -74,7 +74,7 @@
             <div class="aside-section-wrapper">
               <div class="entity-card">
                 <div class="entity-card__img-wrapper">
-                  <a href="{% url 'collection:retrieve' collection.id %}">
+                  <a href="{{ collection.url }}">
                     <img src="{{ collection.cover|thumb:'normal' }}" alt="" class="entity-card__img">
                   </a>
                 </div>
@@ -115,7 +115,7 @@
               <div class="action-panel">
                 <div class="action-panel__button-group action-panel__button-group--center">
                   <form>
-                    <button class="action-panel__button add-to-list" hx-get="{% url 'collection:share' collection.id %}" hx-target="body" hx-swap="beforeend">{% trans '分享到联邦网络' %}</button>
+                    <button class="action-panel__button add-to-list" hx-get="{% url 'journal:collection_share' collection.uuid %}" hx-target="body" hx-swap="beforeend">{% trans '分享到联邦网络' %}</button>
                   </form>
                 </div>
               </div>

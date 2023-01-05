@@ -163,7 +163,7 @@ class AbstractSite:
         if auto_save:
             p.save()
             if p.item:
-                p.item.merge_data_from_external_resources()
+                p.item.merge_data_from_external_resources(ignore_existing_content)
                 p.item.save()
         if auto_link:
             for linked_resource in p.required_resources:
@@ -220,6 +220,10 @@ class SiteManager:
     @staticmethod
     def get_site_by_resource(resource):
         return SiteManager.get_site_by_id_type(resource.id_type)
+
+    @staticmethod
+    def get_all_sites():
+        return SiteManager.register.values()
 
 
 ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(

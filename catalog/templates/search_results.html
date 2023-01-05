@@ -111,19 +111,30 @@
                                     <div class="add-entity-entries__label">
                                         {% trans '没有想要的结果？' %}
                                     </div>
-                                    <a href="#">
+                                    <p>
+                                        如果在
+                                        {% for site in sites %}
+                                            {{ site }}
+                                            {% if not forloop.last %}/{% endif %}
+                                        {% endfor %}
+                                        找到了条目，可以在搜索栏中输入完整链接提交。
+                                    </p>
+                                    <p>
+                                        当然也可以手工创建条目。
+                                    </p>
+                                    <a href="{% url 'catalog:create' 'Edition' %}">
                                         <button class="add-entity-entries__button">{% trans '添加书' %}</button>
                                     </a>
-                                    <a href="#">
+                                    <a href="{% url 'catalog:create' 'Movie' %}">
                                         <button class="add-entity-entries__button">{% trans '添加电影' %}</button>
                                     </a>
-                                    <a href="#">
+                                    <a href="{% url 'catalog:create' 'TVShow' %}">
                                         <button class="add-entity-entries__button">{% trans '添加剧集' %}</button>
                                     </a>
-                                    <a href="#">
+                                    <a href="{% url 'catalog:create' 'Album' %}">
                                         <button class="add-entity-entries__button">{% trans '添加专辑' %}</button>
                                     </a>
-                                    <a href="#">
+                                    <a href="{% url 'catalog:create' 'Game' %}">
                                         <button class="add-entity-entries__button">{% trans '添加游戏' %}</button>
                                     </a>
                                 </div>

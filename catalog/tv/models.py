@@ -36,8 +36,10 @@ class TVShow(Item):
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tv = PrimaryLookupIdDescriptor(IdType.TMDB_TV)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
-    season_count = models.IntegerField(null=True)
-    episode_count = models.PositiveIntegerField(null=True)
+    season_count = models.IntegerField(verbose_name=_("总季数"), null=True, blank=True)
+    episode_count = models.PositiveIntegerField(
+        verbose_name=_("总集数"), null=True, blank=True
+    )
 
     METADATA_COPY_LIST = [
         "title",
@@ -47,6 +49,7 @@ class TVShow(Item):
         "director",
         "playwright",
         "actor",
+        "brief",
         "genre",
         "showtime",
         "site",
@@ -54,53 +57,59 @@ class TVShow(Item):
         "language",
         "year",
         "duration",
-        "season_count",
         "episode_count",
         "single_episode_length",
-        "brief",
     ]
     orig_title = jsondata.CharField(
-        _("original title"), blank=True, default="", max_length=500
+        verbose_name=_("原始标题"), blank=True, default="", max_length=500
     )
     other_title = jsondata.ArrayField(
-        models.CharField(_("other title"), blank=True, default="", max_length=500),
+        base_field=models.CharField(blank=True, default="", max_length=500),
+        verbose_name=_("其他标题"),
         null=True,
         blank=True,
         default=list,
     )
     director = jsondata.ArrayField(
-        models.CharField(_("director"), blank=True, default="", max_length=200),
+        verbose_name=_("导演"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     playwright = jsondata.ArrayField(
-        models.CharField(_("playwright"), blank=True, default="", max_length=200),
+        verbose_name=_("编剧"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     actor = jsondata.ArrayField(
-        models.CharField(_("actor"), blank=True, default="", max_length=200),
+        verbose_name=_("演员"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     genre = jsondata.ArrayField(
-        models.CharField(_("genre"), blank=True, default="", max_length=50),
+        verbose_name=_("类型"),
+        base_field=models.CharField(blank=True, default="", max_length=50),
         null=True,
         blank=True,
         default=list,
     )  # , choices=MovieGenreEnum.choices
-    showtime = jsondata.ArrayField(
+    showtime = jsondata.JSONField(
+        _("播出日期"),
         null=True,
         blank=True,
         default=list,
     )
-    site = jsondata.URLField(_("site url"), blank=True, default="", max_length=200)
+    site = jsondata.URLField(
+        verbose_name=_("官方网站"), blank=True, default="", max_length=200
+    )
     area = jsondata.ArrayField(
-        models.CharField(
-            _("country or region"),
+        verbose_name=_("国家地区"),
+        base_field=models.CharField(
             blank=True,
             default="",
             max_length=100,
@@ -110,7 +119,8 @@ class TVShow(Item):
         default=list,
     )
     language = jsondata.ArrayField(
-        models.CharField(
+        verbose_name=_("语言"),
+        base_field=models.CharField(
             blank=True,
             default="",
             max_length=100,
@@ -119,27 +129,44 @@ class TVShow(Item):
         blank=True,
         default=list,
     )
-    year = jsondata.IntegerField(null=True, blank=True)
-    season_number = jsondata.IntegerField(null=True, blank=True)
-    single_episode_length = jsondata.IntegerField(null=True, blank=True)
-    duration = jsondata.CharField(blank=True, default="", max_length=200)
+    year = jsondata.IntegerField(verbose_name=_("年份"), null=True, blank=True)
+    single_episode_length = jsondata.IntegerField(
+        verbose_name=_("单集长度"), null=True, blank=True
+    )
+    season_number = jsondata.IntegerField(
+        null=True, blank=True
+    )  # TODO remove after migration
+    duration = jsondata.CharField(
+        blank=True, default="", max_length=200
+    )  # TODO remove after migration
+
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.IMDB,
+            IdType.TMDB_TV,
+            IdType.DoubanMovie,
+            IdType.Bangumi,
+        ]
+        return [(i.value, i.label) for i in id_types]
 
 
 class TVSeason(Item):
     category = ItemCategory.TV
     url_path = "tv/season"
-    demonstrative = _("这部剧集")
+    demonstrative = _("这季剧集")
     douban_movie = PrimaryLookupIdDescriptor(IdType.DoubanMovie)
     imdb = PrimaryLookupIdDescriptor(IdType.IMDB)
     tmdb_tvseason = PrimaryLookupIdDescriptor(IdType.TMDB_TVSeason)
     show = models.ForeignKey(
         TVShow, null=True, on_delete=models.SET_NULL, related_name="seasons"
     )
-    season_number = models.PositiveIntegerField(null=True)
-    episode_count = models.PositiveIntegerField(null=True)
+    season_number = models.PositiveIntegerField(verbose_name=_("本季序号"), null=True)
+    episode_count = models.PositiveIntegerField(verbose_name=_("本季集数"), null=True)
 
     METADATA_COPY_LIST = [
         "title",
+        "season_number",
         "orig_title",
         "other_title",
         "director",
@@ -152,53 +179,60 @@ class TVSeason(Item):
         "language",
         "year",
         "duration",
-        "season_number",
         "episode_count",
         "single_episode_length",
         "brief",
     ]
     orig_title = jsondata.CharField(
-        _("original title"), blank=True, default="", max_length=500
+        verbose_name=_("原始标题"), blank=True, default="", max_length=500
     )
     other_title = jsondata.ArrayField(
-        models.CharField(_("other title"), blank=True, default="", max_length=500),
+        verbose_name=_("其他标题"),
+        base_field=models.CharField(blank=True, default="", max_length=500),
         null=True,
         blank=True,
         default=list,
     )
     director = jsondata.ArrayField(
-        models.CharField(_("director"), blank=True, default="", max_length=200),
+        verbose_name=_("导演"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     playwright = jsondata.ArrayField(
-        models.CharField(_("playwright"), blank=True, default="", max_length=200),
+        verbose_name=_("编剧"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     actor = jsondata.ArrayField(
-        models.CharField(_("actor"), blank=True, default="", max_length=200),
+        verbose_name=_("演员"),
+        base_field=models.CharField(blank=True, default="", max_length=200),
         null=True,
         blank=True,
         default=list,
     )
     genre = jsondata.ArrayField(
-        models.CharField(_("genre"), blank=True, default="", max_length=50),
+        verbose_name=_("类型"),
+        base_field=models.CharField(blank=True, default="", max_length=50),
         null=True,
         blank=True,
         default=list,
     )  # , choices=MovieGenreEnum.choices
-    showtime = jsondata.ArrayField(
+    showtime = jsondata.JSONField(
+        _("播出日期"),
         null=True,
         blank=True,
         default=list,
     )
-    site = jsondata.URLField(_("site url"), blank=True, default="", max_length=200)
+    site = jsondata.URLField(
+        verbose_name=_("官方网站"), blank=True, default="", max_length=200
+    )
     area = jsondata.ArrayField(
-        models.CharField(
-            _("country or region"),
+        verbose_name=_("国家地区"),
+        base_field=models.CharField(
             blank=True,
             default="",
             max_length=100,
@@ -208,7 +242,8 @@ class TVSeason(Item):
         default=list,
     )
     language = jsondata.ArrayField(
-        models.CharField(
+        verbose_name=_("语言"),
+        base_field=models.CharField(
             blank=True,
             default="",
             max_length=100,
@@ -217,9 +252,22 @@ class TVSeason(Item):
         blank=True,
         default=list,
     )
-    year = jsondata.IntegerField(null=True, blank=True)
-    single_episode_length = jsondata.IntegerField(null=True, blank=True)
-    duration = jsondata.CharField(blank=True, default="", max_length=200)
+    year = jsondata.IntegerField(verbose_name=_("年份"), null=True, blank=True)
+    single_episode_length = jsondata.IntegerField(
+        verbose_name=_("单集长度"), null=True, blank=True
+    )
+    duration = jsondata.CharField(
+        blank=True, default="", max_length=200
+    )  # TODO remove after migration
+
+    @classmethod
+    def lookup_id_type_choices(cls):
+        id_types = [
+            IdType.IMDB,
+            IdType.TMDB_TVSeason,
+            IdType.DoubanMovie,
+        ]
+        return [(i.value, i.label) for i in id_types]
 
     def update_linked_items_from_external_resource(self, resource):
         """add Work from resource.metadata['work'] if not yet"""
