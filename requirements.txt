@@ -16,7 +16,7 @@ meilisearch
 easy-thumbnails
 lxml
 openpyxl
-psycopg2-binary
+psycopg2
 requests
 filetype
 setproctitle
