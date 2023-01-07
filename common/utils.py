@@ -63,10 +63,7 @@ class PageLinksGenerator:
 
 
 def ChoicesDictGenerator(choices_enum):
-    choices_dict = {}
-    for attr in dir(choices_enum):
-        if not '__' in attr:
-            choices_dict[getattr(choices_enum, attr).value] = getattr(choices_enum, attr).label
+    choices_dict = dict(choices_enum.choices)
     return choices_dict
 
 def GenerateDateUUIDMediaFilePath(instance, filename, path_root):
