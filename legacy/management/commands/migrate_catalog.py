@@ -263,7 +263,9 @@ class Command(BaseCommand):
                                 if not site.DEFAULT_MODEL and not content.metadata.get(
                                     "preferred_model"
                                 ):
-                                    if model_map[typ] == Movie and entity.is_series:
+                                    if model_map[typ] == Movie and (
+                                        entity.is_series or entity.season
+                                    ):
                                         content.metadata["preferred_model"] = (
                                             "TVSeason" if entity.season else "TVShow"
                                         )
