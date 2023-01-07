@@ -208,9 +208,8 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     )
 
     class Meta:
-        unique_together = [
+        index_together = [
             [
-                "polymorphic_ctype_id",
                 "primary_lookup_id_type",
                 "primary_lookup_id_value",
             ]

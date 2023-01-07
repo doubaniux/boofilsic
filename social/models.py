@@ -40,6 +40,11 @@ class LocalActivity(models.Model, UserOwnedObjectMixin):
     action_object = models.ForeignKey(Piece, on_delete=models.CASCADE)
     created_time = models.DateTimeField(default=timezone.now, db_index=True)
 
+    class Meta:
+        index_together = [
+            ["owner", "created_time"],
+        ]
+
     def __str__(self):
         return f"Activity [{self.owner}:{self.template}:{self.action_object}]"
 

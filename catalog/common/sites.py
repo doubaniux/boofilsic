@@ -8,7 +8,7 @@ ResourceContent persists as an ExternalResource which may link to an Item
 """
 from typing import Callable
 import re
-from .models import ExternalResource
+from .models import ExternalResource, IdType, Item
 from dataclasses import dataclass, field
 import logging
 import json
@@ -75,7 +75,7 @@ class AbstractSite:
         self.url = self.id_to_url(self.id_value) if url else None
         self.resource = None
 
-    def get_resource(self):
+    def get_resource(self) -> ExternalResource:
         if not self.resource:
             self.resource = ExternalResource.objects.filter(url=self.url).first()
             if self.resource is None:
@@ -89,6 +89,25 @@ class AbstractSite:
         data = ResourceContent()
         return data
 
+    @staticmethod
+    def match_existing_item(resource, model=Item) -> Item | None:
+        t, v = model.get_best_lookup_id(resource.get_all_lookup_ids())
+        matched = None
+        if t is not None:
+            matched = model.objects.filter(
+                primary_lookup_id_type=t,
+                primary_lookup_id_value=v,
+                title=resource.metadata["title"],
+            ).first()
+            if matched is None and resource.id_type not in [
+                IdType.DoubanMusic,  # DoubanMusic has many dirty data with same UPC
+                IdType.Goodreads,  # previous scraper generated some dirty data
+            ]:
+                matched = model.objects.filter(
+                    primary_lookup_id_type=t, primary_lookup_id_value=v
+                ).first()
+        return matched
+
     def get_item(self):
         p = self.get_resource()
         if not p:
@@ -100,12 +119,9 @@ class AbstractSite:
         model = p.get_preferred_model()
         if not model:
             model = self.DEFAULT_MODEL
-        t, v = model.get_best_lookup_id(p.get_all_lookup_ids())
-        if t is not None:
-            p.item = model.objects.filter(
-                primary_lookup_id_type=t, primary_lookup_id_value=v
-            ).first()
+        p.item = self.match_existing_item(p, model)
         if p.item is None:
+            t, v = model.get_best_lookup_id(p.get_all_lookup_ids())
             obj = model.copy_metadata(p.metadata)
             obj["primary_lookup_id_type"] = t
             obj["primary_lookup_id_value"] = v
@@ -159,7 +175,7 @@ class AbstractSite:
         if not p.ready:
             _logger.error(f"unable to get resource {self.url} ready")
             return None
-        if auto_create:  # and p.item is None:
+        if auto_create and p.item is None:
             self.get_item()
         if auto_save:
             p.save()
@@ -176,7 +192,8 @@ class AbstractSite:
                     )
                 else:
                     _logger.error(f'unable to get site for {linked_resource["url"]}')
-            django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
+            if p.related_resources:
+                django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
             p.item.update_linked_items_from_external_resource(p)
             p.item.save()
         return p
@@ -234,7 +251,10 @@ ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(
 
 
 def crawl_related_resources_task(resource_pk):
-    resource = ExternalResource.objects.get(pk=resource_pk)
+    resource = ExternalResource.objects.filter(pk=resource_pk).first()
+    if not resource:
+        _logger.warn(f"crawl resource not found {resource_pk}")
+        return
     links = resource.related_resources
     for w in links:
         try:

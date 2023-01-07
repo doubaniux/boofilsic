@@ -275,15 +275,6 @@ class TVSeason(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
-    def is_partial_title(self):
-        return re.match("^(第.+季|特别篇)$", self.title) is not None
-
-    def get_full_title(self):
-        if self.is_partial_title() and self.show:
-            return f"{self.show.title} {self.title}"
-        else:
-            return self.title
-
     def update_linked_items_from_external_resource(self, resource):
         """add Work from resource.metadata['work'] if not yet"""
         links = resource.required_resources + resource.related_resources
@@ -294,7 +285,6 @@ class TVSeason(Item):
                 ).first()
                 if p and p.item and w in resource.required_resources:
                     self.show = p.item
-                    self.title = self.get_full_title()
 
     def all_seasons(self):
         return self.show.all_seasons if self.show else []

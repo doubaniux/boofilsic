@@ -191,6 +191,11 @@ class Command(BaseCommand):
             "--clearlink", help="clear legacy link table", action="store_true"
         )
         parser.add_argument(
+            "--doubantv",
+            help="go thru douban tv and generate TMDB_Season link for TVSeason",
+            action="store_true",
+        )
+        parser.add_argument(
             "--reload",
             help="reload and ignore existing ExternalResource",
             action="store_true",
@@ -209,6 +214,10 @@ class Command(BaseCommand):
         if SongLink.objects.filter(old_id=entity.id).count() == 0:
             SongLink.objects.create(old_id=entity.id, new_uid=new_uid)
 
+    def douban_tv(self):
+        """go thru douban tv and generate TMDB link"""
+        pass
+
     def handle(self, *args, **options):
         if options["song"]:
             for sm in SongMark.objects.all():
@@ -216,6 +225,9 @@ class Command(BaseCommand):
             for ci in CollectionItem.objects.filter(song__isnull=False):
                 self.process_song(ci.song)
             return
+
+        if options["doubantv"]:
+            return self.douban_tv()
 
         types = options["types"] or [
             Legacy_Game,

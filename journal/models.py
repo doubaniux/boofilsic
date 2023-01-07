@@ -20,7 +20,6 @@ from catalog.common.utils import DEFAULT_ITEM_COVER, item_cover_path
 from django.utils.baseconv import base62
 from django.db.models import Q
 from catalog.models import *
-import mistune
 from django.contrib.contenttypes.models import ContentType
 from markdown import markdown
 from catalog.common import jsondata
@@ -213,7 +212,7 @@ class Review(Content):
 
     @property
     def html_content(self):
-        return mistune.html(self.body)
+        return markdown(self.body)
 
     @cached_property
     def rating_grade(self):
@@ -248,8 +247,9 @@ class Review(Content):
 
 
 class Rating(Content):
-    class Meta:
-        unique_together = [["owner", "item"]]
+    # class Meta:
+    #     unique_together = [["owner", "item"]]
+    # FIXME enable after migration
 
     grade = models.PositiveSmallIntegerField(
         default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True
@@ -487,6 +487,10 @@ class ShelfMember(ListMember):
         "Shelf", related_name="members", on_delete=models.CASCADE
     )
 
+    # class Meta:
+    #     unique_together = [["parent", "item"]]
+    # FIXME enable after migration
+
     @cached_property
     def mark(self):
         m = Mark(self.owner, self.item)
@@ -693,6 +697,10 @@ Tag
 
 class TagMember(ListMember):
     parent = models.ForeignKey("Tag", related_name="members", on_delete=models.CASCADE)
+
+    # class Meta:
+    #     unique_together = [["parent", "item"]]
+    # FIXME enable after migration
 
 
 TagValidators = [RegexValidator(regex=r"\s+", inverse_match=True)]
