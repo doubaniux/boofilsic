@@ -107,7 +107,7 @@ def search(request):
     if request.user.is_authenticated and keywords.find("://") > 0:
         site = SiteManager.get_site_by_url(keywords)
         if site:
-            return fetch(request, keywords, site)
+            return fetch(request, keywords, False, site)
     if settings.SEARCH_BACKEND is None:
         # return limited results if no SEARCH_BACKEND
         result = {
@@ -191,5 +191,6 @@ def fetch_task(url, is_refetch):
         if item:
             _logger.info(f"fetched {url} {item.url} {item}")
             item_url = item.url
-    finally:
-        return item_url
+    except Exception as e:
+        _logger.info(f"fetch error {e}")
+    return item_url

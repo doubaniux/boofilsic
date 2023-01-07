@@ -17,6 +17,7 @@
                         <option value="all" {% if request.GET.c and request.GET.c == 'all' or not request.GET.c %}selected{% endif %}>{% trans '任意' %}</option>
                         <option value="book" {% if request.GET.c and request.GET.c == 'book' or '/books/' in request.path %}selected{% endif %}>{% trans '书籍' %}</option>
                         <option value="movie" {% if request.GET.c and request.GET.c == 'movie' or '/movies/' in request.path  %}selected{% endif %}>{% trans '电影' %}</option>
+                        <option value="tv" {% if request.GET.c and request.GET.c == 'tv' or '/tv/' in request.path  %}selected{% endif %}>{% trans '剧集' %}</option>
                         <option value="music" {% if request.GET.c and request.GET.c == 'music' or '/music/' in request.path  %}selected{% endif %}>{% trans '音乐' %}</option>
                         <option value="game" {% if request.GET.c and request.GET.c == 'game' or '/games/' in request.path  %}selected{% endif %}>{% trans '游戏' %}</option>
                     </select>

@@ -91,9 +91,13 @@ class DataSignalManager:
 
     @staticmethod
     def add_handler_for_model(model):
-        if not settings.DISABLE_MODEL_SIGNAL:
-            post_save.connect(DataSignalManager.save_handler, sender=model)
-            pre_delete.connect(DataSignalManager.delete_handler, sender=model)
+        if settings.DISABLE_MODEL_SIGNAL:
+            _logger.warn(
+                f"{model.__name__} are not being indexed with DISABLE_MODEL_SIGNAL configuration"
+            )
+            return
+        post_save.connect(DataSignalManager.save_handler, sender=model)
+        pre_delete.connect(DataSignalManager.delete_handler, sender=model)
 
     @staticmethod
     def register(processor):

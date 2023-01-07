@@ -24,9 +24,11 @@ tv specials are are shown as movies
 For now, we follow Douban convention, but keep an eye on it in case it breaks its own rules...
 
 """
+from simple_history.models import cached_property
 from catalog.common import *
 from django.db import models
 from django.utils.translation import gettext_lazy as _
+import re
 
 
 class TVShow(Item):
@@ -150,6 +152,10 @@ class TVShow(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
+    @cached_property
+    def all_seasons(self):
+        return self.seasons.all().order_by("season_number")
+
 
 class TVSeason(Item):
     category = ItemCategory.TV
@@ -269,6 +275,15 @@ class TVSeason(Item):
         ]
         return [(i.value, i.label) for i in id_types]
 
+    def is_partial_title(self):
+        return re.match("^(第.+季|特别篇)$", self.title) is not None
+
+    def get_full_title(self):
+        if self.is_partial_title() and self.show:
+            return f"{self.show.title} {self.title}"
+        else:
+            return self.title
+
     def update_linked_items_from_external_resource(self, resource):
         """add Work from resource.metadata['work'] if not yet"""
         links = resource.required_resources + resource.related_resources
@@ -277,8 +292,12 @@ class TVSeason(Item):
                 p = ExternalResource.objects.filter(
                     id_type=w["id_type"], id_value=w["id_value"]
                 ).first()
-                if p and p.item and self.show != p.item:
+                if p and p.item and w in resource.required_resources:
                     self.show = p.item
+                    self.title = self.get_full_title()
+
+    def all_seasons(self):
+        return self.show.all_seasons if self.show else []
 
 
 class TVEpisode(Item):

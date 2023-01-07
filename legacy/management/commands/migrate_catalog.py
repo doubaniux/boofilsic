@@ -50,7 +50,7 @@ def _book_convert(entity):
         if t:
             content.lookup_ids[t] = v
     if entity.other_info and entity.other_info.get("统一书号"):
-        content.lookup_ids[IdType.CUBN] = entity.other_info.get("统一书号")
+        content.lookup_ids[IdType.CUBN] = entity.other_info.get("统一书号").strip()
     return content
 
 
@@ -77,12 +77,13 @@ def _album_convert(entity):
             else None,
         }
     )
-    if entity.other_info and entity.other_info.get("ISRC"):
-        content.lookup_ids[IdType.ISRC] = entity.other_info.get("ISRC")
-    if entity.other_info and entity.other_info.get("条形码"):
-        content.lookup_ids[IdType.GTIN] = entity.other_info.get("条形码")
-    if entity.other_info and entity.other_info.get("UPC"):
-        content.lookup_ids[IdType.GTIN] = entity.other_info.get("UPC")
+    if entity.other_info:
+        if entity.other_info.get("ISRC"):
+            content.lookup_ids[IdType.ISRC] = entity.other_info.get("ISRC")
+        if entity.other_info.get("条形码") and entity.other_info.get("条形码") != "none":
+            content.lookup_ids[IdType.GTIN] = entity.other_info.get("条形码")
+        if entity.other_info.get("UPC") and entity.other_info.get("UPC") != "none":
+            content.lookup_ids[IdType.GTIN] = entity.other_info.get("UPC")
     return content
 
 

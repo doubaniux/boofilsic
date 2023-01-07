@@ -1,5 +1,6 @@
 from polymorphic.models import PolymorphicModel
 from django.db import models
+import logging
 from catalog.common import jsondata
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -12,6 +13,8 @@ from .utils import DEFAULT_ITEM_COVER, item_cover_path, resource_cover_path
 from .mixins import SoftDeleteMixin
 from django.conf import settings
 from users.models import User
+
+_logger = logging.getLogger(__name__)
 
 
 class SiteName(models.TextChoices):
@@ -241,23 +244,31 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             IdType.ISRC,
             IdType.MusicBrainz,
             IdType.Feed,
-            IdType.IMDB,
             IdType.TMDB_TVSeason,
+            IdType.IMDB,
         ]
         for t in best_id_types:
             if lookup_ids.get(t):
                 return t, lookup_ids[t]
         return list(lookup_ids.items())[0]
 
-    def merge(self, to_item):
+    def merge_to(self, to_item):
         if to_item is None:
-            raise (ValueError("cannot merge to an empty item"))
+            raise ValueError("cannot merge to an empty item")
         elif to_item.merged_to_item is not None:
-            raise (ValueError("cannot merge with an item aleady merged"))
-        elif to_item.__class__ != self.__class__:
-            raise (ValueError("cannot merge with an item in different class"))
-        else:
-            self.merged_to_item = to_item
+            raise ValueError("cannot merge with an item aleady merged")
+        if to_item.__class__ != self.__class__:
+            _logger.warn(f"merging item across class from {self} to {to_item}")
+        self.merged_to_item = to_item
+        self.save()
+        for res in self.external_resources.all():
+            res.item = to_item
+            res.save()
+
+    def switch_class_to(self, cls):
+        _logger.warn(f"switch item across class from {self} to {cls}")
+        # TODO
+        pass
 
     @property
     def uuid(self):
@@ -379,7 +390,11 @@ class ExternalResource(models.Model):
         unique_together = [["id_type", "id_value"]]
 
     def __str__(self):
-        return f"{self.id}:{self.id_type}:{self.id_value if self.id_value else ''} ({self.url})"
+        return f"{self.pk}:{self.id_type}:{self.id_value if self.id_value else ''} ({self.url})"
+
+    def get_site(self):
+        """place holder only, this will be injected from SiteManager"""
+        pass
 
     @property
     def site_name(self):
@@ -408,7 +423,7 @@ class ExternalResource(models.Model):
         d = {k: v for k, v in d.items() if bool(v)}
         return d
 
-    def get_preferred_model(self):
+    def get_preferred_model(self) -> type[Item] | None:
         model = self.metadata.get("preferred_model")
         if model:
             m = ContentType.objects.filter(

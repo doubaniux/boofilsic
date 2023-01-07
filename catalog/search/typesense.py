@@ -194,6 +194,8 @@ class Indexer:
 
     @classmethod
     def replace_item(cls, obj):
+        if obj.is_deleted or obj.merged_to_item_id:
+            return cls.delete_item(obj)
         try:
             cls.instance().collections[INDEX_NAME].documents.upsert(
                 cls.obj_to_dict(obj), {"dirty_values": "coerce_or_drop"}
@@ -212,7 +214,7 @@ class Indexer:
 
     @classmethod
     def delete_item(cls, obj):
-        pk = f"{obj.__class__.__name__}-{obj.id}"
+        pk = obj.uuid
         try:
             cls.instance().collections[INDEX_NAME].documents[pk].delete()
         except Exception as e:
@@ -259,6 +261,5 @@ class Indexer:
         try:
             return Item.get_by_url(item["id"])
         except Exception as e:
-            print(e)
-            logger.error(f"unable to load search result item from db:\n{item}")
+            logger.error(f"unable to load search result item from db:{item}\n{e}")
             return None

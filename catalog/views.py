@@ -25,7 +25,11 @@ from .models import *
 from django.conf import settings
 from django.utils.baseconv import base62
 from journal.models import Mark, ShelfMember, Review
-from journal.models import query_visible, query_following
+from journal.models import (
+    query_visible,
+    query_following,
+    update_journal_for_merged_item,
+)
 from common.utils import PageLinksGenerator
 from common.config import PAGE_LINK_NUMBER
 from journal.models import ShelfTypeNames
@@ -169,7 +173,26 @@ def edit(request, item_path, item_uuid):
 
 @login_required
 def delete(request, item_path, item_uuid):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    if not request.user.is_staff:
+        raise PermissionDenied()
     return HttpResponseBadRequest()
+
+
+@login_required
+def merge(request, item_path, item_uuid):
+    if request.method != "POST":
+        return HttpResponseBadRequest()
+    if not request.user.is_staff:
+        raise PermissionDenied()
+    item = get_object_or_404(Item, uid=base62.decode(item_uuid))
+    new_item = Item.get_by_url(request.POST.get("new_item_url"))
+    if not new_item or new_item.is_deleted or new_item.merged_to_item_id:
+        return HttpResponseBadRequest(b"invalid new item")
+    item.merge_to(new_item)
+    update_journal_for_merged_item(item_uuid)
+    return redirect(new_item.url)
 
 
 @login_required

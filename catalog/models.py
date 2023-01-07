@@ -9,7 +9,9 @@ from .performance.models import Performance
 from .collection.models import Collection as CatalogCollection
 from django.contrib.contenttypes.models import ContentType
 from django.conf import settings
+import logging
 
+_logger = logging.getLogger(__name__)
 
 if settings.SEARCH_BACKEND == "MEILISEARCH":
     from .search.meilisearch import Indexer
@@ -71,6 +73,9 @@ def all_categories():
 
 def init_catalog_search_models():
     if settings.DISABLE_MODEL_SIGNAL:
+        _logger.warn(
+            "Catalog models are not being indexed with DISABLE_MODEL_SIGNAL configuration"
+        )
         return
     Indexer.update_model_indexable(Edition)
     Indexer.update_model_indexable(Work)

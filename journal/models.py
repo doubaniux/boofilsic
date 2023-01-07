@@ -4,7 +4,6 @@ from users.models import User
 from catalog.common.models import Item, ItemCategory
 from .mixins import UserOwnedObjectMixin
 from catalog.collection.models import Collection as CatalogCollection
-from enum import Enum
 from markdownx.models import MarkdownxField
 from django.utils import timezone
 from django.conf import settings
@@ -15,7 +14,6 @@ from functools import cached_property
 from django.db.models import Count, Avg
 from django.contrib.contenttypes.models import ContentType
 import django.dispatch
-import math
 import uuid
 import re
 from catalog.common.utils import DEFAULT_ITEM_COVER, item_cover_path
@@ -26,6 +24,8 @@ import mistune
 from django.contrib.contenttypes.models import ContentType
 from markdown import markdown
 from catalog.common import jsondata
+
+_logger = logging.getLogger(__name__)
 
 
 class VisibilityType(models.IntegerChoices):
@@ -248,6 +248,9 @@ class Review(Content):
 
 
 class Rating(Content):
+    class Meta:
+        unique_together = [["owner", "item"]]
+
     grade = models.PositiveSmallIntegerField(
         default=0, validators=[MaxValueValidator(10), MinValueValidator(1)], null=True
     )
@@ -932,3 +935,20 @@ def remove_data_by_user(user: User):
     Comment.objects.filter(owner=user).delete()
     Rating.objects.filter(owner=user).delete()
     Review.objects.filter(owner=user).delete()
+
+
+def update_journal_for_merged_item(legacy_item_uuid):
+    legacy_item = Item.get_by_url(legacy_item_uuid)
+    if not legacy_item:
+        _logger.error("update_journal_for_merged_item: unable to find item")
+        return
+    new_item = legacy_item.merged_to_item
+    for cls in Content.__subclasses__ + ListMember.__subclasses__:
+        _logger.info(f"update {cls.__name__}: {legacy_item} -> {new_item}")
+        for p in cls.objects.filter(item=legacy_item):
+            try:
+                p.item = new_item
+                p.save(update_fields=["item_id"])
+            except:
+                _logger.info(f"delete duplicated piece {p}")
+                p.delete()

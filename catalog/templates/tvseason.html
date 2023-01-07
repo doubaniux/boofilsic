@@ -13,7 +13,7 @@
 {% block title %}
 <h5 class="entity-detail__title">
 	{% if item.season_number %}
-	{{ item.title }} {% trans '第' %}{{ item.season_number|apnumber }}{% trans '季' %} {{ item.orig_title }} Season {{ item.season_number }}
+	{{ item.title }} {{ item.orig_title }} Season {{ item.season_number }}
 	<span class="entity-detail__title entity-detail__title--secondary">
 		{% if item.year %}({{ item.year }}){% endif %}
 	</span>
@@ -125,10 +125,24 @@
 
 </div>
 <div class="entity-detail__fields">
-	<div>{% if item.duration %}{% trans '片长：' %}{{ item.duration }}{% endif %}</div>
-	<div>{% if item.season_count %}{% trans '季数：' %}{{ item.season_count }}{% endif %}</div>
-	<div>{% if item.episode_count %}{% trans '集数：' %}{{ item.episode_count }}{% endif %}</div>
+	<div>{% if item.season_number %}{% trans '本季序号：' %}{{ item.season_number }}{% endif %}</div>
+	<div>{% if item.episode_count %}{% trans '本季集数：' %}{{ item.episode_count }}{% endif %}</div>
+	<div> </div>
+	<div>{% if item.show %}{% trans '所属剧集：' %}<a href="{{ item.show.url }}">{{ item.show.title }}{% endif %}</a></div>
+	<div>{% if item.season_count %}{% trans '总季数：' %}{{ item.season_count }}{% endif %}</div>
 	<div>{% if item.single_episode_length %}{% trans '单集长度：' %}{{ item.single_episode_length }}{% endif %}</div>
+	{% with item.all_seasons as seasons %}
+	{% if seasons %}
+	<div>
+		{% trans '本剧所有季：' %}
+    {% for s in seasons %}
+    <span>
+      <a href="{{ s.url }}">{{ s.season_number }}</a>
+    </span>
+    {% endfor %}
+	</div>
+	{% endif %}
+	{% endwith %}
 
 	<div>{% if item.showtime %}{% trans '上映时间：' %}
 		{% for showtime in item.showtime %}
@@ -160,7 +174,7 @@
 	{% endif %}
 
 	<div>
-		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑这部剧集' %}</a>
+		<a href="{% url 'catalog:edit' item.url_path item.uuid %}">{% trans '编辑' %}{{ item.demonstrative }}</a>
 		{% if user.is_staff %}
 		/<a href="{% url 'catalog:delete' item.url_path item.uuid %}"> {% trans '删除' %}</a>
 		{% endif %}

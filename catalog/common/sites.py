@@ -12,6 +12,7 @@ from .models import ExternalResource
 from dataclasses import dataclass, field
 import logging
 import json
+import django_rq
 
 
 _logger = logging.getLogger(__name__)
@@ -21,8 +22,8 @@ _logger = logging.getLogger(__name__)
 class ResourceContent:
     lookup_ids: dict = field(default_factory=dict)
     metadata: dict = field(default_factory=dict)
-    cover_image: bytes = None
-    cover_image_extention: str = None
+    cover_image: bytes | None = None
+    cover_image_extention: str | None = None
 
     def dict(self):
         return {"metadata": self.metadata, "lookup_ids": self.lookup_ids}
@@ -122,7 +123,7 @@ class AbstractSite:
         auto_link=True,
         preloaded_content=None,
         ignore_existing_content=False,
-    ) -> ExternalResource:
+    ) -> ExternalResource | None:
         """
         Returns an ExternalResource in scraped state if possible
 
@@ -158,7 +159,7 @@ class AbstractSite:
         if not p.ready:
             _logger.error(f"unable to get resource {self.url} ready")
             return None
-        if auto_create and p.item is None:
+        if auto_create:  # and p.item is None:
             self.get_item()
         if auto_save:
             p.save()
@@ -175,6 +176,7 @@ class AbstractSite:
                     )
                 else:
                     _logger.error(f'unable to get site for {linked_resource["url"]}')
+            django_rq.get_queue("crawl").enqueue(crawl_related_resources_task, p.pk)
             p.item.update_linked_items_from_external_resource(p)
             p.item.save()
         return p
@@ -196,7 +198,7 @@ class SiteManager:
         return SiteManager.registry[typ]() if typ in SiteManager.registry else None
 
     @staticmethod
-    def get_site_by_url(url: str) -> AbstractSite:
+    def get_site_by_url(url: str) -> AbstractSite | None:
         if not url:
             return None
         cls = next(
@@ -229,4 +231,21 @@ class SiteManager:
 ExternalResource.get_site = lambda resource: SiteManager.get_site_by_id_type(
     resource.id_type
 )
-# ExternalResource.get_site = SiteManager.get_site_by_resource
+
+
+def crawl_related_resources_task(resource_pk):
+    resource = ExternalResource.objects.get(pk=resource_pk)
+    links = resource.related_resources
+    for w in links:
+        try:
+            item = None
+            site = SiteManager.get_site_by_url(w["url"])
+            if site:
+                site.get_resource_ready(ignore_existing_content=False, auto_link=True)
+                item = site.get_item()
+            if item:
+                _logger.info(f"crawled {w['url']} {item}")
+            else:
+                _logger.warn(f"crawl {w['url']} failed")
+        except Exception as e:
+            _logger.warn(f"crawl {w['url']} error {e}")
