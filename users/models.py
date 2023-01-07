@@ -204,6 +204,11 @@ class User(AbstractUser):
 
 class Preference(models.Model):
     user = models.OneToOneField(User, models.CASCADE, primary_key=True)
+    home_layout = postgres.ArrayField(
+        postgres.HStoreField(),
+        blank=True,
+        default=list,
+    )  # FIXME remove after migration
     profile_layout = models.JSONField(
         blank=True,
         default=list,
