@@ -243,7 +243,6 @@ class Item(SoftDeleteMixin, PolymorphicModel):
             IdType.ISRC,
             IdType.MusicBrainz,
             IdType.Feed,
-            IdType.TMDB_TVSeason,
             IdType.IMDB,
         ]
         for t in best_id_types:

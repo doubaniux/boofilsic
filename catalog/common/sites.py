@@ -89,8 +89,16 @@ class AbstractSite:
         data = ResourceContent()
         return data
 
-    @staticmethod
-    def match_existing_item(resource, model=Item) -> Item | None:
+    @classmethod
+    def get_model_for_resource(cls, resource):
+        model = resource.get_preferred_model()
+        return model or cls.DEFAULT_MODEL
+
+    @classmethod
+    def match_existing_item_for_resource(cls, resource) -> Item | None:
+        model = cls.get_model_for_resource(resource)
+        if not model:
+            return None
         t, v = model.get_best_lookup_id(resource.get_all_lookup_ids())
         matched = None
         if t is not None:
@@ -108,6 +116,20 @@ class AbstractSite:
                 ).first()
         return matched
 
+    @classmethod
+    def match_or_create_item_for_resource(cls, resource):
+        resource.item = cls.match_existing_item_for_resource(resource)
+        if resource.item is None:
+            model = cls.get_model_for_resource(resource)
+            if not model:
+                return None
+            t, v = model.get_best_lookup_id(resource.get_all_lookup_ids())
+            obj = model.copy_metadata(resource.metadata)
+            obj["primary_lookup_id_type"] = t
+            obj["primary_lookup_id_value"] = v
+            resource.item = model.objects.create(**obj)
+        return resource.item
+
     def get_item(self):
         p = self.get_resource()
         if not p:
@@ -116,17 +138,7 @@ class AbstractSite:
         if not p.ready:
             # raise ValueError(f'resource not ready for {self.url}')
             return None
-        model = p.get_preferred_model()
-        if not model:
-            model = self.DEFAULT_MODEL
-        p.item = self.match_existing_item(p, model)
-        if p.item is None:
-            t, v = model.get_best_lookup_id(p.get_all_lookup_ids())
-            obj = model.copy_metadata(p.metadata)
-            obj["primary_lookup_id_type"] = t
-            obj["primary_lookup_id_value"] = v
-            p.item = model.objects.create(**obj)
-        return p.item
+        return self.match_or_create_item_for_resource(p)
 
     @property
     def ready(self):
@@ -175,7 +187,7 @@ class AbstractSite:
         if not p.ready:
             _logger.error(f"unable to get resource {self.url} ready")
             return None
-        if auto_create and p.item is None:
+        if auto_create:  # and (p.item is None or p.item.is_deleted):
             self.get_item()
         if auto_save:
             p.save()

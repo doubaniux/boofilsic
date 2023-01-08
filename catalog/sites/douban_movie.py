@@ -216,7 +216,7 @@ class DoubanMovie(AbstractSite):
             }
         )
         pd.metadata["preferred_model"] = (
-            ("TVSeason" if season else "TVShow") if is_series else "Movie"
+            ("TVShow" if is_series else "Movie") if not season else "TVSeason"
         )
         tmdb_season_id = None
         if imdb_code:

@@ -140,6 +140,14 @@ def _movie_tv_convert(entity):
             "is_series": entity.is_series,
         }
     )
+    if entity.source_site == "douban":
+        content.metadata["preferred_model"] = (
+            "TVSeason"
+            if entity.is_series or entity.episodes or entity.season
+            else "Movie"
+        )
+    else:
+        content.metadata["preferred_model"] = "TVShow" if entity.is_series else "Movie"
     if entity.imdb_code:
         content.lookup_ids[IdType.IMDB] = entity.imdb_code
     if entity.other_info and entity.other_info.get("TMDB_ID"):
@@ -191,8 +199,8 @@ class Command(BaseCommand):
             "--clearlink", help="clear legacy link table", action="store_true"
         )
         parser.add_argument(
-            "--doubantv",
-            help="go thru douban tv and generate TMDB_Season link for TVSeason",
+            "--clearmovie",
+            help="clear movie/tv/TVSeason",
             action="store_true",
         )
         parser.add_argument(
@@ -214,9 +222,15 @@ class Command(BaseCommand):
         if SongLink.objects.filter(old_id=entity.id).count() == 0:
             SongLink.objects.create(old_id=entity.id, new_uid=new_uid)
 
-    def douban_tv(self):
-        """go thru douban tv and generate TMDB link"""
-        pass
+    def clearmovie(self):
+        MovieLink.objects.all().delete()
+        for cls in [Movie, TVShow, TVSeason]:
+            print(cls)
+            cls.objects.all().update(
+                primary_lookup_id_type=None,
+                primary_lookup_id_value=None,
+                is_deleted=True,
+            )
 
     def handle(self, *args, **options):
         if options["song"]:
@@ -226,8 +240,8 @@ class Command(BaseCommand):
                 self.process_song(ci.song)
             return
 
-        if options["doubantv"]:
-            return self.douban_tv()
+        if options["clearmovie"]:
+            return self.clearmovie()
 
         types = options["types"] or [
             Legacy_Game,
@@ -263,16 +277,9 @@ class Command(BaseCommand):
                                 if not site.DEFAULT_MODEL and not content.metadata.get(
                                     "preferred_model"
                                 ):
-                                    if model_map[typ] == Movie and (
-                                        entity.is_series or entity.season
-                                    ):
-                                        content.metadata["preferred_model"] = (
-                                            "TVSeason" if entity.season else "TVShow"
-                                        )
-                                    else:
-                                        content.metadata["preferred_model"] = model_map[
-                                            typ
-                                        ].__name__
+                                    content.metadata["preferred_model"] = model_map[
+                                        typ
+                                    ].__name__
                                 item = site.get_resource_ready(
                                     preloaded_content=content,
                                     ignore_existing_content=reload,
