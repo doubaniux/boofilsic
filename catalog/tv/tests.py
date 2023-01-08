@@ -56,7 +56,7 @@ class TMDBTVSeasonTestCase(TestCase):
         self.assertEqual(site.id_value, "57243-4")
         site.get_resource_ready()
         self.assertEqual(site.ready, True)
-        self.assertEqual(site.resource.metadata["title"], "第 4 季")
+        self.assertEqual(site.resource.metadata["title"], "神秘博士 第 4 季")
         self.assertEqual(site.resource.item.primary_lookup_id_type, IdType.IMDB)
         self.assertEqual(site.resource.item.__class__.__name__, "TVSeason")
         self.assertEqual(site.resource.item.imdb, "tt1159991")
@@ -77,14 +77,15 @@ class DoubanMovieTVTestCase(TestCase):
     def test_scrape_singleseason(self):
         url3 = "https://movie.douban.com/subject/26895436/"
         p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
-        self.assertEqual(p3.item.__class__.__name__, "TVShow")
+        self.assertEqual(p3.item.__class__.__name__, "TVSeason")
 
     @use_local_response
     def test_scrape_fix_imdb(self):
+        # this douban links to S6E3, we'll change it to S6E1 to keep consistant
         url = "https://movie.douban.com/subject/35597581/"
         item = SiteManager.get_site_by_url(url).get_resource_ready().item
-        # this douban links to S6E3, we'll reset it to S6E1 to keep consistant
-        self.assertEqual(item.imdb, "tt21599650")
+        # disable this test to make douban data less disrupted
+        # self.assertEqual(item.imdb, "tt21599650")
 
 
 class MultiTVSitesTestCase(TestCase):
@@ -118,8 +119,8 @@ class MultiTVSitesTestCase(TestCase):
         url3 = "https://movie.douban.com/subject/26895436/"
         p1 = SiteManager.get_site_by_url(url1).get_resource_ready()
         p3 = SiteManager.get_site_by_url(url3).get_resource_ready()
-        self.assertEqual(p3.item.__class__.__name__, "TVShow")
-        self.assertEqual(p1.item.id, p3.item.id)
+        self.assertEqual(p3.item.__class__.__name__, "TVSeason")
+        self.assertEqual(p1.item, p3.item.show)
 
     @use_local_response
     def test_tvspecial(self):

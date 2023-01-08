@@ -216,79 +216,61 @@ class DoubanMovie(AbstractSite):
             }
         )
         pd.metadata["preferred_model"] = (
-            ("TVShow" if is_series else "Movie") if not season else "TVSeason"
+            "TVSeason" if is_series or episodes or season else "Movie"
         )
+
         tmdb_season_id = None
         if imdb_code:
             res_data = search_tmdb_by_imdb_id(imdb_code)
-            tmdb_show_id = None
-            if "movie_results" in res_data and len(res_data["movie_results"]) > 0:
-                pd.metadata["preferred_model"] = "Movie"
-            elif "tv_results" in res_data and len(res_data["tv_results"]) > 0:
-                if pd.metadata["preferred_model"] == "TVSeason":
-                    """
-                    determine if this Douban Movie item should map to
-                    a single season tv show, or
-                    first season of multi-season show
-                    """
-                    tmdb_show_id = res_data["tv_results"][0]["id"]
-                    tmdb_season_id = f"{tmdb_show_id}-1"
-                    site = TMDB_TVSeason(TMDB_TVSeason.id_to_url(tmdb_season_id))
-                    tmdb_tvseason = site.get_resource_ready().item
-                    tmdb_tv = tmdb_tvseason.show
-                    if tmdb_tv.season_count == 1:
-                        pd.metadata["preferred_model"] = "TVShow"
-                    # else:
-                    #     pd.metadata["preferred_model"] = "TVSeason"
-                    #     resp = query_tmdb_tv_episode(tmdb_show_id, 1, 1)
-                    #     imdb_code = resp["external_ids"]["imdb_id"]
-                    #     _logger.warning(
-                    #         f"Douban Movie {self.url} re-mapped to imdb episode {imdb_code}"
-                    #     )
-            elif (
-                "tv_season_results" in res_data
-                and len(res_data["tv_season_results"]) > 0
-            ):
-                pd.metadata["preferred_model"] = "TVSeason"
-                tmdb_show_id = res_data["tv_season_results"][0]["show_id"]
-                tmdb_season_id = f"{tmdb_show_id}-{season}"
-            elif (
+            has_movie = (
+                "movie_results" in res_data and len(res_data["movie_results"]) > 0
+            )
+            has_tv = "tv_results" in res_data and len(res_data["tv_results"]) > 0
+            has_episode = (
                 "tv_episode_results" in res_data
                 and len(res_data["tv_episode_results"]) > 0
-            ):
+            )
+            if pd.metadata["preferred_model"] == "TVSeason" and has_tv:
+                if pd.metadata.get("season") and pd.metadata.get("season") != 1:
+                    _logger.warn(f"{imdb_code} matched imdb tv show, force season 1")
+                    pd.metadata["season"] = 1
+            elif pd.metadata["preferred_model"] == "TVSeason" and has_episode:
+                if res_data["tv_episode_results"][0]["episode_number"] != 1:
+                    _logger.warning(
+                        f"Douban Movie {self.url} IMDB {imdb_code} mapping to non-first episode in a season"
+                    )
+                elif res_data["tv_episode_results"][0]["season_number"] == 1:
+                    _logger.warning(
+                        f"Douban Movie {self.url} IMDB {imdb_code} mapping to first season episode in a season"
+                    )
+            elif has_movie:
+                if pd.metadata["preferred_model"] != "Movie":
+                    _logger.warn(f"{imdb_code} matched imdb movie, force Movie")
+                    pd.metadata["preferred_model"] = "Movie"
+            elif has_tv or has_episode:
+                _logger.warn(f"{imdb_code} matched imdb tv/episode, force TVSeason")
                 pd.metadata["preferred_model"] = "TVSeason"
-                tmdb_show_id = res_data["tv_episode_results"][0]["show_id"]
-                tmdb_season_id = f"{tmdb_show_id}-{season}"
-                # if res_data["tv_episode_results"][0]["episode_number"] != 1:
-                #     _logger.warning(
-                #         f"Douban Movie {self.url} mapping to unexpected imdb episode {imdb_code}"
-                #     )
-                #     resp = query_tmdb_tv_episode(
-                #         tmdb_show_id,
-                #         res_data["tv_episode_results"][0]["season_number"],
-                #         1,
-                #     )
-                #     imdb_code = resp["external_ids"]["imdb_id"]
-                #     _logger.warning(
-                #         f"Douban Movie {self.url} re-mapped to imdb episode {imdb_code}"
-                #     )
+            else:
+                _logger.warn(f"{imdb_code} unknown to TMDB")
 
             pd.lookup_ids[IdType.IMDB] = imdb_code
-            if pd.metadata["preferred_model"] == "TVSeason":
-                pd.lookup_ids[IdType.TMDB_TVSeason] = tmdb_season_id
-            elif pd.metadata["preferred_model"] == "TVShow":
-                pd.lookup_ids[IdType.TMDB_TV] = tmdb_show_id
 
-            # if tmdb_show_id:
-            #     pd.metadata["required_resources"] = [
-            #         {
-            #             "model": "TVShow",
-            #             "id_type": IdType.TMDB_TV,
-            #             "id_value": tmdb_show_id,
-            #             "title": title,
-            #             "url": TMDB_TV.id_to_url(tmdb_show_id),
-            #         }
-            #     ]
+            if pd.metadata["preferred_model"] == "TVSeason":
+                tmdb_show_id = None
+                if has_tv:
+                    tmdb_show_id = res_data["tv_results"][0]["id"]
+                elif has_episode:
+                    tmdb_show_id = res_data["tv_episode_results"][0]["show_id"]
+                if tmdb_show_id:
+                    pd.metadata["required_resources"] = [
+                        {
+                            "model": "TVShow",
+                            "id_type": IdType.TMDB_TV,
+                            "id_value": tmdb_show_id,
+                            "title": title,
+                            "url": TMDB_TV.id_to_url(tmdb_show_id),
+                        }
+                    ]
         # TODO parse sister seasons
         # pd.metadata['related_resources'] = []
         if pd.metadata["cover_image_url"]:

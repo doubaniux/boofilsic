@@ -16,13 +16,17 @@ class IMDB(AbstractSite):
     WIKI_PROPERTY_ID = "?"
 
     @classmethod
-    def id_to_url(self, id_value):
+    def id_to_url(cls, id_value):
         return "https://www.imdb.com/title/" + id_value + "/"
 
     def scrape(self):
         self.scraped = False
         res_data = search_tmdb_by_imdb_id(self.id_value)
-        if "movie_results" in res_data and len(res_data["movie_results"]) > 0:
+        if (
+            "movie_results" in res_data
+            and len(res_data["movie_results"]) > 0
+            and self.DEFAULT_MODEL in [None, Movie]
+        ):
             url = (
                 f"https://www.themoviedb.org/movie/{res_data['movie_results'][0]['id']}"
             )
@@ -32,7 +36,7 @@ class IMDB(AbstractSite):
             # this should not happen given IMDB only has ids for either show or episode
             tv_id = res_data["tv_season_results"][0]["show_id"]
             season_number = res_data["tv_season_results"][0]["season_number"]
-            url = f"https://www.themoviedb.org/tv/{tv_id}/season/{season_number}/episode/{episode_number}"
+            url = f"https://www.themoviedb.org/tv/{tv_id}/season/{season_number}"
         elif (
             "tv_episode_results" in res_data and len(res_data["tv_episode_results"]) > 0
         ):

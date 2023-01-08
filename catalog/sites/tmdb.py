@@ -296,7 +296,7 @@ class TMDB_TV(AbstractSite):
                 "single_episode_length": None,
                 "brief": brief,
                 "cover_image_url": img_url,
-                "related_resources": season_links,
+                # "related_resources": season_links,  # FIXME not crawling them for now given many douban tv season data has errors
             }
         )
         if imdb_code:
@@ -364,9 +364,9 @@ class TMDB_TVSeason(AbstractSite):
             {
                 "model": "TVShow",
                 "id_type": IdType.TMDB_TV,
-                "id_value": v[0],
-                "title": f"TMDB TV Show {v[0]}",
-                "url": f"https://www.themoviedb.org/tv/{v[0]}",
+                "id_value": show_id,
+                "title": f"TMDB TV Show {show_id}",
+                "url": f"https://www.themoviedb.org/tv/{show_id}",
             }
         ]
         pd.lookup_ids[IdType.IMDB] = d["external_ids"].get("imdb_id")
@@ -394,18 +394,26 @@ class TMDB_TVSeason(AbstractSite):
                     f'failed to download cover for {self.url} from {pd.metadata["cover_image_url"]}'
                 )
 
-        # get external id from 1st episode
-        # if pd.lookup_ids[IdType.IMDB]:
-        #     _logger.warning("Unexpected IMDB id for TMDB tv season")
-        # elif len(pd.metadata["episode_number_list"]) == 0:
-        #     _logger.warning(
-        #         "Unable to lookup IMDB id for TMDB tv season with zero episodes"
-        #     )
-        # else:
-        #     ep = pd.metadata["episode_number_list"][0]
-        #     api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
-        #     d2 = BasicDownloader(api_url2).download().json()
-        #     if not d2.get("id"):
-        #         raise ParseError("episode id for season")
-        #     pd.lookup_ids[IdType.IMDB] = d2["external_ids"].get("imdb_id")
-        # return pd
+        # use show's IMDB (for Season 1) or 1st episode's IMDB (if not Season 1) as this season's IMDB so that it can be compatible with TVSeason data from Douban
+        if pd.lookup_ids.get(IdType.IMDB):
+            # this should not happen
+            _logger.warning("Unexpected IMDB id for TMDB tv season")
+        elif pd.metadata.get("season_number") == 1:
+            res = SiteManager.get_site_by_url(
+                f"https://www.themoviedb.org/tv/{show_id}"
+            ).get_resource_ready()
+            pd.lookup_ids[IdType.IMDB] = (
+                res.other_lookup_ids.get(IdType.IMDB) if res else None
+            )
+        elif len(pd.metadata["episode_number_list"]) == 0:
+            _logger.warning(
+                "Unable to lookup IMDB id for TMDB tv season with zero episodes"
+            )
+        else:
+            ep = pd.metadata["episode_number_list"][0]
+            api_url2 = f"https://api.themoviedb.org/3/tv/{v[0]}/season/{v[1]}/episode/{ep}?api_key={settings.TMDB_API3_KEY}&language=zh-CN&append_to_response=external_ids,credits"
+            d2 = BasicDownloader(api_url2).download().json()
+            if not d2.get("id"):
+                raise ParseError("first episode id for season")
+            pd.lookup_ids[IdType.IMDB] = d2["external_ids"].get("imdb_id")
+        return pd
