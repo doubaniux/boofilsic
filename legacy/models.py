@@ -33,5 +33,9 @@ class CollectionLink(models.Model):
 
 
 class ReviewLink(models.Model):
-    old_id = models.IntegerField(unique=True)
+    module = models.CharField(max_length=20)
+    old_id = models.IntegerField()
     new_uid = models.UUIDField()
+
+    class Meta:
+        unique_together = [["module", "old_id"]]

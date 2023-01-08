@@ -117,7 +117,7 @@ class Command(BaseCommand):
         print("Deleting migrated user pieces")
         # Piece.objects.all().delete()
         for cls in classes:  # Collection
-            print(cls)
+            print(f"Deleting {cls}")
             cls.objects.all().delete()
 
     def collection(self, options):
@@ -143,8 +143,12 @@ class Command(BaseCommand):
                 c.catalog_item.save()
                 for citem in entity.collectionitem_list:
                     if citem.song:
-                        LinkModel = AlbumLink
-                        old_id = citem.song.album_id
+                        if citem.song.album_id:
+                            LinkModel = AlbumLink
+                            old_id = citem.song.album_id
+                        else:
+                            LinkModel = SongLink
+                            old_id = citem.song.id
                     else:
                         LinkModel = model_link[citem.item.__class__]
                         old_id = citem.item.id
@@ -153,7 +157,6 @@ class Command(BaseCommand):
                         item = Item.objects.get(uid=item_link.new_uid)
                         c.append_item(item, metadata={"note": citem.comment})
                     else:
-                        # TODO convert song to album
                         print(f"{c.owner} {c.id} {c.title} {citem.item} were skipped")
                 CollectionLink.objects.create(old_id=entity.id, new_uid=c.uid)
             qs = (
@@ -199,7 +202,9 @@ class Command(BaseCommand):
                                 edited_time=entity.edited_time,
                             )
                             ReviewLink.objects.create(
-                                old_id=entity.id, new_uid=review.uid
+                                module=entity.__class__.__module__.split(".")[0],
+                                old_id=entity.id,
+                                new_uid=review.uid,
                             )
                         except Exception as e:
                             print(f"Convert failed for {typ} {entity.id}: {e}")
@@ -306,12 +311,12 @@ class Command(BaseCommand):
             self.initshelf()
         elif options["collection"]:
             if options["clear"]:
-                self.clear([Collection, Like])
+                self.clear([CollectionLink, Like, Collection])
             else:
                 self.collection(options)
         elif options["review"]:
             if options["clear"]:
-                self.clear([Review])
+                self.clear([ReviewLink, Review])
             else:
                 self.review(options)
         elif options["mark"]:
