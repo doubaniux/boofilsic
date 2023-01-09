@@ -15,6 +15,7 @@ from catalog.models import *
 from catalog.sites import *
 from journal.models import *
 from social.models import *
+
 # from social import models as social_models
 from django.core.management.base import BaseCommand
 from django.core.paginator import Paginator
@@ -39,11 +40,13 @@ template_map = {
 
 
 class Command(BaseCommand):
-    help = 'Backfill user activities'
+    help = "Backfill user activities"
 
     def add_arguments(self, parser):
-        parser.add_argument('--since', help='start date to backfill')
-        parser.add_argument('--clear', help='clear all user pieces, then exit', action='store_true')
+        parser.add_argument("--since", help="start date to backfill")
+        parser.add_argument(
+            "--clear", help="clear all user pieces, then exit", action="store_true"
+        )
 
     def clear(self):
         print("Deleting migrated user activities")
@@ -54,25 +57,25 @@ class Command(BaseCommand):
         for typ in types:
             print(typ)
             template = template_map[typ]
-            qs = typ.objects.all().filter(owner__is_active=True).order_by('id')
-            if options['since']:
-                qs = qs.filter(created_time__gte=options['since'])
+            qs = typ.objects.all().filter(owner__is_active=True).order_by("id")
+            if options["since"]:
+                qs = qs.filter(created_time__gte=options["since"])
             else:
-                qs = qs.filter(created_time__gte='2022-12-01')
+                qs = qs.filter(created_time__gte="2022-07-01")
             with transaction.atomic():
                 for piece in tqdm(qs):
                     params = {
-                        'owner': piece.owner,
-                        'visibility': piece.visibility,
-                        'template': template,
-                        'action_object': piece,
-                        'created_time': piece.created_time
+                        "owner": piece.owner,
+                        "visibility": piece.visibility,
+                        "template": template,
+                        "action_object": piece,
+                        "created_time": piece.created_time,
                     }
                     LocalActivity.objects.create(**params)
 
     def handle(self, *args, **options):
-        if options['clear']:
+        if options["clear"]:
             self.clear()
         else:
             self.backfill(options)
-        self.stdout.write(self.style.SUCCESS(f'Done.'))
+        self.stdout.write(self.style.SUCCESS(f"Done."))
