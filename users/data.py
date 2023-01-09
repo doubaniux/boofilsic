@@ -128,15 +128,7 @@ def reset_visibility(request):
     if request.method == "POST":
         visibility = int(request.POST.get("visibility"))
         visibility = visibility if visibility >= 0 and visibility <= 2 else 0
-        if settings.ENABLE_NEW_MODEL:
-            reset_visibility_for_user(request.user, visibility)
-        else:
-            BookMark.objects.filter(owner=request.user).update(visibility=visibility)
-            MovieMark.objects.filter(owner=request.user).update(visibility=visibility)
-            GameMark.objects.filter(owner=request.user).update(visibility=visibility)
-            AlbumMark.objects.filter(owner=request.user).update(visibility=visibility)
-            SongMark.objects.filter(owner=request.user).update(visibility=visibility)
-            Activity.objects.filter(owner=request.user).update(visibility=visibility)
+        reset_visibility_for_user(request.user, visibility)
         messages.add_message(request, messages.INFO, _("已重置。"))
     return redirect(reverse("users:data"))
 

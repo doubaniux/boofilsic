@@ -401,7 +401,9 @@ def _render_list(
         queryset = queryset.filter(query_item_category(item_category))
     else:
         return HttpResponseBadRequest()
-    queryset = queryset.filter(q_visible_to(request.user, user))
+    queryset = queryset.filter(q_visible_to(request.user, user)).order_by(
+        "-created_time"
+    )
     paginator = Paginator(queryset, PAGE_SIZE)
     page_number = request.GET.get("page", default=1)
     members = paginator.get_page(page_number)
