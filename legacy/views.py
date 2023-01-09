@@ -1,4 +1,6 @@
 from django.shortcuts import redirect, render, get_object_or_404
+
+from catalog.collection.models import Collection
 from .models import *
 from catalog.models import Item
 from django.utils.baseconv import base62
@@ -15,22 +17,22 @@ def movie(request, id):
 
 
 def album(request, id):
-    link = get_object_or_404(MovieLink, old_id=id)
+    link = get_object_or_404(AlbumLink, old_id=id)
     return redirect(f"/album/{base62.encode(link.new_uid.int)}")
 
 
 def song(request, id):
-    link = get_object_or_404(MovieLink, old_id=id)
+    link = get_object_or_404(SongLink, old_id=id)
     return redirect(f"/album/{base62.encode(link.new_uid.int)}")
 
 
 def game(request, id):
-    link = get_object_or_404(MovieLink, old_id=id)
+    link = get_object_or_404(GameLink, old_id=id)
     return redirect(f"/game/{base62.encode(link.new_uid.int)}")
 
 
 def collection(request, id):
-    link = get_object_or_404(MovieLink, old_id=id)
+    link = get_object_or_404(CollectionLink, old_id=id)
     return redirect(f"/collection/{base62.encode(link.new_uid.int)}")
 
 
