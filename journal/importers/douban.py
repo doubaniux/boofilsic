@@ -94,7 +94,7 @@ class DoubanImporter:
         "读过": [ShelfType.COMPLETE],
         "想看": [ShelfType.WISHLIST],
         "在看": [ShelfType.PROGRESS],
-        "想看": [ShelfType.COMPLETE],
+        "看过": [ShelfType.COMPLETE],
         "想听": [ShelfType.WISHLIST],
         "在听": [ShelfType.PROGRESS],
         "听过": [ShelfType.COMPLETE],
