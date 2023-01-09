@@ -39,7 +39,7 @@ def q_visible_to(viewer, owner):
     # elif viewer.is_blocked_by(owner):
     #     return Q(pk__in=[])
     elif viewer.is_authenticated and viewer.is_following(owner):
-        return Q(visibility__ne=2)
+        return Q(visibility__in=[0, 1])
     else:
         return Q(visibility=0)
 

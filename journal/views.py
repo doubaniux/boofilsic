@@ -468,7 +468,7 @@ def user_collection_list(request, user_name):
     collections = Collection.objects.filter(owner=user)
     if user != request.user:
         if request.user.is_following(user):
-            collections = collections.filter(visibility__ne=2)
+            collections = collections.filter(visibility__in=[0, 1])
         else:
             collections = collections.filter(visibility=0)
     return render(
