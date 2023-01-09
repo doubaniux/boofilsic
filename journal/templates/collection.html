@@ -91,7 +91,7 @@
               </div>
             </div>
 
-            {% if request.user != collection.owner %}
+            {% if request.user.is_authenticated and request.user != collection.owner %}
             <div class="aside-section-wrapper">
               <div class="action-panel">
                 <div class="action-panel__button-group action-panel__button-group--center">
@@ -111,7 +111,8 @@
             </div>
             {% endif %}
 
-            <div class="aside-section-wrapper">
+            {% if request.user.is_authenticated %}
+            <!-- <div class="aside-section-wrapper">
               <div class="action-panel">
                 <div class="action-panel__button-group action-panel__button-group--center">
                   <form>
@@ -119,7 +120,9 @@
                   </form>
                 </div>
               </div>
-            </div>
+            </div> -->
+            {% endif %}
+
           </div>
         </div>
       </section>

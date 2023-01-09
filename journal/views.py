@@ -163,7 +163,11 @@ def collection_retrieve(request, collection_uuid):
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
     follower_count = collection.likes.all().count()
-    following = Like.user_liked_piece(request.user, collection) is not None
+    following = (
+        Like.user_liked_piece(request.user, collection) is not None
+        if request.user.is_authenticated
+        else False
+    )
     return render(
         request,
         "collection.html",
