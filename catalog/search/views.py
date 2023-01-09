@@ -191,6 +191,8 @@ def fetch_task(url, is_refetch):
         if item:
             _logger.info(f"fetched {url} {item.url} {item}")
             item_url = item.url
+        else:
+            _logger.error(f"fetch {url} failed")
     except Exception as e:
-        _logger.info(f"fetch error {e}")
+        _logger.error(f"fetch {url} error {e}")
     return item_url
