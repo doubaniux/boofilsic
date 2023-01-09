@@ -152,7 +152,8 @@ def mark(request, item_uuid):
                     visibility,
                     share_to_mastodon=share_to_mastodon,
                 )
-            except Exception:
+            except Exception as e:
+                _logger.warn(f"post to mastodon error {e}")
                 return render_relogin(request)
             return HttpResponseRedirect(request.META.get("HTTP_REFERER"))
     return HttpResponseBadRequest()

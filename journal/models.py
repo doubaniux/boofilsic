@@ -934,7 +934,7 @@ class Mark:
                 if self.shelfmember.metadata
                 else None
             )
-            self.translated_status = self.shelf_label
+            self.translated_status = self.action_label
             self.save = lambda **args: None
             if not share_mark(self):
                 raise ValueError("sharing failed")

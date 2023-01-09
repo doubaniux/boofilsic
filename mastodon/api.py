@@ -11,7 +11,6 @@ from .models import CrossSiteUserInfo, MastodonApplication
 from mastodon.utils import rating_to_emoji
 import re
 
-
 logger = logging.getLogger(__name__)
 
 # See https://docs.joinmastodon.org/methods/accounts/
@@ -446,6 +445,8 @@ def revoke_token(site, token):
 
 
 def share_mark(mark):
+    from catalog.common import ItemCategory
+
     user = mark.owner
     if mark.visibility == 2:
         visibility = TootVisibilityEnum.DIRECT
@@ -458,7 +459,7 @@ def share_mark(mark):
     tags = (
         "\n"
         + user.get_preference().mastodon_append_tag.replace(
-            "[category]", str(mark.item.verbose_category_name)
+            "[category]", str(ItemCategory(mark.item.category).label)
         )
         if user.get_preference().mastodon_append_tag
         else ""
@@ -467,7 +468,7 @@ def share_mark(mark):
         mark.rating,
         MastodonApplication.objects.get(domain_name=user.mastodon_site).star_mode,
     )
-    content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.absolute_url}\n{mark.text}{tags}"
+    content = f"{mark.translated_status}《{mark.item.title}》{stars}\n{mark.item.absolute_url}\n{mark.text or ''}{tags}"
     update_id = None
     if mark.shared_link:  # "https://mastodon.social/@username/1234567890"
         r = re.match(
@@ -489,6 +490,7 @@ def share_mark(mark):
             mark.save(update_fields=["shared_link"])
         return True
     else:
+        print(response)
         return False
 
 
