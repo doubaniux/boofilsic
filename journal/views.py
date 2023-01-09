@@ -584,7 +584,6 @@ def profile(request, user_name):
     if user != request.user:
         liked_collections = liked_collections.filter(query_visible(request.user))
 
-    layout = user.get_preference().get_serialized_profile_layout()
     return render(
         request,
         "profile.html",
@@ -599,7 +598,7 @@ def profile(request, user_name):
                 for i in liked_collections.order_by("-edited_time")[:5]
             ],
             "liked_collections_count": liked_collections.count(),
-            "layout": layout,
+            "layout": user.get_preference().profile_layout,
             "reports": reports,
             "unread_announcements": unread_announcements,
         },

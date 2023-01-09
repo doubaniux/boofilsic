@@ -226,9 +226,6 @@ class Preference(models.Model):
     show_last_edit = models.PositiveSmallIntegerField(default=0)
     no_anonymous_view = models.PositiveSmallIntegerField(default=0)
 
-    def get_serialized_profile_layout(self):
-        return str(self.profile_layout).replace("'", '"')
-
     def __str__(self):
         return str(self.user)
 

@@ -171,22 +171,18 @@
             <script src="https://cdn.staticfile.org/html5sortable/0.13.3/html5sortable.min.js" crossorigin="anonymous"></script>
             <script src="{% static 'js/sort_layout.js' %}"></script>
             {% endif %}
+
+            {{ layout|json_script:"layout-data" }} 
             <script>
-              const initialLayoutData = JSON.parse("{{ layout|escapejs }}");
+              const initialLayoutData = JSON.parse(document.getElementById('layout-data').textContent);
                             // initialize sort element visibility and order
               initialLayoutData.forEach(elem => {
-                                    // False to false, True to true
-                if (elem.visibility === "False") {
-                  elem.visibility = false;
-                } else {
-                  elem.visibility = true;
-                }
-                                    // set visiblity
+                // set visiblity
                 $('#' + elem.id).data('visibility', elem.visibility);
                 if (!elem.visibility) {
                   $('#' + elem.id).hide();
                 }
-                                    // order
+                // order
                 $('#' + elem.id).appendTo('.main-section-wrapper');
               });
             </script>
