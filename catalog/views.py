@@ -69,7 +69,6 @@ def retrieve(request, item_path, item_uuid):
         if request.user.is_authenticated:
             visible = query_visible(request.user)
             mark = Mark(request.user, item)
-            _logger.info(mark.rating)
             review = mark.review
             collection_list = (
                 item.collections.all()

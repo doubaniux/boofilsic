@@ -57,7 +57,14 @@ class Command(BaseCommand):
         pg = Paginator(qs.order_by("id"), BATCH_SIZE)
         for p in tqdm(pg.page_range):
             items = list(
-                map(lambda o: Indexer.obj_to_dict(o), pg.get_page(p).object_list)
+                map(
+                    lambda o: Indexer.obj_to_dict(o),
+                    [
+                        x
+                        for x in pg.get_page(p).object_list
+                        if x.__class__ != CatalogCollection
+                    ],
+                )
             )
             if items:
                 Indexer.replace_batch(items)

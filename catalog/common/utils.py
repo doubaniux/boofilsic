@@ -16,7 +16,7 @@ def resource_cover_path(resource, filename):
         + "."
         + filename.split(".")[-1]
     )
-    return "item/" + resource.id_type + "/" + fn
+    return "item/" + fn
 
 
 def item_cover_path(item, filename):
@@ -26,4 +26,4 @@ def item_cover_path(item, filename):
         + "."
         + filename.split(".")[-1]
     )
-    return "item/" + item.category + "/" + fn
+    return "item/" + fn
