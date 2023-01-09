@@ -184,6 +184,7 @@
 
           <div class="grid__aside" id="aside">
             {% block sidebar_review %}
+            {% if user.is_authenticated %}
             <div class="aside-section-wrapper">
               {% if mark.shelf_type %}
               <div class="mark-panel">
@@ -261,6 +262,13 @@
                 {% endif %}
               </div>
             </div>
+            {% else %}
+            <div class="aside-section-wrapper">
+              <div class="mark-panel">
+                <span>{% trans '登录后可管理标记和评论' %}</span>
+              </div>
+            </div>
+            {% endif %}
             {% endblock %}
 
             {% block sidebar %}
