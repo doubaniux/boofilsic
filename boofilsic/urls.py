@@ -29,6 +29,7 @@ urlpatterns = [
     path("announcement/", include("management.urls")),
     path("hijack/", include("hijack.urls")),
     path("", include("common.urls")),
+    path("", include("legacy.urls")),
 ]
 
 urlpatterns += [path(settings.ADMIN_URL + "-rq/", include("django_rq.urls"))]
