@@ -361,6 +361,10 @@ class List(Piece):
         return self.members.filter(item=item).first()
 
     def append_item(self, item, **params):
+        """
+        named metadata fields should be specified directly, not in metadata dict!
+        e.g. collection.append_item(item, note="abc") works, but collection.append_item(item, metadata={"note":"abc"}) doesn't
+        """
         if item is None or self.get_member_for_item(item):
             return None
         else:

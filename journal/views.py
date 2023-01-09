@@ -206,7 +206,7 @@ def collection_append_item(request, collection_uuid):
     url = request.POST.get("url")
     note = request.POST.get("note")
     item = Item.get_by_url(url)
-    collection.append_item(item, metadata={"note": note})
+    collection.append_item(item, note=note)
     collection.save()
     return collection_retrieve_items(request, collection_uuid, True)
 

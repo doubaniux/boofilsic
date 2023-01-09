@@ -60,9 +60,7 @@ class GoodreadsImporter:
                     owner=user,
                 )
                 for book in shelf["books"]:
-                    collection.append_item(
-                        book["book"], metadata={"note": book["review"]}
-                    )
+                    collection.append_item(book["book"], note=book["review"])
                     total += 1
                 collection.save()
             msg.success(user, f'成功从Goodreads导入包含{total}本书的收藏单{shelf["title"]}。')

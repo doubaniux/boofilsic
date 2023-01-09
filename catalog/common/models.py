@@ -338,6 +338,9 @@ class Item(SoftDeleteMixin, PolymorphicModel):
         """Subclass should override this"""
         pass
 
+    def skip_index(self):
+        return False
+
 
 class ItemLookupId(models.Model):
     item = models.ForeignKey(

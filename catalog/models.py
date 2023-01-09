@@ -84,3 +84,6 @@ def init_catalog_search_models():
     Indexer.update_model_indexable(TVSeason)
     Indexer.update_model_indexable(Album)
     Indexer.update_model_indexable(Game)
+    Indexer.update_model_indexable(Podcast)
+    Indexer.update_model_indexable(Performance)
+    # Indexer.update_model_indexable(CatalogCollection)

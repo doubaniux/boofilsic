@@ -18,7 +18,7 @@ class CollectionTest(TestCase):
         member1 = collection.append_item(self.book1)
         member1.note = "my notes"
         member1.save()
-        collection.append_item(self.book2)
+        collection.append_item(self.book2, note="test")
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
         collection.move_up_item(self.book1)
         self.assertEqual(list(collection.ordered_items), [self.book1, self.book2])
@@ -26,6 +26,8 @@ class CollectionTest(TestCase):
         self.assertEqual(list(collection.ordered_items), [self.book2, self.book1])
         member1 = collection.get_member_for_item(self.book1)
         self.assertEqual(member1.note, "my notes")
+        member2 = collection.get_member_for_item(self.book2)
+        self.assertEqual(member2.note, "test")
 
 
 class ShelfTest(TestCase):

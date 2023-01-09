@@ -155,7 +155,7 @@ class Command(BaseCommand):
                     if old_id:
                         item_link = LinkModel.objects.get(old_id=old_id)
                         item = Item.objects.get(uid=item_link.new_uid)
-                        c.append_item(item, metadata={"note": citem.comment})
+                        c.append_item(item, note=citem.comment)
                     else:
                         print(f"{c.owner} {c.id} {c.title} {citem.item} were skipped")
                 CollectionLink.objects.create(old_id=entity.id, new_uid=c.uid)
