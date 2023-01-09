@@ -98,7 +98,7 @@ def search(request):
     if not (keywords or tag):
         return render(
             request,
-            "common/search_result.html",
+            "search_results.html",
             {
                 "items": None,
             },
