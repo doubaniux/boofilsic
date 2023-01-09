@@ -10,6 +10,8 @@ _logger = logging.getLogger(__name__)
 @login_required
 def home(request):
     if request.user.get_preference().classic_homepage:
-        return redirect(reverse("journal:home", args=[request.user.mastodon_username]))
+        return redirect(
+            reverse("journal:user_profile", args=[request.user.mastodon_username])
+        )
     else:
         return redirect(reverse("social:feed"))
