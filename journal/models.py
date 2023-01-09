@@ -619,12 +619,15 @@ class ShelfManager:
     #     )
     #     return shelf.members.all().order_by
 
-    def get_title(self, shelf_type, item_category):
-        ic = ItemCategory(item_category).label
+    def get_action_label(self, shelf_type, item_category):
         sts = [
             n[2] for n in ShelfTypeNames if n[0] == item_category and n[1] == shelf_type
         ]
-        st = sts[0] if sts else shelf_type
+        return sts[0] if sts else shelf_type
+
+    def get_label(self, shelf_type, item_category):
+        ic = ItemCategory(item_category).label
+        st = self.get_action_label(shelf_type, item_category)
         return _("{shelf_label}的{item_category}").format(
             shelf_label=st, item_category=ic
         )
@@ -839,9 +842,19 @@ class Mark:
         return self.shelfmember.parent.shelf_type if self.shelfmember else None
 
     @property
+    def action_label(self):
+        return (
+            self.owner.shelf_manager.get_action_label(
+                self.shelf_type, self.item.category
+            )
+            if self.shelfmember
+            else None
+        )
+
+    @property
     def shelf_label(self):
         return (
-            self.owner.shelf_manager.get_title(self.shelf_type, self.item.category)
+            self.owner.shelf_manager.get_label(self.shelf_type, self.item.category)
             if self.shelfmember
             else None
         )

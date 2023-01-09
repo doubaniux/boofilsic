@@ -32,7 +32,7 @@
       </span>
     </div>
     <span class="entity-list__entity-info" style="top:0px;">
-      <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {{ activity.action_object.parent.shelf_label }}
+      <a href="{% url 'journal:user_profile' activity.owner.mastodon_username %}">{{ activity.owner.display_name }}</a> {{ activity.action_object.mark.action_label }}
     </span>
     <div class="entity-list__entity-title">
       <a href="{{ activity.action_object.item.url }}" class="entity-list__entity-link" style="font-weight:bold;">{{ activity.action_object.item.title }}

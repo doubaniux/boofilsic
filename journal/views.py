@@ -569,7 +569,7 @@ def profile(request, user_name):
                 .order_by("-created_time")
             )
             shelf_list[category][shelf_type] = {
-                "title": user.shelf_manager.get_title(shelf_type, category),
+                "title": user.shelf_manager.get_label(shelf_type, category),
                 "count": members.count(),
                 "members": members[:5].prefetch_related("item"),
             }
