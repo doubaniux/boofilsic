@@ -495,6 +495,8 @@ def share_mark(mark):
 
 
 def share_review(review):
+    from catalog.common import ItemCategory
+
     user = review.owner
     if review.visibility == 2:
         visibility = TootVisibilityEnum.DIRECT
@@ -507,12 +509,14 @@ def share_review(review):
     tags = (
         "\n"
         + user.get_preference().mastodon_append_tag.replace(
-            "[category]", str(review.item.verbose_category_name)
+            "[category]", str(ItemCategory(review.item.category).label)
         )
         if user.get_preference().mastodon_append_tag
         else ""
     )
-    content = f"发布了关于《{review.item.title}》的评论\n{review.url}\n{review.title}{tags}"
+    content = (
+        f"发布了关于《{review.item.title}》的评论\n{review.absolute_url}\n{review.title}{tags}"
+    )
     update_id = None
     if review.shared_link:  # "https://mastodon.social/@username/1234567890"
         r = re.match(
