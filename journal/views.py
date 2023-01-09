@@ -561,7 +561,11 @@ def profile(request, user_name):
     for category in visbile_categories:
         shelf_list[category] = {}
         for shelf_type in ShelfType:
-            members = user.shelf_manager.get_members(shelf_type, category).filter(qv)
+            members = (
+                user.shelf_manager.get_members(shelf_type, category)
+                .filter(qv)
+                .order_by("-created_time")
+            )
             shelf_list[category][shelf_type] = {
                 "title": user.shelf_manager.get_title(shelf_type, category),
                 "count": members.count(),
@@ -571,6 +575,7 @@ def profile(request, user_name):
             Review.objects.filter(owner=user)
             .filter(qv)
             .filter(query_item_category(category))
+            .order_by("-created_time")
         )
         shelf_list[category]["reviewed"] = {
             "title": "评论过的" + category.label,
@@ -578,7 +583,7 @@ def profile(request, user_name):
             "members": reviews[:5].prefetch_related("item"),
         }
     collections = (
-        Collection.objects.filter(owner=user).filter(qv).order_by("-edited_time")
+        Collection.objects.filter(owner=user).filter(qv).order_by("-created_time")
     )
     liked_collections = (
         Like.user_likes_by_class(user, Collection)

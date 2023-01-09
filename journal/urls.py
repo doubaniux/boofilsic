@@ -87,7 +87,7 @@ urlpatterns = [
         name="user_review_list",
     ),
     re_path(
-        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>[^/]+)/$",
+        r"^users/(?P<user_name>[A-Za-z0-9_\-.@]+)/tags/(?P<tag_title>.+)/$",
         user_tag_member_list,
         name="user_tag_member_list",
     ),
