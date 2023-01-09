@@ -73,7 +73,9 @@ class Edition(Item):
         blank=True,
         default=list,
     )
-    language = jsondata.CharField(_("语言"), null=True, blank=True, default=None)
+    language = jsondata.CharField(
+        _("语言"), null=True, blank=True, default=None, max_length=500
+    )
     pub_house = jsondata.CharField(
         _("出版社"), null=True, blank=False, default=None, max_length=500
     )
