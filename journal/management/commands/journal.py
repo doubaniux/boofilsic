@@ -4,21 +4,20 @@ from journal.models import *
 
 
 class Command(BaseCommand):
-    help = "Scrape a catalog item from external resource (and save it)"
+    help = "journal app utilities"
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--cleanup",
             action="store_true",
-            help="purge invalid data",
+            help="purge invalid data (visibility=99)",
         )
 
     def handle(self, *args, **options):
         if options["cleanup"]:
-            self.stdout.write(f"Cleaning up Rating...")
-            Rating.objects.filter(grade=0).delete()
-            for cls in ListMember.__subclasses__():
-                self.stdout.write(f"Cleaning up {cls}...")
-                cls.objects.filter(visibility=99).delete()
+            for pcls in [Content, ListMember]:
+                for cls in pcls.__subclasses__():
+                    self.stdout.write(f"Cleaning up {cls}...")
+                    cls.objects.filter(visibility=99).delete()
 
         self.stdout.write(self.style.SUCCESS(f"Done."))

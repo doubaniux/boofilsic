@@ -4,13 +4,13 @@ from catalog.models import *
 
 
 class Command(BaseCommand):
-    help = "Scrape a catalog item from external resource (and save it)"
+    help = "catalog app utilities"
 
     def add_arguments(self, parser):
         parser.add_argument(
             "--cleanup",
             action="store_true",
-            help="purge invalid data",
+            help="purge invalid data (is_deleted=true)",
         )
 
     def handle(self, *args, **options):

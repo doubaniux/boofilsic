@@ -51,8 +51,8 @@ class Command(BaseCommand):
             self.stdout.write("Please wait for previous updates")
         # Indexer.update_settings()
         # self.stdout.write(self.style.SUCCESS('Index settings updated.'))
-        qs = (
-            Item.objects.all()
+        qs = Item.objects.filter(
+            is_deleted=False
         )  # if h == 0 else c.objects.filter(edited_time__gt=timezone.now() - timedelta(hours=h))
         pg = Paginator(qs.order_by("id"), BATCH_SIZE)
         for p in tqdm(pg.page_range):
