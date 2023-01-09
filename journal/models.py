@@ -869,7 +869,11 @@ class Mark:
 
     @property
     def visibility(self):
-        return self.shelfmember.visibility if self.shelfmember else None
+        return (
+            self.shelfmember.visibility
+            if self.shelfmember
+            else self.owner.get_preference().default_visibility
+        )
 
     @cached_property
     def tags(self):
