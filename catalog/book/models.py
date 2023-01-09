@@ -98,9 +98,7 @@ class Edition(Item):
     series = jsondata.CharField(
         _("丛书"), null=True, blank=True, default=None, max_length=500
     )
-    contents = jsondata.TextField(
-        _("目录"), null=True, blank=True, default=None, max_length=500
-    )
+    contents = jsondata.TextField(_("目录"), null=True, blank=True, default=None)
     price = jsondata.CharField(_("价格"), null=True, blank=True, max_length=500)
     imprint = jsondata.CharField(_("出品方"), null=True, blank=True, max_length=500)
 
