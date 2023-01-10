@@ -20,3 +20,8 @@
     </li>
     {% endif %}
 </ul>
+{% if msg %}
+<script type="text/javascript">
+    alert("{{ msg|escapejs }}");
+</script>
+{% endif %}

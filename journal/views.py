@@ -184,7 +184,7 @@ def collection_share(request, collection_uuid):
     pass
 
 
-def collection_retrieve_items(request, collection_uuid, edit=False):
+def collection_retrieve_items(request, collection_uuid, edit=False, msg=None):
     collection = get_object_or_404(Collection, uid=base62.decode(collection_uuid))
     if not collection.is_visible_to(request.user):
         raise PermissionDenied()
@@ -196,6 +196,7 @@ def collection_retrieve_items(request, collection_uuid, edit=False):
             "collection": collection,
             "form": form,
             "collection_edit": edit or request.GET.get("edit"),
+            "msg": msg,
         },
     )
 
@@ -211,9 +212,13 @@ def collection_append_item(request, collection_uuid):
     url = request.POST.get("url")
     note = request.POST.get("note")
     item = Item.get_by_url(url)
-    collection.append_item(item, note=note)
-    collection.save()
-    return collection_retrieve_items(request, collection_uuid, True)
+    if item:
+        collection.append_item(item, note=note)
+        collection.save()
+        msg = None
+    else:
+        msg = _("条目链接无法识别，请输入本站已有条目的链接。")
+    return collection_retrieve_items(request, collection_uuid, True, msg)
 
 
 @login_required

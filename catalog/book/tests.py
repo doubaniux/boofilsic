@@ -16,6 +16,10 @@ class BookTestCase(TestCase):
         hyperion = Edition.objects.get(title="Hyperion")
         hyperion2 = Edition.get_by_url(hyperion.url)
         self.assertEqual(hyperion, hyperion2)
+        hyperion2 = Edition.get_by_url(hyperion.uuid)
+        self.assertEqual(hyperion, hyperion2)
+        hyperion2 = Edition.get_by_url("test/" + hyperion.uuid + "/test")
+        self.assertEqual(hyperion, hyperion2)
 
     def test_properties(self):
         hyperion = Edition.objects.get(title="Hyperion")

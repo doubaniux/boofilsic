@@ -1,6 +1,7 @@
 from polymorphic.models import PolymorphicModel
 from django.db import models
 import logging
+import re
 from catalog.common import jsondata
 from django.utils.translation import gettext_lazy as _
 from django.utils import timezone
@@ -291,7 +292,15 @@ class Item(SoftDeleteMixin, PolymorphicModel):
     @classmethod
     def get_by_url(cls, url_or_b62):
         b62 = url_or_b62.strip().split("/")[-1]
-        return cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
+        if len(b62) not in [21, 22]:
+            r = re.search(r"[A-Za-z0-9]{21,22}", url_or_b62)
+            if r:
+                b62 = r[0]
+        try:
+            item = cls.objects.get(uid=uuid.UUID(int=base62.decode(b62)))
+        except:
+            item = None
+        return item
 
     # def get_lookup_id(self, id_type: str) -> str:
     #     prefix = id_type.strip().lower() + ':'
