@@ -31,8 +31,8 @@
 		{% endif %}
 	</div>
 	<div>{% if item.isbn %}{% trans 'ISBN：' %}{{ item.isbn }}{% endif %}</div>
-	<div>{% if item.authors %}{% trans '作者：' %}
-		{% for author in item.authors %}
+	<div>{% if item.author %}{% trans '作者：' %}
+		{% for author in item.author %}
 		<span>{{ author }}</span>{% if not forloop.last %} / {% endif %}
 		{% endfor %}
 	{% endif %}</div>
