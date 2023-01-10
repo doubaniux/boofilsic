@@ -11,6 +11,7 @@ django-user-messages
 django-slack
 django-ninja
 django-polymorphic
+django-debug-toolbar
 meilisearch
 easy-thumbnails
 lxml
