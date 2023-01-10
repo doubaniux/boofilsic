@@ -147,7 +147,11 @@ def import_goodreads(request):
 @login_required
 def import_douban(request):
     if request.method == "POST":
-        importer = DoubanImporter(request.user, request.POST.get("visibility"))
+        importer = DoubanImporter(
+            request.user,
+            int(request.POST.get("visibility")),
+            int(request.POST.get("import_mode")),
+        )
         if importer.import_from_file(request.FILES["file"]):
             messages.add_message(request, messages.INFO, _("文件上传成功，等待后台导入。"))
         else:

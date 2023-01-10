@@ -42,14 +42,27 @@
                                     <div class="import-panel__body">
                                         <form action="{% url 'users:import_douban' %}" method="POST" enctype="multipart/form-data" >
                                             {% csrf_token %}
-                                            <div>
-                                                请在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」。正向变化（想读->在读->已读）的标记会更新，其它已经存在的标记和评论不会被覆盖。
-                                            </div>
                                             <div class="import-panel__checkbox">
-                                                <p>从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
+                                                <p>
+                                                    <div>
+                                                        请在豆伴(豆坟)导出时勾选「书影音游剧」和「评论」。
+                                                    </div>
+                                                    从<a href="https://doufen.org" target="_blank">豆伴(豆坟)</a>备份导出的.xlsx文件:
                                                     <input type="file" name="file" id="excel" required accept=".xlsx">
                                                 </p>
+                                                <p>
+                                                    导入方式：
+                                                    <br>
+                                                    <label for="import_mode_0">
+                                                        <input id="import_mode_0" type="radio" name="import_mode" value="0" checked>自动合并：仅更新正向变化(未标->想读->在读->已读)标记，不更新其它标记和现有评论（推荐）
+                                                    </label>
+                                                    <br>
+                                                    <label for="import_mode_1">
+                                                        <input id="import_mode_1" type="radio" name="import_mode" value="1">强制覆盖：覆盖已存在的标记和评论，导入文件中未涉及的条目标记和评论不会被改动。
+                                                    </label>
+                                                </p>
                                                 <p>可见性:
+                                                    <br>
                                                     <label for="id_visibility_0"><input type="radio" name="visibility" value="0" required="" id="id_visibility_0" checked>
                                                      公开</label>
                                                     <label for="id_visibility_1"><input type="radio" name="visibility" value="1" required="" id="id_visibility_1">

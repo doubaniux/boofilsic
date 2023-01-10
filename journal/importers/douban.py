@@ -47,16 +47,19 @@ class DoubanImporter:
     failed = []
     user = None
     visibility = 0
+    mode = 0
     file = None
 
-    def __init__(self, user, visibility):
+    def __init__(self, user, visibility, mode):
         self.user = user
         self.visibility = visibility
+        self.mode = mode
 
     def update_user_import_status(self, status):
         self.user.preference.import_status["douban_pending"] = status
         self.user.preference.import_status["douban_file"] = self.file
         self.user.preference.import_status["douban_visibility"] = self.visibility
+        self.user.preference.import_status["douban_mode"] = self.mode
         self.user.preference.import_status["douban_total"] = self.total
         self.user.preference.import_status["douban_processed"] = self.processed
         self.user.preference.import_status["douban_skipped"] = self.skipped
@@ -220,7 +223,7 @@ class DoubanImporter:
             print(f"{self.user} | match/fetch {url} failed")
             return
         mark = Mark(self.user, item)
-        if (
+        if self.mode == 1 and (
             mark.shelf_type == shelf_type
             or mark.shelf_type == ShelfType.COMPLETE
             or (
@@ -319,7 +322,10 @@ class DoubanImporter:
         if not item:
             print(f"{prefix} match/fetch {url} failed")
             return
-        if Review.objects.filter(owner=self.user, item=item).exists():
+        if (
+            self.mode == 1
+            and Review.objects.filter(owner=self.user, item=item).exists()
+        ):
             return 2
         content = re.sub(
             r'<span style="font-weight: bold;">([^<]+)</span>', r"<b>\1</b>", content
