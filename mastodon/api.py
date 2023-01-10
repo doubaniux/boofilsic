@@ -115,8 +115,8 @@ def post_toot(site, content, visibility, token, local_only=False, update_id=None
 def get_instance_info(domain_name):
     if domain_name.lower().strip() == TWITTER_DOMAIN:
         return TWITTER_DOMAIN, ""
+    url = f"https://{domain_name}/api/v1/instance"
     try:
-        url = f"https://{domain_name}/api/v1/instance"
         response = get(url, headers={"User-Agent": USER_AGENT})
         j = response.json()
         return j["uri"].lower().split("//")[-1].split("/")[0], j["version"]
@@ -355,7 +355,7 @@ def get_mastodon_login_url(app, login_domain, version, request):
         return f"https://twitter.com/i/oauth2/authorize?response_type=code&client_id={app.client_id}&redirect_uri={quote(url)}&scope={quote(settings.TWITTER_CLIENT_SCOPE)}&state=state&code_challenge=challenge&code_challenge_method=plain"
     scope = (
         settings.MASTODON_LEGACY_CLIENT_SCOPE
-        if "Pixelfed" in version
+        if "Pixelfed" in version or version[0:2] == "0."
         else settings.MASTODON_CLIENT_SCOPE
     )
     return (
@@ -490,7 +490,7 @@ def share_mark(mark):
             mark.save(update_fields=["shared_link"])
         return True
     else:
-        print(response)
+        logger.error(response)
         return False
 
 

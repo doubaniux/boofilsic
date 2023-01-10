@@ -4,16 +4,20 @@ from django.utils.translation import gettext_lazy as _
 
 
 class MastodonApplication(models.Model):
-    domain_name = models.CharField(_('site domain name'), max_length=100, unique=True)
-    app_id = models.PositiveIntegerField(_('in-site app id'))  # TODO Remove? bc 1) it seems useless 2) GoToSocial returns a hash text id
-    client_id = models.CharField(_('client id'), max_length=100)
-    client_secret = models.CharField(_('client secret'), max_length=100)
-    vapid_key = models.CharField(_('vapid key'), max_length=200, null=True, blank=True)
-    star_mode = models.PositiveIntegerField(_('0: custom emoji; 1: unicode moon; 2: text'), blank=False, default=0)
-    max_status_len = models.PositiveIntegerField(_('max toot len'), blank=False, default=500)
+    domain_name = models.CharField(_("site domain name"), max_length=100, unique=True)
+    app_id = models.CharField(_("in-site app id"), max_length=100)
+    client_id = models.CharField(_("client id"), max_length=100)
+    client_secret = models.CharField(_("client secret"), max_length=100)
+    vapid_key = models.CharField(_("vapid key"), max_length=200, null=True, blank=True)
+    star_mode = models.PositiveIntegerField(
+        _("0: custom emoji; 1: unicode moon; 2: text"), blank=False, default=0
+    )
+    max_status_len = models.PositiveIntegerField(
+        _("max toot len"), blank=False, default=500
+    )
 
     is_proxy = models.BooleanField(default=False, blank=True)
-    proxy_to = models.CharField(max_length=100, blank=True, default='')
+    proxy_to = models.CharField(max_length=100, blank=True, default="")
     # website
     # name
     # redirect_uris
@@ -34,7 +38,8 @@ class CrossSiteUserInfo(models.Model):
     class Meta:
         constraints = [
             models.UniqueConstraint(
-                fields=['uid', 'target_site'], name="unique_cross_site_user_info")
+                fields=["uid", "target_site"], name="unique_cross_site_user_info"
+            )
         ]
 
     def __str__(self):

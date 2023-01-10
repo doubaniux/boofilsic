@@ -96,13 +96,29 @@ def OAuth2_login(request):
         return HttpResponseBadRequest()
 
     code = request.GET.get("code")
+    if not code:
+        return render(
+            request,
+            "common/error.html",
+            {"msg": _("认证失败😫"), "secondary_msg": _("Mastodon服务未能返回有效认证信息")},
+        )
     site = request.COOKIES.get("mastodon_domain")
+    if not code:
+        return render(
+            request,
+            "common/error.html",
+            {"msg": _("认证失败😫"), "secondary_msg": _("无效Cookie信息")},
+        )
     try:
         token, refresh_token = obtain_token(site, request, code)
     except ObjectDoesNotExist:
         return HttpResponseBadRequest("Mastodon site not registered")
     if not token:
-        return render(request, "common/error.html", {"msg": _("认证失败😫")})
+        return render(
+            request,
+            "common/error.html",
+            {"msg": _("认证失败😫"), "secondary_msg": _("Mastodon服务未能返回有效认证令牌")},
+        )
 
     if (
         request.session.get("swap_login", False) and request.user.is_authenticated
