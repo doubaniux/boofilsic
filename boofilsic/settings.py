@@ -346,12 +346,14 @@ SEARCH_INDEX_NEW_ONLY = False
 # MEILISEARCH_SERVER = 'http://127.0.0.1:7700'
 # MEILISEARCH_KEY = 'deadbeef'
 
-SEARCH_BACKEND = "TYPESENSE"
-TYPESENSE_CONNECTION = {
-    "api_key": "xyz",
-    "nodes": [{"host": "localhost", "port": "8108", "protocol": "http"}],
-    "connection_timeout_seconds": 2,
-}
+# SEARCH_BACKEND = "TYPESENSE"
+# TYPESENSE_CONNECTION = {
+#    "api_key": "xyz",
+#    "nodes": [{"host": "localhost", "port": "8108", "protocol": "http"}],
+#    "connection_timeout_seconds": 2,
+# }
+
+SEARCH_BACKEND = None
 
 DOWNLOADER_RETRIES = 3
 DOWNLOADER_SAVEDIR = None
