@@ -124,7 +124,9 @@ class MarkTest(TestCase):
     def setUp(self):
         self.book1 = Edition.objects.create(title="Hyperion")
         self.user1 = User.objects.create(mastodon_site="site", username="name")
-        pass
+        pref = self.user1.get_preference()
+        pref.default_visibility = 2
+        pref.save()
 
     def test_mark(self):
         mark = Mark(self.user1, self.book1)
@@ -132,7 +134,7 @@ class MarkTest(TestCase):
         self.assertEqual(mark.shelf_label, None)
         self.assertEqual(mark.text, None)
         self.assertEqual(mark.rating, None)
-        self.assertEqual(mark.visibility, None)
+        self.assertEqual(mark.visibility, 2)
         self.assertEqual(mark.review, None)
         self.assertEqual(mark.tags, [])
         mark.update(ShelfType.WISHLIST, "a gentle comment", 9, 1)
