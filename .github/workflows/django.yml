@@ -41,5 +41,5 @@ jobs:
         PGPASSWORD=admin123 psql template1 -U postgres -h localhost -c 'create extension hstore;'
     - name: Run Tests
       run: |
-        new_data_model=1 python manage.py makemigrations contenttypes auth mastodon users common management catalog journal social legacy
-        new_data_model=1 python manage.py test
+        python manage.py makemigrations contenttypes auth mastodon users common management catalog journal social legacy books movies games music collection
+        python manage.py test
