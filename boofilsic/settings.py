@@ -69,15 +69,6 @@ INSTALLED_APPS += [
     "legacy.apps.LegacyConfig",
 ]
 
-INSTALLED_APPS += [
-    "books.apps.BooksConfig",
-    "movies.apps.MoviesConfig",
-    "music.apps.MusicConfig",
-    "games.apps.GamesConfig",
-    "collection.apps.CollectionConfig",
-    "upgrade_0_5.apps.Upgrade05Config",
-]
-
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",

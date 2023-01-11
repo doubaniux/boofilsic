@@ -1,5 +1,0 @@
-<form hx-post="{% url 'collection:update_item_comment' collection.id collectionitem.id %}">
-		<input name="comment" value="{{ collectionitem.comment }}">
-		<input type="submit" style="width:unset;" value="修改">
-		<button style="width:unset;" hx-get="{% url 'collection:show_item_comment' collection.id collectionitem.id %}">取消</button>
-</form>

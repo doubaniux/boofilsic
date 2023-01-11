@@ -23,7 +23,7 @@ jobs:
     strategy:
       max-parallel: 4
       matrix:
-        python-version: ['3.10']
+        python-version: ['3.10', '3.11']
 
     steps:
     - uses: actions/checkout@v3
@@ -35,11 +35,7 @@ jobs:
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
-    - run: |
-        sudo apt-get update
-        sudo apt-get install --yes --no-install-recommends postgresql-client
-        PGPASSWORD=admin123 psql template1 -U postgres -h localhost -c 'create extension hstore;'
     - name: Run Tests
       run: |
-        python manage.py makemigrations contenttypes auth mastodon users common management catalog journal social legacy books movies games music collection
+        python manage.py makemigrations contenttypes auth mastodon users common management catalog journal social legacy
         python manage.py test
