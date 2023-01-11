@@ -120,9 +120,7 @@ class Content(Piece):
     visibility = models.PositiveSmallIntegerField(
         default=0
     )  # 0: Public / 1: Follower only / 2: Self only
-    created_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now_add=True  FIXME revert this after migration
+    created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(
         default=timezone.now
     )  # auto_now=True   FIXME revert this after migration
@@ -433,9 +431,7 @@ class ListMember(Piece):
     visibility = models.PositiveSmallIntegerField(
         default=0
     )  # 0: Public / 1: Follower only / 2: Self only
-    created_time = models.DateTimeField(
-        default=timezone.now
-    )  # auto_now_add=True  FIXME revert this after migration
+    created_time = models.DateTimeField(default=timezone.now)
     edited_time = models.DateTimeField(
         default=timezone.now
     )  # auto_now=True   FIXME revert this after migration

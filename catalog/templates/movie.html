@@ -156,7 +156,7 @@
 
 
 	{% if item.last_editor and item.last_editor.preference.show_last_edit  %}
-	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' 'fixme' %}">{{ item.last_editor | default:"" }}</a></div>
+	<div>{% trans '最近编辑者：' %}<a href="{% url 'journal:user_profile' item.last_editor.mastodon_username %}">{{ item.last_editor | default:"" }}</a></div>
 	{% endif %}
 
 	<div>
