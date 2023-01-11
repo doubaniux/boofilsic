@@ -37,6 +37,7 @@ INTERNAL_IPS = ["127.0.0.1"]
 # Application definition
 
 INSTALLED_APPS = [
+    "maintenance_mode",  # this has to be first
     "django.contrib.admin",
     "hijack",
     "hijack.contrib.admin",
@@ -51,18 +52,30 @@ INSTALLED_APPS = [
     "django_rq",
     "simple_history",
     "markdownx",
+    "polymorphic",
+    "easy_thumbnails",
+    "user_messages",
+    "jsoneditor",
+]
+
+INSTALLED_APPS += [
     "management.apps.ManagementConfig",
     "mastodon.apps.MastodonConfig",
     "common.apps.CommonConfig",
     "users.apps.UsersConfig",
-    "polymorphic",
     "catalog.apps.CatalogConfig",
     "journal.apps.JournalConfig",
     "social.apps.SocialConfig",
     "legacy.apps.LegacyConfig",
-    "easy_thumbnails",
-    "user_messages",
-    "jsoneditor",
+]
+
+INSTALLED_APPS += [
+    "books.apps.BooksConfig",
+    "movies.apps.MoviesConfig",
+    "music.apps.MusicConfig",
+    "games.apps.GamesConfig",
+    "collection.apps.CollectionConfig",
+    "upgrade_0_5.apps.Upgrade05Config",
 ]
 
 MIDDLEWARE = [
@@ -75,6 +88,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "hijack.middleware.HijackUserMiddleware",
     "simple_history.middleware.HistoryRequestMiddleware",
+    "maintenance_mode.middleware.MaintenanceModeMiddleware",  # this should be last
 ]
 
 ROOT_URLCONF = "boofilsic.urls"
@@ -329,6 +343,24 @@ RQ_QUEUES = {
         "DB": 0,
         "DEFAULT_TIMEOUT": -1,
     },
+    "import": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "DB": 0,
+        "DEFAULT_TIMEOUT": -1,
+    },
+    "fetch": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "DB": 0,
+        "DEFAULT_TIMEOUT": -1,
+    },
+    "crawl": {
+        "HOST": "localhost",
+        "PORT": 6379,
+        "DB": 0,
+        "DEFAULT_TIMEOUT": -1,
+    },
     "doufen": {
         "HOST": REDIS_HOST,
         "PORT": 6379,
@@ -358,3 +390,9 @@ SEARCH_BACKEND = None
 DOWNLOADER_RETRIES = 3
 DOWNLOADER_SAVEDIR = None
 DISABLE_MODEL_SIGNAL = False  # disable index and social feeds during importing/etc
+
+MAINTENANCE_MODE = False
+MAINTENANCE_MODE_IGNORE_ADMIN_SITE = True
+MAINTENANCE_MODE_IGNORE_SUPERUSER = True
+MAINTENANCE_MODE_IGNORE_ANONYMOUS_USER = True
+MAINTENANCE_MODE_IGNORE_URLS = (r"^/users/connect/", r"^/users/OAuth2_login/")
