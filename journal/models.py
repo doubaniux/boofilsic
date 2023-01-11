@@ -521,6 +521,7 @@ class ShelfLogEntry(models.Model):
     shelf = models.ForeignKey(
         Shelf, on_delete=models.CASCADE, related_name="entries", null=True
     )  # None means removed from any shelf
+    shelf_type = models.CharField(choices=ShelfType.choices, max_length=100, null=True)
     item = models.ForeignKey(Item, on_delete=models.PROTECT)
     timestamp = models.DateTimeField(
         default=timezone.now
@@ -593,7 +594,11 @@ class ShelfManager:
             if metadata is None:
                 metadata = last_metadata or {}
             ShelfLogEntry.objects.create(
-                owner=self.owner, shelf=shelf, item=item, metadata=metadata
+                owner=self.owner,
+                shelf_type=shelf_type,
+                shelf=shelf,
+                item=item,
+                metadata=metadata,
             )
         return new_shelfmember
 
