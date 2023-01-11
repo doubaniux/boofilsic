@@ -281,7 +281,7 @@ class Command(BaseCommand):
                             )
                             ShelfLogEntry.objects.create(
                                 owner_id=user_id,
-                                shelf_id=shelf,
+                                shelf_type=shelf.shelf_type,
                                 item_id=item_id,
                                 timestamp=created_time,
                             )
