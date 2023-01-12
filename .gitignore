@@ -12,11 +12,6 @@ __pycache__/
 # flake8
 tox.ini
 
-# ignore migrations for now
-migrations/
-
-# docs/
-
 # Local sqlite3 db
 *.sqlite3
 

@@ -37,5 +37,4 @@ jobs:
         pip install -r requirements.txt
     - name: Run Tests
       run: |
-        python manage.py makemigrations contenttypes auth mastodon users common management catalog journal social legacy
         python manage.py test
