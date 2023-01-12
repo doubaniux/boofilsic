@@ -11,18 +11,47 @@ class Migration(migrations.Migration):
     initial = True
 
     dependencies = [
-        ('journal', '0001_initial'),
+        ("journal", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='LocalActivity',
+            name="LocalActivity",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('visibility', models.PositiveSmallIntegerField(default=0)),
-                ('template', models.CharField(choices=[('mark_item', 'Markitem'), ('review_item', 'Reviewitem'), ('create_collection', 'Createcollection'), ('like_collection', 'Likecollection')], max_length=50)),
-                ('created_time', models.DateTimeField(db_index=True, default=django.utils.timezone.now)),
-                ('action_object', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='journal.piece')),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("visibility", models.PositiveSmallIntegerField(default=0)),
+                (
+                    "template",
+                    models.CharField(
+                        choices=[
+                            ("mark_item", "Markitem"),
+                            ("review_item", "Reviewitem"),
+                            ("create_collection", "Createcollection"),
+                            ("like_collection", "Likecollection"),
+                        ],
+                        max_length=50,
+                    ),
+                ),
+                (
+                    "created_time",
+                    models.DateTimeField(
+                        db_index=True, default=django.utils.timezone.now
+                    ),
+                ),
+                (
+                    "action_object",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, to="journal.piece"
+                    ),
+                ),
             ],
             bases=(models.Model, journal.mixins.UserOwnedObjectMixin),
         ),

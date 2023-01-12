@@ -11,17 +11,19 @@ class Migration(migrations.Migration):
 
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ('social', '0001_initial'),
+        ("social", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='localactivity',
-            name='owner',
-            field=models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL),
+            model_name="localactivity",
+            name="owner",
+            field=models.ForeignKey(
+                on_delete=django.db.models.deletion.CASCADE, to=settings.AUTH_USER_MODEL
+            ),
         ),
         migrations.AlterIndexTogether(
-            name='localactivity',
-            index_together={('owner', 'created_time')},
+            name="localactivity",
+            index_together={("owner", "created_time")},
         ),
     ]

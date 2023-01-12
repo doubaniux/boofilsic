@@ -7,68 +7,123 @@ class Migration(migrations.Migration):
 
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='AlbumLink',
+            name="AlbumLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('old_id', models.IntegerField(unique=True)),
-                ('new_uid', models.UUIDField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("old_id", models.IntegerField(unique=True)),
+                ("new_uid", models.UUIDField()),
             ],
         ),
         migrations.CreateModel(
-            name='BookLink',
+            name="BookLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('old_id', models.IntegerField(unique=True)),
-                ('new_uid', models.UUIDField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("old_id", models.IntegerField(unique=True)),
+                ("new_uid", models.UUIDField()),
             ],
         ),
         migrations.CreateModel(
-            name='CollectionLink',
+            name="CollectionLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('old_id', models.IntegerField(unique=True)),
-                ('new_uid', models.UUIDField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("old_id", models.IntegerField(unique=True)),
+                ("new_uid", models.UUIDField()),
             ],
         ),
         migrations.CreateModel(
-            name='GameLink',
+            name="GameLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('old_id', models.IntegerField(unique=True)),
-                ('new_uid', models.UUIDField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("old_id", models.IntegerField(unique=True)),
+                ("new_uid", models.UUIDField()),
             ],
         ),
         migrations.CreateModel(
-            name='MovieLink',
+            name="MovieLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('old_id', models.IntegerField(unique=True)),
-                ('new_uid', models.UUIDField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("old_id", models.IntegerField(unique=True)),
+                ("new_uid", models.UUIDField()),
             ],
         ),
         migrations.CreateModel(
-            name='SongLink',
+            name="SongLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('old_id', models.IntegerField(unique=True)),
-                ('new_uid', models.UUIDField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("old_id", models.IntegerField(unique=True)),
+                ("new_uid", models.UUIDField()),
             ],
         ),
         migrations.CreateModel(
-            name='ReviewLink',
+            name="ReviewLink",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('module', models.CharField(max_length=20)),
-                ('old_id', models.IntegerField()),
-                ('new_uid', models.UUIDField()),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("module", models.CharField(max_length=20)),
+                ("old_id", models.IntegerField()),
+                ("new_uid", models.UUIDField()),
             ],
             options={
-                'unique_together': {('module', 'old_id')},
+                "unique_together": {("module", "old_id")},
             },
         ),
     ]
