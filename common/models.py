@@ -271,6 +271,15 @@ class UserOwnedEntity(models.Model):
         attr = re.findall(r'[A-Z](?:[a-z]+|[A-Z]*(?=[A-Z]|$))', self.__class__.__name__)[0].lower()
         return getattr(self, attr)
 
+    @property
+    def url(self):
+        raise NotImplementedError
+
+    @property
+    def absolute_url(self):
+        """URL with host and protocol"""
+        return settings.APP_WEBSITE + self.url
+
 
 # commonly used entity classes
 ###################################
