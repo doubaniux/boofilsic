@@ -1,6 +1,5 @@
 from django.contrib.syndication.views import Feed
-from django.urls import reverse
-from books.models import BookReview
+from django.conf import settings
 from .models import User
 from markdown import markdown
 import operator
@@ -18,7 +17,7 @@ class ReviewFeed(Feed):
         return "%s的评论" % user.display_name
 
     def link(self, user):
-        return user.url
+        return settings.APP_WEBSITE + user.url
 
     def description(self, user):
         return "%s的评论合集 - NiceDB" % user.display_name
@@ -47,7 +46,7 @@ class ReviewFeed(Feed):
 
     # item_link is only needed if NewsItem has no get_absolute_url method.
     def item_link(self, item):
-        return item.url
+        return item.absolute_url
 
     def item_categories(self, item):
         return [item.item.verbose_category_name]
@@ -59,7 +58,7 @@ class ReviewFeed(Feed):
         return item.edited_time
 
     def item_enclosure_url(self, item):
-        return item.item.cover.url
+        return settings.APP_WEBSITE + item.item.cover.url
 
     def item_enclosure_mime_type(self, item):
         t, _ = mimetypes.guess_type(item.item.cover.url)

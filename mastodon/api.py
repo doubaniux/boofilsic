@@ -440,7 +440,7 @@ def share_review(review):
     else:
         visibility = TootVisibilityEnum.UNLISTED
     tags = '\n' + user.get_preference().mastodon_append_tag.replace('[category]', str(review.item.verbose_category_name)) if user.get_preference().mastodon_append_tag else ''
-    content = f"发布了关于《{review.item.title}》的评论\n{review.url}\n{review.title}{tags}"
+    content = f"发布了关于《{review.item.title}》的评论\n{review.absolute_url}\n{review.title}{tags}"
     update_id = None
     if review.shared_link:  # "https://mastodon.social/@username/1234567890"
         r = re.match(r'.+/(\w+)$', review.shared_link)  # might be re.match(r'.+/([^/]+)$', u) if Pleroma supports edit

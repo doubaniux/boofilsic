@@ -130,7 +130,7 @@ def export_marks_task(user, file = None):
         for review in reviews:
             title = review.title
             target = "《" + review.item.title + "》"
-            url = review.url
+            url = review.absolute_url
             timestamp = review.edited_time.strftime('%Y-%m-%d %H:%M:%S')
             my_rating = None  # (mark.rating / 2) if mark.rating else None
             content = review.content
