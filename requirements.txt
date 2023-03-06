@@ -9,6 +9,7 @@ django-simple-history
 django-hijack
 django-user-messages
 easy-thumbnails
+rq-scheduler
 lxml
 openpyxl
 psycopg2

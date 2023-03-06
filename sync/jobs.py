@@ -117,7 +117,7 @@ class DoufenParser:
                 start_row_index = self.__progress_row
 
             # parse data
-            tz = pytz.timezone('Asia/Shanghai')
+            tz = pytz.timezone(settings.TIME_ZONE)
             i = start_row_index
             for row in ws.iter_rows(min_row=start_row_index, max_row=max_row, values_only=True):
                 cells = [cell for cell in row]

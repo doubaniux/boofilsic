@@ -198,7 +198,7 @@ def swap_login(request, token, site, refresh_token):
                 current_user.mastodon_refresh_token = refresh_token
                 current_user.mastodon_account = data
                 current_user.save(update_fields=['username', 'mastodon_id', 'mastodon_site', 'mastodon_token', 'mastodon_refresh_token', 'mastodon_account'])
-                django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, current_user, token)
+                django_rq.get_queue('mastodon').enqueue(refresh_user_mastodon_data_task, current_user, token)
                 messages.add_message(request, messages.INFO, _(f'账号身份已更新为 {username}@{site}。'))
     else:
         messages.add_message(request, messages.ERROR, _('连接联邦网络获取身份信息失败。'))
@@ -209,7 +209,7 @@ def auth_login(request, user):
     """ Decorates django ``login()``. Attach token to session."""
     auth.login(request, user)
     if user.mastodon_last_refresh < timezone.now() - timedelta(hours=1) or user.mastodon_account == {}:
-        django_rq.get_queue('mastodon').enqueue(refresh_mastodon_data_task, user)
+        django_rq.get_queue('mastodon').enqueue(refresh_user_mastodon_data_task, user)
 
 
 def auth_logout(request):
