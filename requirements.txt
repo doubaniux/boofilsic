@@ -1,4 +1,6 @@
 coverage
+uvicorn
+gunicorn
 dateparser
 django~=3.2.16
 django-hstore
