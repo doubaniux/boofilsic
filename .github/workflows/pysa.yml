@@ -20,8 +20,6 @@ on:
     branches: [ "master" ]
   pull_request:
     branches: [ "master" ]
-  schedule:
-    - cron: '45 12 * * 4'
 
 permissions:
     contents: read
