@@ -7,7 +7,7 @@ permissions:
 
 jobs:
   to_codeberg:
-    if: github.repository_owner == 'neodb-social'
+    if: github.repository == 'neodb-social/neodb'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
