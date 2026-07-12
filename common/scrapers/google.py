@@ -1,20 +1,10 @@
 import requests
 import re
-import filetype
-from lxml import html
+from django.conf import settings
 from common.models import SourceSiteEnum
-from movies.models import Movie, MovieGenreEnum
-from movies.forms import MovieForm
 from books.models import Book
 from books.forms import BookForm
-from music.models import Album, Song
-from music.forms import AlbumForm, SongForm
-from games.models import Game
-from games.forms import GameForm
-from django.conf import settings
-from PIL import Image
-from io import BytesIO
-from common.scraper import *
+from common.scraper import AbstractScraper
 
 
 # https://developers.google.com/youtube/v3/docs/?apix=true
@@ -43,6 +33,8 @@ class GoogleBooksScraper(AbstractScraper):
             api_url = f'https://www.googleapis.com/books/v1/volumes/{m[1]}'
         else:
             raise ValueError("not valid url")
+        if settings.GOOGLE_API_KEY:
+            api_url += f"?key={settings.GOOGLE_API_KEY}"
         b = requests.get(api_url).json()
         other = {}
         title = b['volumeInfo']['title']
