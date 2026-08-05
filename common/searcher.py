@@ -88,8 +88,19 @@ class GoogleBooks:
     def search(self, q, page=1):
         results = []
         try:
-            api_url = f'https://www.googleapis.com/books/v1/volumes?country=us&q={quote_plus(q)}&startIndex={SEARCH_PAGE_SIZE*(page-1)}&maxResults={SEARCH_PAGE_SIZE}&maxAllowedMaturityRating=MATURE'
-            j = requests.get(api_url).json()
+            api_url = 'https://www.googleapis.com/books/v1/volumes'
+            params = {
+                'country': 'us',
+                'q': q,
+                'startIndex': SEARCH_PAGE_SIZE * (page - 1),
+                'maxResults': SEARCH_PAGE_SIZE,
+                'maxAllowedMaturityRating': 'MATURE',
+            }
+            if settings.GOOGLE_API_KEY:
+                params['key'] = settings.GOOGLE_API_KEY
+            response = requests.get(api_url, params=params, timeout=10)
+            response.raise_for_status()
+            j = response.json()
             if 'items' in j:
                 for b in j['items']:
                     if 'title' not in b['volumeInfo']:
